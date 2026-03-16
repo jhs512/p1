@@ -34,7 +34,7 @@ const TypingLine: React.FC<{ text: string; startFrame: number; charsPerSecond: n
   );
 };
 
-// 간단한 Java 토큰 컬러링 (int, String, boolean → #4ec9b0 / 숫자 → #b5cea8 / 변수 → #9cdcfe)
+// 간단한 Java 토큰 컬러링 (int, String, boolean → #4ec9b0 / 숫자 → #b5cea8)
 const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const parts = text.split(/(\bint\b|\bString\b|\bboolean\b|\b\d+\b)/g);
   return (
@@ -73,9 +73,9 @@ export const CodeBox: React.FC<CodeBoxProps> = ({
   >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine key={i} text={line.text} startFrame={startFrame} charsPerSecond={charsPerSecond} />
+        <TypingLine key={`new-${i}-${line.text}`} text={line.text} startFrame={startFrame} charsPerSecond={charsPerSecond} />
       ) : (
-        <StaticLine key={i} text={line.text} />
+        <StaticLine key={`static-${i}-${line.text}`} text={line.text} />
       )
     )}
   </div>
