@@ -7,8 +7,8 @@ import { Caption } from "../components/Caption";
 
 const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
-// "System.out.println(age);" = 26자 → Math.ceil(26/10*30) = 78프레임 후 완료
-const TYPING_DONE_FRAME = TYPING_START + Math.ceil(26 / CHARS_PER_SEC * 30);
+// "System.out.println(age);" = 24자 → Math.ceil(24/10*30) = 72프레임 후 완료 → frame 92
+const TYPING_DONE_FRAME = TYPING_START + Math.ceil(24 / CHARS_PER_SEC * 30);
 
 export const PrintScene: React.FC = () => {
   const frame = useCurrentFrame();
