@@ -15,7 +15,7 @@ import {
 import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE, PRONUNCIATION } from "../global.config";
+import { VOICE, RATE, PRONUNCIATION } from "../../global.config";
 import { AUDIO_CONFIG } from "./0002-audio";
 
 // sync.ts 가 이 파일을 esbuild 로 로드할 때 사용

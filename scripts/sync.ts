@@ -14,7 +14,7 @@
 
 import { buildSync } from "esbuild";
 import { createHash } from "crypto";
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
 import { spawnSync } from "child_process";
 import path from "path";
 
@@ -30,22 +30,33 @@ if (!compositionId) {
   process.exit(1);
 }
 
-// ── 컴포지션 파일 자동 탐색 ───────────────────────────────────
-const match = readdirSync(SRC_DIR).find(
-  (f) => f.startsWith(compositionId + "-") && f.endsWith(".tsx")
-);
-if (!match) {
-  console.error(`❌  ${SRC_DIR}/${compositionId}-*.tsx 파일을 찾을 수 없습니다.`);
+// ── 컴포지션 파일 자동 탐색 (서브폴더 재귀 탐색) ────────────────
+function findFile(dir: string, id: string): string | undefined {
+  for (const entry of readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      const found = findFile(full, id);
+      if (found) return found;
+    } else if (entry.startsWith(id + "-") && entry.endsWith(".tsx")) {
+      return full;
+    }
+  }
+  return undefined;
+}
+const foundFile = findFile(SRC_DIR, compositionId);
+if (!foundFile) {
+  console.error(`❌  ${SRC_DIR}/**/${compositionId}-*.tsx 파일을 찾을 수 없습니다.`);
   process.exit(1);
 }
-const COMPOSITION_FILE = path.join(SRC_DIR, match);
+const COMPOSITION_FILE = foundFile;
+const COMPOSITION_DIR  = path.dirname(foundFile);   // e.g. src/compositions/1
 const HASH_FILE = `.${compositionId}-audio-hashes.json`;
 console.log(`📄  ${COMPOSITION_FILE}\n`);
 
 // ── AUDIO_CONFIG 파일이 없으면 스텁 생성 (esbuild 번들 실패 방지) ──
 // VIDEO_CONFIG 로드 시 AUDIO_CONFIG 의 각 씬이 undefined 이면 오류 발생하므로
 // Proxy 기반 스텁으로 생성. 실제 값은 메인 루프 후 writeAudioConfig 로 덮어씀.
-const _audioConfigBootstrap = path.join(SRC_DIR, compositionId + "-audio.ts");
+const _audioConfigBootstrap = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
 if (!existsSync(_audioConfigBootstrap)) {
   writeFileSync(
     _audioConfigBootstrap,
@@ -152,7 +163,7 @@ function detectSplits(audioFile: string, sentenceCount: number): number[] {
 
 // ── AUDIO_CONFIG 파일 쓰기 ────────────────────────────────────
 function writeAudioConfig(config: Record<string, { durationInFrames: number; narrationSplits: number[] }>): void {
-  const audioConfigFile = path.join(SRC_DIR, compositionId + "-audio.ts");
+  const audioConfigFile = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
   const lines = Object.entries(config)
     .map(([k, v]) => `  ${k.padEnd(16)}: { durationInFrames: ${v.durationInFrames}, narrationSplits: [${v.narrationSplits.join(", ")}] },`)
     .join("\n");
@@ -166,7 +177,7 @@ const hashes = loadHashes();
 let changed = false;
 
 // 기존 AUDIO_CONFIG 로드 (skip된 씬의 값 보존용)
-const audioConfigFile = path.join(SRC_DIR, compositionId + "-audio.ts");
+const audioConfigFile = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
 let existingAudioConfig: Record<string, { durationInFrames: number; narrationSplits: number[] }> = {};
 if (existsSync(audioConfigFile)) {
   try {

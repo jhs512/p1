@@ -13,7 +13,7 @@ interface CompositionModule {
   Component: React.FC;
 }
 
-const ctx = require.context("./compositions", false, /\d+-.*\.tsx$/);
+const ctx = require.context("./compositions", true, /\d+-.*\.tsx$/);
 const modules = ctx
   .keys()
   .map((key: string) => {

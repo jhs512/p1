@@ -22,7 +22,7 @@ import {
 import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../global.config";
+import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../../global.config";
 import { AUDIO_CONFIG } from "./0001-audio";
 
 // 전역 설정 re-export (sync-audio.ts 가 esbuild 로 이 파일을 로드할 때 사용)
