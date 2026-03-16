@@ -19,8 +19,9 @@ const modules = ctx
   .map((key: string) => {
     const mod = ctx(key) as CompositionModule;
     const match = key.match(/(\d+)-/);
-    const numericId = match ? match[1] : mod.compositionMeta?.id;
-    return { mod, numericId };
+    // compositionMeta.id 를 우선 사용. 없으면 파일명에서 추출한 숫자 ID 사용.
+    const compositionId = mod.compositionMeta?.id ?? (match ? match[1] : undefined);
+    return { mod, numericId: compositionId };
   })
   .filter(({ mod }) => mod.compositionMeta && mod.VIDEO_CONFIG && mod.Component);
 

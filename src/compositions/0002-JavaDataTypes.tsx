@@ -424,7 +424,7 @@ const totalDuration = _from;
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  id: "JavaDataTypes",
+  id: "1/0002",
   fps: 30,
   width: 1080,
   height: 1920,

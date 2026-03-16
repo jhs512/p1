@@ -695,7 +695,7 @@ const totalDuration = _from;
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {
-  id: "JavaVariables",
+  id: "1/0001",
   fps: 30,
   width: 1080,
   height: 1920,
