@@ -79,7 +79,7 @@ export const PRONUNCIATION: Record<string, string> = {
 ## 컴포지션 ID 규칙
 
 - Root.tsx가 `require.context`로 자동 발견
-- ID 형식: `{seriesDir}/{episodeNum}` (예: `1/001`, `1/002`)
+- ID 형식: `{seriesDir}-{episodeNum}` (예: `1-001`, `1-002`)
 - Remotion Studio URL: `localhost:3000`
 
 ## 렌더링
@@ -89,8 +89,8 @@ export const PRONUNCIATION: Record<string, string> = {
 pnpm dev   # http://localhost:3000
 
 # 헤드리스 렌더링
-npx remotion render src/index.ts 1/001 out/001.mp4
-npx remotion render src/index.ts 1/002 out/002.mp4
+npx remotion render src/index.ts 1-001 out/001.mp4
+npx remotion render src/index.ts 1-002 out/002.mp4
 ```
 
 ## 씬 타이밍 상수

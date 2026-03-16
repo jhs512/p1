@@ -18,13 +18,13 @@ const modules = ctx
   .keys()
   .map((key: string) => {
     const mod = ctx(key) as CompositionModule;
-    // 경로에서 ID 직접 추출: "./1/001-JavaVariables.tsx" → "1/001"
-    // dir: "1",  episode prefix: "001"
+    // 경로에서 ID 추출: "./1/001-JavaVariables.tsx" → "1-001"
+    // Remotion ID는 a-z, A-Z, 0-9, - 만 허용 (슬래시 불가)
     const segments = key.replace(/^\.\//, "").split("/");
-    const dir      = segments.slice(0, -1).join("/");           // "1"
+    const dir      = segments.slice(0, -1).join("-");           // "1"
     const epMatch  = segments[segments.length - 1].match(/^(\d+)-/);
     const ep       = epMatch ? epMatch[1] : segments[segments.length - 1];
-    const compositionId = dir ? `${dir}/${ep}` : ep;
+    const compositionId = dir ? `${dir}-${ep}` : ep;            // "1-001"
     return { mod, numericId: compositionId };
   })
   .filter(({ mod }) => mod.compositionMeta && mod.VIDEO_CONFIG && mod.Component);
