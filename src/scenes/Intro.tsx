@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { uiFont } from "../fonts";
 
 export const Intro: React.FC = () => {
@@ -16,6 +16,7 @@ export const Intro: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", justifyContent: "center", alignItems: "center", flexDirection: "column", gap: 24 }}>
+      <Audio src={staticFile("intro.mp3")} />
       <div style={{ fontFamily: uiFont, fontSize: 52, fontWeight: 700, color: "#ffffff", opacity: titleOpacity }}>
         Java 변수란?
       </div>

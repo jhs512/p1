@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { CodeBox } from "../components/CodeBox";
 import { ConsoleOutput } from "../components/ConsoleOutput";
 import { SceneTitle } from "../components/SceneTitle";
@@ -20,6 +20,7 @@ export const PrintScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeOut }}>
+      <Audio src={staticFile("scene3.mp3")} />
       <SceneTitle title="3. 변수 출력 (Print)" />
       <CodeBox
         lines={[

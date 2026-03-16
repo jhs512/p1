@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { CodeBox } from "../components/CodeBox";
 import { SceneTitle } from "../components/SceneTitle";
 import { Caption } from "../components/Caption";
@@ -19,6 +19,7 @@ export const InitScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeOut }}>
+      <Audio src={staticFile("scene2.mp3")} />
       <SceneTitle title="2. 변수 초기화 (Initialization)" />
       <CodeBox
         lines={[

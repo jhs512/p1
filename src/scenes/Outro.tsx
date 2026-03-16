@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { uiFont } from "../fonts";
 
 export const Outro: React.FC = () => {
@@ -23,6 +23,7 @@ export const Outro: React.FC = () => {
         opacity: screenFade,
       }}
     >
+      <Audio src={staticFile("outro.mp3")} />
       <div
         style={{
           fontFamily: uiFont,
