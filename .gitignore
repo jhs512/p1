@@ -3,5 +3,17 @@ dist
 .DS_Store
 .env
 
-# Ignore the output video from Git but not videos you import into src/.
+# 렌더링 결과물
 out
+
+# sync 스크립트 해시 캐시 (자동 생성)
+.*-audio-hashes.json
+.audio-hashes.json
+
+# 툴 내부 디렉토리
+.claude/
+.superpowers/
+docs/superpowers/
+
+# 임시 파일
+thumbnail-preview.html
