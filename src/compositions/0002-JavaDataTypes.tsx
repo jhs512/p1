@@ -388,20 +388,235 @@ const BooleanToggleAnim: React.FC<{
   );
 };
 
-// ── 빈 씬 플레이스홀더 ─────────────────────────────────────────
+// ── 씬: ThumbnailScene ───────────────────────────────────────
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#050510", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: uiFont, fontSize: 120, fontWeight: 900, color: "#fff", textAlign: "center" }}>
+  <AbsoluteFill style={{
+    background: "#050510",
+    alignItems: "center", justifyContent: "center",
+    flexDirection: "column", gap: 24,
+  }}>
+    <div style={{
+      position: "absolute", width: 900, height: 900, borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+      top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+    }} />
+    <div style={{
+      fontFamily: uiFont, fontSize: 28, fontWeight: 700,
+      color: "#4ec9b0", letterSpacing: 10, opacity: 0.8,
+    }}>
+      JAVA
+    </div>
+    <div style={{
+      fontFamily: uiFont, fontSize: 140, fontWeight: 900,
+      lineHeight: 1, textAlign: "center", color: "#ffffff",
+      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+    }}>
       Java<br /><span style={{ color: "#4ec9b0" }}>자료형</span>
+    </div>
+    <div style={{
+      fontFamily: uiFont, fontSize: 32, color: "#4ec9b0",
+      letterSpacing: 4, opacity: 0.7,
+    }}>
+      int · double · String · boolean
     </div>
   </AbsoluteFill>
 );
 
-const PlaceholderScene: React.FC<{ label: string }> = ({ label }) => (
-  <AbsoluteFill style={{ background: "#1e1e1e", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: uiFont, fontSize: 60, color: "#fff" }}>{label}</div>
-  </AbsoluteFill>
-);
+// ── 씬: IntroScene ────────────────────────────────────────────
+const IntroScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { intro } = VIDEO_CONFIG;
+  const d = intro.durationInFrames;
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const boxes = [
+    { label: "int",     color: TYPE_COLORS.int },
+    { label: "double",  color: TYPE_COLORS.double },
+    { label: "String",  color: TYPE_COLORS.String },
+    { label: "boolean", color: TYPE_COLORS.boolean },
+  ];
+
+  return (
+    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <Audio src={staticFile(intro.audio)} />
+      <div style={{
+        position: "absolute", top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28,
+      }}>
+        {boxes.map(({ label, color }, i) => {
+          const delay = i * 5;
+          const appear = spring({
+            frame: frame - delay, fps,
+            config: { damping: 14, stiffness: 140 },
+            durationInFrames: 35,
+          });
+          const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
+            extrapolateLeft: "clamp", extrapolateRight: "clamp",
+          });
+          return (
+            <div key={label} style={{
+              transform: `scale(${boxScale})`, opacity: appear,
+              border: `4px solid ${color}`, borderRadius: 20,
+              width: 220, height: 150,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: `${color}1a`,
+            }}>
+              <span style={{
+                fontFamily: monoFont, fontSize: 38,
+                fontWeight: 700, color,
+              }}>
+                {label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <Subtitle
+        sentences={intro.narration}
+        durationInFrames={d}
+        splits={intro.narrationSplits}
+      />
+    </AbsoluteFill>
+  );
+};
+
+// ── 씬: TypeScene (int / double / String 공통) ─────────────────
+const TYPE_SCENE_DATA = {
+  intScene: {
+    code: "int age = 25;",
+    value: "25",
+    color: TYPE_COLORS.int,
+    label: "int",
+  },
+  doubleScene: {
+    code: "double height = 175.5;",
+    value: "175.5",
+    color: TYPE_COLORS.double,
+    label: "double",
+  },
+  stringScene: {
+    code: 'String name = "Java";',
+    value: '"Java"',
+    color: TYPE_COLORS.String,
+    label: "String",
+  },
+} as const;
+
+const TypeScene: React.FC<{
+  sceneKey: keyof typeof TYPE_SCENE_DATA;
+  config: { audio: string; durationInFrames: number; narration: string[]; narrationSplits: readonly number[] };
+}> = ({ sceneKey, config }) => {
+  const frame = useCurrentFrame();
+  const d = config.durationInFrames;
+  const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
+
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropStart = typingDone(code.length);
+
+  return (
+    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <Audio src={staticFile(config.audio)} />
+      <div style={{
+        position: "absolute", top: "30%", left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}>
+        <TypeBox
+          color={color}
+          value={value}
+          label={label}
+          startFrame={10}
+          dropStartFrame={dropStart}
+        />
+      </div>
+      <CodeBox
+        lines={[{ text: code, isNew: true }]}
+        startFrame={TYPING_START}
+      />
+      <Subtitle
+        sentences={config.narration}
+        durationInFrames={d}
+        splits={config.narrationSplits}
+      />
+    </AbsoluteFill>
+  );
+};
+
+// ── 씬: BooleanScene ──────────────────────────────────────────
+const BooleanScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { booleanScene } = VIDEO_CONFIG;
+  const d = booleanScene.durationInFrames;
+  const code = "boolean isStudent = true;";
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropStart = typingDone(code.length);
+
+  return (
+    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <Audio src={staticFile(booleanScene.audio)} />
+      <div style={{
+        position: "absolute", top: "30%", left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}>
+        <BooleanToggleAnim startFrame={10} dropStartFrame={dropStart} />
+      </div>
+      <CodeBox
+        lines={[{ text: code, isNew: true }]}
+        startFrame={TYPING_START}
+      />
+      <Subtitle
+        sentences={booleanScene.narration}
+        durationInFrames={d}
+        splits={booleanScene.narrationSplits}
+      />
+    </AbsoluteFill>
+  );
+};
+
+// ── 씬: SummaryScene ─────────────────────────────────────────
+const SUMMARY_LINES = [
+  "int age = 25;",
+  "double height = 175.5;",
+  'String name = "Java";',
+  "boolean isStudent = true;",
+];
+
+const SummaryScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { summaryScene } = VIDEO_CONFIG;
+  const d = summaryScene.durationInFrames;
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const quarter = Math.floor(d / 4);
+  const segDuration = (i: number) => (i < 3 ? quarter : d - 3 * quarter);
+
+  return (
+    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <Audio src={staticFile(summaryScene.audio)} />
+      {[0, 1, 2, 3].map((i) => (
+        <Sequence key={i} from={i * quarter} durationInFrames={segDuration(i)}>
+          <CodeBox
+            lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
+              text,
+              isNew: j === i,
+            }))}
+            startFrame={0}
+          />
+        </Sequence>
+      ))}
+      <Subtitle
+        sentences={summaryScene.narration}
+        durationInFrames={d}
+        splits={summaryScene.narrationSplits}
+      />
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬 목록 + fromValues 계산 ─────────────────────────────────
 const sceneList = [
@@ -438,22 +653,22 @@ export const JavaDataTypes: React.FC = () => (
       <ThumbnailScene />
     </Sequence>
     <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
-      <PlaceholderScene label="Intro" />
+      <IntroScene />
     </Sequence>
     <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}>
-      <PlaceholderScene label="int" />
+      <TypeScene sceneKey="intScene" config={VIDEO_CONFIG.intScene} />
     </Sequence>
     <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}>
-      <PlaceholderScene label="double" />
+      <TypeScene sceneKey="doubleScene" config={VIDEO_CONFIG.doubleScene} />
     </Sequence>
     <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}>
-      <PlaceholderScene label="String" />
+      <TypeScene sceneKey="stringScene" config={VIDEO_CONFIG.stringScene} />
     </Sequence>
     <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
-      <PlaceholderScene label="boolean" />
+      <BooleanScene />
     </Sequence>
     <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
-      <PlaceholderScene label="Summary" />
+      <SummaryScene />
     </Sequence>
   </AbsoluteFill>
 );
