@@ -23,7 +23,7 @@ import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../../global.config";
-import { AUDIO_CONFIG } from "./0001-audio";
+import { AUDIO_CONFIG } from "./001-audio";
 
 // 전역 설정 re-export (sync-audio.ts 가 esbuild 로 이 파일을 로드할 때 사용)
 export { VOICE, RATE, PRONUNCIATION };
@@ -695,7 +695,7 @@ const totalDuration = _from;
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {
-  id: "1/0001",
+  id: "1/001",
   fps: 30,
   width: 1080,
   height: 1920,

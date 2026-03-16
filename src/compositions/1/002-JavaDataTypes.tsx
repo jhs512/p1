@@ -16,7 +16,7 @@ import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { VOICE, RATE, PRONUNCIATION } from "../../global.config";
-import { AUDIO_CONFIG } from "./0002-audio";
+import { AUDIO_CONFIG } from "./002-audio";
 
 // sync.ts 가 이 파일을 esbuild 로 로드할 때 사용
 export { VOICE, RATE, PRONUNCIATION };
@@ -628,7 +628,7 @@ const totalDuration = _from;
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  id: "1/0002",
+  id: "1/002",
   fps: 30,
   width: 1080,
   height: 1920,
