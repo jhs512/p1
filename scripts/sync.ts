@@ -14,7 +14,7 @@
 
 import { buildSync } from "esbuild";
 import { createHash } from "crypto";
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
 import { spawnSync } from "child_process";
 import path from "path";
 
@@ -24,33 +24,29 @@ const PUBLIC_DIR = "public";
 const SRC_DIR = "src/compositions";
 
 // ── CLI 인수 ───────────────────────────────────────────────────
-const compositionId = process.argv[2];
-if (!compositionId) {
-  console.error("Usage: pnpm sync <compositionId>   e.g.  pnpm sync 0001");
+// 형식: "1/001"  (시리즈/에피소드)
+const arg = process.argv[2];
+if (!arg) {
+  console.error("Usage: pnpm sync <series>/<id>   e.g.  pnpm sync 1/001");
   process.exit(1);
 }
+const argParts   = arg.split("/");
+const episodeId  = argParts[argParts.length - 1];          // "001"
+const SERIES_DIR = path.join(SRC_DIR, ...argParts.slice(0, -1)); // "src/compositions/1"
+// compositionId 는 에피소드 ID (파일명 prefix, audio config 키)
+const compositionId = episodeId;
 
-// ── 컴포지션 파일 자동 탐색 (서브폴더 재귀 탐색) ────────────────
-function findFile(dir: string, id: string): string | undefined {
-  for (const entry of readdirSync(dir)) {
-    const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      const found = findFile(full, id);
-      if (found) return found;
-    } else if (entry.startsWith(id + "-") && entry.endsWith(".tsx")) {
-      return full;
-    }
-  }
-  return undefined;
-}
-const foundFile = findFile(SRC_DIR, compositionId);
-if (!foundFile) {
-  console.error(`❌  ${SRC_DIR}/**/${compositionId}-*.tsx 파일을 찾을 수 없습니다.`);
+// ── 컴포지션 파일 탐색 (지정된 시리즈 폴더에서만) ────────────────
+const matchEntry = readdirSync(SERIES_DIR).find(
+  (f) => f.startsWith(episodeId + "-") && f.endsWith(".tsx")
+);
+if (!matchEntry) {
+  console.error(`❌  ${SERIES_DIR}/${episodeId}-*.tsx 파일을 찾을 수 없습니다.`);
   process.exit(1);
 }
-const COMPOSITION_FILE = foundFile;
-const COMPOSITION_DIR  = path.dirname(foundFile);   // e.g. src/compositions/1
-const HASH_FILE = `.${compositionId}-audio-hashes.json`;
+const COMPOSITION_FILE = path.join(SERIES_DIR, matchEntry);
+const COMPOSITION_DIR  = SERIES_DIR;
+const HASH_FILE = `.${arg.replace("/", "-")}-audio-hashes.json`; // e.g. .1-001-audio-hashes.json
 console.log(`📄  ${COMPOSITION_FILE}\n`);
 
 // ── AUDIO_CONFIG 파일이 없으면 스텁 생성 (esbuild 번들 실패 방지) ──
