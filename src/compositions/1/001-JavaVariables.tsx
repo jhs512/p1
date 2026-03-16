@@ -25,7 +25,7 @@ import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../../global.config";
 import { AUDIO_CONFIG } from "./001-audio";
 
-// 전역 설정 re-export (sync-audio.ts 가 esbuild 로 이 파일을 로드할 때 사용)
+// 전역 설정 re-export (sync.ts 가 esbuild 로 이 파일을 로드할 때 사용)
 export { VOICE, RATE, PRONUNCIATION };
 
 // ── 타입 ─────────────────────────────────────────────────────
@@ -33,9 +33,6 @@ export interface CodeLine {
   text: string;
   isNew: boolean;
 }
-
-/** 음성 길이(초) → 장면 프레임 수 (꼬리 여유 포함). 나중을 위해 유지. */
-export const f = (secs: number) => Math.ceil(secs * 30) + SCENE_TAIL_FRAMES;
 
 /** 코드 라인 — 한 곳에서만 정의 */
 const ALL_CODE = [
@@ -48,7 +45,7 @@ const codeUpTo = (n: number): CodeLine[] =>
   ALL_CODE.slice(0, n).map((text, i) => ({ text, isNew: i === n - 1 }));
 
 // ── 씬 데이터 ─────────────────────────────────────────────────
-// durationInFrames / narrationSplits 는 AUDIO_CONFIG (0001-audio.ts) 에서 자동 관리됩니다.
+// durationInFrames / narrationSplits 는 AUDIO_CONFIG (001-audio.ts) 에서 자동 관리됩니다.
 export const VIDEO_CONFIG = {
   thumbnail: {
     durationInFrames: 30,

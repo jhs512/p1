@@ -1,4 +1,3 @@
-// src/compositions/0002-JavaDataTypes.tsx
 import React from "react";
 import {
   AbsoluteFill,
