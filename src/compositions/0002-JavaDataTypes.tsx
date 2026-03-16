@@ -15,7 +15,7 @@ import {
 import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../global.config";
+import { VOICE, RATE, PRONUNCIATION } from "../global.config";
 import { AUDIO_CONFIG } from "./0002-audio";
 
 // sync.ts 가 이 파일을 esbuild 로 로드할 때 사용
@@ -149,17 +149,6 @@ function useTypingEffect(
     isDone: charsVisible >= text.length,
   };
 }
-
-// ── 컴포넌트: SceneTitle ──────────────────────────────────────
-const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{
-    position: "absolute", top: 160, left: 0, right: 0,
-    textAlign: "center", fontFamily: uiFont, fontSize: 42,
-    fontWeight: 700, color: "#ffffff", letterSpacing: 1,
-  }}>
-    {title}
-  </div>
-);
 
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
