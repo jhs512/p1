@@ -628,7 +628,6 @@ const totalDuration = _from;
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  id: "1/002",
   fps: 30,
   width: 1080,
   height: 1920,

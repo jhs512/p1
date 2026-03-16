@@ -8,7 +8,7 @@ import { Composition } from "remotion";
 //   export const Component: React.FC = ...
 
 interface CompositionModule {
-  compositionMeta: { id: string; fps: number; width: number; height: number; durationInFrames?: number };
+  compositionMeta: { fps: number; width: number; height: number; durationInFrames?: number };
   VIDEO_CONFIG: Record<string, { durationInFrames: number }>;
   Component: React.FC;
 }
@@ -18,9 +18,13 @@ const modules = ctx
   .keys()
   .map((key: string) => {
     const mod = ctx(key) as CompositionModule;
-    const match = key.match(/(\d+)-/);
-    // compositionMeta.id 를 우선 사용. 없으면 파일명에서 추출한 숫자 ID 사용.
-    const compositionId = mod.compositionMeta?.id ?? (match ? match[1] : undefined);
+    // 경로에서 ID 직접 추출: "./1/001-JavaVariables.tsx" → "1/001"
+    // dir: "1",  episode prefix: "001"
+    const segments = key.replace(/^\.\//, "").split("/");
+    const dir      = segments.slice(0, -1).join("/");           // "1"
+    const epMatch  = segments[segments.length - 1].match(/^(\d+)-/);
+    const ep       = epMatch ? epMatch[1] : segments[segments.length - 1];
+    const compositionId = dir ? `${dir}/${ep}` : ep;
     return { mod, numericId: compositionId };
   })
   .filter(({ mod }) => mod.compositionMeta && mod.VIDEO_CONFIG && mod.Component);
