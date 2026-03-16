@@ -109,8 +109,8 @@ let monoFont = "JetBrains Mono, monospace";
 let uiFont = "Noto Sans KR, sans-serif";
 
 if (typeof window !== "undefined") {
-  const _jb = loadJetBrains();
-  const _ns = loadNotoSans();
+  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
+  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
   monoFont = _jb.fontFamily;
   uiFont = _ns.fontFamily;
   const _fontHandle = delayRender("Loading Google Fonts");
@@ -405,7 +405,7 @@ const IntroScene: React.FC = () => {
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(intro.audio)} />
       <BoxMetaphorAnim />
-      <Subtitle sentences={intro.narration} durationInFrames={d} splits={intro.narrationSplits} />
+      <Subtitle sentences={intro.narration} durationInFrames={d} splits={intro.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.intro.sentenceEndFrames} speechStart={AUDIO_CONFIG.intro.speechStartFrame} speechEnd={AUDIO_CONFIG.intro.speechEndFrame} wordStartFrames={AUDIO_CONFIG.intro.wordStartFrames} />
     </AbsoluteFill>
   );
 };
@@ -415,18 +415,22 @@ const IntroScene: React.FC = () => {
 const Subtitle: React.FC<{
   sentences: string[];
   durationInFrames: number;
-  splits?: readonly number[]; // 각 문장(2번째~)이 시작하는 프레임. ffprobe 무음 감지 실측값.
-}> = ({ sentences, durationInFrames, splits }) => {
+  splits?: readonly number[];                         // 각 문장(2번째~) 시작 프레임
+  sentenceEndFrames?: readonly number[];              // 각 문장 발화 종료 프레임
+  speechStart?: number;                              // 첫 문장 시작 프레임
+  speechEnd?: number;                                // 마지막 문장 발화 종료 프레임
+  wordStartFrames?: readonly (readonly number[])[];  // TTS 단어 경계 프레임 (문장별)
+}> = ({ sentences, durationInFrames, splits, sentenceEndFrames, speechStart = 0, speechEnd, wordStartFrames }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
+
+  // 문장별 표시 구간 계산
   const ranges = sentences.map((_, i) => {
     if (splits && splits.length >= sentences.length - 1) {
-      // 실측 splits 사용
-      const start = i === 0 ? 0 : splits[i - 1];
+      const start = i === 0 ? speechStart : splits[i - 1];
       const end   = i < splits.length ? splits[i] : durationInFrames;
       return { start, end };
     }
-    // fallback: 글자 수 비례
     const totalChars = sentences.reduce((sum, s) => sum + s.length, 0);
     let cumulative = 0;
     sentences.slice(0, i).forEach((s) => { cumulative += s.length; });
@@ -442,6 +446,40 @@ const Subtitle: React.FC<{
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+
+  const sentence = sentences[currentIdx];
+  const words = sentence.split(" ");
+
+  // 현재 하이라이트할 display word 인덱스 결정
+  let activeDisplayIdx = -1;
+  const wFrames = wordStartFrames?.[currentIdx];
+  if (wFrames && wFrames.length > 0) {
+    // TTS 단어 경계 기반 (edge-tts VTT에서 추출한 정확한 타이밍)
+    let ttsIdx = -1;
+    for (let j = 0; j < wFrames.length; j++) {
+      if (frame >= wFrames[j]) ttsIdx = j;
+      else break;
+    }
+    if (ttsIdx >= 0) {
+      const ratio = ttsIdx / Math.max(1, wFrames.length - 1);
+      activeDisplayIdx = Math.min(words.length - 1, Math.floor(ratio * words.length));
+    }
+  } else {
+    // fallback: 글자 수 비례 (TTS 타이밍 없을 때)
+    const sentenceActualEnd =
+      sentenceEndFrames && currentIdx < sentenceEndFrames.length
+        ? sentenceEndFrames[currentIdx]
+        : (currentIdx === sentences.length - 1 && speechEnd != null ? speechEnd : ranges[currentIdx].end);
+    const progress = Math.min(1, Math.max(0, (frame - start) / Math.max(1, sentenceActualEnd - start)));
+    const totalChars = words.reduce((sum, w) => sum + w.length, 0);
+    let cumChars = 0;
+    for (let j = 0; j < words.length; j++) {
+      const wStart = cumChars / totalChars;
+      cumChars += words[j].length;
+      if (progress >= wStart) activeDisplayIdx = j;
+    }
+  }
+
   return (
     <div
       style={{
@@ -452,7 +490,6 @@ const Subtitle: React.FC<{
         textAlign: "center",
         fontFamily: uiFont,
         fontSize: 32,
-        color: "#ffffff",
         opacity,
         background: "rgba(0,0,0,0.55)",
         borderRadius: 6,
@@ -461,10 +498,20 @@ const Subtitle: React.FC<{
         width: "max-content",
         maxWidth: compositionWidth - 20,
         wordBreak: "keep-all",
-        whiteSpace: "pre-line",
+        whiteSpace: "pre-wrap",
       }}
     >
-      {sentences[currentIdx]}
+      {words.map((word, i) => {
+        const isActive = i === activeDisplayIdx;
+        const isSpoken = i < activeDisplayIdx;
+        const color = isActive ? "#4ec9b0" : isSpoken ? "#ffffff" : "rgba(255,255,255,0.45)";
+        return (
+          <React.Fragment key={i}>
+            <span style={{ color }}>{word}</span>
+            {i < words.length - 1 && " "}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };
@@ -532,11 +579,10 @@ const ThumbnailScene: React.FC = () => (
   </AbsoluteFill>
 );
 
-const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
 const CROSS = 20; // 크로스페이드 프레임 수
-const typingDone = (chars: number) =>
-  TYPING_START + Math.ceil((chars / CHARS_PER_SEC) * 30);
+const typingDone = (chars: number, speechStart: number) =>
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
 const { thumbnail, intro, declaration, initialization, print } = VIDEO_CONFIG;
 
@@ -614,8 +660,8 @@ const CombinedDeclarationInitScene: React.FC = () => {
   const fadeIn = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const emptyBoxStart = typingDone("int age;".length);
-  const fillBoxStart = SPLIT + typingDone("age = 25;".length);
+  const emptyBoxStart = typingDone("int age;".length, AUDIO_CONFIG.declaration.speechStartFrame);
+  const fillBoxStart = SPLIT + typingDone("age = 25;".length, AUDIO_CONFIG.initialization.speechStartFrame);
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
@@ -637,10 +683,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
       {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
       <Sequence durationInFrames={SPLIT}>
-        <CodeBox lines={declaration.code} startFrame={TYPING_START} />
+        <CodeBox lines={declaration.code} startFrame={AUDIO_CONFIG.declaration.speechStartFrame} />
       </Sequence>
       <Sequence from={SPLIT}>
-        <CodeBox lines={initialization.code} startFrame={TYPING_START} />
+        <CodeBox lines={initialization.code} startFrame={AUDIO_CONFIG.initialization.speechStartFrame} />
       </Sequence>
 
       {/* 박스: 전 구간에 걸쳐 살아있는 단일 박스 */}
@@ -648,10 +694,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
       {/* 자막 */}
       <Sequence durationInFrames={SPLIT}>
-        <Subtitle sentences={declaration.narration} durationInFrames={SPLIT} splits={declaration.narrationSplits} />
+        <Subtitle sentences={declaration.narration} durationInFrames={SPLIT} splits={declaration.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.declaration.sentenceEndFrames} speechStart={AUDIO_CONFIG.declaration.speechStartFrame} speechEnd={AUDIO_CONFIG.declaration.speechEndFrame} wordStartFrames={AUDIO_CONFIG.declaration.wordStartFrames} />
       </Sequence>
       <Sequence from={SPLIT}>
-        <Subtitle sentences={initialization.narration} durationInFrames={initialization.durationInFrames} splits={initialization.narrationSplits} />
+        <Subtitle sentences={initialization.narration} durationInFrames={initialization.durationInFrames} splits={initialization.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.initialization.sentenceEndFrames} speechStart={AUDIO_CONFIG.initialization.speechStartFrame} speechEnd={AUDIO_CONFIG.initialization.speechEndFrame} wordStartFrames={AUDIO_CONFIG.initialization.wordStartFrames} />
       </Sequence>
     </AbsoluteFill>
   );
@@ -666,14 +712,15 @@ const PrintScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const newLine = print.code.find((l) => l.isNew)!;
-  const consoleStart = typingDone(newLine.text.length);
+  const s = AUDIO_CONFIG.print.speechStartFrame;
+  const consoleStart = typingDone(newLine.text.length, s);
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(print.audio)} />
       <SceneTitle title={print.title} />
-      <CodeBox lines={print.code} startFrame={TYPING_START} />
+      <CodeBox lines={print.code} startFrame={s} />
       <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
-      <Subtitle sentences={print.narration} durationInFrames={d} splits={print.narrationSplits} />
+      <Subtitle sentences={print.narration} durationInFrames={d} splits={print.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.print.sentenceEndFrames} speechStart={s} speechEnd={AUDIO_CONFIG.print.speechEndFrame} wordStartFrames={AUDIO_CONFIG.print.wordStartFrames} />
     </AbsoluteFill>
   );
 };

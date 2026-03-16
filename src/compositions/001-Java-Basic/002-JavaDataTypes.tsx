@@ -23,11 +23,10 @@ export { VOICE, RATE, PRONUNCIATION };
 
 // ── 상수 ─────────────────────────────────────────────────────
 const CROSS = 20;
-const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
 
-const typingDone = (chars: number) =>
-  TYPING_START + Math.ceil((chars / CHARS_PER_SEC) * 30);
+const typingDone = (chars: number, speechStart: number) =>
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
 const TYPE_COLORS: Record<string, string> = {
   int:     "#4e9cd5",
@@ -41,8 +40,8 @@ let monoFont = "JetBrains Mono, monospace";
 let uiFont   = "Noto Sans KR, sans-serif";
 
 if (typeof window !== "undefined") {
-  const _jb = loadJetBrains();
-  const _ns = loadNotoSans();
+  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
+  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
   monoFont = _jb.fontFamily;
   uiFont   = _ns.fontFamily;
   const _h = delayRender("Loading Google Fonts");
@@ -59,15 +58,17 @@ export const VIDEO_CONFIG = {
   intro: {
     audio: "dt-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: [
-      "자료형이란 변수에 저장할 수 있는 데이터의 종류입니다.",
-      "Java에는 네 가지 핵심 자료형이 있습니다.",
+      "자료형이란 자료의 형태, 즉 데이터의 형태입니다.",
+      "Java의 주요 자료형 4개를 알아보겠습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   intScene: {
     audio: "dt-int.mp3",
     durationInFrames: AUDIO_CONFIG.intScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
     narration: [
       "int는 정수를 저장하는 자료형입니다.",
       "나이나 개수처럼 소수점이 없는 숫자에 사용합니다.",
@@ -77,6 +78,7 @@ export const VIDEO_CONFIG = {
   doubleScene: {
     audio: "dt-double.mp3",
     durationInFrames: AUDIO_CONFIG.doubleScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
     narration: [
       "double은 소수점이 있는 실수를 저장합니다.",
       "키나 무게처럼 정밀한 값이 필요할 때 사용합니다.",
@@ -86,8 +88,10 @@ export const VIDEO_CONFIG = {
   stringScene: {
     audio: "dt-string.mp3",
     durationInFrames: AUDIO_CONFIG.stringScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
     narration: [
       "String은 문자열을 저장합니다.",
+      "정확히는 저장이 아닌 참조이지만 지금은 그렇게 이해해도 괜찮습니다.",
       "이름이나 메시지처럼 텍스트를 담을 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
@@ -95,6 +99,7 @@ export const VIDEO_CONFIG = {
   booleanScene: {
     audio: "dt-boolean.mp3",
     durationInFrames: AUDIO_CONFIG.booleanScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
     narration: [
       "boolean은 참 또는 거짓만 저장하는 자료형입니다.",
       "조건 검사 결과를 담을 때 사용합니다.",
@@ -104,8 +109,9 @@ export const VIDEO_CONFIG = {
   summaryScene: {
     audio: "dt-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: [
-      "네 가지 자료형을 코드로 정리해봤습니다.",
+      "네 가지 자료형을 코드로 정리하면 이렇습니다.",
       "상황에 맞는 자료형을 선택하는 것이 중요합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
@@ -197,12 +203,16 @@ const Subtitle: React.FC<{
   sentences: string[];
   durationInFrames: number;
   splits?: readonly number[];
-}> = ({ sentences, durationInFrames, splits }) => {
+  sentenceEndFrames?: readonly number[];
+  speechStart?: number;
+  speechEnd?: number;
+  wordStartFrames?: readonly (readonly number[])[];
+}> = ({ sentences, durationInFrames, splits, sentenceEndFrames, speechStart = 0, speechEnd, wordStartFrames }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
   const ranges = sentences.map((_, i) => {
     if (splits && splits.length >= sentences.length - 1) {
-      const start = i === 0 ? 0 : splits[i - 1];
+      const start = i === 0 ? speechStart : splits[i - 1];
       const end   = i < splits.length ? splits[i] : durationInFrames;
       return { start, end };
     }
@@ -220,17 +230,58 @@ const Subtitle: React.FC<{
   const opacity = interpolate(frame, [start, start + 12], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
+
+  const sentence = sentences[currentIdx];
+  const words = sentence.split(" ");
+
+  let activeDisplayIdx = -1;
+  const wFrames = wordStartFrames?.[currentIdx];
+  if (wFrames && wFrames.length > 0) {
+    let ttsIdx = -1;
+    for (let j = 0; j < wFrames.length; j++) {
+      if (frame >= wFrames[j]) ttsIdx = j;
+      else break;
+    }
+    if (ttsIdx >= 0) {
+      const ratio = ttsIdx / Math.max(1, wFrames.length - 1);
+      activeDisplayIdx = Math.min(words.length - 1, Math.floor(ratio * words.length));
+    }
+  } else {
+    const sentenceActualEnd =
+      sentenceEndFrames && currentIdx < sentenceEndFrames.length
+        ? sentenceEndFrames[currentIdx]
+        : (currentIdx === sentences.length - 1 && speechEnd != null ? speechEnd : ranges[currentIdx].end);
+    const progress = Math.min(1, Math.max(0, (frame - start) / Math.max(1, sentenceActualEnd - start)));
+    const totalChars = words.reduce((sum, w) => sum + w.length, 0);
+    let cumChars = 0;
+    for (let j = 0; j < words.length; j++) {
+      const wStart = cumChars / totalChars;
+      cumChars += words[j].length;
+      if (progress >= wStart) activeDisplayIdx = j;
+    }
+  }
+
   return (
     <div style={{
       position: "absolute", bottom: 100, left: "50%",
       transform: "translateX(-50%)", textAlign: "center",
-      fontFamily: uiFont, fontSize: 32, color: "#ffffff",
+      fontFamily: uiFont, fontSize: 32,
       opacity, background: "rgba(0,0,0,0.55)",
       borderRadius: 6, padding: "8px 16px", lineHeight: 1.6,
       width: "max-content", maxWidth: compositionWidth - 20,
-      wordBreak: "keep-all", whiteSpace: "pre-line",
+      wordBreak: "keep-all", whiteSpace: "pre-wrap",
     }}>
-      {sentences[currentIdx]}
+      {words.map((word, i) => {
+        const isActive = i === activeDisplayIdx;
+        const isSpoken = i < activeDisplayIdx;
+        const color = isActive ? "#4ec9b0" : isSpoken ? "#ffffff" : "rgba(255,255,255,0.45)";
+        return (
+          <React.Fragment key={i}>
+            <span style={{ color }}>{word}</span>
+            {i < words.length - 1 && " "}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };
@@ -467,6 +518,10 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         durationInFrames={d}
         splits={intro.narrationSplits}
+        sentenceEndFrames={AUDIO_CONFIG.intro.sentenceEndFrames}
+        speechStart={intro.speechStartFrame}
+        speechEnd={AUDIO_CONFIG.intro.speechEndFrame}
+        wordStartFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
     </AbsoluteFill>
   );
@@ -496,15 +551,17 @@ const TYPE_SCENE_DATA = {
 
 const TypeScene: React.FC<{
   sceneKey: keyof typeof TYPE_SCENE_DATA;
-  config: { audio: string; durationInFrames: number; narration: string[]; narrationSplits: readonly number[] };
+  config: { audio: string; durationInFrames: number; speechStartFrame: number; narration: string[]; narrationSplits: readonly number[] };
 }> = ({ sceneKey, config }) => {
   const frame = useCurrentFrame();
   const d = config.durationInFrames;
+  const s = config.speechStartFrame;
   const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
 
   const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const dropStart = typingDone(code.length);
+  // TypeBox는 두 번째 문장 시작(narrationSplits[0]) 또는 타이핑 완료 시점에 드롭
+  const dropStart = config.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
@@ -517,18 +574,22 @@ const TypeScene: React.FC<{
           color={color}
           value={value}
           label={label}
-          startFrame={10}
+          startFrame={s}
           dropStartFrame={dropStart}
         />
       </div>
       <CodeBox
         lines={[{ text: code, isNew: true }]}
-        startFrame={TYPING_START}
+        startFrame={s}
       />
       <Subtitle
         sentences={config.narration}
         durationInFrames={d}
         splits={config.narrationSplits}
+        sentenceEndFrames={AUDIO_CONFIG[sceneKey].sentenceEndFrames}
+        speechStart={s}
+        speechEnd={AUDIO_CONFIG[sceneKey].speechEndFrame}
+        wordStartFrames={AUDIO_CONFIG[sceneKey].wordStartFrames}
       />
     </AbsoluteFill>
   );
@@ -539,10 +600,11 @@ const BooleanScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { booleanScene } = VIDEO_CONFIG;
   const d = booleanScene.durationInFrames;
+  const s = booleanScene.speechStartFrame;
   const code = "boolean isStudent = true;";
   const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const dropStart = typingDone(code.length);
+  const dropStart = booleanScene.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
@@ -551,16 +613,20 @@ const BooleanScene: React.FC = () => {
         position: "absolute", top: "30%", left: "50%",
         transform: "translate(-50%, -50%)",
       }}>
-        <BooleanToggleAnim startFrame={10} dropStartFrame={dropStart} />
+        <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
       </div>
       <CodeBox
         lines={[{ text: code, isNew: true }]}
-        startFrame={TYPING_START}
+        startFrame={s}
       />
       <Subtitle
         sentences={booleanScene.narration}
         durationInFrames={d}
         splits={booleanScene.narrationSplits}
+        sentenceEndFrames={AUDIO_CONFIG.booleanScene.sentenceEndFrames}
+        speechStart={s}
+        speechEnd={AUDIO_CONFIG.booleanScene.speechEndFrame}
+        wordStartFrames={AUDIO_CONFIG.booleanScene.wordStartFrames}
       />
     </AbsoluteFill>
   );
@@ -573,6 +639,7 @@ const SUMMARY_LINES = [
   'String name = "Java";',
   "boolean isStudent = true;",
 ];
+const SUMMARY_CPS = 20; // 요약 씬은 빠르게 타이핑
 
 const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -581,20 +648,27 @@ const SummaryScene: React.FC = () => {
   const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const quarter = Math.floor(d / 4);
-  const segDuration = (i: number) => (i < 3 ? quarter : d - 3 * quarter);
+  // 캐릭터 수 비례로 각 라인 시작 타이밍 계산
+  const totalChars = SUMMARY_LINES.reduce((sum, l) => sum + l.length, 0);
+  let cumChars = 0;
+  const starts = SUMMARY_LINES.map((line) => {
+    const start = Math.floor((cumChars / totalChars) * (d - CROSS));
+    cumChars += line.length;
+    return start;
+  });
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(summaryScene.audio)} />
-      {[0, 1, 2, 3].map((i) => (
-        <Sequence key={i} from={i * quarter} durationInFrames={segDuration(i)}>
+      {starts.map((startFrom, i) => (
+        <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
           <CodeBox
             lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
               text,
               isNew: j === i,
             }))}
             startFrame={0}
+            charsPerSecond={SUMMARY_CPS}
           />
         </Sequence>
       ))}
@@ -602,6 +676,10 @@ const SummaryScene: React.FC = () => {
         sentences={summaryScene.narration}
         durationInFrames={d}
         splits={summaryScene.narrationSplits}
+        sentenceEndFrames={AUDIO_CONFIG.summaryScene.sentenceEndFrames}
+        speechStart={summaryScene.speechStartFrame}
+        speechEnd={AUDIO_CONFIG.summaryScene.speechEndFrame}
+        wordStartFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
     </AbsoluteFill>
   );

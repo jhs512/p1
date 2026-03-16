@@ -32,6 +32,9 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "sync-audio": "tsx scripts/sync-audio.ts",
-    "sync": "tsx scripts/sync.ts"
+    "sync": "tsx scripts/sync.ts",
+    "sync:all": "tsx scripts/sync-all.ts",
+    "watch": "tsx scripts/watch.ts",
+    "render": "tsx scripts/render.ts"
   }
 }

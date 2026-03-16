@@ -14,7 +14,7 @@
 
 import { buildSync } from "esbuild";
 import { createHash } from "crypto";
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, unlinkSync } from "fs";
 import { spawnSync } from "child_process";
 import path from "path";
 
@@ -123,9 +123,52 @@ function applyPronunciation(text: string): string {
   return r;
 }
 
+// ── 음성 시작/종료 프레임 감지 ───────────────────────────────
+// speechStartFrame: leading silence 끝 = 실제 발화 시작
+// speechEndFrame:   trailing silence 시작 = 실제 발화 종료
+function detectSpeechBounds(audioFile: string, totalSecs: number): { speechStartFrame: number; speechEndFrame: number } {
+  const ffRes = spawnSync(
+    "ffmpeg",
+    ["-i", audioFile, "-af", "silencedetect=n=-40dB:d=0.03", "-f", "null", "-"],
+    { encoding: "utf-8" }
+  );
+  const output = (ffRes.stderr ?? "") + (ffRes.stdout ?? "");
+  const lines = output.split("\n");
+
+  // silence 이벤트 파싱
+  const silences: { start: number; end: number | null }[] = [];
+  let pendingStart: number | null = null;
+  for (const line of lines) {
+    const startM = line.match(/silence_start:\s*([\d.]+)/);
+    if (startM) pendingStart = parseFloat(startM[1]);
+    const endM = line.match(/silence_end:\s*([\d.]+)/);
+    if (endM) {
+      silences.push({ start: pendingStart ?? 0, end: parseFloat(endM[1]) });
+      pendingStart = null;
+    }
+  }
+  if (pendingStart !== null) silences.push({ start: pendingStart, end: null }); // EOF까지 무음
+
+  // speechStartFrame: leading silence (0~0.5s 에서 시작하는 무음)의 끝
+  let speechStartFrame = 0;
+  const leading = silences.find((s) => s.start < 0.5 && s.end !== null);
+  if (leading) speechStartFrame = Math.round(leading.end! * FPS);
+
+  // speechEndFrame: trailing silence (파일 끝 근처에서 시작하거나 EOF까지 이어지는 무음)의 시작
+  let speechEndFrame = Math.ceil(totalSecs * FPS);
+  const trailing = [...silences].reverse().find(
+    (s) => s.end === null || s.end >= totalSecs - 0.1
+  );
+  if (trailing) speechEndFrame = Math.round(trailing.start * FPS);
+
+  return { speechStartFrame, speechEndFrame };
+}
+
 // ── 문장 분기 프레임 감지 ─────────────────────────────────────
-function detectSplits(audioFile: string, sentenceCount: number): number[] {
-  if (sentenceCount <= 1) return [];
+// narrationSplits:    각 문장 시작 프레임 (silence_end)
+// sentenceEndFrames:  각 문장 종료 프레임 (silence_start)
+function detectSplits(audioFile: string, sentenceCount: number): { splits: number[]; sentenceEndFrames: number[] } {
+  if (sentenceCount <= 1) return { splits: [], sentenceEndFrames: [] };
 
   // 전체 길이
   const probeRes = spawnSync(
@@ -143,25 +186,99 @@ function detectSplits(audioFile: string, sentenceCount: number): number[] {
   );
   const output = (ffRes.stderr ?? "") + (ffRes.stdout ?? "");
 
-  const entries: { time: number; duration: number }[] = [];
+  // silence_start / silence_end 쌍 파싱
+  const entries: { start: number; end: number; duration: number }[] = [];
+  let pendingStart: number | null = null;
   for (const line of output.split("\n")) {
+    const startM = line.match(/silence_start:\s*([\d.]+)/);
+    if (startM) pendingStart = parseFloat(startM[1]);
     const m = line.match(/silence_end:\s*([\d.]+)\s*\|\s*silence_duration:\s*([\d.]+)/);
-    if (m) entries.push({ time: parseFloat(m[1]), duration: parseFloat(m[2]) });
+    if (m && pendingStart !== null) {
+      entries.push({ start: pendingStart, end: parseFloat(m[1]), duration: parseFloat(m[2]) });
+      pendingStart = null;
+    }
   }
 
-  // 문장 사이 무음: 앞뒤 여백 제외, duration > 0.25s 이상인 것만, 필요한 수만큼
+  // 문장 사이 무음: 앞뒤 여백 제외, duration > 0.25s, 필요한 수만큼
   const breaks = entries
-    .filter((e) => e.time > 0.4 && e.time < totalSecs - 0.3 && e.duration > 0.25)
+    .filter((e) => e.end > 0.4 && e.end < totalSecs - 0.3 && e.duration > 0.25)
     .slice(0, sentenceCount - 1);
 
-  return breaks.map((b) => Math.round(b.time * FPS));
+  return {
+    splits:            breaks.map((b) => Math.round(b.end   * FPS)), // 다음 문장 시작
+    sentenceEndFrames: breaks.map((b) => Math.round(b.start * FPS)), // 이전 문장 종료
+  };
+}
+
+// ── VTT 파싱 (edge-tts --write-subtitles 출력) ──────────────────
+// edge-tts가 Azure TTS 엔진의 단어 경계 이벤트를 WebVTT 파일로 출력
+function parseVttWords(vttFile: string): number[] {
+  if (!existsSync(vttFile)) return [];
+  const content = readFileSync(vttFile, "utf-8");
+  const startFrames: number[] = [];
+  for (const line of content.split("\n")) {
+    const m = line.match(/^(\d{2}):(\d{2}):([\d.]+)\s*-->/);
+    if (!m) continue;
+    const startSec = parseInt(m[1]) * 3600 + parseInt(m[2]) * 60 + parseFloat(m[3]);
+    startFrames.push(Math.round(startSec * FPS));
+  }
+  return startFrames;
+}
+
+// ── VTT 단어 프레임을 문장별로 그룹화 ────────────────────────────
+// narrationSplits(각 문장 시작 프레임) 기준으로 어느 문장에 속하는지 결정
+function groupWordsBySentence(
+  wordFrames: number[],
+  speechStartFrame: number,
+  narrationSplits: number[],
+  sentenceCount: number,
+): number[][] {
+  if (wordFrames.length === 0) return Array.from({ length: sentenceCount }, () => []);
+  const starts = [speechStartFrame, ...narrationSplits];
+  const groups: number[][] = Array.from({ length: sentenceCount }, () => []);
+  for (const frame of wordFrames) {
+    // 역방향 탐색: frame >= starts[i] 를 만족하는 마지막 sentence
+    for (let i = sentenceCount - 1; i >= 0; i--) {
+      if (frame >= starts[i] - 3) { // 3프레임 허용 오차
+        groups[i].push(frame);
+        break;
+      }
+    }
+  }
+  return groups;
+}
+
+// ── 중첩 배열 문자열 추출 (파서용) ───────────────────────────────
+function extractNestedArray(line: string, key: string): string | null {
+  const idx = line.indexOf(`${key}: `);
+  if (idx === -1) return null;
+  const start = line.indexOf("[", idx);
+  if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < line.length; i++) {
+    if (line[i] === "[") depth++;
+    else if (line[i] === "]") { depth--; if (depth === 0) return line.slice(start, i + 1); }
+  }
+  return null;
 }
 
 // ── AUDIO_CONFIG 파일 쓰기 ────────────────────────────────────
-function writeAudioConfig(config: Record<string, { durationInFrames: number; narrationSplits: number[] }>): void {
+type SceneAudioData = {
+  durationInFrames: number;
+  narrationSplits: number[];
+  sentenceEndFrames: number[];  // 각 문장 종료 프레임 (silence_start)
+  speechStartFrame: number;
+  speechEndFrame: number;       // 마지막 발화 종료 프레임 (trailing silence start)
+  wordStartFrames: number[][];  // TTS 단어 경계 프레임 (edge-tts VTT, 문장별)
+};
+
+function writeAudioConfig(config: Record<string, SceneAudioData>): void {
   const audioConfigFile = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
   const lines = Object.entries(config)
-    .map(([k, v]) => `  ${k.padEnd(16)}: { durationInFrames: ${v.durationInFrames}, narrationSplits: [${v.narrationSplits.join(", ")}] },`)
+    .map(([k, v]) => {
+      const wfStr = (v.wordStartFrames ?? []).map((s) => `[${s.join(",")}]`).join(",");
+      return `  ${k.padEnd(16)}: { durationInFrames: ${v.durationInFrames}, narrationSplits: [${v.narrationSplits.join(", ")}], sentenceEndFrames: [${v.sentenceEndFrames.join(", ")}], speechStartFrame: ${v.speechStartFrame}, speechEndFrame: ${v.speechEndFrame}, wordStartFrames: [${wfStr}] },`;
+    })
     .join("\n");
   const content = `// AUTO-GENERATED by \`pnpm sync ${compositionId}\` — do not edit manually\n\nexport const AUDIO_CONFIG = {\n${lines}\n} as const;\n`;
   writeFileSync(audioConfigFile, content, "utf-8");
@@ -174,22 +291,35 @@ let changed = false;
 
 // 기존 AUDIO_CONFIG 로드 (skip된 씬의 값 보존용)
 const audioConfigFile = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
-let existingAudioConfig: Record<string, { durationInFrames: number; narrationSplits: number[] }> = {};
+let existingAudioConfig: Record<string, SceneAudioData> = {};
 if (existsSync(audioConfigFile)) {
   try {
     const raw = readFileSync(audioConfigFile, "utf-8");
-    // 간단한 eval 대신 개행 파싱으로 값 추출
     for (const line of raw.split("\n")) {
-      const m = line.match(/^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\]/);
+      // 현재 포맷 (sentenceEndFrames + speechEndFrame 포함)
+      const m = line.match(/^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\], sentenceEndFrames: \[([^\]]*)\], speechStartFrame: (\d+), speechEndFrame: (\d+)/);
       if (m) {
         const splits = m[3].trim() ? m[3].split(",").map(s => parseInt(s.trim())) : [];
-        existingAudioConfig[m[1]] = { durationInFrames: parseInt(m[2]), narrationSplits: splits };
+        const ends   = m[4].trim() ? m[4].split(",").map(s => parseInt(s.trim())) : [];
+        existingAudioConfig[m[1]] = { durationInFrames: parseInt(m[2]), narrationSplits: splits, sentenceEndFrames: ends, speechStartFrame: parseInt(m[5]), speechEndFrame: parseInt(m[6]), wordStartFrames: [] };
+        // wordStartFrames: 중첩 배열이라 별도 추출
+        const wfStr = extractNestedArray(line, "wordStartFrames");
+        if (wfStr) {
+          try { existingAudioConfig[m[1]].wordStartFrames = JSON.parse(wfStr) as number[][]; } catch { /* ignore */ }
+        }
+        continue;
+      }
+      // 구버전 (sentenceEndFrames/speechEndFrame 없는 포맷) 호환
+      const m2 = line.match(/^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\],\s*speechStartFrame: (\d+)/);
+      if (m2) {
+        const splits = m2[3].trim() ? m2[3].split(",").map(s => parseInt(s.trim())) : [];
+        existingAudioConfig[m2[1]] = { durationInFrames: parseInt(m2[2]), narrationSplits: splits, sentenceEndFrames: [], speechStartFrame: parseInt(m2[4]), speechEndFrame: 0, wordStartFrames: [] };
       }
     }
   } catch { /* ignore */ }
 }
 
-const audioConfig: Record<string, { durationInFrames: number; narrationSplits: number[] }> = {};
+const audioConfig: Record<string, SceneAudioData> = {};
 
 for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const narration = scene.narration;
@@ -200,17 +330,30 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const newHash = hash(VOICE + RATE + ttsText);
 
   if (hashes[key] === newHash) {
-    console.log(`[skip] ${audio}`);
-    if (existingAudioConfig[key]) audioConfig[key] = existingAudioConfig[key];
+    if (existingAudioConfig[key]) {
+      audioConfig[key] = existingAudioConfig[key];
+      // speechStartFrame=0 또는 speechEndFrame=0 이면 기존 mp3에서 재측정
+      if (audioConfig[key].speechStartFrame === 0 || audioConfig[key].speechEndFrame === 0) {
+        const probeR = spawnSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", `${PUBLIC_DIR}/${audio}`], { encoding: "utf-8" });
+        const totalSecs = parseFloat(probeR.stdout.trim());
+        const bounds = detectSpeechBounds(`${PUBLIC_DIR}/${audio}`, totalSecs);
+        audioConfig[key] = { ...audioConfig[key], ...bounds };
+        changed = true;
+        console.log(`[skip] ${audio}  speechStartFrame → ${bounds.speechStartFrame}, speechEndFrame → ${bounds.speechEndFrame} (재측정)`);
+      } else {
+        console.log(`[skip] ${audio}`);
+      }
+    }
     continue;
   }
 
   console.log(`[gen]  ${audio}`);
 
-  // 1) TTS 생성
+  // 1) TTS 생성 (단어 경계 타이밍도 VTT로 동시 출력)
+  const vttFile = `${PUBLIC_DIR}/${audio.replace(/\.mp3$/, ".vtt")}`;
   const ttsRes = spawnSync(
     "edge-tts",
-    ["--voice", VOICE, "--rate", RATE, "--text", ttsText, "--write-media", `${PUBLIC_DIR}/${audio}`],
+    ["--voice", VOICE, "--rate", RATE, "--text", ttsText, "--write-media", `${PUBLIC_DIR}/${audio}`, "--write-subtitles", vttFile],
     { stdio: "inherit" }
   );
   if (ttsRes.status !== 0) {
@@ -227,14 +370,54 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   if (probeRes.status === 0) {
     const secs = probeRes.stdout.trim();
     console.log(`       실측 ${parseFloat(secs).toFixed(2)}s`);
-    audioConfig[key] = { durationInFrames: Math.ceil(parseFloat(secs) * FPS) + SCENE_TAIL_FRAMES, narrationSplits: [] };
+    const totalSecs = parseFloat(secs);
+    audioConfig[key] = { durationInFrames: Math.ceil(totalSecs * FPS) + SCENE_TAIL_FRAMES, narrationSplits: [], sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [] };
   }
 
-  // 3) narrationSplits 계산
-  const splits = detectSplits(`${PUBLIC_DIR}/${audio}`, narration.length);
+  // 3) speechStartFrame / speechEndFrame 감지
+  const probeR2 = spawnSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", `${PUBLIC_DIR}/${audio}`], { encoding: "utf-8" });
+  const totalSecs2 = parseFloat(probeR2.stdout.trim());
+  const bounds = detectSpeechBounds(`${PUBLIC_DIR}/${audio}`, totalSecs2);
+  audioConfig[key].speechStartFrame = bounds.speechStartFrame;
+  audioConfig[key].speechEndFrame   = bounds.speechEndFrame;
+  console.log(`       speechStartFrame → ${bounds.speechStartFrame} (${(bounds.speechStartFrame / FPS).toFixed(2)}s)`);
+  console.log(`       speechEndFrame   → ${bounds.speechEndFrame} (${(bounds.speechEndFrame / FPS).toFixed(2)}s)`);
+
+  // 4) narrationSplits / sentenceEndFrames 계산
+  const { splits, sentenceEndFrames } = detectSplits(`${PUBLIC_DIR}/${audio}`, narration.length);
   if (splits.length > 0) {
-    audioConfig[key].narrationSplits = splits;
-    console.log(`       narrationSplits → [${splits.join(", ")}] ✅`);
+    audioConfig[key].narrationSplits    = splits;
+    audioConfig[key].sentenceEndFrames  = sentenceEndFrames;
+    console.log(`       narrationSplits    → [${splits.join(", ")}] ✅`);
+    console.log(`       sentenceEndFrames  → [${sentenceEndFrames.join(", ")}]`);
+  }
+
+  // 5) Whisper 단어 타임스탬프 → wordStartFrames
+  const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
+  const whisperScript = path.join(process.cwd(), "scripts", "whisper_words.py");
+  const whisperRes = spawnSync(
+    venvPython,
+    [whisperScript, `${PUBLIC_DIR}/${audio}`],
+    { encoding: "utf-8" }
+  );
+  // VTT 파일 정리 (edge-tts 사이드이펙트)
+  try { if (existsSync(vttFile)) unlinkSync(vttFile); } catch { /* ignore */ }
+  if (whisperRes.status === 0 && whisperRes.stdout.trim()) {
+    type WhisperWord = { start: number; end: number; word: string };
+    let whisperWords: WhisperWord[] = [];
+    try { whisperWords = JSON.parse(whisperRes.stdout.trim()) as WhisperWord[]; } catch { /* ignore */ }
+    const wordFrames = whisperWords.map((w) => Math.round(w.start * FPS));
+    const wordStartFrames = groupWordsBySentence(
+      wordFrames,
+      audioConfig[key].speechStartFrame,
+      audioConfig[key].narrationSplits,
+      narration.length,
+    );
+    audioConfig[key].wordStartFrames = wordStartFrames;
+    console.log(`       wordStartFrames   → ${wordStartFrames.map((s) => `[${s.join(",")}]`).join(" | ")}`);
+  } else {
+    console.log(`       wordStartFrames   → Whisper 실패 (fallback: char-proportional)`);
+    if (whisperRes.stderr) console.error(whisperRes.stderr.slice(0, 200));
   }
 
   hashes[key] = newHash;
