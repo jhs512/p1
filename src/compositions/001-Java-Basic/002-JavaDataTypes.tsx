@@ -265,7 +265,11 @@ const Subtitle: React.FC<{
       wordBreak: "keep-all", whiteSpace: "pre-wrap",
     }}>
       {words.map((word, i) => {
-        const isActive = i === activeDisplayIdx;
+        // 3단어 동시 하이라이팅 (끝에 남은 단어가 4개 이하면 전부 포함)
+        const WINDOW = 3;
+        const remaining = words.length - activeDisplayIdx;
+        const windowSize = activeDisplayIdx >= 0 && remaining <= 4 ? remaining : WINDOW;
+        const isActive = activeDisplayIdx >= 0 && i >= activeDisplayIdx && i < activeDisplayIdx + windowSize;
         const isSpoken = i < activeDisplayIdx;
         const color = isActive ? "#4ec9b0" : isSpoken ? "#ffffff" : "rgba(255,255,255,0.45)";
         return (
