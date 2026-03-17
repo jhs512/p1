@@ -2,6 +2,6 @@
 
 export const AUDIO_CONFIG = {
   intro           : { durationInFrames: 239, narrationSplits: [113], sentenceEndFrames: [95], speechStartFrame: 5, speechEndFrame: 209, wordStartFrames: [[0,5,18,27,35,45,51,60,73],[104,118,130,142,169,175,185]] },
-  compareScene    : { durationInFrames: 751, narrationSplits: [125, 420, 492, 545, 611], sentenceEndFrames: [106, 400, 472, 526, 592], speechStartFrame: 5, speechEndFrame: 720, wordStartFrames: [[0,6,52,59,66,75,75,79],[119,127,142,169,178,187,194,209],[215,215,243,252,268,295,312],[326,362,368,385,412,429,429,442],[446,485,493,539,553,568,577],[605,612,612,630,655,670,680,694]] },
+  compareScene    : { durationInFrames: 751, narrationSplits: [125, 220, 331, 451, 610], sentenceEndFrames: [106, 229, 332, 462, 597], speechStartFrame: 5, speechEndFrame: 720, wordStartFrames: [[0,6,52,59,66,75,75,79],[119,127,142,169,178,187,194,209],[215,215,243,252,268,295,312],[326,362,368,385,412,429,429,442],[446,485,493,539,553,568,577],[605,612,612,630,655,670,680,694]] },
   summaryScene    : { durationInFrames: 204, narrationSplits: [96], sentenceEndFrames: [76], speechStartFrame: 6, speechEndFrame: 175, wordStartFrames: [[0,11,24,24,38,52],[90,90,100,109,119,119,144,157]] },
 } as const;
