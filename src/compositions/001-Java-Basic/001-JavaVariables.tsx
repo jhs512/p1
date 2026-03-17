@@ -59,6 +59,7 @@ export const VIDEO_CONFIG = {
       "상자에 이름을 붙이고, 값을 넣고, 꺼내 쓸 수 있습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
   },
 
   declaration: {
@@ -71,6 +72,7 @@ export const VIDEO_CONFIG = {
       "int age 라고 쓰면 정수형 변수 age가 만들어집니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.declaration.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.declaration.speechStartFrame,
   },
 
   initialization: {
@@ -83,6 +85,7 @@ export const VIDEO_CONFIG = {
       "age 변수에는 25가 저장되었습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.initialization.speechStartFrame,
   },
 
   print: {
@@ -97,6 +100,7 @@ export const VIDEO_CONFIG = {
       "실행하면 25가 출력되는 것을 확인할 수 있습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.print.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.print.speechStartFrame,
   },
 
 };
@@ -402,7 +406,7 @@ const IntroScene: React.FC = () => {
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(intro.audio)} />
       <BoxMetaphorAnim />
-      <Subtitle sentences={intro.narration} durationInFrames={d} splits={intro.narrationSplits} />
+      <Subtitle sentences={intro.narration} durationInFrames={d} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
     </AbsoluteFill>
   );
 };
@@ -412,14 +416,15 @@ const IntroScene: React.FC = () => {
 const Subtitle: React.FC<{
   sentences: string[];
   durationInFrames: number;
-  splits?: readonly number[]; // 각 문장(2번째~)이 시작하는 프레임. ffprobe 무음 감지 실측값.
-}> = ({ sentences, durationInFrames, splits }) => {
+  splits?: readonly number[];  // 각 문장(2번째~)이 시작하는 프레임. ffprobe 무음 감지 실측값.
+  speechStart?: number;        // 첫 문장 발화 시작 프레임 (leading silence 끝)
+}> = ({ sentences, durationInFrames, splits, speechStart = 0 }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
   const ranges = sentences.map((_, i) => {
     if (splits && splits.length >= sentences.length - 1) {
       // 실측 splits 사용
-      const start = i === 0 ? 0 : splits[i - 1];
+      const start = i === 0 ? speechStart : splits[i - 1];
       const end   = i < splits.length ? splits[i] : durationInFrames;
       return { start, end };
     }
@@ -645,10 +650,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
       {/* 자막 */}
       <Sequence durationInFrames={SPLIT}>
-        <Subtitle sentences={declaration.narration} durationInFrames={SPLIT} splits={declaration.narrationSplits} />
+        <Subtitle sentences={declaration.narration} durationInFrames={SPLIT} splits={declaration.narrationSplits} speechStart={declaration.speechStartFrame} />
       </Sequence>
       <Sequence from={SPLIT}>
-        <Subtitle sentences={initialization.narration} durationInFrames={initialization.durationInFrames} splits={initialization.narrationSplits} />
+        <Subtitle sentences={initialization.narration} durationInFrames={initialization.durationInFrames} splits={initialization.narrationSplits} speechStart={initialization.speechStartFrame} />
       </Sequence>
     </AbsoluteFill>
   );
@@ -670,7 +675,7 @@ const PrintScene: React.FC = () => {
       <SceneTitle title={print.title} />
       <CodeBox lines={print.code} startFrame={TYPING_START} />
       <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
-      <Subtitle sentences={print.narration} durationInFrames={d} splits={print.narrationSplits} />
+      <Subtitle sentences={print.narration} durationInFrames={d} splits={print.narrationSplits} speechStart={print.speechStartFrame} />
     </AbsoluteFill>
   );
 };

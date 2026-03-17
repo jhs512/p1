@@ -63,6 +63,7 @@ export const VIDEO_CONFIG = {
       "Java에는 네 가지 핵심 자료형이 있습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
   },
   intScene: {
     audio: "dt-int.mp3",
@@ -72,6 +73,7 @@ export const VIDEO_CONFIG = {
       "나이나 개수처럼 소수점이 없는 숫자에 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
   },
   doubleScene: {
     audio: "dt-double.mp3",
@@ -81,6 +83,7 @@ export const VIDEO_CONFIG = {
       "키나 무게처럼 정밀한 값이 필요할 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
   },
   stringScene: {
     audio: "dt-string.mp3",
@@ -90,6 +93,7 @@ export const VIDEO_CONFIG = {
       "이름이나 메시지처럼 텍스트를 담을 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
   },
   booleanScene: {
     audio: "dt-boolean.mp3",
@@ -99,6 +103,7 @@ export const VIDEO_CONFIG = {
       "조건 검사 결과를 담을 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
   },
   summaryScene: {
     audio: "dt-summary.mp3",
@@ -108,6 +113,7 @@ export const VIDEO_CONFIG = {
       "상황에 맞는 자료형을 선택하는 것이 중요합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
   },
 };
 
@@ -196,12 +202,13 @@ const Subtitle: React.FC<{
   sentences: string[];
   durationInFrames: number;
   splits?: readonly number[];
-}> = ({ sentences, durationInFrames, splits }) => {
+  speechStart?: number;  // 첫 문장 발화 시작 프레임 (leading silence 끝)
+}> = ({ sentences, durationInFrames, splits, speechStart = 0 }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
   const ranges = sentences.map((_, i) => {
     if (splits && splits.length >= sentences.length - 1) {
-      const start = i === 0 ? 0 : splits[i - 1];
+      const start = i === 0 ? speechStart : splits[i - 1];
       const end   = i < splits.length ? splits[i] : durationInFrames;
       return { start, end };
     }
@@ -466,6 +473,7 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         durationInFrames={d}
         splits={intro.narrationSplits}
+        speechStart={intro.speechStartFrame}
       />
     </AbsoluteFill>
   );
@@ -495,7 +503,7 @@ const TYPE_SCENE_DATA = {
 
 const TypeScene: React.FC<{
   sceneKey: keyof typeof TYPE_SCENE_DATA;
-  config: { audio: string; durationInFrames: number; narration: string[]; narrationSplits: readonly number[] };
+  config: { audio: string; durationInFrames: number; narration: string[]; narrationSplits: readonly number[]; speechStartFrame: number };
 }> = ({ sceneKey, config }) => {
   const frame = useCurrentFrame();
   const d = config.durationInFrames;
@@ -528,6 +536,7 @@ const TypeScene: React.FC<{
         sentences={config.narration}
         durationInFrames={d}
         splits={config.narrationSplits}
+        speechStart={config.speechStartFrame}
       />
     </AbsoluteFill>
   );
@@ -560,6 +569,7 @@ const BooleanScene: React.FC = () => {
         sentences={booleanScene.narration}
         durationInFrames={d}
         splits={booleanScene.narrationSplits}
+        speechStart={booleanScene.speechStartFrame}
       />
     </AbsoluteFill>
   );
@@ -601,6 +611,7 @@ const SummaryScene: React.FC = () => {
         sentences={summaryScene.narration}
         durationInFrames={d}
         splits={summaryScene.narrationSplits}
+        speechStart={summaryScene.speechStartFrame}
       />
     </AbsoluteFill>
   );
