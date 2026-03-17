@@ -8,8 +8,8 @@ import { Composition, Folder } from "remotion";
 //   export const Component: React.FC = ...
 //
 // 파일 경로 → Remotion ID 규칙:
-//   src/compositions/001-Java-Basic/001-JavaVariables.tsx  →  folder "001-Java-Basic", id "001"
-//   render: remotion render 001
+//   src/compositions/001-Java-Basic/001-JavaVariables.tsx  →  folder "001-Java-Basic", id "001-001"
+//   render: pnpm render 001-Java-Basic/001
 
 interface CompositionModule {
   compositionMeta: { fps: number; width: number; height: number; durationInFrames?: number };
@@ -23,13 +23,13 @@ const entries = ctx
   .map((key: string) => {
     const mod = ctx(key) as CompositionModule;
     if (!mod.compositionMeta || !mod.VIDEO_CONFIG || !mod.Component) return null;
-    // 경로 파싱: "./1/001-JavaVariables.tsx"
+    // 경로 파싱: "./001-Java-Basic/001-JavaVariables.tsx"
     const segments = key.replace(/^\.\//, "").split("/");
-    const dir      = segments.slice(0, -1).join("/");              // "001-Java-Basic"  (시리즈 폴더)
-    const epMatch  = segments[segments.length - 1].match(/^(\d+)-/);
-    const epNum    = epMatch ? epMatch[1] : segments[segments.length - 1]; // "001"
-    const dirPrefix = dir.match(/^(\d+)/)?.[1] ?? dir;             // "001" (폴더 앞 숫자)
-    const ep       = dirPrefix ? `${dirPrefix}-${epNum}` : epNum;  // "001-001"
+    const dir       = segments.slice(0, -1).join("/");              // "001-Java-Basic"
+    const epMatch   = segments[segments.length - 1].match(/^(\d+)-/);
+    const epNum     = epMatch ? epMatch[1] : segments[segments.length - 1]; // "001"
+    const dirPrefix = dir.match(/^(\d+)/)?.[1] ?? dir;              // "001"
+    const ep        = dirPrefix ? `${dirPrefix}-${epNum}` : epNum;  // "001-001"
     const totalFrames = mod.compositionMeta.durationInFrames
       ?? Object.values(mod.VIDEO_CONFIG).reduce((sum, s) => sum + s.durationInFrames, 0);
     return { mod, dir, ep, totalFrames };
