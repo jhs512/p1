@@ -224,7 +224,9 @@ function detectSplits(audioFile: string, sentenceCount: number): { splits: numbe
 
   const breaks = entries
     .filter((e) => e.end > 0.4 && e.end < totalSecs - 0.3 && e.duration > 0.25)
-    .slice(0, sentenceCount - 1);
+    .sort((a, b) => b.duration - a.duration)   // 긴 silence 우선 (문장 간 gap이 문장 내 호흡보다 길다)
+    .slice(0, sentenceCount - 1)
+    .sort((a, b) => a.start - b.start);         // 시간 순으로 재정렬
 
   return {
     splits:            breaks.map((b) => Math.round(b.end   * FPS)),
@@ -356,9 +358,14 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
     console.log(`       sentenceEndFrames  → [${sentenceEndFrames.join(", ")}]`);
   }
 
-  // 5) Whisper 단어 타임스탬프 → wordStartFrames (PRONUNCIATION 정렬 기반)
-  //    - narrationSplits 기반 분류 제거 → 전역 TTS 인덱스 비율로 직접 매핑
-  //    - display 단어 수 비례 → TTS 단어 수 비례 (PRONUNCIATION 불일치 해소)
+  // 5) Whisper 단어 타임스탬프 → wordStartFrames (문장별 분류 + PRONUNCIATION 정렬 기반)
+  //    전략:
+  //      A) Whisper 단어들을 문장별로 분류: 연속 단어 간 gap > SENTENCE_GAP_FRAMES이면 새 문장
+  //      B) 분류 수 = narration.length이면 문장별 TTS 비율 매핑 (가장 정확)
+  //      C) 불일치면 전역 비율 fallback (구 방식)
+  //    이유: Whisper가 한 TTS 단어를 여러 단어로 쪼개면(예: "출력해보겠습니다." → 2개)
+  //          전역 비율이 이후 단어를 모두 1개씩 앞 Whisper 단어로 밀어버림.
+  //          문장별 분류는 이 drift를 문장 단위로 격리해 누적을 방지.
   audioConfig[key].wordStartFrames = narration.map(() => []);  // 기본: 빈 배열
 
   const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
@@ -375,25 +382,58 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
     try { allWhisperWords = JSON.parse(whisperRes.stdout.trim()) as WhisperWord[]; } catch { /* ignore */ }
 
     if (allWhisperWords.length > 0) {
+      // ── A) Whisper 단어를 문장별로 분류 (gap 기반) ──────────────
+      const SENTENCE_GAP_FRAMES = 20;  // 0.67s 이상 gap → 새 문장 경계
+      const whisperSentences: WhisperWord[][] = [];
+      let curSentence: WhisperWord[] = [allWhisperWords[0]];
+      for (let i = 1; i < allWhisperWords.length; i++) {
+        const gap = (allWhisperWords[i].start - allWhisperWords[i - 1].start) * FPS;
+        if (gap > SENTENCE_GAP_FRAMES) {
+          whisperSentences.push(curSentence);
+          curSentence = [];
+        }
+        curSentence.push(allWhisperWords[i]);
+      }
+      whisperSentences.push(curSentence);
+
+      const useSentenceLocal = whisperSentences.length === narration.length;
+      if (!useSentenceLocal) {
+        console.log(`       whisper sentences → ${whisperSentences.length} (narration: ${narration.length}) — 전역 비율 fallback`);
+      }
+
+      // ── B/C) 문장별 또는 전역 비율로 프레임 계산 ──────────────
       const { globalTtsCount, displayWords: dwInfos } = buildGlobalAlignment(narration, PRONUNCIATION);
-      const W = allWhisperWords.length;
       const T = globalTtsCount;
 
       const result: number[][] = narration.map(() => []);
       for (let si = 0; si < narration.length; si++) {
         const sentenceDws = dwInfos.filter((dw) => dw.sentenceIdx === si);
 
+        // 문장별 매핑 준비 (useSentenceLocal=true 시 사전 계산)
+        let ws: WhisperWord[] = allWhisperWords;
+        let sentenceTtsCount = T;
+        let localDwInfos: DisplayWordInfo[] = dwInfos;
+        if (useSentenceLocal) {
+          ws = whisperSentences[si];
+          const aligned = buildGlobalAlignment([narration[si]], PRONUNCIATION);
+          sentenceTtsCount = aligned.globalTtsCount;
+          localDwInfos = aligned.displayWords;  // sentenceIdx=0, displayIdx 동일
+        }
+
         // Pass 1: 비-zero TTS 단어의 프레임 계산
         const rawFrames: (number | null)[] = sentenceDws.map((dw) => {
           if (dw.ttsCount === 0) return null;
-          const ratio = T <= 1 ? 0 : dw.firstTtsIdx / (T - 1);
-          const whisperIdx = Math.min(W - 1, Math.round(ratio * (W - 1)));
-          return Math.round(allWhisperWords[whisperIdx].start * FPS);
+          const localDw = useSentenceLocal
+            ? localDwInfos.find((d) => d.displayIdx === dw.displayIdx)
+            : dw;
+          if (!localDw) return null;
+          const localT = useSentenceLocal ? sentenceTtsCount : T;
+          const ratio = localT <= 1 ? 0 : localDw.firstTtsIdx / (localT - 1);
+          const wIdx = Math.min(ws.length - 1, Math.round(ratio * (ws.length - 1)));
+          return Math.round(ws[wIdx].start * FPS);
         });
 
         // Pass 2: zero-TTS 단어 채우기
-        // - 문장 내 첫 번째 non-null frame (없으면 speechStartFrame)을 forward fallback으로
-        // - 이미 non-null을 지났으면 backward (직전 non-null) 사용
         const firstNonNull = rawFrames.find((f) => f !== null) ?? audioConfig[key].speechStartFrame;
         let lastNonNull = firstNonNull;
         let seenNonNull = false;
@@ -405,7 +445,6 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
             seenNonNull = true;
             result[si][dw.displayIdx] = rawFrames[i]!;
           } else {
-            // zero-TTS: 앞에 non-null 없으면 forward(firstNonNull), 있으면 backward(lastNonNull)
             result[si][dw.displayIdx] = seenNonNull ? lastNonNull : firstNonNull;
           }
         }
