@@ -227,9 +227,7 @@ const Subtitle: React.FC<{
   const idx = ranges.findIndex(({ start, end }) => frame >= start && frame < end);
   const currentIdx = idx === -1 ? sentences.length - 1 : idx;
   const { start } = ranges[currentIdx];
-  const opacity = interpolate(frame, [start, start + 12], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
+  const opacity = 1;  // 문장 전환 즉시 표시 (fade-in 제거)
 
   const sentence = sentences[currentIdx];
   const words = sentence.split(" ");
