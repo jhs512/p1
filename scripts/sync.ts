@@ -9,8 +9,10 @@
  *  2. edge-tts 로 mp3 재생성
  *  3. ffprobe 로 실측 duration → durationInFrames 계산
  *  4. ffmpeg silencedetect(-40dB) 로 발화 시작/종료 프레임 감지 → speechStartFrame / speechEndFrame
- *  5. ffmpeg silencedetect(-25dB) 로 문장 분기 프레임 감지 → narrationSplits / sentenceEndFrames
- *  6. 결과를 <id>-audio.ts 파일로 자동 저장
+ *  5. ffmpeg silencedetect(-25dB) + 간격 제약 greedy selection → narrationSplits / sentenceEndFrames
+ *     (문장 내 자연 쉼이 문장 경계보다 길어도 올바른 N-1개 지점 선택)
+ *  6. Whisper 단어 타임스탬프 → wordStartFrames (문장별 TTS 비율 매핑)
+ *  7. 결과를 <id>-audio.ts 파일로 자동 저장
  */
 
 import { buildSync } from "esbuild";
@@ -188,8 +190,20 @@ function detectSpeechBounds(audioFile: string, totalSecs: number): { speechStart
 }
 
 // ── 문장 분기 프레임 감지 (narrationSplits / sentenceEndFrames) ─
-function detectSplits(audioFile: string, sentenceCount: number): { splits: number[]; sentenceEndFrames: number[] } {
-  if (sentenceCount <= 1) return { splits: [], sentenceEndFrames: [] };
+//
+// 반환값:
+//   splits / sentenceEndFrames: 감지된 프레임
+//   tooManyCandidates: true → silencedetect를 신뢰할 수 없음 (문장 내 쉼 오감지 의심)
+//                             → 호출자가 Whisper wordStartFrames 기반으로 대체해야 함
+//
+// 문제: 문장 내 자연 쉼이 문장 경계보다 길면 top-N이 잘못된 지점을 선택한다.
+// 해결1: 간격 제약 greedy selection (같은 문장 내 두 쉼 동시 선택 방지)
+// 해결2: 후보 수가 sentenceCount 초과 시 tooManyCandidates=true 반환 → Whisper 우선
+function detectSplits(
+  audioFile: string,
+  sentenceCount: number,
+): { splits: number[]; sentenceEndFrames: number[]; tooManyCandidates: boolean } {
+  if (sentenceCount <= 1) return { splits: [], sentenceEndFrames: [], tooManyCandidates: false };
 
   const probeRes = spawnSync(
     "ffprobe",
@@ -217,15 +231,36 @@ function detectSplits(audioFile: string, sentenceCount: number): { splits: numbe
     }
   }
 
-  const breaks = entries
+  const candidates = entries
     .filter((e) => e.end > 0.4 && e.end < totalSecs - 0.3 && e.duration > 0.25)
-    .sort((a, b) => b.duration - a.duration)   // 긴 silence 우선 (문장 간 gap이 문장 내 호흡보다 길다)
-    .slice(0, sentenceCount - 1)
-    .sort((a, b) => a.start - b.start);         // 시간 순으로 재정렬
+    .sort((a, b) => b.duration - a.duration);   // 긴 silence 우선
+
+  // 후보 수 > sentenceCount → 문장 내 쉼 오감지 의심 → tooManyCandidates 플래그
+  const tooManyCandidates = candidates.length > sentenceCount;
+
+  // greedy selection: minSpread 간격 이내 후보 스킵
+  const minSpreadSecs = (totalSecs / sentenceCount) * 0.6;
+  const selected: typeof entries = [];
+  for (const e of candidates) {
+    if (selected.length >= sentenceCount - 1) break;
+    const tooClose = selected.some((s) => Math.abs(s.end - e.end) < minSpreadSecs);
+    if (!tooClose) selected.push(e);
+  }
+
+  // 간격 제약으로 부족해진 경우 제약 없이 나머지 채우기
+  if (selected.length < sentenceCount - 1) {
+    for (const e of candidates) {
+      if (selected.length >= sentenceCount - 1) break;
+      if (!selected.includes(e)) selected.push(e);
+    }
+  }
+
+  selected.sort((a, b) => a.start - b.start);   // 시간 순으로 재정렬
 
   return {
-    splits:            breaks.map((b) => Math.round(b.end   * FPS)),
-    sentenceEndFrames: breaks.map((b) => Math.round(b.start * FPS)),
+    splits:            selected.map((b) => Math.round(b.end   * FPS)),
+    sentenceEndFrames: selected.map((b) => Math.round(b.start * FPS)),
+    tooManyCandidates,
   };
 }
 
@@ -344,12 +379,14 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   console.log(`       speechStartFrame → ${bounds.speechStartFrame} (${(bounds.speechStartFrame / FPS).toFixed(2)}s)`);
   console.log(`       speechEndFrame   → ${bounds.speechEndFrame} (${(bounds.speechEndFrame / FPS).toFixed(2)}s)`);
 
-  // 4) narrationSplits / sentenceEndFrames
-  const { splits, sentenceEndFrames } = detectSplits(`${PUBLIC_DIR}/${audio}`, narration.length);
+  // 4) narrationSplits / sentenceEndFrames (1차: silencedetect)
+  //    tooManyCandidates=true → 문장 내 쉼 오감지 의심 → Whisper 후처리로 덮어씀 (step 5B)
+  const { splits, sentenceEndFrames, tooManyCandidates } = detectSplits(`${PUBLIC_DIR}/${audio}`, narration.length);
   if (splits.length > 0) {
     audioConfig[key].narrationSplits   = splits;
     audioConfig[key].sentenceEndFrames = sentenceEndFrames;
-    console.log(`       narrationSplits    → [${splits.join(", ")}] ✅`);
+    const warn = tooManyCandidates ? " ⚠️  silencedetect 후보 과다 — Whisper 후처리 예정" : "";
+    console.log(`       narrationSplits    → [${splits.join(", ")}]${warn}`);
     console.log(`       sentenceEndFrames  → [${sentenceEndFrames.join(", ")}]`);
   }
 
@@ -447,6 +484,9 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
 
       audioConfig[key].wordStartFrames = result;
       console.log(`       wordStartFrames   → ${result.map((s) => `[${s.join(",")}]`).join(" | ")}`);
+      if (tooManyCandidates) {
+        console.log(`       ⚠️  narrationSplits 신뢰도 낮음 — 문장 내 쉼 오감지 의심. 필요시 수동 교정.`);
+      }
     }
   } else {
     console.log(`       wordStartFrames   → Whisper 실패 (빈 배열)`);
