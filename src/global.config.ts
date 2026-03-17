@@ -23,4 +23,8 @@ export const PRONUNCIATION: Record<string, string> = {
   "int": "int",
   "String": "String",
   "boolean": "boolean",
+  "double": "더블",
+  "Double": "더블",
+  "Java": "자바",
+  "(자료)": "",
 };
