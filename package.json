@@ -31,6 +31,9 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "sync": "tsx scripts/sync.ts"
+    "sync": "tsx scripts/sync.ts",
+    "sync:all": "tsx scripts/sync-all.ts",
+    "watch": "tsx scripts/watch.ts",
+    "render": "tsx scripts/render.ts"
   }
 }
