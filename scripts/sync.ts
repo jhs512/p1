@@ -354,7 +354,9 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
     console.log(`       sentenceEndFrames  → [${sentenceEndFrames.join(", ")}]`);
   }
 
-  // 5) Whisper 단어 타임스탬프 → wordStartFrames (display 단어 개수 길이)
+  // 5) Whisper 단어 타임스탬프 → wordStartFrames (PRONUNCIATION 정렬 기반)
+  //    - narrationSplits 기반 분류 제거 → 전역 TTS 인덱스 비율로 직접 매핑
+  //    - display 단어 수 비례 → TTS 단어 수 비례 (PRONUNCIATION 불일치 해소)
   audioConfig[key].wordStartFrames = narration.map(() => []);  // 기본: 빈 배열
 
   const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
@@ -371,32 +373,44 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
     try { allWhisperWords = JSON.parse(whisperRes.stdout.trim()) as WhisperWord[]; } catch { /* ignore */ }
 
     if (allWhisperWords.length > 0) {
-      // 문장별 Whisper 단어 분류 (narrationSplits 기준)
-      const sentenceStarts = [audioConfig[key].speechStartFrame, ...audioConfig[key].narrationSplits];
-      const sentenceWhisperWords: WhisperWord[][] = narration.map(() => []);
-      for (const w of allWhisperWords) {
-        const wFrame = Math.round(w.start * FPS);
-        for (let i = sentenceStarts.length - 1; i >= 0; i--) {
-          if (wFrame >= sentenceStarts[i] - 3) {
-            sentenceWhisperWords[i].push(w);
-            break;
+      const { globalTtsCount, displayWords: dwInfos } = buildGlobalAlignment(narration, PRONUNCIATION);
+      const W = allWhisperWords.length;
+      const T = globalTtsCount;
+
+      const result: number[][] = narration.map(() => []);
+      for (let si = 0; si < narration.length; si++) {
+        const sentenceDws = dwInfos.filter((dw) => dw.sentenceIdx === si);
+
+        // Pass 1: 비-zero TTS 단어의 프레임 계산
+        const rawFrames: (number | null)[] = sentenceDws.map((dw) => {
+          if (dw.ttsCount === 0) return null;
+          const ratio = T <= 1 ? 0 : dw.firstTtsIdx / (T - 1);
+          const whisperIdx = Math.min(W - 1, Math.round(ratio * (W - 1)));
+          return Math.round(allWhisperWords[whisperIdx].start * FPS);
+        });
+
+        // Pass 2: zero-TTS 단어 채우기
+        // - 문장 내 첫 번째 non-null frame (없으면 speechStartFrame)을 forward fallback으로
+        // - 이미 non-null을 지났으면 backward (직전 non-null) 사용
+        const firstNonNull = rawFrames.find((f) => f !== null) ?? audioConfig[key].speechStartFrame;
+        let lastNonNull = firstNonNull;
+        let seenNonNull = false;
+
+        for (let i = 0; i < sentenceDws.length; i++) {
+          const dw = sentenceDws[i];
+          if (rawFrames[i] !== null) {
+            lastNonNull = rawFrames[i]!;
+            seenNonNull = true;
+            result[si][dw.displayIdx] = rawFrames[i]!;
+          } else {
+            // zero-TTS: 앞에 non-null 없으면 forward(firstNonNull), 있으면 backward(lastNonNull)
+            result[si][dw.displayIdx] = seenNonNull ? lastNonNull : firstNonNull;
           }
         }
       }
 
-      // 각 문장: display 단어 개수 길이 배열로 위치 보간
-      audioConfig[key].wordStartFrames = narration.map((sentence, si) => {
-        const displayWords = sentence.split(" ");
-        const whisperSentenceWords = sentenceWhisperWords[si];
-        if (whisperSentenceWords.length === 0) return displayWords.map(() => sentenceStarts[si]);
-        return displayWords.map((_, displayIdx) => {
-          const ratio = displayWords.length === 1 ? 0 : displayIdx / (displayWords.length - 1);
-          const whisperIdx = Math.round(ratio * (whisperSentenceWords.length - 1));
-          return Math.round(whisperSentenceWords[whisperIdx].start * FPS);
-        });
-      });
-
-      console.log(`       wordStartFrames   → ${audioConfig[key].wordStartFrames.map((s) => `[${s.join(",")}]`).join(" | ")}`);
+      audioConfig[key].wordStartFrames = result;
+      console.log(`       wordStartFrames   → ${result.map((s) => `[${s.join(",")}]`).join(" | ")}`);
     }
   } else {
     console.log(`       wordStartFrames   → Whisper 실패 (빈 배열)`);
