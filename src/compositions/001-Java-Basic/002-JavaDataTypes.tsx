@@ -61,16 +61,29 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: [
       "자료형이란 자료의 형태, 즉 데이터의 형태입니다.",
+      "자료형은 변수에 어떤 종류의 데이터를 넣을 수 있는지 결정합니다.",
       "Java의 주요 자료형 4개를 알아보겠습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+  },
+  valueVsVar: {
+    audio: "dt-value-vs-var.mp3",
+    durationInFrames: AUDIO_CONFIG.valueVsVar.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.valueVsVar.speechStartFrame,
+    narration: [
+      "먼저 자료형 값과 자료형 변수의 차이를 살펴보겠습니다.",
+      "int형 값은 숫자 25처럼 데이터 자체입니다.",
+      "int형 변수는 그 값을 담는 이름 있는 공간입니다.",
+    ] as string[],
+    narrationSplits: AUDIO_CONFIG.valueVsVar.narrationSplits,
   },
   intScene: {
     audio: "dt-int.mp3",
     durationInFrames: AUDIO_CONFIG.intScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
     narration: [
-      "int는 정수를 저장하는 자료형입니다.",
+      "int는 정수를 표현하는 자료형입니다.",
+      "int형 변수는 소수점 없는 정수만 담을 수 있습니다.",
       "나이나 개수처럼 소수점이 없는 숫자에 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
@@ -80,7 +93,8 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.doubleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
     narration: [
-      "double은 소수점이 있는 실수를 저장합니다.",
+      "double은 실수를 표현하는 자료형입니다.",
+      "double형 변수는 소수점이 있는 수를 담습니다.",
       "키나 무게처럼 정밀한 값이 필요할 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
@@ -90,9 +104,10 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.stringScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
     narration: [
-      "String은 문자열을 저장합니다.",
-      "정확히는 저장이 아닌 참조이지만 지금은 그렇게 이해해도 괜찮습니다.",
-      "이름이나 메시지처럼 텍스트를 담을 때 사용합니다.",
+      "String은 문자열을 표현하는 자료형입니다.",
+      "String형 변수는 텍스트 데이터를 담습니다.",
+      "정확히는 참조이지만, 지금은 넘어가겠습니다.",
+      "이름이나 메시지처럼 텍스트를 다룰 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
   },
@@ -101,7 +116,8 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.booleanScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
     narration: [
-      "boolean은 참 또는 거짓만 저장하는 자료형입니다.",
+      "boolean은 참 또는 거짓을 표현하는 자료형입니다.",
+      "boolean형 변수는 true 또는 false 값만 가질 수 있습니다.",
       "조건 검사 결과를 담을 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,
@@ -420,6 +436,7 @@ const IntroScene: React.FC = () => {
   ];
 
   return (
+    <>
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(intro.audio)} />
       <div style={{
@@ -455,8 +472,113 @@ const IntroScene: React.FC = () => {
           );
         })}
       </div>
-      <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
     </AbsoluteFill>
+    <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
+    </>
+  );
+};
+
+// ── 씬: ValueVsVarScene ──────────────────────────────────────
+const ValueVsVarScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { valueVsVar } = VIDEO_CONFIG;
+  const d = valueVsVar.durationInFrames;
+  const s = valueVsVar.speechStartFrame;
+  const splits = valueVsVar.narrationSplits;
+  const split0 = splits[0] ?? 90;
+  const split1 = splits[1] ?? 180;
+  const COLOR = TYPE_COLORS.int;
+
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const valueAppear = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
+  const valueScale  = interpolate(valueAppear, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const varAppear   = spring({ frame: frame - split1, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
+  const varScale    = interpolate(varAppear, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const arrowOp     = interpolate(frame, [split1, split1 + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(valueVsVar.audio)} />
+
+        {/* 제목 */}
+        <div style={{
+          position: "absolute", top: 160, left: "50%",
+          transform: "translateX(-50%)",
+          fontFamily: uiFont, fontSize: 34, color: "#666",
+          letterSpacing: 4, whiteSpace: "nowrap",
+        }}>
+          값 (Value)  vs  변수 (Variable)
+        </div>
+
+        {/* 두 패널 */}
+        <div style={{
+          position: "absolute", top: "46%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex", gap: 60, alignItems: "center",
+        }}>
+          {/* 왼쪽: int형 값 */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
+            opacity: valueAppear,
+            transform: `scale(${valueScale})`,
+          }}>
+            <div style={{ fontFamily: uiFont, fontSize: 30, fontWeight: 700, color: "#aaa", letterSpacing: 2 }}>
+              int형 값
+            </div>
+            <div style={{
+              width: 200, height: 200, borderRadius: "50%",
+              border: `3px dashed ${COLOR}88`,
+              background: `${COLOR}0d`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <span style={{ fontFamily: monoFont, fontSize: 80, fontWeight: 700, color: COLOR }}>25</span>
+            </div>
+            <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
+              데이터 자체
+            </div>
+          </div>
+
+          {/* 화살표 */}
+          <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>→</div>
+
+          {/* 오른쪽: int형 변수 */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
+            opacity: varAppear,
+            transform: `scale(${varScale})`,
+          }}>
+            <div style={{ fontFamily: uiFont, fontSize: 30, fontWeight: 700, color: "#aaa", letterSpacing: 2 }}>
+              int형 변수
+            </div>
+            <div style={{
+              width: 240, height: 200, borderRadius: 20,
+              border: `4px solid ${COLOR}`,
+              background: `${COLOR}1a`,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", gap: 4,
+              position: "relative",
+            }}>
+              {/* 타입 태그 */}
+              <div style={{
+                position: "absolute", top: -20,
+                background: COLOR, borderRadius: 6, padding: "4px 16px",
+                fontFamily: monoFont, fontSize: 22, fontWeight: 700, color: "#1e1e1e",
+              }}>int</div>
+              {/* 변수명 */}
+              <div style={{ fontFamily: monoFont, fontSize: 28, color: "#888" }}>age</div>
+            </div>
+            <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
+              값을 담는 공간
+            </div>
+          </div>
+        </div>
+      </AbsoluteFill>
+      <Subtitle sentences={valueVsVar.narration} splits={splits} speechStart={s} />
+    </>
   );
 };
 
@@ -497,26 +619,28 @@ const TypeScene: React.FC<{
   const dropStart = config.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(config.audio)} />
-      <div style={{
-        position: "absolute", top: "30%", left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}>
-        <TypeBox
-          color={color}
-          value={value}
-          label={label}
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(config.audio)} />
+        <div style={{
+          position: "absolute", top: "30%", left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}>
+          <TypeBox
+            color={color}
+            value={value}
+            label={label}
+            startFrame={s}
+            dropStartFrame={dropStart}
+          />
+        </div>
+        <CodeBox
+          lines={[{ text: code, isNew: true }]}
           startFrame={s}
-          dropStartFrame={dropStart}
         />
-      </div>
-      <CodeBox
-        lines={[{ text: code, isNew: true }]}
-        startFrame={s}
-      />
+      </AbsoluteFill>
       <Subtitle sentences={config.narration} splits={config.narrationSplits} speechStart={s} />
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -532,20 +656,22 @@ const BooleanScene: React.FC = () => {
   const dropStart = booleanScene.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(booleanScene.audio)} />
-      <div style={{
-        position: "absolute", top: "30%", left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}>
-        <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
-      </div>
-      <CodeBox
-        lines={[{ text: code, isNew: true }]}
-        startFrame={s}
-      />
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(booleanScene.audio)} />
+        <div style={{
+          position: "absolute", top: "30%", left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}>
+          <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
+        </div>
+        <CodeBox
+          lines={[{ text: code, isNew: true }]}
+          startFrame={s}
+        />
+      </AbsoluteFill>
       <Subtitle sentences={booleanScene.narration} splits={booleanScene.narrationSplits} speechStart={s} />
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -575,22 +701,24 @@ const SummaryScene: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(summaryScene.audio)} />
-      {starts.map((startFrom, i) => (
-        <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
-          <CodeBox
-            lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
-              text,
-              isNew: j === i,
-            }))}
-            startFrame={0}
-            charsPerSecond={SUMMARY_CPS}
-          />
-        </Sequence>
-      ))}
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(summaryScene.audio)} />
+        {starts.map((startFrom, i) => (
+          <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
+            <CodeBox
+              lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
+                text,
+                isNew: j === i,
+              }))}
+              startFrame={0}
+              charsPerSecond={SUMMARY_CPS}
+            />
+          </Sequence>
+        ))}
+      </AbsoluteFill>
       <Subtitle sentences={summaryScene.narration} splits={summaryScene.narrationSplits} speechStart={summaryScene.speechStartFrame} />
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -598,6 +726,7 @@ const SummaryScene: React.FC = () => {
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
   VIDEO_CONFIG.intro,
+  VIDEO_CONFIG.valueVsVar,
   VIDEO_CONFIG.intScene,
   VIDEO_CONFIG.doubleScene,
   VIDEO_CONFIG.stringScene,
@@ -630,19 +759,22 @@ export const JavaDataTypes: React.FC = () => (
     <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
       <IntroScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}>
+    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.valueVsVar.durationInFrames}>
+      <ValueVsVarScene />
+    </Sequence>
+    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}>
       <TypeScene sceneKey="intScene" config={VIDEO_CONFIG.intScene} />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}>
+    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}>
       <TypeScene sceneKey="doubleScene" config={VIDEO_CONFIG.doubleScene} />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}>
+    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}>
       <TypeScene sceneKey="stringScene" config={VIDEO_CONFIG.stringScene} />
     </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
+    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
       <BooleanScene />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>

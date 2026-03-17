@@ -27,4 +27,5 @@ export const PRONUNCIATION: Record<string, string> = {
   "Double": "더블",
   "Java": "자바",
   "(자료)": "",
+  "개수": "개쑤",
 };

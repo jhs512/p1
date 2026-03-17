@@ -402,11 +402,13 @@ const IntroScene: React.FC = () => {
   const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(intro.audio)} />
-      <BoxMetaphorAnim />
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(intro.audio)} />
+        <BoxMetaphorAnim />
+      </AbsoluteFill>
       <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={AUDIO_CONFIG.intro.speechStartFrame} />
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -600,42 +602,46 @@ const CombinedDeclarationInitScene: React.FC = () => {
   const fillBoxStart = SPLIT + typingDone("age = 25;".length, AUDIO_CONFIG.initialization.speechStartFrame);
 
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
-      <Sequence durationInFrames={SPLIT}>
-        <Audio src={staticFile(declaration.audio)} />
-      </Sequence>
-      <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
-        <Audio src={staticFile(initialization.audio)} />
-      </Sequence>
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
+        <Sequence durationInFrames={SPLIT}>
+          <Audio src={staticFile(declaration.audio)} />
+        </Sequence>
+        <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
+          <Audio src={staticFile(initialization.audio)} />
+        </Sequence>
 
-      {/* 제목: 씬 전환 시 교체 */}
-      <Sequence durationInFrames={SPLIT}>
-        <SceneTitle title={declaration.title} />
-      </Sequence>
-      <Sequence from={SPLIT}>
-        <SceneTitle title={initialization.title} />
-      </Sequence>
+        {/* 제목: 씬 전환 시 교체 */}
+        <Sequence durationInFrames={SPLIT}>
+          <SceneTitle title={declaration.title} />
+        </Sequence>
+        <Sequence from={SPLIT}>
+          <SceneTitle title={initialization.title} />
+        </Sequence>
 
-      {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
-      <Sequence durationInFrames={SPLIT}>
-        <CodeBox lines={declaration.code} startFrame={AUDIO_CONFIG.declaration.speechStartFrame} />
-      </Sequence>
-      <Sequence from={SPLIT}>
-        <CodeBox lines={initialization.code} startFrame={AUDIO_CONFIG.initialization.speechStartFrame} />
-      </Sequence>
+        {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
+        <Sequence durationInFrames={SPLIT}>
+          <CodeBox lines={declaration.code} startFrame={AUDIO_CONFIG.declaration.speechStartFrame} />
+        </Sequence>
+        <Sequence from={SPLIT}>
+          <CodeBox lines={initialization.code} startFrame={AUDIO_CONFIG.initialization.speechStartFrame} />
+        </Sequence>
 
-      {/* 박스: 전 구간에 걸쳐 살아있는 단일 박스 */}
-      <CombinedVariableBox emptyStart={emptyBoxStart} fillStart={fillBoxStart} />
+        {/* 박스: 전 구간에 걸쳐 살아있는 단일 박스 */}
+        <CombinedVariableBox emptyStart={emptyBoxStart} fillStart={fillBoxStart} />
+      </AbsoluteFill>
 
-      {/* 자막 */}
-      <Sequence durationInFrames={SPLIT}>
+      {/* 자막: opacity 영향 없이 항상 선명하게
+          initialization 오디오가 SPLIT-SCENE_TAIL_FRAMES 부터 시작하므로
+          자막 Sequence도 같은 시점에서 시작해야 speechStartFrame 기준이 맞음 */}
+      <Sequence durationInFrames={SPLIT - SCENE_TAIL_FRAMES}>
         <Subtitle sentences={declaration.narration} splits={declaration.narrationSplits} speechStart={AUDIO_CONFIG.declaration.speechStartFrame} />
       </Sequence>
-      <Sequence from={SPLIT}>
+      <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
         <Subtitle sentences={initialization.narration} splits={initialization.narrationSplits} speechStart={AUDIO_CONFIG.initialization.speechStartFrame} />
       </Sequence>
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -651,13 +657,15 @@ const PrintScene: React.FC = () => {
   const s = AUDIO_CONFIG.print.speechStartFrame;
   const consoleStart = typingDone(newLine.text.length, s);
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(print.audio)} />
-      <SceneTitle title={print.title} />
-      <CodeBox lines={print.code} startFrame={s} />
-      <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(print.audio)} />
+        <SceneTitle title={print.title} />
+        <CodeBox lines={print.code} startFrame={s} />
+        <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
+      </AbsoluteFill>
       <Subtitle sentences={print.narration} splits={print.narrationSplits} speechStart={s} />
-    </AbsoluteFill>
+    </>
   );
 };
 
