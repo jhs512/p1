@@ -15,7 +15,7 @@
 
 import { buildSync } from "esbuild";
 import { createHash } from "crypto";
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "fs";
 import { spawnSync } from "child_process";
 import path from "path";
 
@@ -44,7 +44,9 @@ if (!matchEntry) {
 }
 const COMPOSITION_FILE = path.join(SERIES_DIR, matchEntry);
 const COMPOSITION_DIR  = SERIES_DIR;
-const HASH_FILE = `.${arg.replace(/\//g, "-")}-audio-hashes.json`;
+const CACHE_DIR = ".cache";
+mkdirSync(CACHE_DIR, { recursive: true });
+const HASH_FILE = `${CACHE_DIR}/${arg.replace(/\//g, "-")}-audio-hashes.json`;
 console.log(`📄  ${COMPOSITION_FILE}\n`);
 
 // ── AUDIO_CONFIG 스텁 생성 ─────────────────────────────────────

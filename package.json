@@ -7,8 +7,8 @@
   "private": true,
   "dependencies": {
     "@remotion/cli": "4.0.435",
-    "@remotion/google-fonts": "^4.0.435",
-    "@remotion/media": "^4.0.435",
+    "@remotion/google-fonts": "^4.0.436",
+    "@remotion/media": "^4.0.436",
     "@remotion/zod-types": "4.0.435",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -33,7 +33,7 @@
     "lint": "eslint src && tsc",
     "sync": "tsx scripts/sync.ts",
     "sync:all": "tsx scripts/sync-all.ts",
-    "watch": "tsx scripts/watch.ts",
     "render": "tsx scripts/render.ts"
-  }
+  },
+  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
 }

@@ -7,8 +7,7 @@ dist
 out
 
 # sync 스크립트 해시 캐시 (자동 생성)
-.*-audio-hashes.json
-.audio-hashes.json
+.cache/
 
 # 툴 내부 디렉토리
 .claude/
