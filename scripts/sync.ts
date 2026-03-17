@@ -21,6 +21,7 @@ import path from "path";
 
 const FPS = 30;
 const SCENE_TAIL_FRAMES = 15;
+const WORD_HIGHLIGHT_LEAD_FRAMES = 6;  // Whisper는 소리가 쌓인 후 인식 → 실제 발화보다 늦음. 6프레임(0.2s) 앞당겨 보정
 const PUBLIC_DIR = "public";
 const SRC_DIR = "src/compositions";
 
@@ -430,7 +431,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
           const localT = useSentenceLocal ? sentenceTtsCount : T;
           const ratio = localT <= 1 ? 0 : localDw.firstTtsIdx / (localT - 1);
           const wIdx = Math.min(ws.length - 1, Math.round(ratio * (ws.length - 1)));
-          return Math.round(ws[wIdx].start * FPS);
+          return Math.max(0, Math.round(ws[wIdx].start * FPS) - WORD_HIGHLIGHT_LEAD_FRAMES);
         });
 
         // Pass 2: zero-TTS 단어 채우기
