@@ -14,18 +14,3 @@ export const RATE = "+40%";
  */
 export const SCENE_TAIL_FRAMES = 15;
 
-/**
- * 자막 표시 단어 → TTS 읽기 단어 (전역)
- * 예: "System.out.println" 은 자막엔 그대로, 음성은 "print line" 으로 읽음
- */
-export const PRONUNCIATION: Record<string, string> = {
-  "System.out.println": "print line",
-  "int": "int",
-  "String": "String",
-  "boolean": "boolean",
-  "double": "더블",
-  "Double": "더블",
-  "Java": "자바",
-  "(자료)": "",
-  "개수": "개쑤",
-};

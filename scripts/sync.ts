@@ -66,7 +66,6 @@ type SceneEntry = { narration?: string[]; audio: string; };
 
 function loadConfig(): {
   VOICE: string; RATE: string;
-  PRONUNCIATION: Record<string, string>;
   VIDEO_CONFIG: Record<string, SceneEntry>;
 } {
   const result = buildSync({
@@ -91,7 +90,7 @@ function loadConfig(): {
   return mod.exports as ReturnType<typeof loadConfig>;
 }
 
-const { VOICE, RATE, PRONUNCIATION, VIDEO_CONFIG } = loadConfig();
+const { VOICE, RATE, VIDEO_CONFIG } = loadConfig();
 
 // ── 유틸 ──────────────────────────────────────────────────────
 type Hashes = Record<string, string>;
@@ -103,33 +102,29 @@ function loadHashes(): Hashes {
   if (!existsSync(HASH_FILE)) return {};
   return JSON.parse(readFileSync(HASH_FILE, "utf-8")) as Hashes;
 }
-function applyPronunciation(text: string): string {
-  let r = text;
-  for (const [k, v] of Object.entries(PRONUNCIATION)) r = r.replaceAll(k, v);
-  return r;
+// ── 인라인 발음 문법: [표시(발음:읽기)] ────────────────────────
+// TTS용: [유튜브(발음:유튭)] → 유튭
+function toTTSText(text: string): string {
+  return text.replace(/\[([^(]+)\(발음:([^)]*)\)\]/g, (_, _d, p) => p.trim());
 }
 
-// ── PRONUNCIATION 단어별 확장 ──────────────────────────────────
-// display 단어 1개 → TTS 단어 배열 변환
-//   "System.out.println" → ["print", "line"]
-//   "(자료)"             → []               (빈 치환 = 발화 없음)
-//   "int,"              → ["int,"]          (trailing 구두점 재부착)
-//   "메서드를"           → ["메서드를"]     (치환 없음)
-function getPronunciationExpansion(word: string, pronunciation: Record<string, string>): string[] {
-  if (word in pronunciation) {
-    const val = pronunciation[word].trim();
-    return val === "" ? [] : val.split(/\s+/);
+// ── 나레이션 토크나이저 ────────────────────────────────────────
+// [X(발음:Y)] → { display: X, tts: Y.split(" ") }
+// 일반 단어    → { display: word, tts: [word] }
+type NarrationToken = { display: string; tts: string[] };
+function tokenizeNarration(text: string): NarrationToken[] {
+  const tokens: NarrationToken[] = [];
+  const re = /\[([^(]+)\(발음:([^)]*)\)\]|(\S+)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[1] !== undefined) {
+      const pron = m[2].trim();
+      tokens.push({ display: m[1], tts: pron === "" ? [] : pron.split(/\s+/) });
+    } else {
+      tokens.push({ display: m[3], tts: [m[3]] });
+    }
   }
-  const stripped = word.replace(/[.,;:!?]+$/, "");
-  const suffix = word.slice(stripped.length);
-  if (stripped !== word && stripped in pronunciation) {
-    const val = pronunciation[stripped].trim();
-    if (val === "") return [];
-    const parts = val.split(/\s+/);
-    parts[parts.length - 1] += suffix;   // 마지막 TTS 단어에 구두점 재부착
-    return parts;
-  }
-  return [word];
+  return tokens;
 }
 
 // ── 전역 TTS 정렬 테이블 ───────────────────────────────────────
@@ -146,16 +141,15 @@ type DisplayWordInfo = {
 
 export function buildGlobalAlignment(
   narration: string[],
-  pronunciation: Record<string, string>,
 ): { globalTtsCount: number; displayWords: DisplayWordInfo[] } {
   const displayWords: DisplayWordInfo[] = [];
   let globalTtsIdx = 0;
   for (let si = 0; si < narration.length; si++) {
-    const words = narration[si].split(" ");
-    for (let di = 0; di < words.length; di++) {
-      const expanded = getPronunciationExpansion(words[di], pronunciation);
-      displayWords.push({ sentenceIdx: si, displayIdx: di, firstTtsIdx: globalTtsIdx, ttsCount: expanded.length });
-      globalTtsIdx += expanded.length;
+    const tokens = tokenizeNarration(narration[si]);
+    for (let di = 0; di < tokens.length; di++) {
+      const { tts } = tokens[di];
+      displayWords.push({ sentenceIdx: si, displayIdx: di, firstTtsIdx: globalTtsIdx, ttsCount: tts.length });
+      globalTtsIdx += tts.length;
     }
   }
   return { globalTtsCount: globalTtsIdx, displayWords };
@@ -306,7 +300,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const narration = scene.narration;
   if (!narration) continue;
 
-  const ttsText = applyPronunciation(narration.join(" "));
+  const ttsText = toTTSText(narration.join(" "));
   const audio = scene.audio;
   const newHash = hash(VOICE + RATE + ttsText);
 
@@ -403,7 +397,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
       }
 
       // ── B/C) 문장별 또는 전역 비율로 프레임 계산 ──────────────
-      const { globalTtsCount, displayWords: dwInfos } = buildGlobalAlignment(narration, PRONUNCIATION);
+      const { globalTtsCount, displayWords: dwInfos } = buildGlobalAlignment(narration);
       const T = globalTtsCount;
 
       const result: number[][] = narration.map(() => []);
@@ -416,7 +410,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
         let localDwInfos: DisplayWordInfo[] = dwInfos;
         if (useSentenceLocal) {
           ws = whisperSentences[si];
-          const aligned = buildGlobalAlignment([narration[si]], PRONUNCIATION);
+          const aligned = buildGlobalAlignment([narration[si]]);
           sentenceTtsCount = aligned.globalTtsCount;
           localDwInfos = aligned.displayWords;  // sentenceIdx=0, displayIdx 동일
         }

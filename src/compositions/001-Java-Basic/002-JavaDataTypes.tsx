@@ -15,11 +15,11 @@ import {
 import { Audio } from "@remotion/media";
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE, PRONUNCIATION } from "../../global.config";
+import { VOICE, RATE } from "../../global.config";
 import { AUDIO_CONFIG } from "./002-audio";
+import { toDisplayText } from "../../utils/narration";
 
-// sync.ts 가 이 파일을 esbuild 로 로드할 때 사용
-export { VOICE, RATE, PRONUNCIATION };
+export { VOICE, RATE };
 
 // ── 상수 ─────────────────────────────────────────────────────
 const CROSS = 20;
@@ -202,7 +202,7 @@ const CodeBox: React.FC<{
     transform: "translate(-50%, -50%)",
     background: "#2d2d2d", borderRadius: 12,
     padding: "40px 56px", minWidth: 780,
-    fontFamily: monoFont, fontSize: 36,
+    fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 36,
   }}>
     {lines.map((line, i) =>
       line.isNew ? (
@@ -238,7 +238,7 @@ const Subtitle: React.FC<{
       width: "max-content", maxWidth: compositionWidth - 20,
       wordBreak: "keep-all", whiteSpace: "pre-wrap",
     }}>
-      {sentences[currentIdx]}
+      {toDisplayText(sentences[currentIdx])}
     </div>
   );
 };
@@ -311,7 +311,7 @@ const TypeBox: React.FC<{
           <div style={{
             position: "absolute", left: "50%", top: "50%",
             transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-            fontFamily: monoFont, fontSize: 64, fontWeight: 700,
+            fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 700,
             color: "#d4d4d4", opacity: dropO,
           }}>
             {value}
@@ -375,7 +375,7 @@ const BooleanToggleAnim: React.FC<{
         background: `${COLOR}1a`,
       }}>
         <span style={{
-          fontFamily: monoFont, fontSize: 56, fontWeight: 700,
+          fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 56, fontWeight: 700,
           color: toggleColor, opacity: valueOpacity,
         }}>
           {displayValue}
@@ -463,7 +463,7 @@ const IntroScene: React.FC = () => {
               background: `${color}1a`,
             }}>
               <span style={{
-                fontFamily: monoFont, fontSize: 38,
+                fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 38,
                 fontWeight: 700, color,
               }}>
                 {label}
@@ -535,7 +535,7 @@ const ValueVsVarScene: React.FC = () => {
               background: `${COLOR}0d`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <span style={{ fontFamily: monoFont, fontSize: 80, fontWeight: 700, color: COLOR }}>25</span>
+              <span style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 80, fontWeight: 700, color: COLOR }}>25</span>
             </div>
             <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
               데이터 자체
@@ -566,10 +566,10 @@ const ValueVsVarScene: React.FC = () => {
               <div style={{
                 position: "absolute", top: -20,
                 background: COLOR, borderRadius: 6, padding: "4px 16px",
-                fontFamily: monoFont, fontSize: 22, fontWeight: 700, color: "#1e1e1e",
+                fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, fontWeight: 700, color: "#1e1e1e",
               }}>int</div>
               {/* 변수명 */}
-              <div style={{ fontFamily: monoFont, fontSize: 28, color: "#888" }}>age</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 28, color: "#888" }}>age</div>
             </div>
             <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
               값을 담는 공간
@@ -689,7 +689,6 @@ const SummaryScene: React.FC = () => {
   const { summaryScene } = VIDEO_CONFIG;
   const d = summaryScene.durationInFrames;
   const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   // 캐릭터 수 비례로 각 라인 시작 타이밍 계산
   const totalChars = SUMMARY_LINES.reduce((sum, l) => sum + l.length, 0);
@@ -702,7 +701,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn }}>
         <Audio src={staticFile(summaryScene.audio)} />
         {starts.map((startFrom, i) => (
           <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

@@ -1,5 +1,41 @@
 # Remotion 영상 프로젝트 — Claude 작업 가이드
 
+---
+
+## ⚠️ 절대 원칙 — 나레이션 작성 시 반드시 지킨다
+
+### 1. 자막에 코드를 쓰지 않는다
+`int`, `score += 10`, `count++`, `String` 같은 코드는 **자막(narration 텍스트)에 절대 넣지 않는다**.
+코드는 화면 디자인(씬 비주얼)으로 보여준다.
+
+### 2. TTS가 잘못 읽을 단어는 인라인 발음 문법을 쓴다
+```
+[표시텍스트(발음:TTS읽기)]
+```
+- `[System.out.println(발음:print line)]` → 자막: System.out.println / TTS: print line
+- `[double(발음:더블)]` → 자막: double / TTS: 더블
+- `[(자료)(발음:)]` → 자막: (자료) / TTS: 묵음
+
+**나레이션을 쓸 때마다 이 두 가지를 반드시 확인한다.**
+
+### 3. 마지막 씬은 fadeOut 없이 끝낸다
+영상의 마지막 씬은 `fadeOut`을 적용하지 않는다. fadeIn만 적용하고 그대로 끝낸다.
+- `useFade(d)` 대신 `useFade(d, { out: false })` 사용
+- 인라인인 경우 `fadeOut` 계산 제거, `opacity: fadeIn` 만 사용
+
+### 4. JetBrains Mono 리가처는 항상 끈다
+모노스페이스 폰트를 사용하는 모든 요소에 반드시 `fontFeatureSettings: '"calt" 0, "liga" 0'` 을 추가한다.
+이를 적용하지 않으면 `!=` → `≠`, `==` → `≡`, `>=` → `≥` 같은 리가처 변환이 발생한다.
+- 상수로 정의해 재사용: `const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;`
+- 모든 `fontFamily: monoFont` 사용처에 `fontFeatureSettings: MONO_NO_LIGA` 를 함께 쓴다.
+
+### 5. 중간 작업마다 커밋/푸시한다
+기능 단위 또는 씬 단위로 작업이 완료되면 즉시 커밋하고 push한다.
+- 자동으로 판단해 커밋 타이밍을 챙긴다. 사용자가 요청하지 않아도 된다.
+- 커밋 메시지는 한국어로 작성해도 된다.
+
+---
+
 ## 프로젝트 구조
 
 ```
@@ -79,23 +115,31 @@ intro: {
 - 단일 흰색 텍스트 (`#ffffff`) — 카라오케 하이라이팅 없음
 - 카라오케 실험 코드는 `feat/karaoke-subtitles` 브랜치에 보존
 
-## PRONUNCIATION (global.config.ts)
+## 인라인 발음 문법
 
-```ts
-export const PRONUNCIATION: Record<string, string> = {
-  "System.out.println": "print line",
-  "int": "int",
-  "String": "String",
-  "boolean": "boolean",
-  "double": "더블",
-  "Double": "더블",
-  "Java": "자바",
-  "(자료)": "",
-};
+나레이션 텍스트 안에서 자막 표시와 TTS 읽기를 분리할 때 사용:
+
+```
+[표시텍스트(발음:TTS텍스트)]
 ```
 
-- 자막 표시용과 TTS 읽기용을 분리할 때 사용
-- PRONUNCIATION 변경 시 해시가 달라져 영향받는 씬 자동 재생성됨
+예시:
+```ts
+"[유튜브(발음:유튭)]에서 확인할 수 있습니다."
+// 자막: 유튜브에서 확인할 수 있습니다.
+// TTS: 유튭에서 확인할 수 있습니다.
+
+"[System.out.println(발음:print line)]으로 출력합니다."
+// 자막: System.out.println으로 출력합니다.
+// TTS: print line으로 출력합니다.
+
+"[(자료)(발음:)]형이란"
+// 자막: (자료)형이란
+// TTS: 형이란  ← 빈 발음 = 묵음
+```
+
+- `src/utils/narration.ts`의 `toDisplayText` / `toTTSText` 함수로 파싱
+- 전역 PRONUNCIATION 맵 제거됨 — 인라인 문법으로 대체
 
 ## 컴포지션 ID 규칙
 
@@ -133,6 +177,12 @@ SCENE_TAIL_FRAMES = 15  // 오디오 종료 후 여유 프레임 (global.config.
 2. `export const compositionMeta`, `export const VIDEO_CONFIG`, `export const Component` 포함
 3. `{id}-audio.ts` 없으면 sync가 자동 스텁 생성
 4. `pnpm sync {시리즈폴더}/{id}` 실행
+
+## 자막(Subtitle) 원칙
+
+- **자막에 코드를 쓰지 않는다.** `int`, `score += 10`, `count++` 같은 코드는 자막이 아니라 화면 디자인(씬 비주얼)으로 표현한다.
+- 자막은 순수 한국어 설명 문장만 사용한다.
+- 코드 설명이 필요한 경우 나레이션으로 말하고, 화면에 코드 블록/애니메이션으로 시각적으로 보여준다.
 
 ## 주의사항
 
