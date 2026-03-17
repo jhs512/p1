@@ -12,13 +12,18 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 audio_file = sys.argv[1]
-model = WhisperModel("tiny", device="cpu", compute_type="int8")
-segments, _ = model.transcribe(audio_file, language="ko", word_timestamps=True)
+try:
+    model = WhisperModel("small", device="cpu", compute_type="int8")
+    segments, _ = model.transcribe(audio_file, language="ko", word_timestamps=True)
 
-words = []
-for segment in segments:
-    if segment.words:
-        for word in segment.words:
-            words.append({"start": word.start, "end": word.end, "word": word.word})
+    words = []
+    for segment in segments:
+        if segment.words:
+            for word in segment.words:
+                words.append({"start": word.start, "end": word.end, "word": word.word})
 
-print(json.dumps(words, ensure_ascii=False))
+    print(json.dumps(words, ensure_ascii=False))
+except Exception as e:
+    print(f"whisper error: {e}", file=sys.stderr)
+    print("[]")
+    sys.exit(1)
