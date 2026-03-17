@@ -405,7 +405,7 @@ const IntroScene: React.FC = () => {
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(intro.audio)} />
       <BoxMetaphorAnim />
-      <Subtitle sentences={intro.narration} durationInFrames={d} splits={intro.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.intro.sentenceEndFrames} speechStart={AUDIO_CONFIG.intro.speechStartFrame} speechEnd={AUDIO_CONFIG.intro.speechEndFrame} wordStartFrames={AUDIO_CONFIG.intro.wordStartFrames} />
+      <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={AUDIO_CONFIG.intro.speechStartFrame} />
     </AbsoluteFill>
   );
 };
@@ -414,62 +414,17 @@ const IntroScene: React.FC = () => {
 // ── 컴포넌트: Subtitle ────────────────────────────────────────
 const Subtitle: React.FC<{
   sentences: string[];
-  durationInFrames: number;
-  splits?: readonly number[];                         // 각 문장(2번째~) 시작 프레임
-  sentenceEndFrames?: readonly number[];              // 각 문장 발화 종료 프레임
-  speechStart?: number;                              // 첫 문장 시작 프레임
-  speechEnd?: number;                                // 마지막 문장 발화 종료 프레임
-  wordStartFrames?: readonly (readonly number[])[];  // TTS 단어 경계 프레임 (문장별)
-}> = ({ sentences, durationInFrames, splits, sentenceEndFrames, speechStart = 0, speechEnd, wordStartFrames }) => {
+  splits?: readonly number[];   // 각 문장(2번째~) 시작 프레임
+  speechStart?: number;         // 첫 문장 시작 프레임
+}> = ({ sentences, splits, speechStart = 0 }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
 
+  if (frame < speechStart) return null;
+
   // 문장별 표시 구간 계산
-  const ranges = sentences.map((_, i) => {
-    if (splits && splits.length >= sentences.length - 1) {
-      const start = i === 0 ? speechStart : splits[i - 1];
-      const end   = i < splits.length ? splits[i] : durationInFrames;
-      return { start, end };
-    }
-    const totalChars = sentences.reduce((sum, s) => sum + s.length, 0);
-    let cumulative = 0;
-    sentences.slice(0, i).forEach((s) => { cumulative += s.length; });
-    const start = Math.floor((cumulative / totalChars) * durationInFrames);
-    cumulative += sentences[i].length;
-    const end   = Math.floor((cumulative / totalChars) * durationInFrames);
-    return { start, end };
-  });
-  const idx = ranges.findIndex(({ start, end }) => frame >= start && frame < end);
-  const currentIdx = idx === -1 ? sentences.length - 1 : idx;
-  const { start } = ranges[currentIdx];
-  const opacity = 1;  // 문장 전환 즉시 표시 (fade-in 제거)
-
-  const sentence = sentences[currentIdx];
-  const words = sentence.split(" ");
-
-  // 현재 하이라이트할 display word 인덱스 결정
-  let activeDisplayIdx = -1;
-  const wFrames = wordStartFrames?.[currentIdx];
-  if (wFrames && wFrames.length === words.length) {
-    // wordStartFrames 길이 = words.length 보장 (sync.ts에서 display-word-길이로 생성)
-    for (let j = 0; j < wFrames.length; j++) {
-      if (frame >= wFrames[j]) activeDisplayIdx = j;
-    }
-  } else {
-    // fallback: 글자 수 비례 (TTS 타이밍 없을 때)
-    const sentenceActualEnd =
-      sentenceEndFrames && currentIdx < sentenceEndFrames.length
-        ? sentenceEndFrames[currentIdx]
-        : (currentIdx === sentences.length - 1 && speechEnd != null ? speechEnd : ranges[currentIdx].end);
-    const progress = Math.min(1, Math.max(0, (frame - start) / Math.max(1, sentenceActualEnd - start)));
-    const totalChars = words.reduce((sum, w) => sum + w.length, 0);
-    let cumChars = 0;
-    for (let j = 0; j < words.length; j++) {
-      const wStart = cumChars / totalChars;
-      cumChars += words[j].length;
-      if (progress >= wStart) activeDisplayIdx = j;
-    }
-  }
+  const starts = [speechStart, ...(splits ?? [])];
+  const currentIdx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
 
   return (
     <div
@@ -481,7 +436,7 @@ const Subtitle: React.FC<{
         textAlign: "center",
         fontFamily: uiFont,
         fontSize: 32,
-        opacity,
+        color: "#ffffff",
         background: "rgba(0,0,0,0.55)",
         borderRadius: 6,
         padding: "8px 16px",
@@ -492,21 +447,7 @@ const Subtitle: React.FC<{
         whiteSpace: "pre-wrap",
       }}
     >
-      {words.map((word, i) => {
-        // 3단어 동시 하이라이팅 (끝에 남은 단어가 4개 이하면 전부 포함)
-        const WINDOW = 3;
-        const remaining = words.length - activeDisplayIdx;
-        const windowSize = activeDisplayIdx >= 0 && remaining <= 4 ? remaining : WINDOW;
-        const isActive = activeDisplayIdx >= 0 && i >= activeDisplayIdx && i < activeDisplayIdx + windowSize;
-        const isSpoken = i < activeDisplayIdx;
-        const color = isActive ? "#4ec9b0" : isSpoken ? "#ffffff" : "rgba(255,255,255,0.45)";
-        return (
-          <React.Fragment key={i}>
-            <span style={{ color }}>{word}</span>
-            {i < words.length - 1 && " "}
-          </React.Fragment>
-        );
-      })}
+      {sentences[currentIdx]}
     </div>
   );
 };
@@ -689,10 +630,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
       {/* 자막 */}
       <Sequence durationInFrames={SPLIT}>
-        <Subtitle sentences={declaration.narration} durationInFrames={SPLIT} splits={declaration.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.declaration.sentenceEndFrames} speechStart={AUDIO_CONFIG.declaration.speechStartFrame} speechEnd={AUDIO_CONFIG.declaration.speechEndFrame} wordStartFrames={AUDIO_CONFIG.declaration.wordStartFrames} />
+        <Subtitle sentences={declaration.narration} splits={declaration.narrationSplits} speechStart={AUDIO_CONFIG.declaration.speechStartFrame} />
       </Sequence>
       <Sequence from={SPLIT}>
-        <Subtitle sentences={initialization.narration} durationInFrames={initialization.durationInFrames} splits={initialization.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.initialization.sentenceEndFrames} speechStart={AUDIO_CONFIG.initialization.speechStartFrame} speechEnd={AUDIO_CONFIG.initialization.speechEndFrame} wordStartFrames={AUDIO_CONFIG.initialization.wordStartFrames} />
+        <Subtitle sentences={initialization.narration} splits={initialization.narrationSplits} speechStart={AUDIO_CONFIG.initialization.speechStartFrame} />
       </Sequence>
     </AbsoluteFill>
   );
@@ -715,7 +656,7 @@ const PrintScene: React.FC = () => {
       <SceneTitle title={print.title} />
       <CodeBox lines={print.code} startFrame={s} />
       <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
-      <Subtitle sentences={print.narration} durationInFrames={d} splits={print.narrationSplits} sentenceEndFrames={AUDIO_CONFIG.print.sentenceEndFrames} speechStart={s} speechEnd={AUDIO_CONFIG.print.speechEndFrame} wordStartFrames={AUDIO_CONFIG.print.wordStartFrames} />
+      <Subtitle sentences={print.narration} splits={print.narrationSplits} speechStart={s} />
     </AbsoluteFill>
   );
 };
