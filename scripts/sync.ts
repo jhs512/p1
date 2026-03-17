@@ -106,6 +106,58 @@ function applyPronunciation(text: string): string {
   return r;
 }
 
+// ── PRONUNCIATION 단어별 확장 ──────────────────────────────────
+// display 단어 1개 → TTS 단어 배열 변환
+//   "System.out.println" → ["print", "line"]
+//   "(자료)"             → []               (빈 치환 = 발화 없음)
+//   "int,"              → ["int,"]          (trailing 구두점 재부착)
+//   "메서드를"           → ["메서드를"]     (치환 없음)
+function getPronunciationExpansion(word: string, pronunciation: Record<string, string>): string[] {
+  if (word in pronunciation) {
+    const val = pronunciation[word].trim();
+    return val === "" ? [] : val.split(/\s+/);
+  }
+  const stripped = word.replace(/[.,;:!?]+$/, "");
+  const suffix = word.slice(stripped.length);
+  if (stripped !== word && stripped in pronunciation) {
+    const val = pronunciation[stripped].trim();
+    if (val === "") return [];
+    const parts = val.split(/\s+/);
+    parts[parts.length - 1] += suffix;   // 마지막 TTS 단어에 구두점 재부착
+    return parts;
+  }
+  return [word];
+}
+
+// ── 전역 TTS 정렬 테이블 ───────────────────────────────────────
+// narration 모든 문장의 display 단어 → 전역 TTS 인덱스 매핑
+// 반환값:
+//   globalTtsCount: 전체 TTS 단어 수 (Whisper 인덱스 계산 기준)
+//   displayWords:   각 display 단어의 (sentenceIdx, displayIdx, firstTtsIdx, ttsCount)
+type DisplayWordInfo = {
+  sentenceIdx: number;
+  displayIdx:  number;
+  firstTtsIdx: number;   // 이 단어의 TTS 단어들이 시작하는 전역 인덱스
+  ttsCount:    number;   // TTS 확장 단어 수 (0 = 발화 없음)
+};
+
+export function buildGlobalAlignment(
+  narration: string[],
+  pronunciation: Record<string, string>,
+): { globalTtsCount: number; displayWords: DisplayWordInfo[] } {
+  const displayWords: DisplayWordInfo[] = [];
+  let globalTtsIdx = 0;
+  for (let si = 0; si < narration.length; si++) {
+    const words = narration[si].split(" ");
+    for (let di = 0; di < words.length; di++) {
+      const expanded = getPronunciationExpansion(words[di], pronunciation);
+      displayWords.push({ sentenceIdx: si, displayIdx: di, firstTtsIdx: globalTtsIdx, ttsCount: expanded.length });
+      globalTtsIdx += expanded.length;
+    }
+  }
+  return { globalTtsCount: globalTtsIdx, displayWords };
+}
+
 // ── 발화 시작/종료 프레임 감지 (speechStartFrame / speechEndFrame) ─
 function detectSpeechBounds(audioFile: string, totalSecs: number): { speechStartFrame: number; speechEndFrame: number } {
   const ffRes = spawnSync(
