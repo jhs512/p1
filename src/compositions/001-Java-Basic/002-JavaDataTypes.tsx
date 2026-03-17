@@ -236,15 +236,10 @@ const Subtitle: React.FC<{
 
   let activeDisplayIdx = -1;
   const wFrames = wordStartFrames?.[currentIdx];
-  if (wFrames && wFrames.length > 0) {
-    let ttsIdx = -1;
+  if (wFrames && wFrames.length === words.length) {
+    // wordStartFrames 길이 = words.length 보장 (sync.ts에서 display-word-길이로 생성)
     for (let j = 0; j < wFrames.length; j++) {
-      if (frame >= wFrames[j]) ttsIdx = j;
-      else break;
-    }
-    if (ttsIdx >= 0) {
-      const ratio = ttsIdx / Math.max(1, wFrames.length - 1);
-      activeDisplayIdx = Math.min(words.length - 1, Math.floor(ratio * words.length));
+      if (frame >= wFrames[j]) activeDisplayIdx = j;
     }
   } else {
     const sentenceActualEnd =

@@ -453,16 +453,10 @@ const Subtitle: React.FC<{
   // 현재 하이라이트할 display word 인덱스 결정
   let activeDisplayIdx = -1;
   const wFrames = wordStartFrames?.[currentIdx];
-  if (wFrames && wFrames.length > 0) {
-    // TTS 단어 경계 기반 (edge-tts VTT에서 추출한 정확한 타이밍)
-    let ttsIdx = -1;
+  if (wFrames && wFrames.length === words.length) {
+    // wordStartFrames 길이 = words.length 보장 (sync.ts에서 display-word-길이로 생성)
     for (let j = 0; j < wFrames.length; j++) {
-      if (frame >= wFrames[j]) ttsIdx = j;
-      else break;
-    }
-    if (ttsIdx >= 0) {
-      const ratio = ttsIdx / Math.max(1, wFrames.length - 1);
-      activeDisplayIdx = Math.min(words.length - 1, Math.floor(ratio * words.length));
+      if (frame >= wFrames[j]) activeDisplayIdx = j;
     }
   } else {
     // fallback: 글자 수 비례 (TTS 타이밍 없을 때)
