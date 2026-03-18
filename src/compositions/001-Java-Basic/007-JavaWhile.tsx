@@ -71,8 +71,12 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.executionScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.executionScene.speechStartFrame,
     narration: [
-      "count가 1일 때 조건이 참이므로 블록을 실행합니다.",
-      "count가 6이 되면 조건이 거짓이 되어 반복이 종료됩니다.",
+      "카운트가 1일 때, 조건이 참이므로 블록을 실행하고 1을 출력합니다.",
+      "카운트가 2일 때도 조건이 참이므로 다시 실행합니다.",
+      "카운트가 3일 때도 조건은 여전히 참입니다.",
+      "카운트가 4일 때도 마찬가지입니다.",
+      "카운트가 5일 때, 조건이 참인 마지막 실행입니다.",
+      "카운트가 6이 되면 조건이 거짓이 되어 반복이 종료됩니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.executionScene.narrationSplits,
   },
@@ -241,7 +245,7 @@ const IntroScene: React.FC = () => {
           }}>
             <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
             <span style={{ color: "#d4d4d4" }}> (</span>
-            <span style={{ color: C_COND }}>조건</span>
+            <span style={{ color: C_COND, fontWeight: 900 }}>조건</span>
             <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
           </div>
           {/* 실행코드 */}
@@ -346,6 +350,7 @@ const WhileScene: React.FC = () => {
               padding: "32px 48px",
               opacity: blockAppear,
               width: 860, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+              whiteSpace: "pre",
             }}>
               {CODE_LINES.map((line, lineIdx) => {
                 const showChars = lineVisibility[lineIdx];
@@ -397,29 +402,22 @@ const ExecutionScene: React.FC = () => {
   const { executionScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
-  const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
-  // Step timing: split0 기준으로 phase1(steps 0-2) / phase2(steps 3-5)
-  const phase1Len = Math.max(1, split0 - s);
-  const phase2Len = Math.max(1, d - split0);
-  let stepIdx: number;
-  if (frame < s) {
-    stepIdx = 0;
-  } else if (frame < split0) {
-    stepIdx = Math.min(2, Math.floor(((frame - s) / phase1Len) * 3));
-  } else {
-    stepIdx = Math.min(5, 3 + Math.floor(((frame - split0) / phase2Len) * 3));
+  // Step timing: 각 narration 문장 = 각 반복 1단계 (0~5)
+  const splits = cfg.narrationSplits as readonly number[];
+  let stepIdx = 0;
+  if (frame >= s) {
+    stepIdx = splits.length; // 기본: 마지막 단계
+    for (let i = 0; i < splits.length; i++) {
+      if (frame < splits[i]) { stepIdx = i; break; }
+    }
   }
 
   const step = EXEC_STEPS[stepIdx];
 
-  // count 숫자 spring — stepIdx 변화마다 bounce
-  const stepStartFrame = stepIdx === 0 ? s
-    : stepIdx < 3
-      ? s + Math.round((stepIdx / 3) * phase1Len)
-      : split0 + Math.round(((stepIdx - 3) / 3) * phase2Len);
-
+  // count 숫자 spring — 단계 전환마다 bounce
+  const stepStartFrame = stepIdx === 0 ? s : splits[stepIdx - 1];
   const countSpring = spring({
     frame: frame - stepStartFrame,
     fps,
@@ -427,8 +425,8 @@ const ExecutionScene: React.FC = () => {
     durationInFrames: 18,
   });
 
-  // 활성 줄: condPass=false → 조건 줄 강조. 그 외 짝수 step = 조건 확인, 홀수 = 본문
-  const activeLineIsCondition = !step.condPass || stepIdx % 2 === 0;
+  // condPass=false(count=6)일 때만 조건 줄 강조
+  const activeLineIsCondition = !step.condPass;
 
   return (
     <>
@@ -672,8 +670,8 @@ const SummaryScene: React.FC = () => {
           }}>
             <div><span style={{ color: C_INT }}>int</span><span style={{ color: "#d4d4d4" }}> count = </span><span style={{ color: C_NUM }}>1</span><span style={{ color: "#d4d4d4" }}>;</span></div>
             <div><span style={{ color: C_WHILE, fontWeight: 900 }}>while</span><span style={{ color: "#d4d4d4" }}> (</span><span style={{ color: C_COND }}>count {"<="} 5</span><span style={{ color: "#d4d4d4" }}>) {"{"}</span></div>
-            <div style={{ paddingLeft: 36 }}><span style={{ color: C_INT }}>System</span><span style={{ color: "#d4d4d4" }}>.out.</span><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(count);</span></div>
-            <div style={{ paddingLeft: 36 }}><span style={{ color: C_TEAL }}>count++</span><span style={{ color: "#d4d4d4" }}>;</span></div>
+            <div style={{ paddingLeft: 56 }}><span style={{ color: C_INT }}>System</span><span style={{ color: "#d4d4d4" }}>.out.</span><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(count);</span></div>
+            <div style={{ paddingLeft: 56 }}><span style={{ color: C_TEAL }}>count++</span><span style={{ color: "#d4d4d4" }}>;</span></div>
             <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
           </div>
 

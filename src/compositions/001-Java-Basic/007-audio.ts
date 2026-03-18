@@ -4,7 +4,7 @@ export const AUDIO_CONFIG = {
   overview        : { durationInFrames: 167, narrationSplits: [76], sentenceEndFrames: [55], speechStartFrame: 5, speechEndFrame: 136, wordStartFrames: [[0,14,25,25],[37,68,76,76,91,109]] },
   intro           : { durationInFrames: 213, narrationSplits: [113], sentenceEndFrames: [94], speechStartFrame: 8, speechEndFrame: 182, wordStartFrames: [[0,14,28,34,38,54,64,74,74],[101,118,129,133,141,161]] },
   whileScene      : { durationInFrames: 252, narrationSplits: [119], sentenceEndFrames: [101], speechStartFrame: 6, speechEndFrame: 221, wordStartFrames: [[0,7,12,21,29,45,56,71,85],[119,130,145,158,177,197,205]] },
-  executionScene  : { durationInFrames: 226, narrationSplits: [107], sentenceEndFrames: [84], speechStartFrame: 5, speechEndFrame: 195, wordStartFrames: [[0,10,19,22,38,52,64],[91,91,112,125,141,152,157,173]] },
+  executionScene  : { durationInFrames: 609, narrationSplits: [119, 223, 310, 381, 481], sentenceEndFrames: [106, 206, 293, 365, 465], speechStartFrame: 4, speechEndFrame: 578, wordStartFrames: [[0,8,15,20,42,54,65,77,89],[119,135,144,148,166,179,188],[223,235,244,248,265,277],[310,320,329,334],[381,392,398,404,427,437,445],[481,493,501,506,524,535,541,556]] },
   infiniteScene   : { durationInFrames: 186, narrationSplits: [80], sentenceEndFrames: [62], speechStartFrame: 5, speechEndFrame: 155, wordStartFrames: [[0,5,16,25,46],[70,84,97,109,118,134]] },
   summaryScene    : { durationInFrames: 165, narrationSplits: [87], sentenceEndFrames: [68], speechStartFrame: 6, speechEndFrame: 137, wordStartFrames: [[0,11,11,26,26,40],[77,93,106,110]] },
 } as const;
