@@ -10,7 +10,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { RATE, VOICE } from "../../global.config";
+import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./007-audio";
 import {
   CROSS,
@@ -32,6 +32,19 @@ const C_NUM    = "#b5cea8"; // 숫자 리터럴
 const C_INT    = "#4e9cd5"; // int 키워드
 const C_DIM    = "rgba(255,255,255,0.22)";
 
+
+// ── WhileScene 타이핑 애니메이션 완료 프레임 ─────────────────────
+// CODE_LINES 전체 글자(77자) + 줄바꿈(4자) = 81자, 10자/초, 30fps
+// durationInFrames = max(오디오, 타이핑완료 + CROSS + SCENE_TAIL_FRAMES)
+const WHILE_TYPING_CHARS = 81; // FULL_CODE.length
+const WHILE_CHARS_PER_SEC_CONST = 10;
+const WHILE_TYPING_END =
+  AUDIO_CONFIG.whileScene.speechStartFrame +
+  Math.ceil((WHILE_TYPING_CHARS / WHILE_CHARS_PER_SEC_CONST) * 30);
+const WHILE_SCENE_DURATION = Math.max(
+  AUDIO_CONFIG.whileScene.durationInFrames,
+  WHILE_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
+);
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -58,7 +71,7 @@ export const VIDEO_CONFIG = {
   },
   whileScene: {
     audio: "while-while.mp3",
-    durationInFrames: AUDIO_CONFIG.whileScene.durationInFrames,
+    durationInFrames: WHILE_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.whileScene.speechStartFrame,
     narration: [
       "괄호 안 조건이 참이면 블록을 실행하고 다시 조건을 확인합니다.",
@@ -264,7 +277,7 @@ const IntroScene: React.FC = () => {
             fontSize: 42, background: "#252525", borderRadius: "0 0 16px 16px",
             padding: "16px 52px 28px",
             border: "2px solid #3a3a3a", borderTop: "none",
-            color: C_DIM,
+            color: "#d4d4d4",
           }}>{"}"}</div>
         </div>
       </AbsoluteFill>
@@ -305,8 +318,7 @@ const CODE_LINES = [
 ] as const;
 
 const FULL_CODE = CODE_LINES.map(l => l.parts.map(p => p.text).join("")).join("\n");
-const TOTAL_CHARS = FULL_CODE.length;
-const WHILE_CHARS_PER_SEC = 10;
+const TOTAL_CHARS = FULL_CODE.length; // = WHILE_TYPING_CHARS (81)
 
 const WhileScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -320,7 +332,7 @@ const WhileScene: React.FC = () => {
   // 타이핑 애니메이션
   const charsVisible = Math.min(
     TOTAL_CHARS,
-    Math.max(0, ((frame - s) / fps) * WHILE_CHARS_PER_SEC),
+    Math.max(0, ((frame - s) / fps) * WHILE_CHARS_PER_SEC_CONST),
   );
 
   let remaining = Math.floor(charsVisible);

@@ -34,7 +34,24 @@
 - 자동으로 판단해 커밋 타이밍을 챙긴다. 사용자가 요청하지 않아도 된다.
 - 커밋 메시지는 한국어로 작성해도 된다.
 
-### 6. 애니메이션은 반드시 발화 시작 프레임에 맞춘다
+### 6. 씬 전환은 오디오와 애니메이션 둘 다 끝난 후에 한다
+씬의 `durationInFrames`는 **오디오 길이와 애니메이션 완료 프레임 중 더 긴 쪽**을 기준으로 설정한다.
+
+```ts
+// 씬에 긴 애니메이션이 있을 경우 duration을 직접 계산해 override한다
+const ANIM_END_FRAME = speechStartFrame + Math.ceil(totalChars / charsPerSec * fps);
+const sceneDuration = Math.max(
+  AUDIO_CONFIG.xxx.durationInFrames,
+  ANIM_END_FRAME + CROSS + SCENE_TAIL_FRAMES,
+);
+```
+
+- `CROSS`는 crossfade 시작 시점이므로 애니메이션이 **페이드 시작 전에** 완료되려면 `+ CROSS` 를 더한다.
+- `SCENE_TAIL_FRAMES`는 애니메이션 완료 후 여유 구간.
+- 타이핑 애니메이션, 복잡한 spring 체인 등 오디오보다 오래 걸릴 수 있는 씬에서 반드시 체크한다.
+- **오디오만 끝났다고 씬을 전환하면 안 된다 — 헌법.**
+
+### 7. 애니메이션은 반드시 발화 시작 프레임에 맞춘다
 씬 안의 시각 애니메이션은 관련 단어/문장의 **발화 시작 프레임**과 동기화해야 한다.
 - `AUDIO_CONFIG.{씬}.wordStartFrames` 또는 `speechStartFrame` / `narrationSplits`를 직접 참조한다.
 - **`durationInFrames / 2 + offset` 같은 하드코딩 오프셋은 절대 금지.**
