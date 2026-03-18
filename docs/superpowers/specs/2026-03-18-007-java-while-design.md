@@ -73,7 +73,7 @@ while (count <= 5) {
 
 **나레이션**:
 ```
-["괄호 안 조건이 참이면 블록을 실행하고 다시 조건을 확인합니다.", "[count++(발음:count 증가)]로 조건을 변화시켜 반복이 끝나게 합니다."]
+["괄호 안 조건이 참이면 블록을 실행하고 다시 조건을 확인합니다.", "카운터를 증가시켜 조건을 변화시키고 반복이 끝나게 합니다."]
 ```
 
 ### 5. ExecutionScene
@@ -86,7 +86,7 @@ while 루프의 실제 실행을 단계별로 시각화한다.
   - 조건 배지: `count <= 5` → ✓(teal) 또는 ✗(red)
   - 출력 로그: `1`, `2`, `3`, `4`, `5` 누적 표시
 
-**이터레이션 타이밍**: narrationSplits로 각 단계 구분. 총 5회 반복 + 종료 확인.
+**이터레이션 타이밍**: 단계 트리거는 `AUDIO_CONFIG.executionScene.narrationSplits` 기준. 총 5회 반복 + 종료 확인. 하드코딩 프레임 오프셋 금지.
 
 **나레이션**:
 ```
@@ -108,7 +108,7 @@ while (count <= 5) {
 **시각화**:
 - `count++` 줄 자리에 빨간 취소선 또는 빈 자리 강조
 - ⚠️ 아이콘 (amber) spring 등장
-- 코드 블록 테두리 빨간 펄싱 애니메이션 (`0.5 + 0.5 * Math.abs(Math.sin(frame * 0.1))`)
+- 코드 블록 테두리 빨간 펄싱: `interpolate(frame, [0, 30], [0.3, 1], { extrapolateRight: "extend" })` + `Math.abs(Math.sin(frame * 0.1))` 패턴 사용 — CSS `animation` 금지
 - "∞ 무한루프" 텍스트 fade-in
 
 **나레이션**:
@@ -135,7 +135,7 @@ while (count <= 5) {
 - 모든 `fontFamily: monoFont` 사용처에 `fontFeatureSettings: MONO_NO_LIGA` 필수
 - CSS `transition`/`animation` 금지 → `interpolate`/`spring` 사용
 - `durationInFrames`/`narrationSplits` 등은 auto-generated `007-audio.ts`에서 참조
-- 애니메이션 타이밍은 `AUDIO_CONFIG.{씬}.wordStartFrames` 직접 참조 (하드코딩 오프셋 금지)
+- 애니메이션 타이밍은 `AUDIO_CONFIG.{씬}.narrationSplits` / `speechStartFrame` / `sentenceEndFrames` 직접 참조 (하드코딩 오프셋 금지)
 
 ---
 
