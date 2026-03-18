@@ -238,8 +238,8 @@ const IntroScene: React.FC = () => {
         <div style={{
           position: "absolute", top: "44%", left: "50%",
           transform: `translate(-50%, -50%) scale(${sc})`,
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
-          opacity: blockAppear,
+          display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0,
+          opacity: blockAppear, width: 860,
         }}>
           {/* for (초기식; 조건식; 증감식) { */}
           <div style={{
@@ -247,6 +247,7 @@ const IntroScene: React.FC = () => {
             fontSize: 36, background: "#252525", borderRadius: "16px 16px 0 0",
             padding: "28px 44px 16px",
             border: "2px solid #3a3a3a", borderBottom: "none",
+            whiteSpace: "nowrap",
           }}>
             <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
             <span style={{ color: "#d4d4d4" }}> (</span>
@@ -458,22 +459,22 @@ const ExecutionScene: React.FC = () => {
           <div style={{
             position: "absolute", top: "46%", left: "50%",
             transform: "translate(-50%, -50%)",
-            display: "flex", gap: 28,
-            width: 980,
+            display: "flex", flexDirection: "column", gap: 20,
+            width: 860,
           }}>
-            {/* 좌측: 코드 패널 */}
+            {/* 위: 코드 패널 */}
             <div style={{
-              flex: "0 0 400px",
               fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 22, lineHeight: 2.0,
+              fontSize: 26, lineHeight: 2.0,
               background: "#252525", borderRadius: 16,
-              padding: "24px 24px",
+              padding: "24px 32px",
             }}>
               {/* for 헤더 줄 */}
               <div style={{
                 background: activeLineIsCondition ? `${C_COND}22` : "transparent",
                 borderLeft: activeLineIsCondition ? `3px solid ${C_COND}` : "3px solid transparent",
                 paddingLeft: 8, borderRadius: "0 6px 6px 0",
+                whiteSpace: "nowrap",
               }}>
                 <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
                 <span style={{ color: "#d4d4d4" }}> (</span>
@@ -488,7 +489,7 @@ const ExecutionScene: React.FC = () => {
               <div style={{
                 background: !activeLineIsCondition && step.condPass ? `${C_FOR}18` : "transparent",
                 borderLeft: !activeLineIsCondition && step.condPass ? `3px solid ${C_FOR}` : "3px solid transparent",
-                paddingLeft: 32, borderRadius: "0 6px 6px 0",
+                paddingLeft: 52, borderRadius: "0 6px 6px 0",
               }}>
                 <span style={{ color: C_INIT }}>System</span>
                 <span style={{ color: "#d4d4d4" }}>.out.</span>
@@ -499,14 +500,11 @@ const ExecutionScene: React.FC = () => {
               <div style={{ color: "#d4d4d4" }}>{"}"}</div>
             </div>
 
-            {/* 우측: 상태 패널 */}
-            <div style={{
-              flex: 1,
-              display: "flex", flexDirection: "column", gap: 20,
-              justifyContent: "center",
-            }}>
+            {/* 아래: 상태 패널 (가로 배열) */}
+            <div style={{ display: "flex", gap: 20 }}>
               {/* i 값 박스 */}
               <div style={{
+                flex: "0 0 220px",
                 background: "#2a2a2a", borderRadius: 16,
                 padding: "20px 32px",
                 border: `2px solid ${step.condPass ? C_FOR : C_RED}55`,
@@ -524,6 +522,7 @@ const ExecutionScene: React.FC = () => {
 
               {/* 조건 배지 */}
               <div style={{
+                flex: 1,
                 background: step.condPass ? `${C_FOR}18` : `${C_RED}18`,
                 border: `2px solid ${step.condPass ? C_FOR : C_RED}66`,
                 borderRadius: 14, padding: "14px 28px",
@@ -535,20 +534,20 @@ const ExecutionScene: React.FC = () => {
                   {step.condPass ? "참" : "거짓"}
                 </span>
               </div>
+            </div>
 
-              {/* 출력 로그 */}
-              <div style={{
-                background: "#252525", borderRadius: 14,
-                padding: "16px 28px",
-                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 26,
-              }}>
-                <div style={{ color: "#888", fontSize: 18, marginBottom: 8, fontFamily: uiFont }}>출력</div>
-                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                  {(step.output as readonly string[]).map((n, i) => (
-                    <span key={i} style={{ color: C_NUM }}>{n}</span>
-                  ))}
-                </div>
+            {/* 출력 로그 */}
+            <div style={{
+              background: "#252525", borderRadius: 14,
+              padding: "16px 28px",
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 26,
+            }}>
+              <div style={{ color: "#888", fontSize: 18, marginBottom: 8, fontFamily: uiFont }}>출력</div>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                {(step.output as readonly string[]).map((n, i) => (
+                  <span key={i} style={{ color: C_NUM }}>{n}</span>
+                ))}
               </div>
             </div>
           </div>
