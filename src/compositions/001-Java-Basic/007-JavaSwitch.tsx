@@ -703,6 +703,104 @@ const MultiCaseScene: React.FC = () => {
   );
 };
 
+// ── SummaryScene ──────────────────────────────────────────────
+const SUMMARY_CARDS = [
+  { emoji: "🏹", label: "화살표 문법", desc: "각 케이스를 간결하게 작성", color: C_ARROW },
+  { emoji: "✅", label: "fall-through 없음", desc: "각 케이스가 독립 실행", color: C_ARROW },
+  { emoji: "📦", label: "값 반환 · 케이스 묶기", desc: "변수에 직접 대입 가능", color: C_RESULT },
+] as const;
+
+const SummaryScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { summaryScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Infinity, split1 = Infinity] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d, { out: false }); // 마지막 씬 — fadeOut 없음
+
+  const codeAppear = spring({ frame: frame - s, fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
+  const codeSc = interpolate(codeAppear, [0,1],[0.85,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+
+  const cardTriggers = [s, split0, split1];
+  const cardSprings = cardTriggers.map(trigger =>
+    spring({ frame: frame - trigger, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 })
+  );
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex", flexDirection: "column", gap: 20, width: 880,
+        }}>
+          {/* switch 코드 블록 */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 24, lineHeight: 1.9,
+            background: "#252525", borderRadius: 16,
+            padding: "20px 36px",
+            opacity: codeAppear, transform: `scale(${codeSc})`,
+          }}>
+            <div>
+              <span style={{ color: C_SWITCH }}>String</span>
+              <span style={{ color: C_RESULT, fontWeight: 900 }}> msg</span>
+              <span style={{ color: "#d4d4d4" }}> = </span>
+              <span style={{ color: C_SWITCH, fontWeight: 900 }}>switch</span>
+              <span style={{ color: "#d4d4d4" }}> (day) {"{"}</span>
+            </div>
+            <div style={{ paddingLeft: 40 }}>
+              <span style={{ color: C_CASE }}>case</span>
+              <span style={{ color: C_STR }}> "MON", "TUE", "WED", "THU", "FRI"</span>
+              <span style={{ color: C_ARROW }}> {"->"}</span>
+              <span style={{ color: C_RESULT }}> "평일"</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+            <div style={{ paddingLeft: 40 }}>
+              <span style={{ color: C_CASE }}>case</span>
+              <span style={{ color: C_STR }}> "SAT", "SUN"</span>
+              <span style={{ color: C_ARROW }}> {"->"}</span>
+              <span style={{ color: C_RESULT }}> "주말"</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+            <div style={{ paddingLeft: 40 }}>
+              <span style={{ color: C_CASE }}>default</span>
+              <span style={{ color: C_ARROW }}> {"->"}</span>
+              <span style={{ color: C_STR }}> "?"</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+            <div><span style={{ color: "#d4d4d4" }}>{"}"}</span><span style={{ color: "#d4d4d4" }}>;</span></div>
+          </div>
+
+          {/* 요약 카드 3개 */}
+          {SUMMARY_CARDS.map((card, i) => {
+            const appear = cardSprings[i];
+            const sc = interpolate(appear, [0,1],[0.85,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+            return (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 20,
+                background: "#2a2a2a", border: `2px solid ${card.color}55`,
+                borderRadius: 18, padding: "18px 32px",
+                opacity: appear, transform: `scale(${sc})`,
+              }}>
+                <span style={{ fontSize: 36 }}>{card.emoji}</span>
+                <span style={{ fontFamily: uiFont, fontSize: 28, fontWeight: 900, color: card.color, minWidth: 200 }}>
+                  {card.label}
+                </span>
+                <span style={{ color: "#3a3a3a", fontSize: 24 }}>—</span>
+                <span style={{ fontFamily: uiFont, fontSize: 26, color: "#d4d4d4" }}>{card.desc}</span>
+              </div>
+            );
+          })}
+        </div>
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
+
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
   fps: 30,
@@ -731,6 +829,9 @@ export const JavaSwitch: React.FC = () => (
     </Sequence>
     <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
       <MultiCaseScene />
+    </Sequence>
+    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+      <SummaryScene />
     </Sequence>
   </AbsoluteFill>
 );
