@@ -4,7 +4,6 @@ export const AUDIO_CONFIG = {
   overview        : { durationInFrames: 222, narrationSplits: [114], sentenceEndFrames: [95], speechStartFrame: 6, speechEndFrame: 191, wordStartFrames: [[0,6,18,26,31,52,67,76,77],[107,110,117,125,133,147,160,170,172]] },
   intro           : { durationInFrames: 257, narrationSplits: [130], sentenceEndFrames: [118], speechStartFrame: 8, speechEndFrame: 226, wordStartFrames: [[0,10,13,24,35,55,76,82,88,99,99],[130,139,152,162,175,192,206,208]] },
   syntaxScene     : { durationInFrames: 245, narrationSplits: [124], sentenceEndFrames: [109], speechStartFrame: 5, speechEndFrame: 214, wordStartFrames: [[0,8,14,30,35,52,66,80,91],[124,136,146,157,177,184]] },
-  noFallthroughScene: { durationInFrames: 268, narrationSplits: [144], sentenceEndFrames: [122], speechStartFrame: 8, speechEndFrame: 238, wordStartFrames: [[0,8,19,29,38,48,48,59,67,84,98],[134,145,157,165,178,188,202,208,218]] },
   multiCaseScene  : { durationInFrames: 252, narrationSplits: [118], sentenceEndFrames: [96], speechStartFrame: 6, speechEndFrame: 221, wordStartFrames: [[0,4,16,26,37,50,64,76,79,112],[112,120,136,148,161,184,190,202,204]] },
-  summaryScene    : { durationInFrames: 322, narrationSplits: [114, 200], sentenceEndFrames: [95, 180], speechStartFrame: 7, speechEndFrame: 292, wordStartFrames: [[0,10,23,34,48,63,76,77],[103,116,122,134,147,159],[191,197,208,221,229,249,262,272,274]] },
+  summaryScene    : { durationInFrames: 413, narrationSplits: [104, 284], sentenceEndFrames: [92, 267], speechStartFrame: 7, speechEndFrame: 382, wordStartFrames: [[0,10,23,35,47,63,76,77],[104,119,131,137,142,152,164,176,176,187,200,220,232,250],[284,287,299,311,319,340,352,362,364]] },
 } as const;
