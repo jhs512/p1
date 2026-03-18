@@ -370,12 +370,12 @@ const ForScene: React.FC = () => {
 
 // ── ExecutionScene — 단계별 실행 ──────────────────────────────
 const EXEC_STEPS = [
-  { i: 0, condPass: true,  output: ["0"] },
-  { i: 1, condPass: true,  output: ["0", "1"] },
-  { i: 2, condPass: true,  output: ["0", "1", "2"] },
-  { i: 3, condPass: true,  output: ["0", "1", "2", "3"] },
-  { i: 4, condPass: true,  output: ["0", "1", "2", "3", "4"] },
-  { i: 5, condPass: false, output: ["0", "1", "2", "3", "4"] },
+  { i: 0, condPass: true,  label: "첫 번째 실행",   output: ["0"] },
+  { i: 1, condPass: true,  label: "두 번째 실행",   output: ["0", "1"] },
+  { i: 2, condPass: true,  label: "세 번째 실행",   output: ["0", "1", "2"] },
+  { i: 3, condPass: true,  label: "네 번째 실행",   output: ["0", "1", "2", "3"] },
+  { i: 4, condPass: true,  label: "다섯 번째 실행", output: ["0", "1", "2", "3", "4"] },
+  { i: 5, condPass: false, label: "반복 종료",       output: ["0", "1", "2", "3", "4"] },
 ] as const;
 
 const ExecutionScene: React.FC = () => {
@@ -407,6 +407,15 @@ const ExecutionScene: React.FC = () => {
 
   const activeLineIsCondition = !step.condPass;
 
+  // 레이블 spring — 단계 전환마다 튀어오름
+  const labelSpring = spring({
+    frame: frame - stepStartFrame,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 16,
+  });
+  const labelSc = interpolate(labelSpring, [0, 1], [0.75, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
@@ -419,6 +428,23 @@ const ExecutionScene: React.FC = () => {
             display: "flex", flexDirection: "column", gap: 20,
             width: 860,
           }}>
+            {/* 단계 레이블 배지 */}
+            <div style={{
+              display: "flex", justifyContent: "center",
+            }}>
+              <div style={{
+                fontFamily: uiFont, fontSize: 32, fontWeight: 900,
+                color: step.condPass ? C_FOR : C_RED,
+                background: step.condPass ? `${C_FOR}18` : `${C_RED}18`,
+                border: `2px solid ${step.condPass ? C_FOR : C_RED}55`,
+                borderRadius: 14, padding: "10px 36px",
+                opacity: labelSpring,
+                transform: `scale(${labelSc})`,
+              }}>
+                {step.label}
+              </div>
+            </div>
+
             {/* 위: 코드 패널 */}
             <div style={{
               fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
