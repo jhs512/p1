@@ -216,7 +216,6 @@ const OverviewScene: React.FC = () => {
   const { overview: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
-  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
   // frame 0부터 순차 등장 (speechStartFrame 기준 아님)
@@ -224,8 +223,8 @@ const OverviewScene: React.FC = () => {
   const leftAppear   = spring({ frame: frame - 10,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const rightAppear  = spring({ frame: frame - 20,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const ifAppear     = spring({ frame: frame - 28,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
-  // switch 노드는 narrationSplits[0] 기준 팝업
-  const switchAppear = spring({ frame: frame - split0, fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  // switch 노드: if 직후 등장 (frame 0부터 트리 완성)
+  const switchAppear = spring({ frame: frame - 38,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
 
   const C_COND = C_CASE;
   const C_LOOP = "#4ec9b0";
@@ -286,7 +285,7 @@ const OverviewScene: React.FC = () => {
                   fontSize: 44, fontWeight: 900, color: C_COND,
                   background: `${C_COND}18`, border: `2px solid ${C_COND}55`,
                   borderRadius: 16, padding: "12px 32px",
-                  opacity: ifAppear,
+                  opacity: ifAppear * 0.38,
                   transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
                   whiteSpace: "nowrap",
                 }}>if</div>
@@ -332,11 +331,10 @@ const IntroScene: React.FC = () => {
 
   const cardBase: React.CSSProperties = {
     fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 21, lineHeight: 1.85,
+    fontSize: 24, lineHeight: 1.85,
     background: "#252525", borderRadius: 16,
-    padding: "24px 28px",
-    flex: "1 1 0", minWidth: 0,
-    overflow: "hidden",
+    padding: "24px 32px",
+    whiteSpace: "nowrap",
   };
 
   const dimSpan = (text: string) => (
@@ -348,26 +346,26 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
         <div style={{
-          position: "absolute", top: "46%", left: "50%",
+          position: "absolute", top: "50%", left: "50%",
           transform: "translate(-50%, -50%)",
-          display: "flex", gap: 24, width: 1040,
+          display: "flex", flexDirection: "column", gap: 20, width: 920,
         }}>
-          {/* 좌측: if-else 체인 (복잡, C_DIM 색) */}
+          {/* 상단: if-else 체인 (복잡, 흐리게) */}
           <div style={{ ...cardBase, opacity: leftAppear,
             transform: `scale(${interpolate(leftAppear, [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"})})`,
             border: "2px solid rgba(255,255,255,0.08)",
           }}>
             <div style={{ fontFamily: uiFont, fontSize: 20, color: C_DIM, marginBottom: 12 }}>if-else 체인</div>
             <div>{dimSpan('if (day.equals("MON")) {')}</div>
-            <div style={{ paddingLeft: 28 }}>{dimSpan('msg = "월요일";')}</div>
+            <div style={{ paddingLeft: 32 }}>{dimSpan('msg = "월요일";')}</div>
             <div>{dimSpan('} else if (day.equals("TUE")) {')}</div>
-            <div style={{ paddingLeft: 28 }}>{dimSpan('msg = "화요일";')}</div>
+            <div style={{ paddingLeft: 32 }}>{dimSpan('msg = "화요일";')}</div>
             <div>{dimSpan('} else if (day.equals("SAT")) {')}</div>
-            <div style={{ paddingLeft: 28 }}>{dimSpan('msg = "토요일";')}</div>
+            <div style={{ paddingLeft: 32 }}>{dimSpan('msg = "토요일";')}</div>
             <div>{dimSpan('} // ...')}</div>
           </div>
 
-          {/* 우측: switch 표현식 (간결, 밝은 색) — split0 기준 등장 */}
+          {/* 하단: switch 표현식 (간결, 밝은 색) — split0 기준 등장 */}
           <div style={{ ...cardBase, opacity: rightAppear,
             transform: `scale(${interpolate(rightAppear, [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"})})`,
             border: `2px solid ${C_SWITCH}44`,
@@ -378,21 +376,21 @@ const IntroScene: React.FC = () => {
               <span style={{ color: C_SWITCH, fontWeight: 900 }}>switch</span>
               <span style={{ color: "#d4d4d4" }}> (day) {"{"}</span>
             </div>
-            <div style={{ paddingLeft: 28 }}>
+            <div style={{ paddingLeft: 32 }}>
               <span style={{ color: C_CASE }}>case</span>
               <span style={{ color: C_STR }}> "MON"</span>
               <span style={{ color: C_ARROW }}> {"->"}</span>
               <span style={{ color: C_RESULT }}> "월요일"</span>
               <span style={{ color: "#d4d4d4" }}>;</span>
             </div>
-            <div style={{ paddingLeft: 28 }}>
+            <div style={{ paddingLeft: 32 }}>
               <span style={{ color: C_CASE }}>case</span>
               <span style={{ color: C_STR }}> "SAT"</span>
               <span style={{ color: C_ARROW }}> {"->"}</span>
               <span style={{ color: C_RESULT }}> "토요일"</span>
               <span style={{ color: "#d4d4d4" }}>;</span>
             </div>
-            <div style={{ paddingLeft: 28 }}>
+            <div style={{ paddingLeft: 32 }}>
               <span style={{ color: C_DIM }}>// ...</span>
             </div>
             <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
