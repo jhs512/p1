@@ -32,8 +32,8 @@ const C_NUM    = "#b5cea8"; // 숫자 리터럴
 const C_INT    = "#4e9cd5"; // int 키워드
 const C_DIM    = "rgba(255,255,255,0.22)";
 
-// 색상 상수는 이후 씬 구현에서 사용됨 — 미사용 경고 억제
-void [C_WHILE, C_COND, C_TEAL, C_RED, C_NUM, C_INT, C_DIM];
+// C_RED는 이후 씬에서 사용됨 — 미사용 경고 억제
+void [C_RED];
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -215,17 +215,174 @@ const OverviewScene: React.FC = () => {
   );
 };
 
-const IntroScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Audio src={staticFile(VIDEO_CONFIG.intro.audio)} />
-  </AbsoluteFill>
-);
+const IntroScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { intro: cfg } = VIDEO_CONFIG;
+  const opacity = useFade(cfg.durationInFrames);
 
-const WhileScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Audio src={staticFile(VIDEO_CONFIG.whileScene.audio)} />
-  </AbsoluteFill>
-);
+  const blockAppear = spring({ frame, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 28 });
+  const sc = interpolate(blockAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+        <div style={{
+          position: "absolute", top: "44%", left: "50%",
+          transform: `translate(-50%, -50%) scale(${sc})`,
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
+          opacity: blockAppear,
+        }}>
+          {/* while (조건) { */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 42, background: "#252525", borderRadius: "16px 16px 0 0",
+            padding: "28px 52px 16px",
+            border: "2px solid #3a3a3a", borderBottom: "none",
+          }}>
+            <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
+            <span style={{ color: "#d4d4d4" }}> (</span>
+            <span style={{ color: C_COND }}>조건</span>
+            <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
+          </div>
+          {/* 실행코드 */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 38, background: "#252525",
+            padding: "16px 52px 16px 88px",
+            border: "2px solid #3a3a3a", borderTop: "none", borderBottom: "none",
+            color: "#888", fontStyle: "italic",
+          }}>
+            실행코드
+          </div>
+          {/* } */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 42, background: "#252525", borderRadius: "0 0 16px 16px",
+            padding: "16px 52px 28px",
+            border: "2px solid #3a3a3a", borderTop: "none",
+            color: C_DIM,
+          }}>{"}"}</div>
+        </div>
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={cfg.speechStartFrame} />
+    </>
+  );
+};
+
+// ── 코드 라인 데이터 ──────────────────────────────────────────
+const CODE_LINES = [
+  { parts: [
+    { text: "int",      color: C_INT },
+    { text: " count = ", color: "#d4d4d4" },
+    { text: "1",        color: C_NUM },
+    { text: ";",        color: "#d4d4d4" },
+  ]},
+  { parts: [
+    { text: "while",    color: C_WHILE, bold: true },
+    { text: " (",       color: "#d4d4d4" },
+    { text: "count <= 5", color: C_COND },
+    { text: ") {",      color: "#d4d4d4" },
+  ]},
+  { parts: [
+    { text: "    System", color: C_INT },
+    { text: ".out.",    color: "#d4d4d4" },
+    { text: "println",  color: "#dcdcaa" },
+    { text: "(",        color: "#d4d4d4" },
+    { text: "count",    color: "#d4d4d4" },
+    { text: ");",       color: "#d4d4d4" },
+  ]},
+  { parts: [
+    { text: "    count++", color: C_TEAL },
+    { text: ";",        color: "#d4d4d4" },
+  ]},
+  { parts: [
+    { text: "}",        color: "#d4d4d4" },
+  ]},
+] as const;
+
+const FULL_CODE = CODE_LINES.map(l => l.parts.map(p => p.text).join("")).join("\n");
+const TOTAL_CHARS = FULL_CODE.length;
+const WHILE_CHARS_PER_SEC = 10;
+
+const WhileScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { whileScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d);
+
+  // 타이핑 애니메이션
+  const charsVisible = Math.min(
+    TOTAL_CHARS,
+    Math.max(0, ((frame - s) / fps) * WHILE_CHARS_PER_SEC),
+  );
+
+  let remaining = Math.floor(charsVisible);
+  const lineVisibility = CODE_LINES.map(line => {
+    const lineLen = line.parts.reduce((acc, p) => acc + p.text.length, 0);
+    const show = Math.min(lineLen, remaining);
+    remaining = Math.max(0, remaining - lineLen);
+    return show;
+  });
+
+  const blockAppear = spring({ frame: frame - s, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 24 });
+  const sc = interpolate(blockAppear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "46%", left: "50%",
+            transform: `translate(-50%, -50%) scale(${sc})`,
+          }}>
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 34, lineHeight: 1.95,
+              background: "#252525", borderRadius: 20,
+              padding: "32px 48px",
+              opacity: blockAppear,
+              width: 860, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+            }}>
+              {CODE_LINES.map((line, lineIdx) => {
+                const showChars = lineVisibility[lineIdx];
+                const isCountPlusPlus = lineIdx === 3 && frame >= split0;
+                let rem = showChars;
+                return (
+                  <div key={lineIdx} style={{ lineHeight: 1.95 }}>
+                    {line.parts.map((part, pi) => {
+                      const show = Math.min(part.text.length, rem);
+                      rem = Math.max(0, rem - part.text.length);
+                      if (show <= 0) return null;
+                      const highlighted = isCountPlusPlus && pi === 0;
+                      return (
+                        <span key={pi} style={{
+                          color: highlighted ? C_TEAL : part.color,
+                          fontWeight: (part as { bold?: boolean }).bold ? 900 : undefined,
+                          background: highlighted ? `${C_TEAL}18` : undefined,
+                          borderRadius: highlighted ? 4 : undefined,
+                          padding: highlighted ? "0 4px" : undefined,
+                        }}>
+                          {part.text.slice(0, show)}
+                        </span>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
 
 const ExecutionScene: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
