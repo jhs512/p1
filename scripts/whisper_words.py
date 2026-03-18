@@ -17,12 +17,16 @@ try:
     segments, _ = model.transcribe(audio_file, language="ko", word_timestamps=True)
 
     words = []
+    segs = []
     for segment in segments:
+        segs.append({"start": segment.start, "end": segment.end})
         if segment.words:
             for word in segment.words:
                 words.append({"start": word.start, "end": word.end, "word": word.word})
 
-    print(json.dumps(words, ensure_ascii=False))
+    # {"segments": [...], "words": [...]} 형식으로 출력
+    # segments: Whisper가 자연 경계로 분할한 구/문장 단위 (단어보다 신뢰도 높음)
+    print(json.dumps({"segments": segs, "words": words}, ensure_ascii=False))
 except Exception as e:
     print(f"whisper error: {e}", file=sys.stderr)
     print("[]")

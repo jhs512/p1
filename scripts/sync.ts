@@ -410,8 +410,46 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
 
   if (whisperRes.status === 0 && whisperRes.stdout.trim()) {
     type WhisperWord = { start: number; end: number; word: string };
+    type WhisperSeg  = { start: number; end: number };
     let allWhisperWords: WhisperWord[] = [];
-    try { allWhisperWords = JSON.parse(whisperRes.stdout.trim()) as WhisperWord[]; } catch { /* ignore */ }
+    let whisperSegments: WhisperSeg[]  = [];
+
+    try {
+      const raw = JSON.parse(whisperRes.stdout.trim());
+      if (Array.isArray(raw)) {
+        // 구버전 호환: words 배열만 반환한 경우
+        allWhisperWords = raw as WhisperWord[];
+      } else {
+        // 신버전: { segments: [...], words: [...] }
+        allWhisperWords = (raw.words  ?? []) as WhisperWord[];
+        whisperSegments = (raw.segments ?? []) as WhisperSeg[];
+      }
+    } catch { /* ignore */ }
+
+    // ── 5A) tooManyCandidates → Whisper segment 갭으로 narrationSplits 재계산 ─
+    //   Whisper segment는 단어보다 신뢰도 높은 자연 경계.
+    //   segment 간 gap이 가장 큰 N-1개 = 문장 경계 (문장 내 쉼 < 문장 간 쉼).
+    if (tooManyCandidates && whisperSegments.length >= narration.length) {
+      type SegGap = { gapSecs: number; nextIdx: number };
+      const segGaps: SegGap[] = [];
+      for (let i = 1; i < whisperSegments.length; i++) {
+        segGaps.push({ gapSecs: whisperSegments[i].start - whisperSegments[i - 1].end, nextIdx: i });
+      }
+      const topGaps = [...segGaps]
+        .sort((a, b) => b.gapSecs - a.gapSecs)
+        .slice(0, narration.length - 1)
+        .sort((a, b) => a.nextIdx - b.nextIdx);
+
+      const segSplits = topGaps.map((g) =>
+        Math.max(0, Math.round(whisperSegments[g.nextIdx].start * FPS) - WORD_HIGHLIGHT_LEAD_FRAMES),
+      );
+      const segEnds = topGaps.map((g) => Math.round(whisperSegments[g.nextIdx - 1].end * FPS));
+
+      audioConfig[key].narrationSplits   = segSplits;
+      audioConfig[key].sentenceEndFrames = segEnds;
+      console.log(`       narrationSplits    → [${segSplits.join(", ")}] (Whisper segments) ✅`);
+      console.log(`       sentenceEndFrames  → [${segEnds.join(", ")}]`);
+    }
 
     if (allWhisperWords.length > 0) {
       // ── A) Whisper 단어를 문장별로 분류 (gap 기반) ──────────────

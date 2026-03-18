@@ -1,4 +1,7 @@
 // src/compositions/0002-JavaDataTypes.tsx
+import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
+import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
+import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
@@ -12,14 +15,11 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Audio } from "@remotion/media";
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE } from "../../global.config";
-import { AUDIO_CONFIG } from "./002-audio";
+import { RATE, VOICE } from "../../global.config";
 import { toDisplayText } from "../../utils/narration";
+import { AUDIO_CONFIG } from "./002-audio";
 
-export { VOICE, RATE };
+export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
 const CROSS = 20;
@@ -29,24 +29,24 @@ const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
 const TYPE_COLORS: Record<string, string> = {
-  int:     "#4e9cd5",
-  double:  "#d4c04e",
-  String:  "#4ec970",
+  int: "#4e9cd5",
+  double: "#d4c04e",
+  String: "#4ec970",
   boolean: "#d4834e",
 };
 
 // ── 폰트 ─────────────────────────────────────────────────────
 let monoFont = "JetBrains Mono, monospace";
-let uiFont   = "Noto Sans KR, sans-serif";
+let uiFont = "Noto Sans KR, sans-serif";
 
 if (typeof window !== "undefined") {
   const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
   const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
   monoFont = _jb.fontFamily;
-  uiFont   = _ns.fontFamily;
+  uiFont = _ns.fontFamily;
   const _h = delayRender("Loading Google Fonts");
   Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h)
+    continueRender(_h),
   );
 }
 
@@ -62,7 +62,7 @@ export const VIDEO_CONFIG = {
     narration: [
       "자료형이란 자료의 형태, 즉 데이터의 형태입니다.",
       "자료형은 변수에 어떤 종류의 데이터를 넣을 수 있는지 결정합니다.",
-      "Java의 주요 자료형 4개를 알아보겠습니다.",
+      "[Java(발음:자바)]의 주요 자료형 4개를 알아보겠습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
@@ -84,7 +84,7 @@ export const VIDEO_CONFIG = {
     narration: [
       "int는 정수를 표현하는 자료형입니다.",
       "int형 변수는 소수점 없는 정수만 담을 수 있습니다.",
-      "나이나 개수처럼 소수점이 없는 숫자에 사용합니다.",
+      "나이나 [개수(발음:개쑤)]처럼 소수점이 없는 숫자에 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
   },
@@ -93,8 +93,8 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.doubleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
     narration: [
-      "double은 실수를 표현하는 자료형입니다.",
-      "double형 변수는 소수점이 있는 수를 담습니다.",
+      "[double(발음:더블)]은 실수를 표현하는 자료형입니다.",
+      "[double(발음:더블)]형 변수는 소수점이 있는 수를 담습니다.",
       "키나 무게처럼 정밀한 값이 필요할 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
@@ -138,17 +138,29 @@ export const VIDEO_CONFIG = {
 // 타입 키워드마다 고유 색상 (int=파랑, double=노랑, String=초록, boolean=주황)
 const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const parts = text.split(
-    /(\bdouble\b|\bint\b|\bString\b|\bboolean\b|"[^"]*"|\b\d+(?:\.\d+)?\b)/g
+    /(\bdouble\b|\bint\b|\bString\b|\bboolean\b|"[^"]*"|\b\d+(?:\.\d+)?\b)/g,
   );
   return (
     <>
       {parts.map((part, i) => {
         if (TYPE_COLORS[part])
-          return <span key={i} style={{ color: TYPE_COLORS[part] }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: TYPE_COLORS[part] }}>
+              {part}
+            </span>
+          );
         if (/^"/.test(part))
-          return <span key={i} style={{ color: "#ce9178" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#ce9178" }}>
+              {part}
+            </span>
+          );
         if (/^\d/.test(part))
-          return <span key={i} style={{ color: "#b5cea8" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#b5cea8" }}>
+              {part}
+            </span>
+          );
         return <span key={i}>{part}</span>;
       })}
     </>
@@ -159,12 +171,12 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
 function useTypingEffect(
   text: string,
   startFrame: number,
-  charsPerSecond = 10
+  charsPerSecond = 10,
 ): { visibleText: string; isDone: boolean } {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const charsVisible = Math.floor(
-    (Math.max(0, frame - startFrame) / fps) * charsPerSecond
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
   );
   return {
     visibleText: text.slice(0, charsVisible),
@@ -197,19 +209,32 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = CHARS_PER_SEC }) => (
-  <div style={{
-    position: "absolute", top: "57%", left: "50%",
-    transform: "translate(-50%, -50%)",
-    background: "#2d2d2d", borderRadius: 12,
-    padding: "40px 56px", minWidth: 780,
-    fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 36,
-  }}>
+  <div
+    style={{
+      position: "absolute",
+      top: "57%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "#2d2d2d",
+      borderRadius: 12,
+      padding: "40px 56px",
+      minWidth: 780,
+      fontFamily: monoFont,
+      fontFeatureSettings: '"calt" 0, "liga" 0',
+      fontSize: 36,
+    }}
+  >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine key={`new-${i}`} text={line.text} startFrame={startFrame} charsPerSecond={charsPerSecond} />
+        <TypingLine
+          key={`new-${i}`}
+          text={line.text}
+          startFrame={startFrame}
+          charsPerSecond={charsPerSecond}
+        />
       ) : (
         <StaticLine key={`static-${i}`} text={line.text} />
-      )
+      ),
     )}
   </div>
 );
@@ -217,8 +242,8 @@ const CodeBox: React.FC<{
 // ── 컴포넌트: Subtitle ────────────────────────────────────────
 const Subtitle: React.FC<{
   sentences: string[];
-  splits?: readonly number[];   // 각 문장(2번째~) 시작 프레임
-  speechStart?: number;         // 첫 문장 시작 프레임
+  splits?: readonly number[]; // 각 문장(2번째~) 시작 프레임
+  speechStart?: number; // 첫 문장 시작 프레임
 }> = ({ sentences, splits, speechStart = 0 }) => {
   const frame = useCurrentFrame();
   const { width: compositionWidth } = useVideoConfig();
@@ -229,15 +254,26 @@ const Subtitle: React.FC<{
   const currentIdx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
 
   return (
-    <div style={{
-      position: "absolute", bottom: 100, left: "50%",
-      transform: "translateX(-50%)", textAlign: "center",
-      fontFamily: uiFont, fontSize: 32, color: "#ffffff",
-      background: "rgba(0,0,0,0.55)",
-      borderRadius: 6, padding: "8px 16px", lineHeight: 1.6,
-      width: "max-content", maxWidth: compositionWidth - 20,
-      wordBreak: "keep-all", whiteSpace: "pre-wrap",
-    }}>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 100,
+        left: "50%",
+        transform: "translateX(-50%)",
+        textAlign: "center",
+        fontFamily: uiFont,
+        fontSize: 32,
+        color: "#ffffff",
+        background: "rgba(0,0,0,0.55)",
+        borderRadius: 6,
+        padding: "8px 16px",
+        lineHeight: 1.6,
+        width: "max-content",
+        maxWidth: compositionWidth - 20,
+        wordBreak: "keep-all",
+        whiteSpace: "pre-wrap",
+      }}
+    >
       {toDisplayText(sentences[currentIdx])}
     </div>
   );
@@ -257,63 +293,92 @@ const TypeBox: React.FC<{
 
   const boxE = frame - startFrame;
   const boxAppear = spring({
-    frame: boxE, fps,
+    frame: boxE,
+    fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 35,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   const dropE = frame - dropStartFrame;
   const DROP_FRAMES = 30;
   const dropY = interpolate(dropE, [0, DROP_FRAMES], [-140, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
     easing: Easing.out(Easing.quad),
   });
   const dropO = interpolate(dropE, [0, 4], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
   const dropGlow = interpolate(
     dropE,
     [DROP_FRAMES - 2, DROP_FRAMES + 2, DROP_FRAMES + 14],
     [0, 1, 0.2],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
   if (boxE < 0) return null;
 
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", gap: 12,
-      transform: `scale(${boxScale})`, opacity: boxAppear,
-    }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        transform: `scale(${boxScale})`,
+        opacity: boxAppear,
+      }}
+    >
       {label && (
-        <div style={{
-          fontFamily: uiFont, fontSize: 38, fontWeight: 700,
-          color, letterSpacing: 4,
-        }}>
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 38,
+            fontWeight: 700,
+            color,
+            letterSpacing: 4,
+          }}
+        >
           {label}
         </div>
       )}
-      <div style={{
-        position: "relative",
-        border: `4px solid ${color}`,
-        borderRadius: 20, width: 260, height: 180,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: `${color}1a`,
-        boxShadow: dropGlow > 0.05
-          ? `0 0 ${Math.round(dropGlow * 50)}px ${color}`
-          : "none",
-      }}>
+      <div
+        style={{
+          position: "relative",
+          border: `4px solid ${color}`,
+          borderRadius: 20,
+          width: 260,
+          height: 180,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: `${color}1a`,
+          boxShadow:
+            dropGlow > 0.05
+              ? `0 0 ${Math.round(dropGlow * 50)}px ${color}`
+              : "none",
+        }}
+      >
         {dropE >= 0 && (
-          <div style={{
-            position: "absolute", left: "50%", top: "50%",
-            transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-            fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 700,
-            color: "#d4d4d4", opacity: dropO,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
+              fontFamily: monoFont,
+              fontFeatureSettings: '"calt" 0, "liga" 0',
+              fontSize: 64,
+              fontWeight: 700,
+              color: "#d4d4d4",
+              opacity: dropO,
+            }}
+          >
             {value}
           </div>
         )}
@@ -334,12 +399,14 @@ const BooleanToggleAnim: React.FC<{
 
   const boxE = frame - startFrame;
   const boxAppear = spring({
-    frame: boxE, fps,
+    frame: boxE,
+    fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 35,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   const PERIOD = 45;
@@ -350,34 +417,57 @@ const BooleanToggleAnim: React.FC<{
   const displayValue = showTrue ? "true" : "false";
 
   const valueOpacity = interpolate(frame - dropStartFrame, [0, 8], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   if (boxE < 0) return null;
 
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", gap: 12,
-      transform: `scale(${boxScale})`, opacity: boxAppear,
-    }}>
-      <div style={{
-        fontFamily: uiFont, fontSize: 38, fontWeight: 700,
-        color: COLOR, letterSpacing: 4,
-      }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        transform: `scale(${boxScale})`,
+        opacity: boxAppear,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 38,
+          fontWeight: 700,
+          color: COLOR,
+          letterSpacing: 4,
+        }}
+      >
         boolean
       </div>
-      <div style={{
-        position: "relative",
-        border: `4px solid ${COLOR}`,
-        borderRadius: 20, width: 260, height: 180,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: `${COLOR}1a`,
-      }}>
-        <span style={{
-          fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 56, fontWeight: 700,
-          color: toggleColor, opacity: valueOpacity,
-        }}>
+      <div
+        style={{
+          position: "relative",
+          border: `4px solid ${COLOR}`,
+          borderRadius: 20,
+          width: 260,
+          height: 180,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: `${COLOR}1a`,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: monoFont,
+            fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontSize: 56,
+            fontWeight: 700,
+            color: toggleColor,
+            opacity: valueOpacity,
+          }}
+        >
           {displayValue}
         </span>
       </div>
@@ -387,33 +477,65 @@ const BooleanToggleAnim: React.FC<{
 
 // ── 씬: ThumbnailScene ───────────────────────────────────────
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{
-    background: "#050510",
-    alignItems: "center", justifyContent: "center",
-    flexDirection: "column", gap: 24,
-  }}>
-    <div style={{
-      position: "absolute", width: 900, height: 900, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-      top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-    }} />
-    <div style={{
-      fontFamily: uiFont, fontSize: 28, fontWeight: 700,
-      color: "#4ec9b0", letterSpacing: 10, opacity: 0.8,
-    }}>
+  <AbsoluteFill
+    style={{
+      background: "#050510",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      gap: 24,
+    }}
+  >
+    <div
+      style={{
+        position: "absolute",
+        width: 900,
+        height: 900,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    />
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 28,
+        fontWeight: 700,
+        color: "#4ec9b0",
+        letterSpacing: 10,
+        opacity: 0.8,
+      }}
+    >
       JAVA
     </div>
-    <div style={{
-      fontFamily: uiFont, fontSize: 140, fontWeight: 900,
-      lineHeight: 1, textAlign: "center", color: "#ffffff",
-      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-    }}>
-      Java<br /><span style={{ color: "#4ec9b0" }}>자료형</span>
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 140,
+        fontWeight: 900,
+        lineHeight: 1,
+        textAlign: "center",
+        color: "#ffffff",
+        textShadow:
+          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+      }}
+    >
+      Java
+      <br />
+      <span style={{ color: "#4ec9b0" }}>자료형</span>
     </div>
-    <div style={{
-      fontFamily: uiFont, fontSize: 32, color: "#4ec9b0",
-      letterSpacing: 4, opacity: 0.7,
-    }}>
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 32,
+        color: "#4ec9b0",
+        letterSpacing: 4,
+        opacity: 0.7,
+      }}
+    >
       int · double · String · boolean
     </div>
   </AbsoluteFill>
@@ -425,55 +547,88 @@ const IntroScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
   const d = intro.durationInFrames;
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   const boxes = [
-    { label: "int",     color: TYPE_COLORS.int },
-    { label: "double",  color: TYPE_COLORS.double },
-    { label: "String",  color: TYPE_COLORS.String },
+    { label: "int", color: TYPE_COLORS.int },
+    { label: "double", color: TYPE_COLORS.double },
+    { label: "String", color: TYPE_COLORS.String },
     { label: "boolean", color: TYPE_COLORS.boolean },
   ];
 
   return (
     <>
-    <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
-      <Audio src={staticFile(intro.audio)} />
-      <div style={{
-        position: "absolute", top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28,
-      }}>
-        {boxes.map(({ label, color }, i) => {
-          const delay = i * 5;
-          const appear = spring({
-            frame: frame - delay, fps,
-            config: { damping: 14, stiffness: 140 },
-            durationInFrames: 35,
-          });
-          const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
-            extrapolateLeft: "clamp", extrapolateRight: "clamp",
-          });
-          return (
-            <div key={label} style={{
-              transform: `scale(${boxScale})`, opacity: appear,
-              border: `4px solid ${color}`, borderRadius: 20,
-              width: 220, height: 150,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: `${color}1a`,
-            }}>
-              <span style={{
-                fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 38,
-                fontWeight: 700, color,
-              }}>
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </AbsoluteFill>
-    <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
+      <AbsoluteFill
+        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+      >
+        <Audio src={staticFile(intro.audio)} />
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 28,
+          }}
+        >
+          {boxes.map(({ label, color }, i) => {
+            const delay = i * 5;
+            const appear = spring({
+              frame: frame - delay,
+              fps,
+              config: { damping: 14, stiffness: 140 },
+              durationInFrames: 35,
+            });
+            const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            return (
+              <div
+                key={label}
+                style={{
+                  transform: `scale(${boxScale})`,
+                  opacity: appear,
+                  border: `4px solid ${color}`,
+                  borderRadius: 20,
+                  width: 220,
+                  height: 150,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: `${color}1a`,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: monoFont,
+                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontSize: 38,
+                    fontWeight: 700,
+                    color,
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={intro.narration}
+        splits={intro.narrationSplits}
+        speechStart={intro.speechStartFrame}
+      />
     </>
   );
 };
@@ -490,54 +645,130 @@ const ValueVsVarScene: React.FC = () => {
   const split1 = splits[1] ?? 180;
   const COLOR = TYPE_COLORS.int;
 
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
-  const valueAppear = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
-  const valueScale  = interpolate(valueAppear, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const varAppear   = spring({ frame: frame - split1, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
-  const varScale    = interpolate(varAppear, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const arrowOp     = interpolate(frame, [split1, split1 + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const valueAppear = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 14, stiffness: 140 },
+    durationInFrames: 30,
+  });
+  const valueScale = interpolate(valueAppear, [0, 1], [0.5, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const varAppear = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 14, stiffness: 140 },
+    durationInFrames: 30,
+  });
+  const varScale = interpolate(varAppear, [0, 1], [0.5, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const arrowOp = interpolate(frame, [split1, split1 + 15], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill
+        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+      >
         <Audio src={staticFile(valueVsVar.audio)} />
 
         {/* 제목 */}
-        <div style={{
-          position: "absolute", top: 160, left: "50%",
-          transform: "translateX(-50%)",
-          fontFamily: uiFont, fontSize: 34, color: "#666",
-          letterSpacing: 4, whiteSpace: "nowrap",
-        }}>
-          값 (Value)  vs  변수 (Variable)
+        <div
+          style={{
+            position: "absolute",
+            top: 160,
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontFamily: uiFont,
+            fontSize: 34,
+            color: "#666",
+            letterSpacing: 4,
+            whiteSpace: "nowrap",
+          }}
+        >
+          값 (Value) vs 변수 (Variable)
         </div>
 
         {/* 두 패널 */}
-        <div style={{
-          position: "absolute", top: "46%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex", gap: 60, alignItems: "center",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "46%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex",
+            gap: 60,
+            alignItems: "center",
+          }}
+        >
           {/* 왼쪽: int형 값 */}
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
-            opacity: valueAppear,
-            transform: `scale(${valueScale})`,
-          }}>
-            <div style={{ fontFamily: uiFont, fontSize: 30, fontWeight: 700, color: "#aaa", letterSpacing: 2 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+              opacity: valueAppear,
+              transform: `scale(${valueScale})`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 30,
+                fontWeight: 700,
+                color: "#aaa",
+                letterSpacing: 2,
+              }}
+            >
               int형 값
             </div>
-            <div style={{
-              width: 200, height: 200, borderRadius: "50%",
-              border: `3px dashed ${COLOR}88`,
-              background: `${COLOR}0d`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <span style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 80, fontWeight: 700, color: COLOR }}>25</span>
+            <div
+              style={{
+                width: 200,
+                height: 200,
+                borderRadius: "50%",
+                border: `3px dashed ${COLOR}88`,
+                background: `${COLOR}0d`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: monoFont,
+                  fontFeatureSettings: '"calt" 0, "liga" 0',
+                  fontSize: 80,
+                  fontWeight: 700,
+                  color: COLOR,
+                }}
+              >
+                25
+              </span>
             </div>
-            <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                fontStyle: "italic",
+              }}
+            >
               데이터 자체
             </div>
           </div>
@@ -546,38 +777,89 @@ const ValueVsVarScene: React.FC = () => {
           <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>→</div>
 
           {/* 오른쪽: int형 변수 */}
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
-            opacity: varAppear,
-            transform: `scale(${varScale})`,
-          }}>
-            <div style={{ fontFamily: uiFont, fontSize: 30, fontWeight: 700, color: "#aaa", letterSpacing: 2 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+              opacity: varAppear,
+              transform: `scale(${varScale})`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 30,
+                fontWeight: 700,
+                color: "#aaa",
+                letterSpacing: 2,
+              }}
+            >
               int형 변수
             </div>
-            <div style={{
-              width: 240, height: 200, borderRadius: 20,
-              border: `4px solid ${COLOR}`,
-              background: `${COLOR}1a`,
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center", gap: 4,
-              position: "relative",
-            }}>
+            <div
+              style={{
+                width: 240,
+                height: 200,
+                borderRadius: 20,
+                border: `4px solid ${COLOR}`,
+                background: `${COLOR}1a`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                position: "relative",
+              }}
+            >
               {/* 타입 태그 */}
-              <div style={{
-                position: "absolute", top: -20,
-                background: COLOR, borderRadius: 6, padding: "4px 16px",
-                fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, fontWeight: 700, color: "#1e1e1e",
-              }}>int</div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: -20,
+                  background: COLOR,
+                  borderRadius: 6,
+                  padding: "4px 16px",
+                  fontFamily: monoFont,
+                  fontFeatureSettings: '"calt" 0, "liga" 0',
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#1e1e1e",
+                }}
+              >
+                int
+              </div>
               {/* 변수명 */}
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 28, color: "#888" }}>age</div>
+              <div
+                style={{
+                  fontFamily: monoFont,
+                  fontFeatureSettings: '"calt" 0, "liga" 0',
+                  fontSize: 28,
+                  color: "#888",
+                }}
+              >
+                age
+              </div>
             </div>
-            <div style={{ fontFamily: uiFont, fontSize: 24, color: "#666", fontStyle: "italic" }}>
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                fontStyle: "italic",
+              }}
+            >
               값을 담는 공간
             </div>
           </div>
         </div>
       </AbsoluteFill>
-      <Subtitle sentences={valueVsVar.narration} splits={splits} speechStart={s} />
+      <Subtitle
+        sentences={valueVsVar.narration}
+        splits={splits}
+        speechStart={s}
+      />
     </>
   );
 };
@@ -606,26 +888,44 @@ const TYPE_SCENE_DATA = {
 
 const TypeScene: React.FC<{
   sceneKey: keyof typeof TYPE_SCENE_DATA;
-  config: { audio: string; durationInFrames: number; speechStartFrame: number; narration: string[]; narrationSplits: readonly number[] };
+  config: {
+    audio: string;
+    durationInFrames: number;
+    speechStartFrame: number;
+    narration: string[];
+    narrationSplits: readonly number[];
+  };
 }> = ({ sceneKey, config }) => {
   const frame = useCurrentFrame();
   const d = config.durationInFrames;
   const s = config.speechStartFrame;
   const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
 
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   // TypeBox는 두 번째 문장 시작(narrationSplits[0]) 또는 타이핑 완료 시점에 드롭
   const dropStart = config.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill
+        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+      >
         <Audio src={staticFile(config.audio)} />
-        <div style={{
-          position: "absolute", top: "30%", left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
           <TypeBox
             color={color}
             value={value}
@@ -634,12 +934,13 @@ const TypeScene: React.FC<{
             dropStartFrame={dropStart}
           />
         </div>
-        <CodeBox
-          lines={[{ text: code, isNew: true }]}
-          startFrame={s}
-        />
+        <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
       </AbsoluteFill>
-      <Subtitle sentences={config.narration} splits={config.narrationSplits} speechStart={s} />
+      <Subtitle
+        sentences={config.narration}
+        splits={config.narrationSplits}
+        speechStart={s}
+      />
     </>
   );
 };
@@ -651,26 +952,40 @@ const BooleanScene: React.FC = () => {
   const d = booleanScene.durationInFrames;
   const s = booleanScene.speechStartFrame;
   const code = "boolean isStudent = true;";
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const dropStart = booleanScene.narrationSplits[0] ?? typingDone(code.length, s);
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const dropStart =
+    booleanScene.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill
+        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+      >
         <Audio src={staticFile(booleanScene.audio)} />
-        <div style={{
-          position: "absolute", top: "30%", left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
           <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
         </div>
-        <CodeBox
-          lines={[{ text: code, isNew: true }]}
-          startFrame={s}
-        />
+        <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
       </AbsoluteFill>
-      <Subtitle sentences={booleanScene.narration} splits={booleanScene.narrationSplits} speechStart={s} />
+      <Subtitle
+        sentences={booleanScene.narration}
+        splits={booleanScene.narrationSplits}
+        speechStart={s}
+      />
     </>
   );
 };
@@ -688,7 +1003,10 @@ const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { summaryScene } = VIDEO_CONFIG;
   const d = summaryScene.durationInFrames;
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // 캐릭터 수 비례로 각 라인 시작 타이밍 계산
   const totalChars = SUMMARY_LINES.reduce((sum, l) => sum + l.length, 0);
@@ -716,7 +1034,11 @@ const SummaryScene: React.FC = () => {
           </Sequence>
         ))}
       </AbsoluteFill>
-      <Subtitle sentences={summaryScene.narration} splits={summaryScene.narrationSplits} speechStart={summaryScene.speechStartFrame} />
+      <Subtitle
+        sentences={summaryScene.narration}
+        splits={summaryScene.narrationSplits}
+        speechStart={summaryScene.speechStartFrame}
+      />
     </>
   );
 };
@@ -752,28 +1074,52 @@ export const compositionMeta = {
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaDataTypes: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.intro.durationInFrames}
+    >
       <IntroScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.valueVsVar.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={VIDEO_CONFIG.valueVsVar.durationInFrames}
+    >
       <ValueVsVarScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}>
+    <Sequence
+      from={fromValues[3]}
+      durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}
+    >
       <TypeScene sceneKey="intScene" config={VIDEO_CONFIG.intScene} />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}>
+    <Sequence
+      from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}
+    >
       <TypeScene sceneKey="doubleScene" config={VIDEO_CONFIG.doubleScene} />
     </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}>
+    <Sequence
+      from={fromValues[5]}
+      durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}
+    >
       <TypeScene sceneKey="stringScene" config={VIDEO_CONFIG.stringScene} />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
+    <Sequence
+      from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}
+    >
       <BooleanScene />
     </Sequence>
-    <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence
+      from={fromValues[7]}
+      durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
+    >
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>
