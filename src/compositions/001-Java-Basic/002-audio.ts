@@ -6,6 +6,6 @@ export const AUDIO_CONFIG = {
   intScene        : { durationInFrames: 286, narrationSplits: [83, 182], sentenceEndFrames: [64, 161], speechStartFrame: 5, speechEndFrame: 255, wordStartFrames: [[0,9,23,37],[73,86,99,113,118,134,141,143],[175,184,201,217,217,222,233]] },
   doubleScene     : { durationInFrames: 273, narrationSplits: [80, 170], sentenceEndFrames: [62, 146], speechStartFrame: 4, speechEndFrame: 241, wordStartFrames: [[0,8,22,22,35],[74,83,95,112,112,116,125],[160,168,181,198,207,216,219]] },
   stringScene     : { durationInFrames: 369, narrationSplits: [89, 171, 265], sentenceEndFrames: [69, 152, 246], speechStartFrame: 5, speechEndFrame: 338, wordStartFrames: [[0,11,31,42],[79,94,107,120,132],[164,178,196,214],[259,269,287,305,312,315]] },
-  booleanScene    : { durationInFrames: 299, narrationSplits: [97, 208], sentenceEndFrames: [79, 189], speechStartFrame: 5, speechEndFrame: 268, wordStartFrames: [[0,11,19,28,43,54],[92,100,116,125,143,143,161,169,172],[202,210,220,232,240,244]] },
+  booleanScene    : { durationInFrames: 296, narrationSplits: [98, 204], sentenceEndFrames: [79, 185], speechStartFrame: 5, speechEndFrame: 264, wordStartFrames: [[0,11,19,28,42,53],[92,102,116,126,141,141,158,165,168],[197,206,217,228,236,239]] },
   summaryScene    : { durationInFrames: 192, narrationSplits: [90], sentenceEndFrames: [69], speechStartFrame: 6, speechEndFrame: 160, wordStartFrames: [[0,9,23,23,33,46],[83,92,96,115,127,134]] },
 } as const;
