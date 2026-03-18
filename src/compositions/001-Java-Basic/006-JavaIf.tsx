@@ -50,6 +50,16 @@ if (typeof window !== "undefined") {
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 30 },
+  overview: {
+    audio: "if-overview.mp3",
+    durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
+    narration: [
+      "제어문에는 조건문과 반복문이 있습니다.",
+      "조건문 중에 기본인 if 문을 알아보겠습니다.",
+    ] as string[],
+    narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
+  },
   intro: {
     audio: "if-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
@@ -224,6 +234,116 @@ const CodeBlock: React.FC<{
         </>
       )}
     </div>
+  );
+};
+
+// ── 씬: OverviewScene — 제어문 개요 ──────────────────────────
+//   Sentence 1: 제어문 트리 (조건문 / 반복문)
+//   Sentence 2: 조건문 하이라이트 + if 키워드 강조
+const OverviewScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { overview: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d);
+
+  const phase2 = frame >= split0;
+
+  // 등장 애니메이션
+  const rootAppear  = spring({ frame: frame - s,      fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const leftAppear  = spring({ frame: frame - s - 10, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const rightAppear = spring({ frame: frame - s - 20, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const ifAppear    = spring({ frame: frame - split0,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+
+  const C_COND = "#c586c0"; // 조건문 색
+  const C_LOOP = "#4ec9b0"; // 반복문 색
+  const C_DIM  = "rgba(255,255,255,0.22)";
+
+  const nodeStyle = (color: string, active: boolean, appear: number): React.CSSProperties => {
+    const sc = interpolate(appear, [0, 1], [0.75, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    return {
+      fontFamily: uiFont, fontSize: 34, fontWeight: 700,
+      color: active ? color : C_DIM,
+      background: active ? `${color}18` : "rgba(255,255,255,0.04)",
+      border: `2px solid ${active ? color + "66" : "rgba(255,255,255,0.1)"}`,
+      borderRadius: 16, padding: "16px 36px",
+      opacity: appear, transform: `scale(${sc})`,
+      textAlign: "center" as const,
+    };
+  };
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "42%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 32,
+          }}>
+            {/* 제어문 루트 */}
+            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>
+              제어문
+            </div>
+
+            {/* 연결선 */}
+            <div style={{ display: "flex", gap: 0, alignItems: "flex-start", position: "relative", width: 480 }}>
+              {/* 세로선 + 가로선 */}
+              <div style={{
+                position: "absolute", top: 0, left: "50%",
+                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
+                transform: "translateX(-50%)",
+              }} />
+              <div style={{
+                position: "absolute", top: 24, left: "25%",
+                width: "50%", height: 2, background: "rgba(255,255,255,0.15)",
+              }} />
+              <div style={{
+                position: "absolute", top: 24, left: "25%",
+                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
+              }} />
+              <div style={{
+                position: "absolute", top: 24, right: "25%",
+                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
+              }} />
+            </div>
+
+            {/* 조건문 / 반복문 */}
+            <div style={{ display: "flex", gap: 48, marginTop: -16 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+                <div style={nodeStyle(C_COND, true, leftAppear)}>
+                  조건문
+                </div>
+                {/* phase 2: if 키워드 강조 */}
+                {phase2 && (
+                  <div style={{
+                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                    fontSize: 52, fontWeight: 900, color: C_CTRL,
+                    background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
+                    borderRadius: 18, padding: "14px 44px",
+                    opacity: ifAppear,
+                    transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                    boxShadow: `0 0 32px ${C_CTRL}33`,
+                  }}>
+                    if
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>
+                  반복문
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
   );
 };
 
@@ -455,6 +575,7 @@ const SummaryScene: React.FC = () => {
 // ── 씬 목록 + fromValues ──────────────────────────────────────
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
+  VIDEO_CONFIG.overview,
   VIDEO_CONFIG.intro,
   VIDEO_CONFIG.ifScene,
   VIDEO_CONFIG.ifElseScene,
@@ -483,16 +604,19 @@ export const JavaIf: React.FC = () => (
     <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.overview.durationInFrames}>
+      <OverviewScene />
+    </Sequence>
+    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
       <IntroScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.ifScene.durationInFrames}>
+    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.ifScene.durationInFrames}>
       <IfScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.ifElseScene.durationInFrames}>
+    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.ifElseScene.durationInFrames}>
       <IfElseScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>
