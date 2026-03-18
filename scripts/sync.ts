@@ -35,7 +35,27 @@ if (!arg) {
 }
 const argParts   = arg.split("/");
 const episodeId  = argParts[argParts.length - 1];
-const SERIES_DIR = path.join(SRC_DIR, ...argParts.slice(0, -1));
+
+// 시리즈 폴더 해석: 단축형(예: "001") → 실제 폴더명(예: "001-Java-Basic") 자동 확장
+function resolveSeriesDir(parts: string[]): string {
+  let resolved = SRC_DIR;
+  for (const part of parts) {
+    const fullPath = path.join(resolved, part);
+    if (existsSync(fullPath)) {
+      resolved = fullPath;
+    } else {
+      const match = readdirSync(resolved).find((d) => d.startsWith(part + "-") || d === part);
+      if (!match) {
+        console.error(`❌  시리즈 폴더를 찾을 수 없습니다: ${part} (in ${resolved})`);
+        process.exit(1);
+      }
+      resolved = path.join(resolved, match);
+    }
+  }
+  return resolved;
+}
+
+const SERIES_DIR = resolveSeriesDir(argParts.slice(0, -1));
 const compositionId = episodeId;
 
 const matchEntry = readdirSync(SERIES_DIR).find(
