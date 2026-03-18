@@ -84,7 +84,7 @@ export const Subtitle: React.FC<{
     <div
       style={{
         position: "absolute",
-        bottom: 100,
+        bottom: 200,
         left: "50%",
         transform: "translateX(-50%)",
         textAlign: "center",
