@@ -447,21 +447,20 @@ const ExecutionScene: React.FC = () => {
 
         {frame >= s && (
           <div style={{
-            position: "absolute", top: "46%", left: "50%",
+            position: "absolute", top: "48%", left: "50%",
             transform: "translate(-50%, -50%)",
-            display: "flex", gap: 28,
-            width: 980,
+            display: "flex", flexDirection: "column", gap: 24,
+            width: 920,
           }}>
-            {/* 좌측: 코드 패널 */}
+            {/* 상단: 코드 패널 */}
             <div style={{
-              flex: "0 0 380px",
               fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 24, lineHeight: 2.0,
+              fontSize: 28, lineHeight: 2.0,
               background: "#252525", borderRadius: 16,
-              padding: "24px 24px",
+              padding: "20px 8px",
             }}>
-              {/* int count = 1; */}
-              <div style={{ color: "#d4d4d4" }}>
+              {/* int count = 1; — 모든 줄에 동일한 borderLeft(transparent) + paddingLeft 적용으로 인덴트 통일 */}
+              <div style={{ borderLeft: "3px solid transparent", paddingLeft: 16, color: "#d4d4d4" }}>
                 <span style={{ color: C_INT }}>int</span>
                 <span> count = </span>
                 <span style={{ color: C_NUM }}>1</span>
@@ -469,20 +468,22 @@ const ExecutionScene: React.FC = () => {
               </div>
               {/* while 조건 줄 */}
               <div style={{
-                background: activeLineIsCondition ? `${C_COND}22` : "transparent",
                 borderLeft: activeLineIsCondition ? `3px solid ${C_COND}` : "3px solid transparent",
-                paddingLeft: 8, borderRadius: "0 6px 6px 0",
+                paddingLeft: 16,
+                background: activeLineIsCondition ? `${C_COND}22` : "transparent",
+                borderRadius: "0 6px 6px 0",
               }}>
                 <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
                 <span style={{ color: "#d4d4d4" }}> (</span>
                 <span style={{ color: C_COND }}>count {"<="} 5</span>
                 <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
               </div>
-              {/* println 줄 */}
+              {/* println 줄 — 인덴트: 16(base) + 40(indent) = 56 */}
               <div style={{
-                background: !activeLineIsCondition && step.condPass ? `${C_TEAL}18` : "transparent",
                 borderLeft: !activeLineIsCondition && step.condPass ? `3px solid ${C_TEAL}` : "3px solid transparent",
-                paddingLeft: 32, borderRadius: "0 6px 6px 0",
+                paddingLeft: 56,
+                background: !activeLineIsCondition && step.condPass ? `${C_TEAL}18` : "transparent",
+                borderRadius: "0 6px 6px 0",
               }}>
                 <span style={{ color: C_INT }}>System</span>
                 <span style={{ color: "#d4d4d4" }}>.out.</span>
@@ -490,17 +491,13 @@ const ExecutionScene: React.FC = () => {
                 <span style={{ color: "#d4d4d4" }}>(count);</span>
               </div>
               {/* count++ */}
-              <div style={{ paddingLeft: 32, color: C_TEAL }}>count++;</div>
+              <div style={{ borderLeft: "3px solid transparent", paddingLeft: 56, color: C_TEAL }}>count++;</div>
               {/* } */}
-              <div style={{ color: "#d4d4d4" }}>{"}"}</div>
+              <div style={{ borderLeft: "3px solid transparent", paddingLeft: 16, color: "#d4d4d4" }}>{"}"}</div>
             </div>
 
-            {/* 우측: 상태 패널 */}
-            <div style={{
-              flex: 1,
-              display: "flex", flexDirection: "column", gap: 20,
-              justifyContent: "center",
-            }}>
+            {/* 하단: 상태 패널 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* count 박스 */}
               <div style={{
                 background: "#2a2a2a", borderRadius: 16,
