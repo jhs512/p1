@@ -84,7 +84,7 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.remScene.speechStartFrame,
     narration: [
       "나머지 연산자는 나눗셈에서 남은 값을 구합니다.",
-      "10을 3으로 나누면 몫은 3이고 나머지는 1입니다.",
+      "10을 4로 나누면 몫은 2이고 나머지는 2입니다.",
       "짝수 홀수 판별처럼 다양한 계산에 활용됩니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.remScene.narrationSplits,
@@ -347,7 +347,7 @@ const RemScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
 
-        {/* 메인: 10 % 3 == 1 */}
+        {/* 메인: 10 % 4 == 2 */}
         <div style={{
           position: "absolute", top: "36%", left: "50%",
           transform: `translate(-50%, -50%) scale(${interpolate(divAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
@@ -357,12 +357,12 @@ const RemScene: React.FC = () => {
         }}>
           <span style={{ color: C_INT }}>10</span>
           <span style={{ color: C_REM }}>%</span>
-          <span style={{ color: C_INT }}>3</span>
+          <span style={{ color: C_INT }}>4</span>
           <span style={{ color: C_OP }}>==</span>
-          <span style={{ color: C_REM, textShadow: `0 0 30px ${C_REM}88` }}>1</span>
+          <span style={{ color: C_REM, textShadow: `0 0 30px ${C_REM}88` }}>2</span>
         </div>
 
-        {/* split0: 몫 3, 나머지 1 분리 설명 */}
+        {/* split0: 몫 2, 나머지 2 분리 설명 */}
         {frame >= split0 && (
           <div style={{
             position: "absolute", top: "58%", left: "50%",
@@ -375,16 +375,16 @@ const RemScene: React.FC = () => {
               background: "#2d2d2d", borderRadius: 16, padding: "20px 40px",
             }}>
               <div style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}>몫</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_NUM }}>3</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: "#555" }}>10 / 3</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_NUM }}>2</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: "#555" }}>10 / 4</div>
             </div>
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
               background: `${C_REM}1a`, border: `2px solid ${C_REM}66`, borderRadius: 16, padding: "20px 40px",
             }}>
               <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>나머지</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_REM }}>1</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: C_REM, opacity: 0.6 }}>10 % 3</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_REM }}>2</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: C_REM, opacity: 0.6 }}>10 % 4</div>
             </div>
           </div>
         )}
