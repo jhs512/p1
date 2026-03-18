@@ -150,14 +150,16 @@ const BoolPill: React.FC<{ value: boolean; size?: number }> = ({ value, size = 5
 
 // ── 컴포넌트: EvalRow (A OP B = result) ──────────────────────
 //   AND/OR 용: [left] [op] [right] → [result]
+//   NOT 용:   prefixOp="!" → [!left] → [result]
 const EvalRow: React.FC<{
   left: boolean;
   op: string;
-  right?: boolean;       // undefined → NOT 연산자
+  right?: boolean;
   result: boolean;
   startFrame: number;
   dim?: boolean;
-}> = ({ left, op, right, result, startFrame, dim = false }) => {
+  prefixOp?: string;   // NOT 연산자용: op를 left pill 앞에 붙임
+}> = ({ left, op, right, result, startFrame, dim = false, prefixOp }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -168,24 +170,31 @@ const EvalRow: React.FC<{
 
   const rowOpacity = dim ? 0.38 : interpolate(appear, [0, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
+  const opStyle: React.CSSProperties = {
+    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+    fontSize: 56, fontWeight: 900, color: C_LOG,
+    textShadow: `0 0 24px ${C_LOG}66`,
+  };
+
   return (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "center",
-      gap: 24, opacity: rowOpacity,
-      transform: `scale(${sc})`,
+      gap: 24, opacity: rowOpacity, transform: `scale(${sc})`,
     }}>
-      {/* 왼쪽 pill */}
-      <BoolPill value={left} />
-
-      {/* 연산자 */}
-      <span style={{
-        fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 56, fontWeight: 900, color: C_LOG,
-        textShadow: `0 0 24px ${C_LOG}66`,
-      }}>{op}</span>
-
-      {/* 오른쪽 pill (NOT 연산자면 없음) */}
-      {right !== undefined && <BoolPill value={right} />}
+      {prefixOp ? (
+        /* NOT: !를 pill 앞에 붙여서 하나처럼 표시 */
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={opStyle}>{prefixOp}</span>
+          <BoolPill value={left} />
+        </div>
+      ) : (
+        /* AND / OR */
+        <>
+          <BoolPill value={left} />
+          <span style={opStyle}>{op}</span>
+          {right !== undefined && <BoolPill value={right} />}
+        </>
+      )}
 
       {/* 화살표 + 결과 */}
       {frame >= startFrame + 15 && (
@@ -295,17 +304,24 @@ const AndScene: React.FC = () => {
         {/* 헤더 */}
         {frame >= s && (
           <div style={{
-            position: "absolute", top: "26%", left: "50%",
+            position: "absolute", top: "18%", left: "50%",
             transform: "translateX(-50%)",
             fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 28, opacity: 0.45, color: "#d4d4d4",
+            fontSize: 36, opacity: 0.5, color: "#d4d4d4",
+            lineHeight: 1.7, textAlign: "center",
           }}>
-            <span style={{ color: C_BOOL }}>boolean</span>
-            <span style={{ color: "#d4d4d4" }}> x = </span>
-            <span style={{ color: C_TRUE }}>true</span>
-            <span style={{ color: "#d4d4d4" }}>, y = </span>
-            <span style={{ color: C_FALSE }}>false</span>
-            <span style={{ color: "#d4d4d4" }}>;</span>
+            <div>
+              <span style={{ color: C_BOOL }}>boolean</span>
+              <span style={{ color: "#d4d4d4" }}> x = </span>
+              <span style={{ color: C_TRUE }}>true</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+            <div>
+              <span style={{ color: C_BOOL }}>boolean</span>
+              <span style={{ color: "#d4d4d4" }}> y = </span>
+              <span style={{ color: C_FALSE }}>false</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
           </div>
         )}
 
@@ -342,32 +358,56 @@ const OrScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
 
+        {/* 헤더: 변수 선언 (두 줄) */}
         {frame >= s && (
           <div style={{
-            position: "absolute", top: "26%", left: "50%",
+            position: "absolute", top: "18%", left: "50%",
             transform: "translateX(-50%)",
             fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 28, opacity: 0.45, color: "#d4d4d4",
+            fontSize: 36, opacity: 0.5, color: "#d4d4d4",
+            lineHeight: 1.7, textAlign: "center",
           }}>
-            <span style={{ color: C_BOOL }}>boolean</span>
-            <span style={{ color: "#d4d4d4" }}> x = </span>
+            <div>
+              <span style={{ color: C_BOOL }}>boolean</span>
+              <span style={{ color: "#d4d4d4" }}> x = </span>
+              <span style={{ color: C_TRUE }}>true</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+            <div>
+              <span style={{ color: C_BOOL }}>boolean</span>
+              <span style={{ color: "#d4d4d4" }}> y = </span>
+              <span style={{ color: C_FALSE }}>false</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+          </div>
+        )}
+
+        {/* 식 레이블: x || y → true */}
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "40%", left: "50%",
+            transform: "translateX(-50%)",
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 34, color: "#aaaaaa",
+          }}>
+            <span style={{ color: "#d4d4d4" }}>x </span>
+            <span style={{ color: C_LOG }}>||</span>
+            <span style={{ color: "#d4d4d4" }}> y</span>
+            <span style={{ color: "#555" }}>  →  </span>
             <span style={{ color: C_TRUE }}>true</span>
-            <span style={{ color: "#d4d4d4" }}>, y = </span>
-            <span style={{ color: C_FALSE }}>false</span>
-            <span style={{ color: "#d4d4d4" }}>;</span>
           </div>
         )}
 
         {/* 케이스 1: true || false → true */}
         {frame >= s && (
-          <div style={{ position: "absolute", top: "44%", left: "50%", transform: "translate(-50%, -50%)" }}>
+          <div style={{ position: "absolute", top: "54%", left: "50%", transform: "translate(-50%, -50%)" }}>
             <EvalRow left={true} op="||" right={false} result={true} startFrame={s} dim={frame >= split0} />
           </div>
         )}
 
         {/* 케이스 2: false || false → false */}
         {frame >= split0 && (
-          <div style={{ position: "absolute", top: "64%", left: "50%", transform: "translate(-50%, -50%)" }}>
+          <div style={{ position: "absolute", top: "72%", left: "50%", transform: "translate(-50%, -50%)" }}>
             <EvalRow left={false} op="||" right={false} result={false} startFrame={split0} />
           </div>
         )}
@@ -394,14 +434,14 @@ const NotScene: React.FC = () => {
         {/* !true → false */}
         {frame >= s && (
           <div style={{ position: "absolute", top: "42%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <EvalRow left={true} op="!" result={false} startFrame={s} dim={frame >= split0} />
+            <EvalRow left={true} op="!" result={false} startFrame={s} dim={frame >= split0} prefixOp="!" />
           </div>
         )}
 
         {/* !false → true */}
         {frame >= split0 && (
           <div style={{ position: "absolute", top: "62%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <EvalRow left={false} op="!" result={true} startFrame={split0} />
+            <EvalRow left={false} op="!" result={true} startFrame={split0} prefixOp="!" />
           </div>
         )}
       </AbsoluteFill>
