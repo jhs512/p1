@@ -254,7 +254,7 @@ const ThumbnailScene: React.FC = () => (
         height: 860,
         borderRadius: "50%",
         background:
-          "radial-gradient(circle, rgba(197,134,192,0.10) 0%, transparent 70%)",
+          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
@@ -265,7 +265,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 26,
         fontWeight: 700,
-        color: C_CMP,
+        color: "#4ec9b0",
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -280,12 +280,12 @@ const ThumbnailScene: React.FC = () => (
         lineHeight: 1,
         textAlign: "center",
         color: "#fff",
-        textShadow: `0 0 60px rgba(197,134,192,0.6), 0 0 120px rgba(197,134,192,0.25)`,
+        textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
       }}
     >
       Java
       <br />
-      <span style={{ color: C_CMP }}>비교 연산자</span>
+      <span style={{ color: "#4ec9b0" }}>비교 연산자</span>
     </div>
     {/* 예시: 10 == 3 → false */}
     <div
@@ -299,7 +299,7 @@ const ThumbnailScene: React.FC = () => (
       }}
     >
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>10</span>
-      <span style={{ fontSize: 64, fontWeight: 900, color: C_CMP }}>==</span>
+      <span style={{ fontSize: 64, fontWeight: 900, color: "#4ec9b0" }}>==</span>
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>3</span>
       <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
       <span style={{ fontSize: 56, fontWeight: 900, color: C_FALSE }}>

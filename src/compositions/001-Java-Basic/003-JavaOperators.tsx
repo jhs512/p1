@@ -166,18 +166,18 @@ const ThumbnailScene: React.FC = () => (
   <AbsoluteFill style={{ background: "#050510", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 24 }}>
     <div style={{
       position: "absolute", width: 900, height: 900, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(212,131,78,0.12) 0%, transparent 70%)",
+      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
       top: "50%", left: "50%", transform: "translate(-50%, -50%)",
     }} />
-    <div style={{ fontFamily: uiFont, fontSize: 28, fontWeight: 700, color: C_OP, letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{ fontFamily: uiFont, fontSize: 28, fontWeight: 700, color: "#4ec9b0", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
     <div style={{
       fontFamily: uiFont, fontSize: 120, fontWeight: 900, lineHeight: 1,
       textAlign: "center", color: "#ffffff",
-      textShadow: "0 0 60px rgba(212,131,78,0.6), 0 0 120px rgba(212,131,78,0.3)",
+      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
     }}>
-      Java<br /><span style={{ color: C_OP }}>산술 연산자</span>
+      Java<br /><span style={{ color: "#4ec9b0" }}>산술 연산자</span>
     </div>
-    <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 44, color: C_OP, letterSpacing: 12, opacity: 0.7 }}>
+    <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 44, color: "#4ec9b0", letterSpacing: 12, opacity: 0.7 }}>
       + &nbsp; - &nbsp; * &nbsp; / &nbsp; %
     </div>
   </AbsoluteFill>

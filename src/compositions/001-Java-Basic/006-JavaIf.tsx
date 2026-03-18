@@ -281,27 +281,27 @@ const OverviewScene: React.FC = () => {
 
 // ── 씬: ThumbnailScene ────────────────────────────────────────
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#0d0d1a", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 28 }}>
+  <AbsoluteFill style={{ background: "#050510", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 28 }}>
     <div style={{
       position: "absolute", width: 860, height: 860, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(197,134,192,0.10) 0%, transparent 70%)",
+      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
       top: "50%", left: "50%", transform: "translate(-50%, -50%)",
     }} />
-    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#4ec9b0", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
     <div style={{
       fontFamily: uiFont, fontSize: 108, fontWeight: 900, lineHeight: 1,
       textAlign: "center", color: "#fff",
-      textShadow: `0 0 60px rgba(197,134,192,0.6), 0 0 120px rgba(197,134,192,0.25)`,
+      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
     }}>
-      Java<br /><span style={{ color: C_CTRL }}>조건문</span>
+      Java<br /><span style={{ color: "#4ec9b0" }}>조건문</span>
     </div>
     {/* if / else 키워드 */}
     <div style={{ display: "flex", gap: 24, marginTop: 8 }}>
       {["if", "else"].map((kw) => (
         <div key={kw} style={{
           fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-          fontSize: 56, fontWeight: 900, color: C_CTRL,
-          background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
+          fontSize: 56, fontWeight: 900, color: "#4ec9b0",
+          background: "#4ec9b018", border: "2px solid #4ec9b055",
           borderRadius: 18, padding: "18px 44px",
         }}>{kw}</div>
       ))}

@@ -227,7 +227,7 @@ const ThumbnailScene: React.FC = () => (
         height: 860,
         borderRadius: "50%",
         background:
-          "radial-gradient(circle, rgba(229,192,123,0.10) 0%, transparent 70%)",
+          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
@@ -238,7 +238,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 26,
         fontWeight: 700,
-        color: C_LOG,
+        color: "#4ec9b0",
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -253,12 +253,12 @@ const ThumbnailScene: React.FC = () => (
         lineHeight: 1,
         textAlign: "center",
         color: "#fff",
-        textShadow: `0 0 60px rgba(229,192,123,0.6), 0 0 120px rgba(229,192,123,0.25)`,
+        textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
       }}
     >
       Java
       <br />
-      <span style={{ color: C_LOG }}>논리 연산자</span>
+      <span style={{ color: "#4ec9b0" }}>논리 연산자</span>
     </div>
     {/* 세 연산자 */}
     <div
@@ -282,13 +282,13 @@ const ThumbnailScene: React.FC = () => (
             flexDirection: "column",
             alignItems: "center",
             gap: 8,
-            background: `${C_LOG}18`,
-            border: `2px solid ${C_LOG}55`,
+            background: "#4ec9b018",
+            border: "2px solid #4ec9b055",
             borderRadius: 20,
             padding: "22px 36px",
           }}
         >
-          <span style={{ fontSize: 56, fontWeight: 900, color: C_LOG }}>
+          <span style={{ fontSize: 56, fontWeight: 900, color: "#4ec9b0" }}>
             {op}
           </span>
           <span

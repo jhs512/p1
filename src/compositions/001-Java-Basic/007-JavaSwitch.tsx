@@ -187,22 +187,22 @@ const ThumbnailScene: React.FC = () => (
     {/* 배경 글로우 */}
     <div style={{
       position: "absolute", width: 860, height: 860, borderRadius: "50%",
-      background: `radial-gradient(circle, ${C_SWITCH}20 0%, transparent 70%)`,
+      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
       top: "50%", left: "50%", transform: "translate(-50%, -50%)",
     }} />
-    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#4ec9b0", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
     <div style={{
       fontFamily: uiFont, fontSize: 108, fontWeight: 900, lineHeight: 1,
       textAlign: "center", color: "#fff",
-      textShadow: `0 0 60px ${C_SWITCH}99, 0 0 120px ${C_SWITCH}44`,
+      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
     }}>
-      Java<br /><span style={{ color: C_SWITCH }}>switch</span>
+      Java<br /><span style={{ color: "#4ec9b0" }}>switch</span>
     </div>
     {/* switch 키워드 배지 */}
     <div style={{
       fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-      fontSize: 64, fontWeight: 900, color: C_SWITCH,
-      background: `${C_SWITCH}18`, border: `2px solid ${C_SWITCH}55`,
+      fontSize: 64, fontWeight: 900, color: "#4ec9b0",
+      background: "#4ec9b018", border: "2px solid #4ec9b055",
       borderRadius: 18, padding: "18px 56px",
       marginTop: 8,
     }}>switch</div>

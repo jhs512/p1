@@ -121,22 +121,22 @@ const ThumbnailScene: React.FC = () => (
     {/* 배경 글로우 */}
     <div style={{
       position: "absolute", width: 860, height: 860, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(197,134,192,0.10) 0%, transparent 70%)",
+      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
       top: "50%", left: "50%", transform: "translate(-50%, -50%)",
     }} />
-    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#4ec9b0", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
     <div style={{
       fontFamily: uiFont, fontSize: 108, fontWeight: 900, lineHeight: 1,
       textAlign: "center", color: "#fff",
-      textShadow: `0 0 60px rgba(197,134,192,0.6), 0 0 120px rgba(197,134,192,0.25)`,
+      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
     }}>
-      Java<br /><span style={{ color: C_WHILE }}>반복문</span>
+      Java<br /><span style={{ color: "#4ec9b0" }}>반복문</span>
     </div>
     {/* while 키워드 */}
     <div style={{
       fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-      fontSize: 64, fontWeight: 900, color: C_WHILE,
-      background: `${C_WHILE}18`, border: `2px solid ${C_WHILE}55`,
+      fontSize: 64, fontWeight: 900, color: "#4ec9b0",
+      background: "#4ec9b018", border: "2px solid #4ec9b055",
       borderRadius: 18, padding: "18px 56px",
       marginTop: 8,
     }}>while</div>
