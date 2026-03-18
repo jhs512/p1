@@ -126,101 +126,103 @@ function useFade(d: number, { out = true }: { out?: boolean } = {}) {
   return fadeIn * fadeOut;
 }
 
-// ── 컴포넌트: CondBox — 조건 + 결과 배지 ─────────────────────
-const CondBox: React.FC<{
-  condText: string;
-  result: boolean;
+// ── 컴포넌트: CodeBlock — 실제 if-else 소스코드 시각화 ────────
+//   activeBlock: "if"|"else" → 해당 분기 왼쪽 바 + 배경 하이라이트
+//   showElse: false → if 블록만, true → if-else 전체
+const CodeBlock: React.FC<{
+  score: number;
+  showElse: boolean;
+  activeBlock: "if" | "else" | null;
   startFrame: number;
-}> = ({ condText, result, startFrame }) => {
+}> = ({ score, showElse, activeBlock, startFrame }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const appear = spring({ frame: frame - startFrame, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 22 });
-  const sc     = interpolate(appear, [0, 1], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const resColor = result ? C_TRUE : C_FALSE;
+  const appear = spring({ frame: frame - startFrame, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 24 });
+  const sc     = interpolate(appear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const isTrue   = score >= 60;
+  const condColor = isTrue ? C_TRUE : C_FALSE;
+
+  const bodyStyle = (block: "if" | "else"): React.CSSProperties => {
+    const isActive  = activeBlock === block;
+    const isDimmed  = activeBlock !== null && !isActive;
+    const barColor  = block === "if" ? C_TRUE : C_FALSE;
+    return {
+      paddingLeft: 40, paddingTop: 6, paddingBottom: 6,
+      borderLeft: isActive ? `4px solid ${barColor}` : "4px solid transparent",
+      background:  isActive ? `${barColor}18` : "transparent",
+      borderRadius: isActive ? "0 8px 8px 0" : 0,
+      opacity: isDimmed ? 0.28 : 1,
+    };
+  };
 
   return (
     <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
+      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+      fontSize: 32, lineHeight: 1.95,
+      background: "#252525", borderRadius: 20,
+      padding: "32px 44px",
       opacity: appear, transform: `scale(${sc})`,
+      width: 880, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
     }}>
-      {/* 조건식 */}
-      <div style={{
-        fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 36, color: "#d4d4d4",
-        background: "#2d2d2d", borderRadius: 14,
-        padding: "16px 40px",
-        border: `2px solid ${resColor}55`,
-      }}>
-        {condText.split(/(score|>=|60|45)/g).map((part, i) => {
-          if (part === "score") return <span key={i} style={{ color: C_INT }}>{part}</span>;
-          if (part === ">=" || part === "60" || part === "45") return <span key={i} style={{ color: part === ">=" ? C_CMP : C_NUM }}>{part}</span>;
-          return <span key={i}>{part}</span>;
-        })}
-      </div>
-      {/* 결과 배지 */}
-      <div style={{
-        background: `${resColor}20`, border: `2px solid ${resColor}`,
-        borderRadius: 10, padding: "8px 28px",
-        fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 30, fontWeight: 700, color: resColor,
-      }}>
-        {result ? "true ✓" : "false ✗"}
-      </div>
-    </div>
-  );
-};
-
-// ── 컴포넌트: BranchBlock — 실행 블록 시각화 ─────────────────
-const BranchBlock: React.FC<{
-  label: string;         // "if 블록" / "else 블록"
-  output: string;        // 출력 문자열
-  active: boolean;       // 활성(실행됨) 여부
-  startFrame: number;
-  arrowColor: string;
-}> = ({ label, output, active, startFrame, arrowColor }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const appear = spring({ frame: frame - startFrame, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 22 });
-  const sc     = interpolate(appear, [0, 1], [0.82, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  return (
-    <div style={{
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-      opacity: active ? appear : appear * 0.3,
-      transform: `scale(${sc})`,
-      minWidth: 320,
-    }}>
-      {/* 화살표 + 라벨 */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ width: 3, height: 28, background: arrowColor, opacity: 0.7, borderRadius: 2 }} />
-        <div style={{
-          fontFamily: uiFont, fontSize: 22,
-          color: active ? arrowColor : "#444",
-          background: active ? `${arrowColor}20` : "#2a2a2a",
-          border: `1.5px solid ${active ? arrowColor : "#333"}`,
-          borderRadius: 8, padding: "4px 18px",
-        }}>{label}</div>
-        <div style={{ width: 3, height: 20, background: arrowColor, opacity: 0.5, borderRadius: 2 }} />
+      {/* int score = 75; */}
+      <div style={{ marginBottom: 10 }}>
+        <span style={{ color: C_INT }}>int</span>
+        <span style={{ color: "#d4d4d4" }}> score = </span>
+        <span style={{ color: isTrue ? C_NUM : C_FALSE }}>{score}</span>
+        <span style={{ color: "#d4d4d4" }}>;</span>
       </div>
 
-      {/* 코드 블록 */}
-      <div style={{
-        background: active ? "#2a2a2a" : "#222",
-        border: `2px solid ${active ? arrowColor + "88" : "#2a2a2a"}`,
-        borderRadius: 14, padding: "16px 32px",
-        fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 28, color: active ? "#d4d4d4" : "#444",
-        boxShadow: active ? `0 0 24px ${arrowColor}22` : "none",
-      }}>
-        <span style={{ color: active ? C_INT : "#333" }}>System</span>
-        <span style={{ color: active ? "#d4d4d4" : "#333" }}>.</span>
-        <span style={{ color: active ? C_INT : "#333" }}>out</span>
-        <span style={{ color: active ? "#d4d4d4" : "#333" }}>.</span>
-        <span style={{ color: active ? "#dcdcaa" : "#333" }}>println</span>
-        <span style={{ color: active ? "#d4d4d4" : "#333" }}>(</span>
-        <span style={{ color: active ? C_STR : "#333" }}>"{output}"</span>
-        <span style={{ color: active ? "#d4d4d4" : "#333" }}>);</span>
+      {/* if (score >= 60) { */}
+      <div>
+        <span style={{ color: C_CTRL }}>if</span>
+        <span style={{ color: "#d4d4d4" }}> (score </span>
+        <span style={{ color: C_CMP }}>{">="}</span>
+        <span style={{ color: "#d4d4d4" }}> </span>
+        <span style={{ color: C_NUM }}>60</span>
+        <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
+        {activeBlock !== null && (
+          <span style={{ color: condColor, fontSize: 24, marginLeft: 16, opacity: 0.75 }}>
+            {"// "}{isTrue ? "true ✓" : "false ✗"}
+          </span>
+        )}
       </div>
+
+      {/* System.out.println("합격"); */}
+      <div style={bodyStyle("if")}>
+        <span style={{ color: C_INT }}>System</span>
+        <span style={{ color: "#d4d4d4" }}>.out.</span>
+        <span style={{ color: "#dcdcaa" }}>println</span>
+        <span style={{ color: "#d4d4d4" }}>(</span>
+        <span style={{ color: C_STR }}>"합격"</span>
+        <span style={{ color: "#d4d4d4" }}>);</span>
+      </div>
+
+      {!showElse ? (
+        <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
+      ) : (
+        <>
+          {/* } else { */}
+          <div>
+            <span style={{ color: "#d4d4d4" }}>{"} "}</span>
+            <span style={{ color: C_CTRL }}>else</span>
+            <span style={{ color: "#d4d4d4" }}> {"{"}</span>
+          </div>
+
+          {/* System.out.println("불합격"); */}
+          <div style={bodyStyle("else")}>
+            <span style={{ color: C_INT }}>System</span>
+            <span style={{ color: "#d4d4d4" }}>.out.</span>
+            <span style={{ color: "#dcdcaa" }}>println</span>
+            <span style={{ color: "#d4d4d4" }}>(</span>
+            <span style={{ color: C_STR }}>"불합격"</span>
+            <span style={{ color: "#d4d4d4" }}>);</span>
+          </div>
+
+          {/* } */}
+          <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
+        </>
+      )}
     </div>
   );
 };
@@ -326,59 +328,19 @@ const IfScene: React.FC = () => {
   const [split0] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
-  const blockAppear = spring({ frame: frame - split0, fps: 30, config: { damping: 12, stiffness: 120 }, durationInFrames: 22 });
-  const blockSc = interpolate(blockAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
 
-        {/* 헤더 */}
         {frame >= s && (
-          <div style={{
-            position: "absolute", top: "22%", left: "50%",
-            transform: "translateX(-50%)",
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 28, opacity: 0.45,
-          }}>
-            <span style={{ color: C_INT }}>int</span>
-            <span style={{ color: "#d4d4d4" }}> score = </span>
-            <span style={{ color: C_NUM }}>75</span>
-            <span style={{ color: "#d4d4d4" }}>;</span>
-          </div>
-        )}
-
-        {/* 조건 박스 */}
-        {frame >= s && (
-          <div style={{ position: "absolute", top: "38%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <CondBox condText="score >= 60" result={true} startFrame={s} />
-          </div>
-        )}
-
-        {/* 실행 블록 — split0 이후 등장 */}
-        {frame >= split0 && (
-          <div style={{
-            position: "absolute", top: "63%", left: "50%",
-            transform: `translate(-50%, -50%) scale(${blockSc})`,
-            opacity: blockAppear,
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-          }}>
-            <div style={{ width: 3, height: 24, background: C_TRUE, opacity: 0.7, borderRadius: 2 }} />
-            <div style={{
-              background: "#2a2a2a", border: `2px solid ${C_TRUE}88`,
-              borderRadius: 14, padding: "18px 36px",
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 28, color: "#d4d4d4",
-              boxShadow: `0 0 28px ${C_TRUE}22`,
-            }}>
-              <span style={{ color: C_INT }}>System</span>
-              <span>.out.</span>
-              <span style={{ color: "#dcdcaa" }}>println</span>
-              <span>(</span>
-              <span style={{ color: C_STR }}>"합격"</span>
-              <span>);</span>
-            </div>
+          <div style={{ position: "absolute", top: "46%", left: "50%", transform: "translate(-50%, -50%)" }}>
+            <CodeBlock
+              score={75}
+              showElse={false}
+              activeBlock={frame >= split0 ? "if" : null}
+              startFrame={s}
+            />
           </div>
         )}
       </AbsoluteFill>
@@ -396,7 +358,7 @@ const IfElseScene: React.FC = () => {
   const [split0] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
-  // split0 이후 score를 45로 바꿔서 false 브랜치 강조
+  // split0 이후: score 45, else 분기 활성
   const showFalse = frame >= split0;
 
   return (
@@ -404,49 +366,13 @@ const IfElseScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
 
-        {/* 헤더 */}
         {frame >= s && (
-          <div style={{
-            position: "absolute", top: "18%", left: "50%",
-            transform: "translateX(-50%)",
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 28, opacity: 0.45,
-            transition: "none",
-          }}>
-            <span style={{ color: C_INT }}>int</span>
-            <span style={{ color: "#d4d4d4" }}> score = </span>
-            <span style={{ color: showFalse ? "#f47c7c" : C_NUM }}>{showFalse ? "45" : "75"}</span>
-            <span style={{ color: "#d4d4d4" }}>;</span>
-          </div>
-        )}
-
-        {/* 조건 박스 */}
-        {frame >= s && (
-          <div style={{ position: "absolute", top: "34%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <CondBox condText={showFalse ? "score >= 60" : "score >= 60"} result={!showFalse} startFrame={s} />
-          </div>
-        )}
-
-        {/* 두 브랜치 */}
-        {frame >= s && (
-          <div style={{
-            position: "absolute", top: "64%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex", gap: 28,
-          }}>
-            <BranchBlock
-              label="if 블록"
-              output="합격"
-              active={!showFalse}
-              startFrame={s + 15}
-              arrowColor={C_TRUE}
-            />
-            <BranchBlock
-              label="else 블록"
-              output="불합격"
-              active={showFalse}
-              startFrame={s + 25}
-              arrowColor={C_FALSE}
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+            <CodeBlock
+              score={showFalse ? 45 : 75}
+              showElse={true}
+              activeBlock={showFalse ? "else" : "if"}
+              startFrame={s}
             />
           </div>
         )}
