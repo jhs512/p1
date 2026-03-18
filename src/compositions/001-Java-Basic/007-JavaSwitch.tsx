@@ -594,6 +594,115 @@ const NoFallthroughScene: React.FC = () => {
   );
 };
 
+// ── MultiCaseScene ────────────────────────────────────────────
+const MultiCaseScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { multiCaseScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d);
+
+  const phase2 = frame >= split0;
+
+  const p1Appear = spring({ frame: frame - s,      fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 26 });
+  const p2Appear = spring({ frame: frame - split0, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 26 });
+
+  const strGlow = interpolate(frame, [s + 10, s + 30], [0, 1], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+
+  const scP1 = interpolate(p1Appear, [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+  const scP2 = interpolate(p2Appear, [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+        <div style={{
+          position: "absolute", top: "46%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex", flexDirection: "column", gap: 32, width: 900,
+          alignItems: "center",
+        }}>
+          {/* Phase 1: 케이스 묶기 강조 */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 34, lineHeight: 2.0,
+            background: "#252525", borderRadius: 16,
+            padding: "28px 48px", width: "100%",
+            opacity: p1Appear, transform: `scale(${scP1})`,
+            border: `2px solid ${C_ARROW}44`,
+          }}>
+            <div>
+              <span style={{ color: C_CASE }}>case</span>
+              <span style={{
+                color: C_STR,
+                textShadow: `0 0 ${interpolate(strGlow,[0,1],[0,12])}px ${C_STR}`,
+              }}> "SAT"</span>
+              <span style={{ color: "#d4d4d4" }}>,</span>
+              <span style={{
+                color: C_STR,
+                textShadow: `0 0 ${interpolate(strGlow,[0,1],[0,12])}px ${C_STR}`,
+              }}> "SUN"</span>
+              <span style={{ color: C_ARROW }}> {"->"}</span>
+              <span style={{ color: C_RESULT }}> "주말"</span>
+              <span style={{ color: "#d4d4d4" }}>;</span>
+            </div>
+          </div>
+
+          {/* Phase 2: 값 반환 전체 표현식 — split0 기준 등장 */}
+          {phase2 && (
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 28, lineHeight: 1.9,
+              background: "#252525", borderRadius: 16,
+              padding: "28px 48px", width: "100%",
+              opacity: p2Appear, transform: `scale(${scP2})`,
+              border: `2px solid ${C_RESULT}55`,
+            }}>
+              <div>
+                <span style={{ color: C_SWITCH }}>String</span>
+                <span style={{
+                  color: C_RESULT, fontWeight: 900,
+                  textShadow: `0 0 12px ${C_RESULT}66`,
+                }}> msg</span>
+                <span style={{ color: "#d4d4d4" }}> = </span>
+                <span style={{ color: C_SWITCH, fontWeight: 900 }}>switch</span>
+                <span style={{ color: "#d4d4d4" }}> (day) {"{"}</span>
+              </div>
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_CASE }}>case</span>
+                <span style={{ color: C_STR }}> "SAT"</span>
+                <span style={{ color: "#d4d4d4" }}>,</span>
+                <span style={{ color: C_STR }}> "SUN"</span>
+                <span style={{ color: C_ARROW }}> {"->"}</span>
+                <span style={{ color: C_RESULT }}> "주말"</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_DIM }}>// ...</span>
+              </div>
+              <div><span style={{ color: "#d4d4d4" }}>{"}"}</span><span style={{ color: "#d4d4d4" }}>;</span></div>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 12, marginTop: 16,
+                opacity: p2Appear,
+              }}>
+                <span style={{ fontFamily: uiFont, color: C_RESULT, fontSize: 22 }}>반환값</span>
+                <span style={{ color: C_ARROW, fontSize: 22 }}>→</span>
+                <span style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, color: C_RESULT, fontSize: 22, fontWeight: 900 }}>msg</span>
+                <span style={{ fontFamily: uiFont, color: "#888", fontSize: 20 }}>변수에 저장</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
+
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
   fps: 30,
@@ -619,6 +728,9 @@ export const JavaSwitch: React.FC = () => (
     </Sequence>
     <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.noFallthroughScene.durationInFrames}>
       <NoFallthroughScene />
+    </Sequence>
+    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
+      <MultiCaseScene />
     </Sequence>
   </AbsoluteFill>
 );
