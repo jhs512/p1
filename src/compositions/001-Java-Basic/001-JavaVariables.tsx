@@ -84,6 +84,18 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
   },
 
+  interpret: {
+    audio: "interpret.mp3",
+    durationInFrames: AUDIO_CONFIG.interpret.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.interpret.speechStartFrame,
+    narration: [
+      "변수의 해석은 두 가지로 구분됩니다.",
+      "선언하거나 값을 넣을 때만 공간으로 인식되고, 그 외에는 값으로 인식됩니다.",
+      "이 부분의 age는 25로 해석됩니다.",
+    ] as string[],
+    narrationSplits: AUDIO_CONFIG.interpret.narrationSplits,
+  },
+
   print: {
     audio: "scene3.mp3",
     durationInFrames: AUDIO_CONFIG.print.durationInFrames,
@@ -607,12 +619,13 @@ const ThumbnailScene: React.FC = () => (
   </AbsoluteFill>
 );
 
+const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
 const CHARS_PER_SEC = 10;
 const CROSS = 20; // 크로스페이드 프레임 수
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
-const { thumbnail, intro, declaration, initialization, print } = VIDEO_CONFIG;
+const { thumbnail, intro, declaration, initialization, interpret, print } = VIDEO_CONFIG;
 
 // ── 컴포넌트: CombinedVariableBox ────────────────────────────
 // 선언(빈 박스) → 초기화(값 낙하) 전 구간을 하나의 박스로 이어서 표현
@@ -830,6 +843,116 @@ const CombinedDeclarationInitScene: React.FC = () => {
   );
 };
 
+// ── 씬: InterpretScene — 변수 해석 (공간 vs 값) ──────────────
+//   Phase 0: 3줄 코드 모두 표시
+//   Phase 1 (split0~): int age; / age = 25; 의 age → "공간" 배지
+//   Phase 2 (split1~): println(age) 의 age → "값 (= 25)" 배지
+const InterpretScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { interpret: cfg } = VIDEO_CONFIG;
+  const d   = cfg.durationInFrames;
+  const s   = cfg.speechStartFrame;
+  const [split0 = Infinity, split1 = Infinity] = cfg.narrationSplits as readonly number[];
+  const { fps } = useVideoConfig();
+
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const phase = frame >= split1 ? 2 : frame >= split0 ? 1 : 0;
+
+  const ann1 = spring({ frame: frame - split0, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
+  const ann2 = spring({ frame: frame - split1, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
+
+  const C_SPACE = "#e5c07b"; // 공간: amber
+  const C_VAL   = "#4ec9b0"; // 값: teal
+  const C_AGE   = "#9cdcfe"; // 변수명: light blue
+
+  const badge = (label: string, color: string, anim: number) => (
+    <span style={{
+      opacity: anim, color, fontSize: 22, fontFamily: uiFont,
+      background: `${color}1a`, borderRadius: 6, padding: "2px 10px",
+      border: `1px solid ${color}55`,
+    }}>{label}</span>
+  );
+
+  const ageSpan = (active: boolean, color: string) => (
+    <span style={{
+      color: active ? color : C_AGE,
+      fontWeight: active ? 700 : 400,
+      background: active ? `${color}28` : "transparent",
+      borderRadius: 4, padding: "1px 5px",
+      outline: active ? `1.5px solid ${color}66` : "none",
+    }}>age</span>
+  );
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+        <Audio src={staticFile(cfg.audio)} />
+
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "46%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 34, lineHeight: 2.1,
+            background: "#252525", borderRadius: 20,
+            padding: "36px 48px",
+            width: 900, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+          }}>
+
+            {/* Line 1: int age; */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+              <div>
+                <span style={{ color: "#4ec9b0" }}>int</span>
+                {" "}{ageSpan(phase === 1, C_SPACE)}
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+            </div>
+
+            {/* Line 2: age = 25; */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+              <div>
+                {ageSpan(phase === 1, C_SPACE)}
+                <span style={{ color: "#d4d4d4" }}> = </span>
+                <span style={{ color: "#b5cea8" }}>25</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+            </div>
+
+            {/* Line 3: System.out.println(age); */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase < 2 ? 0.28 : 1 }}>
+              <div>
+                <span style={{ color: "#569cd6" }}>System</span>
+                <span style={{ color: "#d4d4d4" }}>.out.</span>
+                <span style={{ color: "#dcdcaa" }}>println</span>
+                <span style={{ color: "#d4d4d4" }}>(</span>
+                {ageSpan(phase === 2, C_VAL)}
+                <span style={{ color: "#d4d4d4" }}>);</span>
+              </div>
+              {phase >= 2 && (
+                <div style={{ opacity: ann2, display: "flex", alignItems: "center", gap: 8 }}>
+                  {badge("← 값", C_VAL, ann2)}
+                  <span style={{
+                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                    fontSize: 26, color: "#b5cea8",
+                    background: "#2d2d2d", borderRadius: 8,
+                    padding: "4px 14px", border: "1px solid #444",
+                  }}>= 25</span>
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
+
 const PrintScene: React.FC = () => {
   const frame = useCurrentFrame();
   const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
@@ -863,6 +986,7 @@ const mergedSceneList = [
   { durationInFrames: thumbnail.durationInFrames },
   { durationInFrames: intro.durationInFrames },
   { durationInFrames: COMBINED_DURATION },
+  { durationInFrames: interpret.durationInFrames },
   { durationInFrames: print.durationInFrames },
 ];
 let _from = 0;
@@ -895,7 +1019,10 @@ export const JavaVariables: React.FC = () => (
     <Sequence from={fromValues[2]} durationInFrames={COMBINED_DURATION}>
       <CombinedDeclarationInitScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={print.durationInFrames}>
+    <Sequence from={fromValues[3]} durationInFrames={interpret.durationInFrames}>
+      <InterpretScene />
+    </Sequence>
+    <Sequence from={fromValues[4]} durationInFrames={print.durationInFrames}>
       <PrintScene />
     </Sequence>
   </AbsoluteFill>
