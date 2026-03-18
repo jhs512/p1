@@ -155,7 +155,7 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: [
       "화살표 문법으로 각 케이스를 간결하게 작성할 수 있습니다.",
-      "[fall-through(발음:폴스루)]는 케이스 실행 후 다음 케이스로 자동으로 넘어가는 현상이며, 화살표 문법에서는 발생하지 않습니다.",
+      "화살표 문법에서는 각 케이스가 끝나면 자동으로 종료됩니다.",
       "값 반환과 케이스 묶기로 더욱 강력하게 사용할 수 있습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
@@ -607,7 +607,7 @@ const MultiCaseScene: React.FC = () => {
 // ── SummaryScene ──────────────────────────────────────────────
 const SUMMARY_CARDS = [
   { emoji: "🏹", label: "화살표 문법", desc: "각 케이스를 간결하게 작성", color: C_ARROW },
-  { emoji: "✅", label: "fall-through 없음", desc: "케이스 실행 후 자동 종료", color: C_ARROW },
+  { emoji: "✅", label: "케이스 자동 종료", desc: "다음 케이스로 이어지지 않음", color: C_ARROW },
   { emoji: "📦", label: "값 반환 · 케이스 묶기", desc: "변수에 직접 대입 가능", color: C_RESULT },
 ] as const;
 
@@ -623,7 +623,6 @@ const SummaryScene: React.FC = () => {
   const titleAppear = spring({ frame: frame - s,        fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
   const card1Appear = spring({ frame: frame - s,        fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
   const card2Appear = spring({ frame: frame - split0,   fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
-  const ftDefAppear = spring({ frame: frame - (split0 + 8), fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
   const card3Appear = spring({ frame: frame - split1,   fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
 
   const cardSprings = [card1Appear, card2Appear, card3Appear];
@@ -669,29 +668,6 @@ const SummaryScene: React.FC = () => {
             );
           })}
 
-          {/* fall-through 정의 박스 — split0 기준 등장 */}
-          <div style={{
-            background: "#1a1a2e", border: `1px solid ${C_ARROW}44`,
-            borderLeft: `4px solid ${C_ARROW}`,
-            borderRadius: 12, padding: "18px 28px",
-            opacity: ftDefAppear, transform: `scale(${sc(ftDefAppear)})`,
-          }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-              <span style={{
-                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 24, fontWeight: 900, color: C_ARROW,
-              }}>fall-through</span>
-              <span style={{ fontFamily: uiFont, fontSize: 20, color: "#888" }}>|</span>
-              <span style={{ fontFamily: uiFont, fontSize: 22, color: "#c8c8c8", lineHeight: 1.6 }}>
-                case가 실행된 후 다음 case로 자동으로 이어지는 현상
-              </span>
-            </div>
-            <div style={{
-              fontFamily: uiFont, fontSize: 20, color: C_ARROW, marginTop: 8, opacity: 0.8,
-            }}>
-              → 화살표( -&gt; ) 문법에서는 발생하지 않음
-            </div>
-          </div>
         </div>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
