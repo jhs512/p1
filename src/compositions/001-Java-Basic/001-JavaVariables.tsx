@@ -1015,40 +1015,40 @@ const QuizScene: React.FC = () => {
           padding: "36px 56px",
           boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
         }}>
-          {/* 코드 라인 */}
+          {/* 코드 + 어노테이션: 각 age를 column으로 묶어 중심 자동 정렬 */}
           <div style={{
             fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 38, color: "#d4d4d4",
-            display: "flex", alignItems: "center",
+            display: "flex", alignItems: "flex-start",
           }}>
-            {ageSpan("space")}
-            <span> = </span>
-            {ageSpan("value")}
-            <span style={{ color: "#d4d4d4" }}> + </span>
-            <span style={{ color: "#b5cea8" }}>2</span>
-            <span>;</span>
-          </div>
-
-          {/* 정답 어노테이션: age 각각 아래 정렬 (ch 단위 = 모노스페이스 1글자 폭) */}
-          {isReveal && (
-            <div style={{
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 38, // ch 기준 맞추기 위해 동일 fontSize
-              display: "flex", marginTop: 6,
-              opacity: revealAnim,
-            }}>
-              {/* 왼쪽 age: padding 1px 5px → 실제 너비 = 3ch + 10px */}
-              <div style={{ width: "calc(3ch + 10px)", textAlign: "center" }}>
-                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3 }}>↑<br/>공간</div>
-              </div>
-              {/* " = " (3ch, padding 없음) */}
-              <div style={{ width: "3ch" }} />
-              {/* 오른쪽 age: 동일하게 3ch + 10px */}
-              <div style={{ width: "calc(3ch + 10px)", textAlign: "center" }}>
-                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3 }}>↑<br/>값</div>
-              </div>
+            {/* 왼쪽 age + ↑공간 */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              {ageSpan("space")}
+              <div style={{
+                fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3,
+                textAlign: "center", marginTop: 6,
+                opacity: isReveal ? revealAnim : 0,
+              }}>↑<br/>공간</div>
             </div>
-          )}
+
+            {/* = */}
+            <span style={{ alignSelf: "flex-start" }}> = </span>
+
+            {/* 오른쪽 age + ↑값 */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              {ageSpan("value")}
+              <div style={{
+                fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3,
+                textAlign: "center", marginTop: 6,
+                opacity: isReveal ? revealAnim : 0,
+              }}>↑<br/>값</div>
+            </div>
+
+            {/* + 2; */}
+            <span style={{ alignSelf: "flex-start", color: "#d4d4d4" }}> + </span>
+            <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>2</span>
+            <span style={{ alignSelf: "flex-start" }}>;</span>
+          </div>
         </div>
 
         {/* 카운트다운 */}
