@@ -108,6 +108,7 @@ const SYNTAX_SCENE_DURATION = Math.max(
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
+  thumbnail: { durationInFrames: 30 },
   overview: {
     audio: "switch-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -162,8 +163,9 @@ export const VIDEO_CONFIG = {
 };
 
 // ── 씬 목록 (총 duration 계산용) ──────────────────────────────
-// [0]=overview [1]=intro [2]=syntax [3]=multiCase [4]=summary
+// [0]=thumbnail [1]=overview [2]=intro [3]=syntax [4]=multiCase [5]=summary
 const sceneList = [
+  VIDEO_CONFIG.thumbnail,
   { durationInFrames: VIDEO_CONFIG.overview.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.intro.durationInFrames },
   { durationInFrames: SYNTAX_SCENE_DURATION },
@@ -178,6 +180,34 @@ const fromValues = sceneList.map((s, i) => {
   return f;
 });
 const totalDuration = _from;
+
+// ── ThumbnailScene ────────────────────────────────────────────
+const ThumbnailScene: React.FC = () => (
+  <AbsoluteFill style={{ background: "#050510", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 28 }}>
+    {/* 배경 글로우 */}
+    <div style={{
+      position: "absolute", width: 860, height: 860, borderRadius: "50%",
+      background: `radial-gradient(circle, ${C_SWITCH}20 0%, transparent 70%)`,
+      top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+    }} />
+    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{
+      fontFamily: uiFont, fontSize: 108, fontWeight: 900, lineHeight: 1,
+      textAlign: "center", color: "#fff",
+      textShadow: `0 0 60px ${C_SWITCH}99, 0 0 120px ${C_SWITCH}44`,
+    }}>
+      Java<br /><span style={{ color: C_SWITCH }}>switch</span>
+    </div>
+    {/* switch 키워드 배지 */}
+    <div style={{
+      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+      fontSize: 64, fontWeight: 900, color: C_SWITCH,
+      background: `${C_SWITCH}18`, border: `2px solid ${C_SWITCH}55`,
+      borderRadius: 18, padding: "18px 56px",
+      marginTop: 8,
+    }}>switch</div>
+  </AbsoluteFill>
+);
 
 // ── OverviewScene ─────────────────────────────────────────────
 const OverviewScene: React.FC = () => {
@@ -276,7 +306,7 @@ const OverviewScene: React.FC = () => {
             </div>
 
             {/* 오른쪽: 반복문 */}
-            <div style={{ paddingTop: 0 }}>
+            <div style={{ flexShrink: 0 }}>
               <div style={nodeStyle(C_LOOP, rightAppear)}>반복문</div>
             </div>
           </div>
@@ -607,7 +637,7 @@ const SummaryScene: React.FC = () => {
         <div style={{
           position: "absolute", top: "50%", left: "50%",
           transform: "translate(-50%, -50%)",
-          display: "flex", flexDirection: "column", gap: 20, width: 880,
+          display: "flex", flexDirection: "column", gap: 20, width: 1000,
         }}>
           {/* switch 코드 블록 */}
           <div style={{
@@ -615,6 +645,7 @@ const SummaryScene: React.FC = () => {
             fontSize: 24, lineHeight: 1.9,
             background: "#252525", borderRadius: 16,
             padding: "20px 36px",
+            whiteSpace: "nowrap",
             opacity: codeAppear, transform: `scale(${codeSc})`,
           }}>
             <div>
@@ -683,22 +714,25 @@ export const compositionMeta = {
 };
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
-// sceneList: [0]=overview [1]=intro [2]=syntax [3]=multiCase [4]=summary
+// sceneList: [0]=thumbnail [1]=overview [2]=intro [3]=syntax [4]=multiCase [5]=summary
 export const JavaSwitch: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.overview.durationInFrames}>
+    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
+      <ThumbnailScene />
+    </Sequence>
+    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.overview.durationInFrames}>
       <OverviewScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
       <IntroScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.syntaxScene.durationInFrames}>
+    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.syntaxScene.durationInFrames}>
       <SyntaxScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
+    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
       <MultiCaseScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>

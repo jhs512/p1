@@ -124,7 +124,7 @@ const ThumbnailScene: React.FC = () => (
       background: "radial-gradient(circle, rgba(197,134,192,0.10) 0%, transparent 70%)",
       top: "50%", left: "50%", transform: "translate(-50%, -50%)",
     }} />
-    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: C_WHILE, letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
+    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
     <div style={{
       fontFamily: uiFont, fontSize: 108, fontWeight: 900, lineHeight: 1,
       textAlign: "center", color: "#fff",
