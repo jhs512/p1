@@ -100,7 +100,7 @@ export const VIDEO_CONFIG = {
     audio: "interpret-quiz.mp3",
     durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    narration: ["이 코드에서 앞 부분의 age는 공간일까요, 값일까요?"] as string[],
+    narration: ["하이라이팅된 이 변수는 공간일까요, 값일까요?"] as string[],
     narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
   },
 
@@ -1009,18 +1009,41 @@ const QuizScene: React.FC = () => {
   const C_VAL   = "#4ec9b0"; // 값: teal
   const C_AGE   = "#9cdcfe"; // 변수명: light blue
 
-  // age 스팬: 공개 전=중립, 공개 후=역할별 색
+  // 질문 단계에서 왼쪽 age 펄싱 (발화 시작 후)
+  const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
+  const showPulse  = !isReveal && frame >= qCfg.speechStartFrame;
+
+  // age 스팬: 질문=왼쪽 펄싱, 공개 후=역할별 색
   const ageSpan = (role: "space" | "value") => {
-    const color  = role === "space" ? C_SPACE : C_VAL;
-    const active = isReveal;
+    const color = role === "space" ? C_SPACE : C_VAL;
+
+    if (isReveal) {
+      // 정답 공개: 역할별 색 + 하이라이트
+      return (
+        <span style={{
+          color, fontWeight: 700,
+          background: `${color}28`,
+          borderRadius: 4, padding: "1px 5px",
+          outline: `1.5px solid ${color}66`,
+        }}>age</span>
+      );
+    }
+
+    if (role === "space" && showPulse) {
+      // 질문 단계: 왼쪽 age 펄싱 흰색 하이라이트 (정답 색 노출 없이)
+      return (
+        <span style={{
+          color: "#ffffff", fontWeight: 700,
+          background: `rgba(255,255,255,0.10)`,
+          borderRadius: 4, padding: "1px 5px",
+          outline: `2px solid rgba(255,255,255,${pulseAlpha.toFixed(2)})`,
+        }}>age</span>
+      );
+    }
+
+    // 중립 (오른쪽 age, 발화 전)
     return (
-      <span style={{
-        color: active ? color : C_AGE,
-        fontWeight: active ? 700 : 400,
-        background: active ? `${color}28` : "transparent",
-        borderRadius: 4, padding: "1px 5px",
-        outline: active ? `1.5px solid ${color}66` : "none",
-      }}>age</span>
+      <span style={{ color: C_AGE, borderRadius: 4, padding: "1px 5px" }}>age</span>
     );
   };
 
