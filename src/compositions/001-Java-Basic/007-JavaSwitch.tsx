@@ -30,7 +30,6 @@ const C_ARROW  = "#4ec9b0"; // -> 화살표 (teal)
 const C_STR    = "#ce9178"; // 문자열 값 (주황)
 const C_RESULT = "#b5cea8"; // 결과값 (연초록)
 const C_DIM    = "rgba(255,255,255,0.22)";
-const C_RED    = "#f47c7c"; // 경고·오류
 
 // ── SyntaxScene 타이핑 코드 라인 데이터 ──────────────────────
 const SYNTAX_LINES = [
@@ -109,7 +108,6 @@ const SYNTAX_SCENE_DURATION = Math.max(
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
   overview: {
     audio: "switch-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -140,16 +138,6 @@ export const VIDEO_CONFIG = {
     ] as string[],
     narrationSplits: AUDIO_CONFIG.syntaxScene.narrationSplits,
   },
-  noFallthroughScene: {
-    audio: "switch-nofallthrough.mp3",
-    durationInFrames: AUDIO_CONFIG.noFallthroughScene.durationInFrames,
-    speechStartFrame: AUDIO_CONFIG.noFallthroughScene.speechStartFrame,
-    narration: [
-      "기존 [switch(발음:스위치)]는 각 케이스 종료를 명시하지 않으면 다음 케이스로 흘러내립니다.",
-      "화살표 문법은 각 케이스가 독립 실행되어 이런 실수가 없습니다.",
-    ] as string[],
-    narrationSplits: AUDIO_CONFIG.noFallthroughScene.narrationSplits,
-  },
   multiCaseScene: {
     audio: "switch-multicase.mp3",
     durationInFrames: AUDIO_CONFIG.multiCaseScene.durationInFrames,
@@ -174,12 +162,11 @@ export const VIDEO_CONFIG = {
 };
 
 // ── 씬 목록 (총 duration 계산용) ──────────────────────────────
+// [0]=overview [1]=intro [2]=syntax [3]=multiCase [4]=summary
 const sceneList = [
-  { durationInFrames: VIDEO_CONFIG.thumbnail.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.overview.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.intro.durationInFrames },
   { durationInFrames: SYNTAX_SCENE_DURATION },
-  { durationInFrames: VIDEO_CONFIG.noFallthroughScene.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.multiCaseScene.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.summaryScene.durationInFrames },
 ];
@@ -192,31 +179,6 @@ const fromValues = sceneList.map((s, i) => {
 });
 const totalDuration = _from;
 
-// ── ThumbnailScene ────────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#0d0d1a", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 28 }}>
-    <div style={{
-      position: "absolute", width: 860, height: 860, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(86,156,214,0.12) 0%, transparent 70%)",
-      top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-    }} />
-    <div style={{ fontFamily: uiFont, fontSize: 26, fontWeight: 700, color: C_SWITCH, letterSpacing: 10, opacity: 0.8 }}>JAVA</div>
-    <div style={{
-      fontFamily: uiFont, fontSize: 96, fontWeight: 900, lineHeight: 1,
-      textAlign: "center", color: "#fff",
-      textShadow: `0 0 60px rgba(86,156,214,0.6), 0 0 120px rgba(86,156,214,0.25)`,
-    }}>
-      Java<br /><span style={{ color: C_SWITCH }}>표현식</span>
-    </div>
-    <div style={{
-      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-      fontSize: 56, fontWeight: 900, color: C_SWITCH,
-      background: `${C_SWITCH}18`, border: `2px solid ${C_SWITCH}55`,
-      borderRadius: 18, padding: "18px 56px", marginTop: 8,
-    }}>switch</div>
-  </AbsoluteFill>
-);
-
 // ── OverviewScene ─────────────────────────────────────────────
 const OverviewScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -227,11 +189,13 @@ const OverviewScene: React.FC = () => {
   const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
-  const rootAppear   = spring({ frame: frame - s,       fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
-  const leftAppear   = spring({ frame: frame - s - 10,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
-  const rightAppear  = spring({ frame: frame - s - 20,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
-  const ifAppear     = spring({ frame: frame - s - 24,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
-  const switchAppear = spring({ frame: frame - split0,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  // frame 0부터 순차 등장 (speechStartFrame 기준 아님)
+  const rootAppear   = spring({ frame: frame,       fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const leftAppear   = spring({ frame: frame - 10,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const rightAppear  = spring({ frame: frame - 20,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
+  const ifAppear     = spring({ frame: frame - 28,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  // switch 노드는 narrationSplits[0] 기준 팝업
+  const switchAppear = spring({ frame: frame - split0, fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
 
   const C_COND = C_CASE;
   const C_LOOP = "#4ec9b0";
@@ -239,12 +203,13 @@ const OverviewScene: React.FC = () => {
   const nodeStyle = (color: string, appear: number): React.CSSProperties => {
     const sc = interpolate(appear, [0, 1], [0.75, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
     return {
-      fontFamily: uiFont, fontSize: 32, fontWeight: 700,
+      fontFamily: uiFont, fontSize: 34, fontWeight: 700,
       color, background: `${color}18`,
       border: `2px solid ${color}66`,
-      borderRadius: 16, padding: "14px 32px",
+      borderRadius: 16, padding: "16px 40px",
       opacity: appear, transform: `scale(${sc})`,
       textAlign: "center" as const,
+      whiteSpace: "nowrap" as const,
     };
   };
 
@@ -252,53 +217,70 @@ const OverviewScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
-        {frame >= s && (
-          <div style={{
-            position: "absolute", top: "40%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex", flexDirection: "column", alignItems: "center",
-          }}>
-            <div style={nodeStyle("#9cdcfe", rootAppear)}>제어문</div>
+        {/* 항상 보임 — frame 0부터 트리 등장 */}
+        <div style={{
+          position: "absolute", top: "42%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex", flexDirection: "column", alignItems: "center",
+          width: 800,
+        }}>
+          {/* 루트: 제어문 */}
+          <div style={nodeStyle("#9cdcfe", rootAppear)}>제어문</div>
 
-            <div style={{ position: "relative", width: 480, height: 50, flexShrink: 0 }}>
-              <div style={{ position: "absolute", top: 0,  left: "50%", width: 2, height: 26, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
-              <div style={{ position: "absolute", top: 26, left: "20%", width: "60%", height: 2, background: "rgba(255,255,255,0.18)" }} />
-              <div style={{ position: "absolute", top: 26, left: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
-              <div style={{ position: "absolute", top: 26, right: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
+          {/* 연결선: 제어문 → 조건문 / 반복문 */}
+          <div style={{ position: "relative", width: "100%", height: 52, flexShrink: 0 }}>
+            <div style={{ position: "absolute", top: 0, left: "50%", width: 2, height: 26, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
+            <div style={{ position: "absolute", top: 26, left: "25%", width: "50%", height: 2, background: "rgba(255,255,255,0.18)" }} />
+            <div style={{ position: "absolute", top: 26, left: "25%", width: 2, height: 26, background: "rgba(255,255,255,0.18)" }} />
+            <div style={{ position: "absolute", top: 26, right: "25%", width: 2, height: 26, background: "rgba(255,255,255,0.18)" }} />
+          </div>
+
+          {/* 조건문 / 반복문 */}
+          <div style={{ display: "flex", width: "100%", justifyContent: "space-around", alignItems: "flex-start" }}>
+            {/* 왼쪽: 조건문 + if/switch */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={nodeStyle(C_COND, leftAppear)}>조건문</div>
+
+              {/* 연결선: 조건문 → if / switch */}
+              <div style={{ position: "relative", width: 280, height: 42, flexShrink: 0, opacity: ifAppear }}>
+                <div style={{ position: "absolute", top: 0, left: "50%", width: 2, height: 20, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
+                <div style={{ position: "absolute", top: 20, left: "18%", width: "64%", height: 2, background: "rgba(255,255,255,0.18)" }} />
+                <div style={{ position: "absolute", top: 20, left: "18%", width: 2, height: 22, background: "rgba(255,255,255,0.18)" }} />
+                <div style={{ position: "absolute", top: 20, right: "18%", width: 2, height: 22, background: "rgba(255,255,255,0.18)" }} />
+              </div>
+
+              {/* if + switch */}
+              <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                <div style={{
+                  fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                  fontSize: 44, fontWeight: 900, color: C_COND,
+                  background: `${C_COND}18`, border: `2px solid ${C_COND}55`,
+                  borderRadius: 16, padding: "12px 32px",
+                  opacity: ifAppear,
+                  transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                  whiteSpace: "nowrap",
+                }}>if</div>
+
+                {/* switch — narrationSplits[0] 기준 팝업 */}
+                <div style={{
+                  fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                  fontSize: 44, fontWeight: 900, color: C_SWITCH,
+                  background: `${C_SWITCH}18`, border: `2px solid ${C_SWITCH}55`,
+                  borderRadius: 16, padding: "12px 32px",
+                  opacity: switchAppear,
+                  transform: `scale(${interpolate(switchAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                  boxShadow: `0 0 28px ${C_SWITCH}44`,
+                  whiteSpace: "nowrap",
+                }}>switch</div>
+              </div>
             </div>
 
-            <div style={{ display: "flex", gap: 64, alignItems: "flex-start" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                <div style={nodeStyle(C_COND, leftAppear)}>조건문</div>
-                <div style={{ width: 2, height: 20, background: "rgba(255,255,255,0.18)", opacity: ifAppear, flexShrink: 0 }} />
-                <div style={{ display: "flex", gap: 20 }}>
-                  <div style={{
-                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                    fontSize: 44, fontWeight: 900, color: C_COND,
-                    background: `${C_COND}18`, border: `2px solid ${C_COND}55`,
-                    borderRadius: 16, padding: "12px 36px",
-                    opacity: ifAppear,
-                    transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                  }}>if</div>
-                  {frame >= split0 && (
-                    <div style={{
-                      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                      fontSize: 44, fontWeight: 900, color: C_SWITCH,
-                      background: `${C_SWITCH}18`, border: `2px solid ${C_SWITCH}55`,
-                      borderRadius: 16, padding: "12px 36px",
-                      opacity: switchAppear,
-                      transform: `scale(${interpolate(switchAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 28px ${C_SWITCH}44`,
-                    }}>switch</div>
-                  )}
-                </div>
-              </div>
-              <div style={{ marginTop: 0 }}>
-                <div style={nodeStyle(C_LOOP, rightAppear)}>반복문</div>
-              </div>
+            {/* 오른쪽: 반복문 */}
+            <div style={{ paddingTop: 0 }}>
+              <div style={nodeStyle(C_LOOP, rightAppear)}>반복문</div>
             </div>
           </div>
-        )}
+        </div>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -320,10 +302,11 @@ const IntroScene: React.FC = () => {
 
   const cardBase: React.CSSProperties = {
     fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 26, lineHeight: 1.9,
+    fontSize: 21, lineHeight: 1.85,
     background: "#252525", borderRadius: 16,
-    padding: "28px 36px",
+    padding: "24px 28px",
     flex: "1 1 0", minWidth: 0,
+    overflow: "hidden",
   };
 
   const dimSpan = (text: string) => (
@@ -337,7 +320,7 @@ const IntroScene: React.FC = () => {
         <div style={{
           position: "absolute", top: "46%", left: "50%",
           transform: "translate(-50%, -50%)",
-          display: "flex", gap: 32, width: 980,
+          display: "flex", gap: 24, width: 1040,
         }}>
           {/* 좌측: if-else 체인 (복잡, C_DIM 색) */}
           <div style={{ ...cardBase, opacity: leftAppear,
@@ -439,11 +422,11 @@ const SyntaxScene: React.FC = () => {
           }}>
             <div style={{
               fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 32, lineHeight: 1.95,
+              fontSize: 25, lineHeight: 1.95,
               background: "#252525", borderRadius: 20,
-              padding: "32px 48px",
+              padding: "28px 40px",
               opacity: blockAppear,
-              width: 900, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+              width: 980, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
               whiteSpace: "pre",
             }}>
               {SYNTAX_LINES.map((line, lineIdx) => {
@@ -478,116 +461,6 @@ const SyntaxScene: React.FC = () => {
             </div>
           </div>
         )}
-      </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
-    </>
-  );
-};
-
-// ── NoFallthroughScene ────────────────────────────────────────
-const NoFallthroughScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { noFallthroughScene: cfg } = VIDEO_CONFIG;
-  const d = cfg.durationInFrames;
-  const s = cfg.speechStartFrame;
-  const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
-  const opacity = useFade(d);
-
-  const leftAppear  = spring({ frame: frame - s,      fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 26 });
-  const rightAppear = spring({ frame: frame - split0, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 24 });
-
-  const fallHeight = interpolate(frame, [s + 10, s + 30], [0, 40], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  const fallOpacity = interpolate(frame, [s + 10, s + 25], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-
-  const panelBase: React.CSSProperties = {
-    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 26, lineHeight: 2.0,
-    background: "#252525", borderRadius: 16,
-    padding: "24px 32px",
-    flex: "1 1 0", minWidth: 0,
-  };
-
-  const scLeft  = interpolate(leftAppear,  [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
-  const scRight = interpolate(rightAppear, [0,1],[0.92,1],{extrapolateLeft:"clamp",extrapolateRight:"clamp"});
-
-  return (
-    <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
-        <div style={{
-          position: "absolute", top: "46%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex", gap: 32, width: 980, alignItems: "flex-start",
-        }}>
-          {/* 좌측: 전통 switch (break 미포함 케이스 → fall-through) */}
-          <div style={{ ...panelBase, opacity: leftAppear, transform: `scale(${scLeft})`,
-            border: `2px solid ${C_RED}44`,
-          }}>
-            <div style={{ fontFamily: uiFont, fontSize: 20, color: C_RED, marginBottom: 12, fontWeight: 700 }}>기존 switch</div>
-            <div>
-              <span style={{ color: C_CASE }}>case</span>
-              <span style={{ color: C_STR }}> "MON"</span>
-              <span style={{ color: "#d4d4d4" }}>:</span>
-            </div>
-            <div style={{ paddingLeft: 28 }}>
-              <span style={{ color: "#dcdcaa" }}>println</span>
-              <span style={{ color: "#d4d4d4" }}>("월요일");</span>
-            </div>
-            <div style={{
-              height: fallHeight, opacity: fallOpacity,
-              overflow: "hidden",
-              display: "flex", alignItems: "center", paddingLeft: 28, gap: 8,
-            }}>
-              <span style={{ color: C_RED, fontSize: 20 }}>↓</span>
-              <span style={{ fontFamily: uiFont, fontSize: 18, color: C_RED, fontWeight: 700 }}>다음 케이스 실행!</span>
-            </div>
-            <div>
-              <span style={{ color: C_CASE }}>case</span>
-              <span style={{ color: C_STR }}> "TUE"</span>
-              <span style={{ color: "#d4d4d4" }}>:</span>
-            </div>
-            <div style={{ paddingLeft: 28 }}>
-              <span style={{ color: "#dcdcaa" }}>println</span>
-              <span style={{ color: "#d4d4d4" }}>("화요일");</span>
-            </div>
-            <div style={{ paddingLeft: 28 }}>
-              <span style={{ color: C_CASE }}>break</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
-            </div>
-          </div>
-
-          {/* 우측: 모던 switch (독립 박스) — split0 기준 등장 */}
-          <div style={{ ...panelBase, opacity: rightAppear, transform: `scale(${scRight})`,
-            border: `2px solid ${C_ARROW}44`,
-          }}>
-            <div style={{ fontFamily: uiFont, fontSize: 20, color: C_ARROW, marginBottom: 12, fontWeight: 700 }}>모던 switch</div>
-            <div style={{
-              background: `${C_ARROW}10`, border: `1px solid ${C_ARROW}33`,
-              borderRadius: 8, padding: "8px 16px", marginBottom: 8,
-            }}>
-              <span style={{ color: C_CASE }}>case</span>
-              <span style={{ color: C_STR }}> "MON"</span>
-              <span style={{ color: C_ARROW }}> {"->"}</span>
-              <span style={{ color: C_RESULT }}> "월요일"</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
-            </div>
-            <div style={{
-              background: `${C_ARROW}10`, border: `1px solid ${C_ARROW}33`,
-              borderRadius: 8, padding: "8px 16px",
-            }}>
-              <span style={{ color: C_CASE }}>case</span>
-              <span style={{ color: C_STR }}> "TUE"</span>
-              <span style={{ color: C_ARROW }}> {"->"}</span>
-              <span style={{ color: C_RESULT }}> "화요일"</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
-            </div>
-          </div>
-        </div>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -809,28 +682,23 @@ export const compositionMeta = {
   durationInFrames: totalDuration,
 };
 
-// ── 메인 컴포넌트 (WIP: 씬 추가 중) ─────────────────────────
+// ── 메인 컴포넌트 ─────────────────────────────────────────────
+// sceneList: [0]=overview [1]=intro [2]=syntax [3]=multiCase [4]=summary
 export const JavaSwitch: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
-      <ThumbnailScene />
-    </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.overview.durationInFrames}>
+    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.overview.durationInFrames}>
       <OverviewScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
       <IntroScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.syntaxScene.durationInFrames}>
+    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.syntaxScene.durationInFrames}>
       <SyntaxScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.noFallthroughScene.durationInFrames}>
-      <NoFallthroughScene />
-    </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
+    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.multiCaseScene.durationInFrames}>
       <MultiCaseScene />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>
