@@ -1037,14 +1037,14 @@ const QuizScene: React.FC = () => {
               display: "flex", marginTop: 6,
               opacity: revealAnim,
             }}>
-              {/* 왼쪽 age (3ch) 아래 */}
-              <div style={{ width: "3ch", textAlign: "center" }}>
+              {/* 왼쪽 age: padding 1px 5px → 실제 너비 = 3ch + 10px */}
+              <div style={{ width: "calc(3ch + 10px)", textAlign: "center" }}>
                 <div style={{ fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3 }}>↑<br/>공간</div>
               </div>
-              {/* " = " (3ch) */}
+              {/* " = " (3ch, padding 없음) */}
               <div style={{ width: "3ch" }} />
-              {/* 오른쪽 age (3ch) 아래 */}
-              <div style={{ width: "3ch", textAlign: "center" }}>
+              {/* 오른쪽 age: 동일하게 3ch + 10px */}
+              <div style={{ width: "calc(3ch + 10px)", textAlign: "center" }}>
                 <div style={{ fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3 }}>↑<br/>값</div>
               </div>
             </div>
