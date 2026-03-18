@@ -545,17 +545,163 @@ const ExecutionScene: React.FC = () => {
   );
 };
 
-const InfiniteScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Audio src={staticFile(VIDEO_CONFIG.infiniteScene.audio)} />
-  </AbsoluteFill>
-);
+const InfiniteScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { infiniteScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d);
 
-const SummaryScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Audio src={staticFile(VIDEO_CONFIG.summaryScene.audio)} />
-  </AbsoluteFill>
-);
+  const blockAppear = spring({ frame: frame - s, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 24 });
+  const warnAppear  = spring({ frame: frame - split0, fps, config: { damping: 10, stiffness: 160 }, durationInFrames: 20 });
+  const infAppear   = spring({ frame: frame - split0 - 10, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 22 });
+
+  // 펄싱 — interpolate 패턴 (CSS animation 금지)
+  const pulse = Math.abs(Math.sin(frame * 0.1));
+  const borderOpacity = interpolate(pulse, [0, 1], [0.3, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const glowSize = interpolate(pulse, [0, 1], [8, 28], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const phase2 = frame >= split0;
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "45%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 24,
+          }}>
+            {/* 코드 블록 — 펄싱 빨간 테두리 */}
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 32, lineHeight: 1.95,
+              background: "#252525", borderRadius: 20,
+              padding: "32px 48px",
+              opacity: blockAppear,
+              border: `2px solid rgba(244, 124, 124, ${borderOpacity})`,
+              boxShadow: `0 0 ${glowSize}px rgba(244,124,124,0.35)`,
+              width: 820,
+            }}>
+              <div>
+                <span style={{ color: C_INT }}>int</span>
+                <span style={{ color: "#d4d4d4" }}> count = </span>
+                <span style={{ color: C_NUM }}>1</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div>
+                <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
+                <span style={{ color: "#d4d4d4" }}> (</span>
+                <span style={{ color: C_COND }}>count {"<="} 5</span>
+                <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
+              </div>
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_INT }}>System</span>
+                <span style={{ color: "#d4d4d4" }}>.out.</span>
+                <span style={{ color: "#dcdcaa" }}>println</span>
+                <span style={{ color: "#d4d4d4" }}>(count);</span>
+              </div>
+              {/* count++ 없는 자리 — 빨간 취소선 강조 */}
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_RED, fontSize: 26, opacity: 0.75, textDecoration: "line-through" }}>
+                  {"// count++ 없음!"}
+                </span>
+              </div>
+              <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
+            </div>
+
+            {/* phase2: ⚠️ + ∞ 무한루프 */}
+            {phase2 && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 16,
+                opacity: warnAppear,
+                transform: `scale(${interpolate(warnAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              }}>
+                <span style={{ fontSize: 48 }}>⚠️</span>
+                <span style={{
+                  fontFamily: uiFont, fontSize: 40, fontWeight: 900,
+                  color: C_RED,
+                  opacity: infAppear,
+                }}>∞ 무한루프</span>
+              </div>
+            )}
+          </div>
+        )}
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
+
+const SUMMARY_ROWS = [
+  { label: "조건 참",  color: C_TEAL, desc: "블록 실행 후 조건 재확인" },
+  { label: "조건 거짓", color: C_RED,  desc: "반복 종료" },
+] as const;
+
+const SummaryScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { summaryScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d, { out: false }); // 마지막 씬 — fadeOut 없음
+
+  const codeAppear = spring({ frame, fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
+  const codeSc = interpolate(codeAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex", flexDirection: "column", gap: 24, width: 880,
+        }}>
+          {/* while 코드 정적 표시 */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 28, lineHeight: 1.9,
+            background: "#252525", borderRadius: 16,
+            padding: "24px 40px",
+            opacity: codeAppear, transform: `scale(${codeSc})`,
+          }}>
+            <div><span style={{ color: C_INT }}>int</span><span style={{ color: "#d4d4d4" }}> count = </span><span style={{ color: C_NUM }}>1</span><span style={{ color: "#d4d4d4" }}>;</span></div>
+            <div><span style={{ color: C_WHILE, fontWeight: 900 }}>while</span><span style={{ color: "#d4d4d4" }}> (</span><span style={{ color: C_COND }}>count {"<="} 5</span><span style={{ color: "#d4d4d4" }}>) {"{"}</span></div>
+            <div style={{ paddingLeft: 36 }}><span style={{ color: C_INT }}>System</span><span style={{ color: "#d4d4d4" }}>.out.</span><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(count);</span></div>
+            <div style={{ paddingLeft: 36 }}><span style={{ color: C_TEAL }}>count++</span><span style={{ color: "#d4d4d4" }}>;</span></div>
+            <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
+          </div>
+
+          {/* 요약 카드 */}
+          {SUMMARY_ROWS.map((row, i) => {
+            const appear = spring({ frame: frame - (i + 1) * 14, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+            const sc = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+            return (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 24,
+                background: "#2a2a2a", border: `2px solid ${row.color}55`,
+                borderRadius: 18, padding: "22px 36px",
+                opacity: appear, transform: `scale(${sc})`,
+              }}>
+                <span style={{ fontFamily: uiFont, fontSize: 30, fontWeight: 900, color: row.color, minWidth: 110 }}>
+                  {row.label}
+                </span>
+                <span style={{ color: "#3a3a3a", fontSize: 26 }}>—</span>
+                <span style={{ fontFamily: uiFont, fontSize: 28, color: "#d4d4d4" }}>{row.desc}</span>
+              </div>
+            );
+          })}
+        </div>
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={cfg.speechStartFrame} />
+    </>
+  );
+};
 
 // ── sceneList + fromValues ────────────────────────────────────
 const sceneList = [
