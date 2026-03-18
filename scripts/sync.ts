@@ -114,6 +114,31 @@ function loadConfig(): {
 
 const { VOICE, RATE, VIDEO_CONFIG } = loadConfig();
 
+// ── 발음 사전 로드 ─────────────────────────────────────────────
+// 우선순위: inline(최우선) > 강좌별 pronunciation.ts > 전역 global-pronunciation.ts
+function loadPronunciationMap(filePath: string): Record<string, string> {
+  if (!existsSync(filePath)) return {};
+  try {
+    const result = buildSync({
+      entryPoints: [filePath], bundle: true,
+      platform: "node", format: "cjs", write: false,
+      packages: "external", logLevel: "silent",
+    });
+    const code = result.outputFiles[0].text;
+    const mod = { exports: {} as Record<string, unknown> };
+    new Function("module", "exports", "require", code)(mod, mod.exports, require);
+    return ((mod.exports as Record<string, unknown>).PRONUNCIATION ?? {}) as Record<string, string>;
+  } catch { return {}; }
+}
+
+const globalPronMap  = loadPronunciationMap(path.join("src", "global-pronunciation.ts"));
+const seriesPronMap  = loadPronunciationMap(path.join(SERIES_DIR, "pronunciation.ts"));
+// 강좌별이 전역을 덮어씀. inline은 toTTSText 내부에서 자동으로 최우선 처리.
+const PRON_MAP: Record<string, string> = { ...globalPronMap, ...seriesPronMap };
+
+if (Object.keys(globalPronMap).length)  console.log(`📖  전역 발음 사전: ${Object.keys(globalPronMap).length}개`);
+if (Object.keys(seriesPronMap).length)  console.log(`📖  강좌 발음 사전: ${Object.keys(seriesPronMap).length}개`);
+
 // ── 유틸 ──────────────────────────────────────────────────────
 type Hashes = Record<string, string>;
 
@@ -124,10 +149,30 @@ function loadHashes(): Hashes {
   if (!existsSync(HASH_FILE)) return {};
   return JSON.parse(readFileSync(HASH_FILE, "utf-8")) as Hashes;
 }
+
+// ── 정규식 이스케이프 ──────────────────────────────────────────
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // ── 인라인 발음 문법: [표시(발음:읽기)] ────────────────────────
 // TTS용: [유튜브(발음:유튭)] → 유튭
-function toTTSText(text: string): string {
-  return text.replace(/\[([^(]+)\(발음:([^)]*)\)\]/g, (_, _d, p) => p.trim());
+// pronMap 적용: 전역/강좌 발음 사전 (inline이 최우선 — placeholder로 보호 후 복원)
+function toTTSText(text: string, pronMap: Record<string, string> = {}): string {
+  // Step 1: inline [X(발음:Y)] → placeholder 보호 (inline 최우선)
+  const inlines: string[] = [];
+  let t = text.replace(/\[([^(]+)\(발음:([^)]*)\)\]/g, (_m, _d, p) => {
+    inlines.push(p.trim());
+    return `\x01${inlines.length - 1}\x01`;
+  });
+  // Step 2: 발음 사전 적용 (긴 키 먼저 — longest-match-first)
+  const sortedKeys = Object.keys(pronMap).sort((a, b) => b.length - a.length);
+  for (const key of sortedKeys) {
+    t = t.replace(new RegExp(escapeRegex(key), "g"), pronMap[key]);
+  }
+  // Step 3: inline placeholder 복원
+  t = t.replace(/\x01(\d+)\x01/g, (_m, i) => inlines[parseInt(i)]);
+  return t;
 }
 
 // ── 나레이션 토크나이저 ────────────────────────────────────────
@@ -355,7 +400,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const narration = scene.narration;
   if (!narration) continue;
 
-  const ttsText = toTTSText(narration.join(" "));
+  const ttsText = toTTSText(narration.join(" "), PRON_MAP);
   const audio = scene.audio;
   const newHash = hash(VOICE + RATE + ttsText);
 
