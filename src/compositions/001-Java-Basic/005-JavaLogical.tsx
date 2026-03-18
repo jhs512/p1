@@ -1,13 +1,9 @@
 // src/compositions/001-Java-Basic/005-JavaLogical.tsx
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
   Sequence,
-  continueRender,
-  delayRender,
   interpolate,
   spring,
   staticFile,
@@ -15,34 +11,23 @@ import {
   useVideoConfig,
 } from "remotion";
 import { RATE, VOICE } from "../../global.config";
-import { toDisplayText } from "../../utils/narration";
 import { AUDIO_CONFIG } from "./005-audio";
+import {
+  CROSS,
+  MONO_NO_LIGA,
+  Subtitle,
+  monoFont,
+  uiFont,
+  useFade,
+} from "../../utils/scene";
 
 export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
-const CROSS = 20;
-const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
-
 const C_LOG = "#e5c07b"; // 논리 연산자 — 골든
 const C_TRUE = "#4ec9b0"; // true  → 틸
 const C_FALSE = "#f47c7c"; // false → 붉은
 const C_BOOL = "#d4834e"; // boolean 키워드
-
-// ── 폰트 ─────────────────────────────────────────────────────
-let monoFont = "JetBrains Mono, monospace";
-let uiFont = "Noto Sans KR, sans-serif";
-
-if (typeof window !== "undefined") {
-  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
-  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
-  monoFont = _jb.fontFamily;
-  uiFont = _ns.fontFamily;
-  const _h = delayRender("Loading Google Fonts");
-  Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h),
-  );
-}
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -98,59 +83,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
-
-// ── 컴포넌트: Subtitle ────────────────────────────────────────
-const Subtitle: React.FC<{
-  sentences: string[];
-  splits?: readonly number[];
-  speechStart?: number;
-}> = ({ sentences, splits, speechStart = 0 }) => {
-  const frame = useCurrentFrame();
-  const { width } = useVideoConfig();
-  if (frame < speechStart) return null;
-  const starts = [speechStart, ...(splits ?? [])];
-  const idx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 100,
-        left: "50%",
-        transform: "translateX(-50%)",
-        textAlign: "center",
-        fontFamily: uiFont,
-        fontSize: 32,
-        color: "#ffffff",
-        background: "rgba(0,0,0,0.55)",
-        borderRadius: 6,
-        padding: "8px 16px",
-        lineHeight: 1.6,
-        width: "max-content",
-        maxWidth: width - 20,
-        wordBreak: "keep-all",
-        whiteSpace: "pre-wrap",
-      }}
-    >
-      {toDisplayText(sentences[idx])}
-    </div>
-  );
-};
-
-// ── 헬퍼: useFade ─────────────────────────────────────────────
-function useFade(d: number, { out = true }: { out?: boolean } = {}) {
-  const frame = useCurrentFrame();
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = out
-    ? interpolate(frame, [d - CROSS, d], [1, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-      })
-    : 1;
-  return fadeIn * fadeOut;
-}
 
 // ── 컴포넌트: BoolPill ────────────────────────────────────────
 const BoolPill: React.FC<{ value: boolean; size?: number }> = ({

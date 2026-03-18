@@ -6,16 +6,12 @@
 // TTS 설정·PRONUNCIATION 전역값은 global.config.ts 에서 관리합니다.
 // ─────────────────────────────────────────────────────────────
 
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
   Easing,
   Sequence,
-  continueRender,
-  delayRender,
   interpolate,
   spring,
   staticFile,
@@ -23,7 +19,15 @@ import {
   useVideoConfig,
 } from "remotion";
 import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
-import { toDisplayText } from "../../utils/narration";
+import {
+  CHARS_PER_SEC,
+  CROSS,
+  MONO_NO_LIGA,
+  Subtitle,
+  monoFont,
+  uiFont,
+  useFade,
+} from "../../utils/scene";
 import { AUDIO_CONFIG } from "./001-audio";
 
 export { RATE, VOICE };
@@ -129,21 +133,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.print.narrationSplits,
   },
 };
-
-// ── 폰트 (렌더러/브라우저 환경에서만 로드) ───────────────────
-let monoFont = "JetBrains Mono, monospace";
-let uiFont = "Noto Sans KR, sans-serif";
-
-if (typeof window !== "undefined") {
-  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
-  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
-  monoFont = _jb.fontFamily;
-  uiFont = _ns.fontFamily;
-  const _fontHandle = delayRender("Loading Google Fonts");
-  Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_fontHandle),
-  );
-}
 
 // ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
 function useTypingEffect(
@@ -296,7 +285,7 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
 // 인트로 씬용: 상자 등장 → 이름 태그 → 값 투입 → 값 꺼내기
 const BoxMetaphorAnim: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   // 발화 프레임 직접 참조 (CLAUDE.md 6번 원칙: 애니메이션은 발화 시작에 맞춘다)
   const NAME_TAG_START  = AUDIO_CONFIG.intro.wordStartFrames[1][1]; // "이름을"
@@ -503,21 +492,12 @@ const BoxMetaphorAnim: React.FC = () => {
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const IntroScene: React.FC = () => {
-  const frame = useCurrentFrame();
   const { intro } = VIDEO_CONFIG;
-  const d = intro.durationInFrames;
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(intro.durationInFrames);
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(intro.audio)} />
         <BoxMetaphorAnim />
@@ -528,47 +508,6 @@ const IntroScene: React.FC = () => {
         speechStart={AUDIO_CONFIG.intro.speechStartFrame}
       />
     </>
-  );
-};
-
-// ── 컴포넌트: Subtitle ────────────────────────────────────────
-const Subtitle: React.FC<{
-  sentences: string[];
-  splits?: readonly number[]; // 각 문장(2번째~) 시작 프레임
-  speechStart?: number; // 첫 문장 시작 프레임
-}> = ({ sentences, splits, speechStart = 0 }) => {
-  const frame = useCurrentFrame();
-  const { width: compositionWidth } = useVideoConfig();
-
-  if (frame < speechStart) return null;
-
-  // 문장별 표시 구간 계산
-  const starts = [speechStart, ...(splits ?? [])];
-  const currentIdx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 100,
-        left: "50%",
-        transform: "translateX(-50%)",
-        textAlign: "center",
-        fontFamily: uiFont,
-        fontSize: 32,
-        color: "#ffffff",
-        background: "rgba(0,0,0,0.55)",
-        borderRadius: 6,
-        padding: "8px 16px",
-        lineHeight: 1.6,
-        width: "max-content",
-        maxWidth: compositionWidth - 20,
-        wordBreak: "keep-all",
-        whiteSpace: "pre-wrap",
-      }}
-    >
-      {toDisplayText(sentences[currentIdx])}
-    </div>
   );
 };
 
@@ -639,9 +578,6 @@ const ThumbnailScene: React.FC = () => (
   </AbsoluteFill>
 );
 
-const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
-const CHARS_PER_SEC = 10;
-const CROSS = 20; // 크로스페이드 프레임 수
 const QUIZ_THINKING_FRAMES = 150; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
@@ -780,16 +716,7 @@ const COMBINED_DURATION =
   declaration.durationInFrames + initialization.durationInFrames;
 
 const CombinedDeclarationInitScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const d = COMBINED_DURATION;
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(COMBINED_DURATION);
 
   const emptyBoxStart = typingDone(
     "int age;".length,
@@ -805,7 +732,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
         <Sequence durationInFrames={SPLIT}>
@@ -872,13 +799,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 const InterpretScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { interpret: cfg } = VIDEO_CONFIG;
-  const d   = cfg.durationInFrames;
   const s   = cfg.speechStartFrame;
   const [split0 = Infinity, split1 = Infinity] = cfg.narrationSplits as readonly number[];
   const { fps } = useVideoConfig();
-
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opacity = useFade(cfg.durationInFrames);
 
   const phase = frame >= split1 ? 2 : frame >= split0 ? 1 : 0;
 
@@ -909,7 +833,7 @@ const InterpretScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(cfg.audio)} />
 
         {frame >= s && (
@@ -989,8 +913,7 @@ const QuizScene: React.FC = () => {
   const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
   const totalDur = QUIZ_TOTAL_DURATION;
 
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [totalDur - CROSS, totalDur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opacity = useFade(totalDur);
 
   const isCountdown = frame >= qDur && frame < REVEAL_START;
   const isReveal    = frame >= REVEAL_START;
@@ -1049,7 +972,7 @@ const QuizScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
 
         {/* 오디오: 문제 */}
         <Sequence durationInFrames={qDur}>
@@ -1173,18 +1096,14 @@ const QuizScene: React.FC = () => {
 };
 
 const PrintScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(print.durationInFrames, { out: false });
   const newLine = print.code.find((l) => l.isNew)!;
   const s = AUDIO_CONFIG.print.speechStartFrame;
   const consoleStart = typingDone(newLine.text.length, s);
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(print.audio)} />
         <SceneTitle title={print.title} />

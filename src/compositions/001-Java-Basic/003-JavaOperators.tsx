@@ -1,13 +1,9 @@
 // src/compositions/001-Java-Basic/003-JavaOperators.tsx
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
   Sequence,
-  continueRender,
-  delayRender,
   interpolate,
   spring,
   staticFile,
@@ -16,33 +12,23 @@ import {
 } from "remotion";
 import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./003-audio";
-import { toDisplayText } from "../../utils/narration";
+import {
+  CROSS,
+  MONO_NO_LIGA,
+  Subtitle,
+  monoFont,
+  uiFont,
+  useFade,
+} from "../../utils/scene";
 
 export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
-const CROSS = 20;
-
 const C_INT     = "#4e9cd5";
 const C_OP      = "#d4834e";
 const C_NUM     = "#b5cea8";
 const C_COMMENT = "#6a9955";
 const C_REM     = "#4ec9b0"; // 나머지 연산자 강조색
-
-// ── 폰트 ─────────────────────────────────────────────────────
-let monoFont = "JetBrains Mono, monospace";
-let uiFont   = "Noto Sans KR, sans-serif";
-
-if (typeof window !== "undefined") {
-  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
-  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
-  monoFont = _jb.fontFamily;
-  uiFont   = _ns.fontFamily;
-  const _h = delayRender("Loading Google Fonts");
-  Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h),
-  );
-}
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -136,40 +122,6 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-// ── 컴포넌트: Subtitle ────────────────────────────────────────
-const Subtitle: React.FC<{
-  sentences: string[];
-  splits?: readonly number[];
-  speechStart?: number;
-}> = ({ sentences, splits, speechStart = 0 }) => {
-  const frame = useCurrentFrame();
-  const { width } = useVideoConfig();
-  if (frame < speechStart) return null;
-  const starts = [speechStart, ...(splits ?? [])];
-  const idx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
-  return (
-    <div style={{
-      position: "absolute", bottom: 100, left: "50%",
-      transform: "translateX(-50%)", textAlign: "center",
-      fontFamily: uiFont, fontSize: 32, color: "#ffffff",
-      background: "rgba(0,0,0,0.55)", borderRadius: 6,
-      padding: "8px 16px", lineHeight: 1.6,
-      width: "max-content", maxWidth: width - 20,
-      wordBreak: "keep-all", whiteSpace: "pre-wrap",
-    }}>
-      {toDisplayText(sentences[idx])}
-    </div>
-  );
-};
-
-// ── 헬퍼: fadeInOut ───────────────────────────────────────────
-function useFade(d: number, { out = true }: { out?: boolean } = {}) {
-  const frame = useCurrentFrame();
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = out ? interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
-  return fadeIn * fadeOut;
-}
-
 // ── 공통: TypingLine (SummaryScene과 공유) ───────────────────
 const TypingLine: React.FC<{ text: string; startFrame: number; cps: number }> = ({ text, startFrame, cps }) => {
   const frame = useCurrentFrame();
@@ -196,7 +148,7 @@ const CodeLines: React.FC<{
       transform: "translate(-50%, -50%)",
       background: "#2d2d2d", borderRadius: 14,
       padding: "36px 56px", minWidth: 820,
-      fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 32, lineHeight: 1.9,
+      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 32, lineHeight: 1.9,
     }}>
       {visibleLines.map((l, i) => {
         const isLast = i === visibleLines.length - 1;
@@ -225,7 +177,7 @@ const ThumbnailScene: React.FC = () => (
     }}>
       Java<br /><span style={{ color: C_OP }}>산술 연산자</span>
     </div>
-    <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 44, color: C_OP, letterSpacing: 12, opacity: 0.7 }}>
+    <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 44, color: C_OP, letterSpacing: 12, opacity: 0.7 }}>
       + &nbsp; - &nbsp; * &nbsp; / &nbsp; %
     </div>
   </AbsoluteFill>
@@ -259,7 +211,7 @@ const IntroScene: React.FC = () => {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transform: `scale(${sc})`, opacity: appear,
               }}>
-                <span style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 72, fontWeight: 700, color: C_OP }}>{op}</span>
+                <span style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 72, fontWeight: 700, color: C_OP }}>{op}</span>
               </div>
             );
           })}
@@ -353,7 +305,7 @@ const RemScene: React.FC = () => {
           transform: `translate(-50%, -50%) scale(${interpolate(divAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
           opacity: divAppear,
           display: "flex", alignItems: "center", gap: 20,
-          fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 80, fontWeight: 900,
+          fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 80, fontWeight: 900,
         }}>
           <span style={{ color: C_INT }}>11</span>
           <span style={{ color: C_REM }}>%</span>
@@ -375,16 +327,16 @@ const RemScene: React.FC = () => {
               background: "#2d2d2d", borderRadius: 16, padding: "20px 40px",
             }}>
               <div style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}>몫</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_NUM }}>3</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: "#555" }}>11 / 3</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 64, fontWeight: 900, color: C_NUM }}>3</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 22, color: "#555" }}>11 / 3</div>
             </div>
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
               background: `${C_REM}1a`, border: `2px solid ${C_REM}66`, borderRadius: 16, padding: "20px 40px",
             }}>
               <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>나머지</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 64, fontWeight: 900, color: C_REM }}>2</div>
-              <div style={{ fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 22, color: C_REM, opacity: 0.6 }}>11 % 3</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 64, fontWeight: 900, color: C_REM }}>2</div>
+              <div style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 22, color: C_REM, opacity: 0.6 }}>11 % 3</div>
             </div>
           </div>
         )}
@@ -396,7 +348,7 @@ const RemScene: React.FC = () => {
             transform: "translateX(-50%)",
             opacity: usageAppear,
             display: "flex", gap: 20,
-            fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 28,
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 28,
             background: "#2d2d2d", borderRadius: 12, padding: "14px 32px",
           }}>
             <span style={{ color: "#d4d4d4" }}>n</span>
@@ -454,7 +406,7 @@ const SummaryScene: React.FC = () => {
               position: "absolute", top: "50%", left: "50%",
               transform: "translate(-50%, -50%)",
               background: "#2d2d2d", borderRadius: 12, padding: "36px 56px",
-              minWidth: 820, fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0', fontSize: 30, lineHeight: 1.85,
+              minWidth: 820, fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, fontSize: 30, lineHeight: 1.85,
             }}>
               {SUMMARY_LINES.slice(0, i + 1).map((text, j) =>
                 j < i

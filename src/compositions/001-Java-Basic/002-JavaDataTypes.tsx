@@ -1,14 +1,10 @@
 // src/compositions/0002-JavaDataTypes.tsx
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
   Easing,
   Sequence,
-  continueRender,
-  delayRender,
   interpolate,
   spring,
   staticFile,
@@ -16,15 +12,19 @@ import {
   useVideoConfig,
 } from "remotion";
 import { RATE, VOICE } from "../../global.config";
-import { toDisplayText } from "../../utils/narration";
+import {
+  CHARS_PER_SEC,
+  CROSS,
+  Subtitle,
+  monoFont,
+  uiFont,
+  useFade,
+} from "../../utils/scene";
 import { AUDIO_CONFIG } from "./002-audio";
 
 export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
-const CROSS = 20;
-const CHARS_PER_SEC = 10;
-
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
@@ -34,21 +34,6 @@ const TYPE_COLORS: Record<string, string> = {
   String: "#4ec970",
   boolean: "#d4834e",
 };
-
-// ── 폰트 ─────────────────────────────────────────────────────
-let monoFont = "JetBrains Mono, monospace";
-let uiFont = "Noto Sans KR, sans-serif";
-
-if (typeof window !== "undefined") {
-  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
-  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
-  monoFont = _jb.fontFamily;
-  uiFont = _ns.fontFamily;
-  const _h = delayRender("Loading Google Fonts");
-  Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h),
-  );
-}
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -238,46 +223,6 @@ const CodeBox: React.FC<{
     )}
   </div>
 );
-
-// ── 컴포넌트: Subtitle ────────────────────────────────────────
-const Subtitle: React.FC<{
-  sentences: string[];
-  splits?: readonly number[]; // 각 문장(2번째~) 시작 프레임
-  speechStart?: number; // 첫 문장 시작 프레임
-}> = ({ sentences, splits, speechStart = 0 }) => {
-  const frame = useCurrentFrame();
-  const { width: compositionWidth } = useVideoConfig();
-
-  if (frame < speechStart) return null;
-
-  const starts = [speechStart, ...(splits ?? [])];
-  const currentIdx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 100,
-        left: "50%",
-        transform: "translateX(-50%)",
-        textAlign: "center",
-        fontFamily: uiFont,
-        fontSize: 32,
-        color: "#ffffff",
-        background: "rgba(0,0,0,0.55)",
-        borderRadius: 6,
-        padding: "8px 16px",
-        lineHeight: 1.6,
-        width: "max-content",
-        maxWidth: compositionWidth - 20,
-        wordBreak: "keep-all",
-        whiteSpace: "pre-wrap",
-      }}
-    >
-      {toDisplayText(sentences[currentIdx])}
-    </div>
-  );
-};
 
 // ── 컴포넌트: TypeBox ─────────────────────────────────────────
 // 색상 상자 spring 등장 + 값 낙하 애니메이션 (단일 엘리먼트, 깜빡임 없음)
@@ -546,15 +491,7 @@ const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
-  const d = intro.durationInFrames;
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(intro.durationInFrames);
 
   const boxes = [
     { label: "int", color: TYPE_COLORS.int },
@@ -566,7 +503,7 @@ const IntroScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(intro.audio)} />
         <div
@@ -644,15 +581,7 @@ const ValueVsVarScene: React.FC = () => {
   const split0 = splits[0] ?? 90;
   const split1 = splits[1] ?? 180;
   const COLOR = TYPE_COLORS.int;
-
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(d);
 
   const valueAppear = spring({
     frame: frame - split0,
@@ -682,7 +611,7 @@ const ValueVsVarScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(valueVsVar.audio)} />
 
@@ -896,26 +825,18 @@ const TypeScene: React.FC<{
     narrationSplits: readonly number[];
   };
 }> = ({ sceneKey, config }) => {
-  const frame = useCurrentFrame();
   const d = config.durationInFrames;
   const s = config.speechStartFrame;
   const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
 
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(d);
   // TypeBox는 두 번째 문장 시작(narrationSplits[0]) 또는 타이핑 완료 시점에 드롭
   const dropStart = config.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(config.audio)} />
         <div
@@ -947,26 +868,18 @@ const TypeScene: React.FC<{
 
 // ── 씬: BooleanScene ──────────────────────────────────────────
 const BooleanScene: React.FC = () => {
-  const frame = useCurrentFrame();
   const { booleanScene } = VIDEO_CONFIG;
   const d = booleanScene.durationInFrames;
   const s = booleanScene.speechStartFrame;
   const code = "boolean isStudent = true;";
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(d);
   const dropStart =
     booleanScene.narrationSplits[0] ?? typingDone(code.length, s);
 
   return (
     <>
       <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}
+        style={{ background: "#1e1e1e", opacity }}
       >
         <Audio src={staticFile(booleanScene.audio)} />
         <div
@@ -1000,13 +913,9 @@ const SUMMARY_LINES = [
 const SUMMARY_CPS = 20; // 요약 씬은 빠르게 타이핑
 
 const SummaryScene: React.FC = () => {
-  const frame = useCurrentFrame();
   const { summaryScene } = VIDEO_CONFIG;
   const d = summaryScene.durationInFrames;
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = useFade(d, { out: false });
 
   // 캐릭터 수 비례로 각 라인 시작 타이밍 계산
   const totalChars = SUMMARY_LINES.reduce((sum, l) => sum + l.length, 0);
@@ -1019,7 +928,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn }}>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <Audio src={staticFile(summaryScene.audio)} />
         {starts.map((startFrom, i) => (
           <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

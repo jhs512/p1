@@ -1,13 +1,9 @@
 // src/compositions/001-Java-Basic/006-JavaIf.tsx
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
   AbsoluteFill,
   Sequence,
-  continueRender,
-  delayRender,
   interpolate,
   spring,
   staticFile,
@@ -16,14 +12,18 @@ import {
 } from "remotion";
 import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./006-audio";
-import { toDisplayText } from "../../utils/narration";
+import {
+  CROSS,
+  MONO_NO_LIGA,
+  Subtitle,
+  monoFont,
+  uiFont,
+  useFade,
+} from "../../utils/scene";
 
 export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
-const CROSS        = 20;
-const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
-
 const C_CTRL  = "#c586c0"; // 제어 키워드 — if/else
 const C_INT   = "#4e9cd5";
 const C_NUM   = "#b5cea8";
@@ -31,21 +31,6 @@ const C_STR   = "#ce9178";
 const C_CMP   = "#c586c0";
 const C_TRUE  = "#4ec9b0";
 const C_FALSE = "#f47c7c";
-
-// ── 폰트 ─────────────────────────────────────────────────────
-let monoFont = "JetBrains Mono, monospace";
-let uiFont   = "Noto Sans KR, sans-serif";
-
-if (typeof window !== "undefined") {
-  const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
-  const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
-  monoFont = _jb.fontFamily;
-  uiFont   = _ns.fontFamily;
-  const _h = delayRender("Loading Google Fonts");
-  Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h),
-  );
-}
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -101,40 +86,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
-
-// ── 컴포넌트: Subtitle ────────────────────────────────────────
-const Subtitle: React.FC<{
-  sentences: string[];
-  splits?: readonly number[];
-  speechStart?: number;
-}> = ({ sentences, splits, speechStart = 0 }) => {
-  const frame = useCurrentFrame();
-  const { width } = useVideoConfig();
-  if (frame < speechStart) return null;
-  const starts = [speechStart, ...(splits ?? [])];
-  const idx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
-  return (
-    <div style={{
-      position: "absolute", bottom: 100, left: "50%",
-      transform: "translateX(-50%)", textAlign: "center",
-      fontFamily: uiFont, fontSize: 32, color: "#ffffff",
-      background: "rgba(0,0,0,0.55)", borderRadius: 6,
-      padding: "8px 16px", lineHeight: 1.6,
-      width: "max-content", maxWidth: width - 20,
-      wordBreak: "keep-all", whiteSpace: "pre-wrap",
-    }}>
-      {toDisplayText(sentences[idx])}
-    </div>
-  );
-};
-
-// ── 헬퍼: useFade ─────────────────────────────────────────────
-function useFade(d: number, { out = true }: { out?: boolean } = {}) {
-  const frame = useCurrentFrame();
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = out ? interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
-  return fadeIn * fadeOut;
-}
 
 // ── 컴포넌트: CodeBlock — 실제 if-else 소스코드 시각화 ────────
 //   activeBlock: "if"|"else" → 해당 분기 왼쪽 바 + 배경 하이라이트

@@ -24,9 +24,9 @@
 - 인라인인 경우 `fadeOut` 계산 제거, `opacity: fadeIn` 만 사용
 
 ### 4. JetBrains Mono 리가처는 항상 끈다
-모노스페이스 폰트를 사용하는 모든 요소에 반드시 `fontFeatureSettings: '"calt" 0, "liga" 0'` 을 추가한다.
+모노스페이스 폰트를 사용하는 모든 요소에 반드시 `fontFeatureSettings: MONO_NO_LIGA` 를 추가한다.
 이를 적용하지 않으면 `!=` → `≠`, `==` → `≡`, `>=` → `≥` 같은 리가처 변환이 발생한다.
-- 상수로 정의해 재사용: `const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;`
+- `MONO_NO_LIGA`는 `src/utils/scene.tsx`에서 import한다 — 각 파일에 직접 정의하지 않는다.
 - 모든 `fontFamily: monoFont` 사용처에 `fontFeatureSettings: MONO_NO_LIGA` 를 함께 쓴다.
 
 ### 5. 중간 작업마다 커밋/푸시한다
@@ -47,9 +47,12 @@
 
 ```
 src/
-  global.config.ts              — 전역 설정 (VOICE, RATE, SCENE_TAIL_FRAMES, PRONUNCIATION)
+  global.config.ts              — 전역 설정 (VOICE, RATE, SCENE_TAIL_FRAMES)
   index.ts                      — Remotion 엔트리포인트 (Root.tsx 연결)
   Root.tsx                      — 모든 컴포지션 자동 등록 (require.context) + Folder 그룹핑
+  utils/
+    narration.ts                — toDisplayText / toTTSText (인라인 발음 문법 파싱)
+    scene.tsx                   — 공유 상수·훅·컴포넌트 (모든 씬 파일이 import)
   compositions/
     001-Java-Basic/
       001-JavaVariables.tsx     — 001 영상 컴포지션
@@ -169,13 +172,31 @@ pnpm render 001-Java-Basic/001
 pnpm render 001-Java-Basic/002
 ```
 
+## 공유 유틸 — `src/utils/scene.tsx`
+
+모든 씬 파일이 공통으로 사용하는 것들은 `src/utils/scene.tsx`에 정의되어 있다.
+각 파일에 직접 정의하지 말고 반드시 import해서 사용한다.
+
+```ts
+import {
+  monoFont, uiFont,   // 폰트 패밀리 문자열 (폰트 로딩도 scene.tsx 가 처리)
+  MONO_NO_LIGA,        // JetBrains Mono 리가처 비활성화
+  CROSS,               // 씬 간 크로스페이드 프레임 (= 20)
+  CHARS_PER_SEC,       // 타이핑 속도 초당 글자 (= 10)
+  useFade,             // 씬 fadeIn/fadeOut opacity 훅
+  Subtitle,            // 하단 자막 컴포넌트
+} from "../../utils/scene";
+```
+
+- 폰트 import (`loadJetBrains`, `loadNotoSans`)와 `delayRender`/`continueRender`는 씬 파일에 쓰지 않는다.
+- 새 씬 파일에서 위 목록이 필요하면 scene.tsx에서 import한다.
+
 ## 씬 타이밍 상수
 
 ```ts
-TYPING_START = 20    // 씬 시작 후 타이핑 시작까지 프레임
-CHARS_PER_SEC = 10   // 타이핑 속도 (초당 글자)
-CROSS = 20           // 씬 간 크로스페이드 프레임
-SCENE_TAIL_FRAMES = 15  // 오디오 종료 후 여유 프레임 (global.config.ts)
+CHARS_PER_SEC = 10   // 타이핑 속도 (초당 글자) — src/utils/scene.tsx
+CROSS = 20           // 씬 간 크로스페이드 프레임 — src/utils/scene.tsx
+SCENE_TAIL_FRAMES = 15  // 오디오 종료 후 여유 프레임 — global.config.ts
 ```
 
 ## 새 에피소드 추가 방법
