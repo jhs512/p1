@@ -5,5 +5,5 @@ export const AUDIO_CONFIG = {
   intro           : { durationInFrames: 257, narrationSplits: [130], sentenceEndFrames: [118], speechStartFrame: 8, speechEndFrame: 226, wordStartFrames: [[0,10,13,24,35,55,76,82,88,99,99],[130,139,152,162,175,192,206,208]] },
   syntaxScene     : { durationInFrames: 245, narrationSplits: [124], sentenceEndFrames: [109], speechStartFrame: 5, speechEndFrame: 214, wordStartFrames: [[0,8,14,30,35,52,66,80,91],[124,136,146,157,177,184]] },
   multiCaseScene  : { durationInFrames: 252, narrationSplits: [118], sentenceEndFrames: [96], speechStartFrame: 6, speechEndFrame: 221, wordStartFrames: [[0,4,16,26,37,50,64,76,79,112],[112,120,136,148,161,184,190,202,204]] },
-  summaryScene    : { durationInFrames: 347, narrationSplits: [116, 224], sentenceEndFrames: [95, 205], speechStartFrame: 7, speechEndFrame: 317, wordStartFrames: [[0,10,23,34,47,63,76,77],[106,119,133,145,156,166,181],[216,223,233,245,254,274,287,296,298]] },
+  summaryScene    : { durationInFrames: 391, narrationSplits: [52, 161, 268], sentenceEndFrames: [31, 139, 249], speechStartFrame: 5, speechEndFrame: 361, wordStartFrames: [[0],[46,54,67,79,92,107,119,122],[150,163,176,190,200,210,226],[261,266,277,290,298,318,331,341,343]] },
 } as const;

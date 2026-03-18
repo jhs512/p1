@@ -154,6 +154,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: [
+      "정리하겠습니다.",
       "화살표 문법으로 각 케이스를 간결하게 작성할 수 있습니다.",
       "화살표 문법에서는 각 케이스가 끝나면 자동으로 종료됩니다.",
       "값 반환과 케이스 묶기로 더욱 강력하게 사용할 수 있습니다.",
@@ -617,13 +618,15 @@ const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
-  const [split0 = Infinity, split1 = Infinity] = cfg.narrationSplits as readonly number[];
+  const [split0 = Infinity, split1 = Infinity, split2 = Infinity] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d, { out: false }); // 마지막 씬 — fadeOut 없음
 
-  const titleAppear = spring({ frame: frame - s,        fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
-  const card1Appear = spring({ frame: frame - s,        fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
-  const card2Appear = spring({ frame: frame - split0,   fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
-  const card3Appear = spring({ frame: frame - split1,   fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+  // 문장 1("정리하겠습니다.") → 타이틀
+  // 문장 2(split0~) → 카드1 / 문장 3(split1~) → 카드2 / 문장 4(split2~) → 카드3
+  const titleAppear = spring({ frame: frame - s,      fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
+  const card1Appear = spring({ frame: frame - split0, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+  const card2Appear = spring({ frame: frame - split1, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+  const card3Appear = spring({ frame: frame - split2, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
 
   const cardSprings = [card1Appear, card2Appear, card3Appear];
 
