@@ -32,4 +32,5 @@ export const PRONUNCIATION: Record<string, string> = {
   "Java":                   "자바",
   "개수":                   "개쑤",
   "거짓이":               "거지시",
+  "거짓일":               "거지실",
 };
