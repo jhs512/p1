@@ -320,46 +320,75 @@ const ForScene: React.FC = () => {
           <div style={{
             position: "absolute", top: "46%", left: "50%",
             transform: "translate(-50%, -50%)",
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 34, lineHeight: 2.1,
-            background: "#252525", borderRadius: 20,
-            padding: "36px 52px",
-            width: 860, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+            display: "flex", flexDirection: "column", gap: 20,
+            width: 860,
           }}>
-            {/* ── Line 1: for (초기식; 조건식; 증감식) { ── */}
-            <div style={{ whiteSpace: "nowrap" }}>
-              {/* 초기식 그룹: for (int i = 0 */}
-              <span style={{ display: "inline-block", opacity: initAppear, transform: slideY(initAppear) }}>
-                <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
-                <span style={{ color: "#d4d4d4" }}>{" ("}</span>
-                <span style={{ color: C_INIT }}>int i</span>
-                <span style={{ color: "#d4d4d4" }}>{" = "}</span>
-                <span style={{ color: C_NUM }}>0</span>
-              </span>
-              {/* 조건식 그룹: ; i < 5 */}
-              <span style={{ display: "inline-block", opacity: condAppear, transform: slideY(condAppear) }}>
-                <span style={{ color: "#d4d4d4" }}>{"; "}</span>
-                <span style={{ color: C_COND }}>{"i < 5"}</span>
-              </span>
-              {/* 증감식 그룹: ; i++ ← 블록 이후에 등장 */}
-              <span style={{ display: "inline-block", opacity: incAppear, transform: slideY(incAppear) }}>
-                <span style={{ color: "#d4d4d4" }}>{"; "}</span>
-                <span style={{ color: C_INC }}>i++</span>
-              </span>
-              {/* ) { ← 블록과 함께 등장 */}
-              <span style={{ display: "inline-block", opacity: bodyAppear }}>
-                <span style={{ color: "#d4d4d4" }}>{") {"}</span>
-              </span>
+            {/* ── 코드 블록 ── */}
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 34, lineHeight: 2.1,
+              background: "#252525", borderRadius: 20,
+              padding: "36px 52px",
+              boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+            }}>
+              {/* Line 1 */}
+              <div style={{ whiteSpace: "nowrap" }}>
+                {/* 초기식 그룹 */}
+                <span style={{ display: "inline-block", opacity: initAppear, transform: slideY(initAppear) }}>
+                  <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
+                  <span style={{ color: "#d4d4d4" }}>{" ("}</span>
+                  <span style={{ color: C_INIT }}>int i</span>
+                  <span style={{ color: "#d4d4d4" }}>{" = "}</span>
+                  <span style={{ color: C_NUM }}>0</span>
+                </span>
+                {/* 조건식 그룹 */}
+                <span style={{ display: "inline-block", opacity: condAppear, transform: slideY(condAppear) }}>
+                  <span style={{ color: "#d4d4d4" }}>{"; "}</span>
+                  <span style={{ color: C_COND }}>{"i < 5"}</span>
+                </span>
+                {/* 증감식 그룹 */}
+                <span style={{ display: "inline-block", opacity: incAppear, transform: slideY(incAppear) }}>
+                  <span style={{ color: "#d4d4d4" }}>{"; "}</span>
+                  <span style={{ color: C_INC }}>i++</span>
+                </span>
+                {/* ) { */}
+                <span style={{ display: "inline-block", opacity: bodyAppear }}>
+                  <span style={{ color: "#d4d4d4" }}>{") {"}</span>
+                </span>
+              </div>
+              {/* Line 2: body */}
+              <div style={{ paddingLeft: 56, opacity: bodyAppear, transform: slideY(bodyAppear) }}>
+                <span style={{ color: C_INIT }}>System</span>
+                <span style={{ color: "#d4d4d4" }}>.out.</span>
+                <span style={{ color: "#dcdcaa" }}>println</span>
+                <span style={{ color: "#d4d4d4" }}>(i);</span>
+              </div>
+              {/* Line 3: } */}
+              <div style={{ color: "#d4d4d4", opacity: bodyAppear }}>{"}"}</div>
             </div>
-            {/* ── Line 2: 블록 body ── */}
-            <div style={{ paddingLeft: 56, opacity: bodyAppear, transform: slideY(bodyAppear) }}>
-              <span style={{ color: C_INIT }}>System</span>
-              <span style={{ color: "#d4d4d4" }}>.out.</span>
-              <span style={{ color: "#dcdcaa" }}>println</span>
-              <span style={{ color: "#d4d4d4" }}>(i);</span>
+
+            {/* ── 단계 레이블 배지 행 ── */}
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              {([
+                { label: "① 초기식",  color: C_INIT, appear: initAppear },
+                { label: "② 조건식",  color: C_COND, appear: condAppear },
+                { label: "③ 블록",    color: C_FOR,  appear: bodyAppear },
+                { label: "④ 증감식",  color: C_INC,  appear: incAppear  },
+              ] as const).map(({ label, color, appear }) => (
+                <div key={label} style={{
+                  fontFamily: uiFont, fontSize: 24, fontWeight: 700,
+                  color,
+                  background: `${color}18`,
+                  border: `2px solid ${color}55`,
+                  borderRadius: 12, padding: "8px 20px",
+                  opacity: appear,
+                  transform: slideY(appear),
+                  display: "inline-block",
+                }}>
+                  {label}
+                </div>
+              ))}
             </div>
-            {/* ── Line 3: } ← 블록과 함께 등장 ── */}
-            <div style={{ color: "#d4d4d4", opacity: bodyAppear }}>{"}"}</div>
           </div>
         )}
       </AbsoluteFill>
