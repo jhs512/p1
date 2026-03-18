@@ -100,7 +100,7 @@ export const VIDEO_CONFIG = {
     audio: "interpret-quiz.mp3",
     durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    narration: ["하이라이팅된 이 변수는 공간일까요, 값일까요?"] as string[],
+    narration: ["앞 부분의 age 변수는 공간으로 해석해야할까요? 아니면 값으로 해석해야 할까요?"] as string[],
     narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
   },
 
