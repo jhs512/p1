@@ -281,63 +281,44 @@ const OverviewScene: React.FC = () => {
 
         {frame >= s && (
           <div style={{
-            position: "absolute", top: "42%", left: "50%",
+            position: "absolute", top: "40%", left: "50%",
             transform: "translate(-50%, -50%)",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 32,
+            display: "flex", flexDirection: "column", alignItems: "center",
           }}>
             {/* 제어문 루트 */}
-            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>
-              제어문
-            </div>
+            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
 
-            {/* 연결선 */}
-            <div style={{ display: "flex", gap: 0, alignItems: "flex-start", position: "relative", width: 480 }}>
-              {/* 세로선 + 가로선 */}
-              <div style={{
-                position: "absolute", top: 0, left: "50%",
-                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
-                transform: "translateX(-50%)",
-              }} />
-              <div style={{
-                position: "absolute", top: 24, left: "25%",
-                width: "50%", height: 2, background: "rgba(255,255,255,0.15)",
-              }} />
-              <div style={{
-                position: "absolute", top: 24, left: "25%",
-                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
-              }} />
-              <div style={{
-                position: "absolute", top: 24, right: "25%",
-                width: 2, height: 24, background: "rgba(255,255,255,0.15)",
-              }} />
+            {/* 연결선 — 고정 높이로 겹침 방지 */}
+            <div style={{ position: "relative", width: 440, height: 50, flexShrink: 0 }}>
+              <div style={{ position: "absolute", top: 0,  left: "50%", width: 2, height: 26, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
+              <div style={{ position: "absolute", top: 26, left: "20%", width: "60%", height: 2, background: "rgba(255,255,255,0.18)" }} />
+              <div style={{ position: "absolute", top: 26, left: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
+              <div style={{ position: "absolute", top: 26, right: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
             </div>
 
             {/* 조건문 / 반복문 */}
-            <div style={{ display: "flex", gap: 48, marginTop: -16 }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-                <div style={nodeStyle(C_COND, true, leftAppear)}>
-                  조건문
-                </div>
-                {/* phase 2: if 키워드 강조 */}
+            <div style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
+              {/* 조건문 + if */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                <div style={nodeStyle(C_COND, true, leftAppear)}>조건문</div>
+                {/* phase 2: if 키워드 */}
                 {phase2 && (
-                  <div style={{
-                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                    fontSize: 52, fontWeight: 900, color: C_CTRL,
-                    background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
-                    borderRadius: 18, padding: "14px 44px",
-                    opacity: ifAppear,
-                    transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                    boxShadow: `0 0 32px ${C_CTRL}33`,
-                  }}>
-                    if
-                  </div>
+                  <>
+                    <div style={{ width: 2, height: 20, background: "rgba(255,255,255,0.18)", opacity: ifAppear, flexShrink: 0 }} />
+                    <div style={{
+                      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 52, fontWeight: 900, color: C_CTRL,
+                      background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
+                      borderRadius: 18, padding: "14px 44px",
+                      opacity: ifAppear,
+                      transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      boxShadow: `0 0 32px ${C_CTRL}33`,
+                    }}>if</div>
+                  </>
                 )}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>
-                  반복문
-                </div>
-              </div>
+              {/* 반복문 */}
+              <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>반복문</div>
             </div>
           </div>
         )}
