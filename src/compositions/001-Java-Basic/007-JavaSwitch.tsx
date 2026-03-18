@@ -14,6 +14,7 @@ import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./007-audio";
 import {
   CROSS,
+  ContentArea,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -246,6 +247,7 @@ const OverviewScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
         <Audio src={staticFile(cfg.audio)} />
         {/* 항상 보임 — frame 0부터 트리 등장 */}
         <div style={{
@@ -311,6 +313,7 @@ const OverviewScene: React.FC = () => {
             </div>
           </div>
         </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -345,6 +348,7 @@ const IntroScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
         <Audio src={staticFile(cfg.audio)} />
         <div style={{
           position: "absolute", top: "50%", left: "50%",
@@ -397,6 +401,7 @@ const IntroScene: React.FC = () => {
             <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
           </div>
         </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -443,6 +448,7 @@ const SyntaxScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
         <Audio src={staticFile(cfg.audio)} />
         {frame >= s && (
           <div style={{
@@ -490,6 +496,7 @@ const SyntaxScene: React.FC = () => {
             </div>
           </div>
         )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -521,6 +528,7 @@ const MultiCaseScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
         <Audio src={staticFile(cfg.audio)} />
         <div style={{
           position: "absolute", top: "46%", left: "50%",
@@ -599,6 +607,7 @@ const MultiCaseScene: React.FC = () => {
             </div>
           )}
         </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -635,6 +644,7 @@ const SummaryScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
         <Audio src={staticFile(cfg.audio)} />
         <div style={{
           position: "absolute", top: "50%", left: "50%",
@@ -672,6 +682,7 @@ const SummaryScene: React.FC = () => {
           })}
 
         </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>

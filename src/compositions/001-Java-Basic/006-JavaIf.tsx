@@ -14,6 +14,7 @@ import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./006-audio";
 import {
   CROSS,
+  ContentArea,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -228,51 +229,53 @@ const OverviewScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {frame >= s && (
-          <div style={{
-            position: "absolute", top: "40%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex", flexDirection: "column", alignItems: "center",
-          }}>
-            {/* 제어문 루트 */}
-            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
+          {frame >= s && (
+            <div style={{
+              position: "absolute", top: "40%", left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex", flexDirection: "column", alignItems: "center",
+            }}>
+              {/* 제어문 루트 */}
+              <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
 
-            {/* 연결선 — 고정 높이로 겹침 방지 */}
-            <div style={{ position: "relative", width: 440, height: 50, flexShrink: 0 }}>
-              <div style={{ position: "absolute", top: 0,  left: "50%", width: 2, height: 26, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
-              <div style={{ position: "absolute", top: 26, left: "20%", width: "60%", height: 2, background: "rgba(255,255,255,0.18)" }} />
-              <div style={{ position: "absolute", top: 26, left: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
-              <div style={{ position: "absolute", top: 26, right: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
-            </div>
-
-            {/* 조건문 / 반복문 */}
-            <div style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
-              {/* 조건문 + if */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                <div style={nodeStyle(C_COND, true, leftAppear)}>조건문</div>
-                {/* phase 2: if 키워드 */}
-                {phase2 && (
-                  <>
-                    <div style={{ width: 2, height: 20, background: "rgba(255,255,255,0.18)", opacity: ifAppear, flexShrink: 0 }} />
-                    <div style={{
-                      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                      fontSize: 52, fontWeight: 900, color: C_CTRL,
-                      background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
-                      borderRadius: 18, padding: "14px 44px",
-                      opacity: ifAppear,
-                      transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 32px ${C_CTRL}33`,
-                    }}>if</div>
-                  </>
-                )}
+              {/* 연결선 — 고정 높이로 겹침 방지 */}
+              <div style={{ position: "relative", width: 440, height: 50, flexShrink: 0 }}>
+                <div style={{ position: "absolute", top: 0,  left: "50%", width: 2, height: 26, background: "rgba(255,255,255,0.18)", transform: "translateX(-50%)" }} />
+                <div style={{ position: "absolute", top: 26, left: "20%", width: "60%", height: 2, background: "rgba(255,255,255,0.18)" }} />
+                <div style={{ position: "absolute", top: 26, left: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
+                <div style={{ position: "absolute", top: 26, right: "20%", width: 2, height: 24, background: "rgba(255,255,255,0.18)" }} />
               </div>
-              {/* 반복문 */}
-              <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>반복문</div>
+
+              {/* 조건문 / 반복문 */}
+              <div style={{ display: "flex", gap: 56, alignItems: "flex-start" }}>
+                {/* 조건문 + if */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                  <div style={nodeStyle(C_COND, true, leftAppear)}>조건문</div>
+                  {/* phase 2: if 키워드 */}
+                  {phase2 && (
+                    <>
+                      <div style={{ width: 2, height: 20, background: "rgba(255,255,255,0.18)", opacity: ifAppear, flexShrink: 0 }} />
+                      <div style={{
+                        fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                        fontSize: 52, fontWeight: 900, color: C_CTRL,
+                        background: `${C_CTRL}18`, border: `2px solid ${C_CTRL}55`,
+                        borderRadius: 18, padding: "14px 44px",
+                        opacity: ifAppear,
+                        transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                        boxShadow: `0 0 32px ${C_CTRL}33`,
+                      }}>if</div>
+                    </>
+                  )}
+                </div>
+                {/* 반복문 */}
+                <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>반복문</div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -336,35 +339,37 @@ const IntroScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(intro.audio)} />
-        {/* 조건 다이어그램 미리보기 */}
-        <div style={{
-          position: "absolute", top: "44%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
-        }}>
-          {/* 조건 박스 */}
+        <ContentArea>
+          <Audio src={staticFile(intro.audio)} />
+          {/* 조건 다이어그램 미리보기 */}
           <div style={{
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 32, color: "#888",
-            background: "#2d2d2d", borderRadius: 12,
-            padding: "14px 36px", border: "2px solid #333",
+            position: "absolute", top: "44%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
           }}>
-            <span style={{ color: "#d4d4d4" }}>조건 </span>
-            <span style={{ color: C_CMP }}>?</span>
-          </div>
-          {/* 두 갈래 */}
-          <div style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-              <div style={{ fontFamily: uiFont, fontSize: 20, color: C_TRUE, opacity: 0.8 }}>참</div>
-              {keyword("if", ifAppear)}
+            {/* 조건 박스 */}
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 32, color: "#888",
+              background: "#2d2d2d", borderRadius: 12,
+              padding: "14px 36px", border: "2px solid #333",
+            }}>
+              <span style={{ color: "#d4d4d4" }}>조건 </span>
+              <span style={{ color: C_CMP }}>?</span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-              <div style={{ fontFamily: uiFont, fontSize: 20, color: C_FALSE, opacity: 0.8 }}>거짓</div>
-              {keyword("else", elseAppear)}
+            {/* 두 갈래 */}
+            <div style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_TRUE, opacity: 0.8 }}>참</div>
+                {keyword("if", ifAppear)}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_FALSE, opacity: 0.8 }}>거짓</div>
+                {keyword("else", elseAppear)}
+              </div>
             </div>
           </div>
-        </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
     </>
@@ -383,18 +388,20 @@ const IfScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {frame >= s && (
-          <div style={{ position: "absolute", top: "46%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <CodeBlock
-              score={75}
-              showElse={false}
-              activeBlock={frame >= split0 ? "if" : null}
-              startFrame={s}
-            />
-          </div>
-        )}
+          {frame >= s && (
+            <div style={{ position: "absolute", top: "46%", left: "50%", transform: "translate(-50%, -50%)" }}>
+              <CodeBlock
+                score={75}
+                showElse={false}
+                activeBlock={frame >= split0 ? "if" : null}
+                startFrame={s}
+              />
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -416,18 +423,20 @@ const IfElseScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {frame >= s && (
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <CodeBlock
-              score={showFalse ? 45 : 75}
-              showElse={true}
-              activeBlock={showFalse ? "else" : "if"}
-              startFrame={s}
-            />
-          </div>
-        )}
+          {frame >= s && (
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+              <CodeBlock
+                score={showFalse ? 45 : 75}
+                showElse={true}
+                activeBlock={showFalse ? "else" : "if"}
+                startFrame={s}
+              />
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -450,54 +459,56 @@ const SummaryScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex", flexDirection: "column", gap: 24, width: 860,
-        }}>
-          {SUMMARY_ROWS.map((row, i) => {
-            const appear = spring({ frame: frame - i * 12, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
-            const sc     = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-            return (
-              <div key={i} style={{
-                display: "flex", alignItems: "center", gap: 28,
-                background: "#2a2a2a", border: `2px solid ${row.color}55`,
-                borderRadius: 20, padding: "26px 40px",
-                opacity: appear, transform: `scale(${sc})`,
-              }}>
-                <span style={{
+          <div style={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex", flexDirection: "column", gap: 24, width: 860,
+          }}>
+            {SUMMARY_ROWS.map((row, i) => {
+              const appear = spring({ frame: frame - i * 12, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+              const sc     = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+              return (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 28,
+                  background: "#2a2a2a", border: `2px solid ${row.color}55`,
+                  borderRadius: 20, padding: "26px 40px",
+                  opacity: appear, transform: `scale(${sc})`,
+                }}>
+                  <span style={{
+                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                    color: C_CTRL, fontSize: 46, fontWeight: 900, minWidth: 100,
+                  }}>{row.kw}</span>
+                  <span style={{ color: "#3a3a3a", fontSize: 28 }}>—</span>
+                  <span style={{ fontFamily: uiFont, fontSize: 32, color: "#d4d4d4" }}>{row.desc}</span>
+                </div>
+              );
+            })}
+
+            {/* 코드 미리보기 */}
+            {(() => {
+              const appear = spring({ frame: frame - 24, fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
+              const sc = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+              return (
+                <div style={{
+                  background: "#252525", borderRadius: 16,
+                  padding: "24px 36px", marginTop: 8,
                   fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                  color: C_CTRL, fontSize: 46, fontWeight: 900, minWidth: 100,
-                }}>{row.kw}</span>
-                <span style={{ color: "#3a3a3a", fontSize: 28 }}>—</span>
-                <span style={{ fontFamily: uiFont, fontSize: 32, color: "#d4d4d4" }}>{row.desc}</span>
-              </div>
-            );
-          })}
-
-          {/* 코드 미리보기 */}
-          {(() => {
-            const appear = spring({ frame: frame - 24, fps, config: { damping: 13, stiffness: 130 }, durationInFrames: 26 });
-            const sc = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-            return (
-              <div style={{
-                background: "#252525", borderRadius: 16,
-                padding: "24px 36px", marginTop: 8,
-                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 26, lineHeight: 1.85,
-                opacity: appear, transform: `scale(${sc})`,
-              }}>
-                <div><span style={{ color: C_CTRL }}>if</span><span style={{ color: "#d4d4d4" }}> (score </span><span style={{ color: C_CMP }}>{'>='}  </span><span style={{ color: C_NUM }}>60</span><span style={{ color: "#d4d4d4" }}>) {"{"}</span></div>
-                <div style={{ paddingLeft: 32 }}><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(</span><span style={{ color: C_STR }}>"합격"</span><span style={{ color: "#d4d4d4" }}>);</span></div>
-                <div><span style={{ color: "#d4d4d4" }}>{"}"} </span><span style={{ color: C_CTRL }}>else</span><span style={{ color: "#d4d4d4" }}> {"{"}</span></div>
-                <div style={{ paddingLeft: 32 }}><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(</span><span style={{ color: C_STR }}>"불합격"</span><span style={{ color: "#d4d4d4" }}>);</span></div>
-                <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
-              </div>
-            );
-          })()}
-        </div>
+                  fontSize: 26, lineHeight: 1.85,
+                  opacity: appear, transform: `scale(${sc})`,
+                }}>
+                  <div><span style={{ color: C_CTRL }}>if</span><span style={{ color: "#d4d4d4" }}> (score </span><span style={{ color: C_CMP }}>{'>='}  </span><span style={{ color: C_NUM }}>60</span><span style={{ color: "#d4d4d4" }}>) {"{"}</span></div>
+                  <div style={{ paddingLeft: 32 }}><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(</span><span style={{ color: C_STR }}>"합격"</span><span style={{ color: "#d4d4d4" }}>);</span></div>
+                  <div><span style={{ color: "#d4d4d4" }}>{"}"} </span><span style={{ color: C_CTRL }}>else</span><span style={{ color: "#d4d4d4" }}> {"{"}</span></div>
+                  <div style={{ paddingLeft: 32 }}><span style={{ color: "#dcdcaa" }}>println</span><span style={{ color: "#d4d4d4" }}>(</span><span style={{ color: C_STR }}>"불합격"</span><span style={{ color: "#d4d4d4" }}>);</span></div>
+                  <div><span style={{ color: "#d4d4d4" }}>{"}"}</span></div>
+                </div>
+              );
+            })()}
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={cfg.speechStartFrame} />
     </>

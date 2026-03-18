@@ -14,6 +14,7 @@ import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./004-audio";
 import {
   CROSS,
+  ContentArea,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -335,67 +336,69 @@ const IntroScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(intro.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "46%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
-            alignItems: "center",
-          }}
-        >
-          {[INTRO_OPS.slice(0, 3), INTRO_OPS.slice(3)].map((row, ri) => (
-            <div key={ri} style={{ display: "flex", gap: 20 }}>
-              {row.map((op, i) => {
-                const idx = ri * 3 + i;
-                const appear = spring({
-                  frame: frame - idx * 7,
-                  fps,
-                  config: { damping: 13, stiffness: 145 },
-                  durationInFrames: 30,
-                });
-                const sc = interpolate(appear, [0, 1], [0.3, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                });
-                return (
-                  <div
-                    key={op}
-                    style={{
-                      width: 160,
-                      height: 160,
-                      borderRadius: 24,
-                      border: `3px solid ${C_CMP}88`,
-                      background: `${C_CMP}18`,
-                      boxShadow: `0 0 30px ${C_CMP}22`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transform: `scale(${sc})`,
-                      opacity: appear,
-                    }}
-                  >
-                    <span
+        <ContentArea>
+          <Audio src={staticFile(intro.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "46%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              alignItems: "center",
+            }}
+          >
+            {[INTRO_OPS.slice(0, 3), INTRO_OPS.slice(3)].map((row, ri) => (
+              <div key={ri} style={{ display: "flex", gap: 20 }}>
+                {row.map((op, i) => {
+                  const idx = ri * 3 + i;
+                  const appear = spring({
+                    frame: frame - idx * 7,
+                    fps,
+                    config: { damping: 13, stiffness: 145 },
+                    durationInFrames: 30,
+                  });
+                  const sc = interpolate(appear, [0, 1], [0.3, 1], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  });
+                  return (
+                    <div
+                      key={op}
                       style={{
-                        fontFamily: monoFont,
-                        fontFeatureSettings: MONO_NO_LIGA,
-                        fontSize: 52,
-                        fontWeight: 700,
-                        color: C_CMP,
+                        width: 160,
+                        height: 160,
+                        borderRadius: 24,
+                        border: `3px solid ${C_CMP}88`,
+                        background: `${C_CMP}18`,
+                        boxShadow: `0 0 30px ${C_CMP}22`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transform: `scale(${sc})`,
+                        opacity: appear,
                       }}
                     >
-                      {op}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+                      <span
+                        style={{
+                          fontFamily: monoFont,
+                          fontFeatureSettings: MONO_NO_LIGA,
+                          fontSize: 52,
+                          fontWeight: 700,
+                          color: C_CMP,
+                        }}
+                      >
+                        {op}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
@@ -427,44 +430,46 @@ const CompareScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {/* 상단 고정 헤더 */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "26%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 28,
-              opacity: headerOpacity * 0.55,
-              color: "#d4d4d4",
-            }}
-          >
-            <ColorizedCode text="int a = 10, b = 3;" />
-          </div>
-        )}
+          {/* 상단 고정 헤더 */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "26%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 28,
+                opacity: headerOpacity * 0.55,
+                color: "#d4d4d4",
+              }}
+            >
+              <ColorizedCode text="int a = 10, b = 3;" />
+            </div>
+          )}
 
-        {/* 비트별 BeatCard */}
-        {BEATS.map((beat, i) => {
-          const from = beatStarts[i];
-          const isLast = i === BEATS.length - 1;
-          const nextFrom = isLast ? d : beatStarts[i + 1];
-          const dur = nextFrom - from + (isLast ? 0 : BEAT_CROSS);
-          return (
-            <Sequence key={i} from={from} durationInFrames={dur}>
-              <BeatCard
-                op={beat.op}
-                result={beat.result}
-                totalDur={dur}
-                isLast={isLast}
-              />
-            </Sequence>
-          );
-        })}
+          {/* 비트별 BeatCard */}
+          {BEATS.map((beat, i) => {
+            const from = beatStarts[i];
+            const isLast = i === BEATS.length - 1;
+            const nextFrom = isLast ? d : beatStarts[i + 1];
+            const dur = nextFrom - from + (isLast ? 0 : BEAT_CROSS);
+            return (
+              <Sequence key={i} from={from} durationInFrames={dur}>
+                <BeatCard
+                  op={beat.op}
+                  result={beat.result}
+                  totalDur={dur}
+                  isLast={isLast}
+                />
+              </Sequence>
+            );
+          })}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
@@ -486,94 +491,96 @@ const SummaryScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {/* 헤더 */}
-        <div
-          style={{
-            position: "absolute",
-            top: "24%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 28,
-            color: "#d4d4d4",
-            opacity: 0.5,
-          }}
-        >
-          <ColorizedCode text="int a = 10, b = 3;" />
-        </div>
+          {/* 헤더 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "24%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily: monoFont,
+              fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 28,
+              color: "#d4d4d4",
+              opacity: 0.5,
+            }}
+          >
+            <ColorizedCode text="int a = 10, b = 3;" />
+          </div>
 
-        {/* 2×3 그리드 */}
-        <div
-          style={{
-            position: "absolute",
-            top: "55%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 18,
-            width: 920,
-          }}
-        >
-          {BEATS.map((beat, i) => {
-            const appear = spring({
-              frame: frame - i * 9,
-              fps,
-              config: { damping: 13, stiffness: 140 },
-              durationInFrames: 26,
-            });
-            const sc = interpolate(appear, [0, 1], [0.82, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            const resColor = beat.result ? C_TRUE : C_FALSE;
-            return (
-              <div
-                key={i}
-                style={{
-                  background: "#2a2a2a",
-                  border: `2px solid ${resColor}44`,
-                  borderRadius: 18,
-                  padding: "20px 28px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 18,
-                  opacity: appear,
-                  transform: `scale(${sc})`,
-                }}
-              >
-                <span
+          {/* 2×3 그리드 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "55%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 18,
+              width: 920,
+            }}
+          >
+            {BEATS.map((beat, i) => {
+              const appear = spring({
+                frame: frame - i * 9,
+                fps,
+                config: { damping: 13, stiffness: 140 },
+                durationInFrames: 26,
+              });
+              const sc = interpolate(appear, [0, 1], [0.82, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              const resColor = beat.result ? C_TRUE : C_FALSE;
+              return (
+                <div
+                  key={i}
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
-                    color: C_CMP,
-                    fontSize: 40,
-                    fontWeight: 700,
-                    minWidth: 76,
-                    textAlign: "center",
+                    background: "#2a2a2a",
+                    border: `2px solid ${resColor}44`,
+                    borderRadius: 18,
+                    padding: "20px 28px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 18,
+                    opacity: appear,
+                    transform: `scale(${sc})`,
                   }}
                 >
-                  {beat.op}
-                </span>
-                <span style={{ color: "#3a3a3a", fontSize: 28 }}>→</span>
-                <span
-                  style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
-                    color: resColor,
-                    fontSize: 34,
-                    fontWeight: 700,
-                  }}
-                >
-                  {beat.result ? "true" : "false"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+                  <span
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      color: C_CMP,
+                      fontSize: 40,
+                      fontWeight: 700,
+                      minWidth: 76,
+                      textAlign: "center",
+                    }}
+                  >
+                    {beat.op}
+                  </span>
+                  <span style={{ color: "#3a3a3a", fontSize: 28 }}>→</span>
+                  <span
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      color: resColor,
+                      fontSize: 34,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {beat.result ? "true" : "false"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}

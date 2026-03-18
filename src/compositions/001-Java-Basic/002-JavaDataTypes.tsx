@@ -15,6 +15,7 @@ import { RATE, VOICE } from "../../global.config";
 import {
   CHARS_PER_SEC,
   CROSS,
+  ContentArea,
   Subtitle,
   monoFont,
   uiFont,
@@ -505,61 +506,63 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(intro.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 28,
-          }}
-        >
-          {boxes.map(({ label, color }, i) => {
-            const delay = i * 5;
-            const appear = spring({
-              frame: frame - delay,
-              fps,
-              config: { damping: 14, stiffness: 140 },
-              durationInFrames: 35,
-            });
-            const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            return (
-              <div
-                key={label}
-                style={{
-                  transform: `scale(${boxScale})`,
-                  opacity: appear,
-                  border: `4px solid ${color}`,
-                  borderRadius: 20,
-                  width: 220,
-                  height: 150,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: `${color}1a`,
-                }}
-              >
-                <span
+        <ContentArea>
+          <Audio src={staticFile(intro.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 28,
+            }}
+          >
+            {boxes.map(({ label, color }, i) => {
+              const delay = i * 5;
+              const appear = spring({
+                frame: frame - delay,
+                fps,
+                config: { damping: 14, stiffness: 140 },
+                durationInFrames: 35,
+              });
+              const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              return (
+                <div
+                  key={label}
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: '"calt" 0, "liga" 0',
-                    fontSize: 38,
-                    fontWeight: 700,
-                    color,
+                    transform: `scale(${boxScale})`,
+                    opacity: appear,
+                    border: `4px solid ${color}`,
+                    borderRadius: 20,
+                    width: 220,
+                    height: 150,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: `${color}1a`,
                   }}
                 >
-                  {label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+                  <span
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: '"calt" 0, "liga" 0',
+                      fontSize: 38,
+                      fontWeight: 700,
+                      color,
+                    }}
+                  >
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
@@ -613,176 +616,178 @@ const ValueVsVarScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(valueVsVar.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(valueVsVar.audio)} />
 
-        {/* 제목 */}
-        <div
-          style={{
-            position: "absolute",
-            top: 160,
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontFamily: uiFont,
-            fontSize: 34,
-            color: "#666",
-            letterSpacing: 4,
-            whiteSpace: "nowrap",
-          }}
-        >
-          값 (Value) vs 변수 (Variable)
-        </div>
-
-        {/* 두 패널 */}
-        <div
-          style={{
-            position: "absolute",
-            top: "46%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            gap: 60,
-            alignItems: "center",
-          }}
-        >
-          {/* 왼쪽: int형 값 */}
+          {/* 제목 */}
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 20,
-              opacity: valueAppear,
-              transform: `scale(${valueScale})`,
+              position: "absolute",
+              top: 160,
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily: uiFont,
+              fontSize: 34,
+              color: "#666",
+              letterSpacing: 4,
+              whiteSpace: "nowrap",
             }}
           >
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 30,
-                fontWeight: 700,
-                color: "#aaa",
-                letterSpacing: 2,
-              }}
-            >
-              int형 값
-            </div>
-            <div
-              style={{
-                width: 200,
-                height: 200,
-                borderRadius: "50%",
-                border: `3px dashed ${COLOR}88`,
-                background: `${COLOR}0d`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: '"calt" 0, "liga" 0',
-                  fontSize: 80,
-                  fontWeight: 700,
-                  color: COLOR,
-                }}
-              >
-                25
-              </span>
-            </div>
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 24,
-                color: "#666",
-                fontStyle: "italic",
-              }}
-            >
-              데이터 자체
-            </div>
+            값 (Value) vs 변수 (Variable)
           </div>
 
-          {/* 화살표 */}
-          <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>→</div>
-
-          {/* 오른쪽: int형 변수 */}
+          {/* 두 패널 */}
           <div
             style={{
+              position: "absolute",
+              top: "46%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
               display: "flex",
-              flexDirection: "column",
+              gap: 60,
               alignItems: "center",
-              gap: 20,
-              opacity: varAppear,
-              transform: `scale(${varScale})`,
             }}
           >
+            {/* 왼쪽: int형 값 */}
             <div
               style={{
-                fontFamily: uiFont,
-                fontSize: 30,
-                fontWeight: 700,
-                color: "#aaa",
-                letterSpacing: 2,
-              }}
-            >
-              int형 변수
-            </div>
-            <div
-              style={{
-                width: 240,
-                height: 200,
-                borderRadius: 20,
-                border: `4px solid ${COLOR}`,
-                background: `${COLOR}1a`,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: 4,
-                position: "relative",
+                gap: 20,
+                opacity: valueAppear,
+                transform: `scale(${valueScale})`,
               }}
             >
-              {/* 타입 태그 */}
               <div
                 style={{
-                  position: "absolute",
-                  top: -20,
-                  background: COLOR,
-                  borderRadius: 6,
-                  padding: "4px 16px",
-                  fontFamily: monoFont,
-                  fontFeatureSettings: '"calt" 0, "liga" 0',
-                  fontSize: 22,
+                  fontFamily: uiFont,
+                  fontSize: 30,
                   fontWeight: 700,
-                  color: "#1e1e1e",
+                  color: "#aaa",
+                  letterSpacing: 2,
                 }}
               >
-                int
+                int형 값
               </div>
-              {/* 변수명 */}
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: '"calt" 0, "liga" 0',
-                  fontSize: 28,
-                  color: "#888",
+                  width: 200,
+                  height: 200,
+                  borderRadius: "50%",
+                  border: `3px dashed ${COLOR}88`,
+                  background: `${COLOR}0d`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                age
+                <span
+                  style={{
+                    fontFamily: monoFont,
+                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontSize: 80,
+                    fontWeight: 700,
+                    color: COLOR,
+                  }}
+                >
+                  25
+                </span>
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 24,
+                  color: "#666",
+                  fontStyle: "italic",
+                }}
+              >
+                데이터 자체
               </div>
             </div>
+
+            {/* 화살표 */}
+            <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>→</div>
+
+            {/* 오른쪽: int형 변수 */}
             <div
               style={{
-                fontFamily: uiFont,
-                fontSize: 24,
-                color: "#666",
-                fontStyle: "italic",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 20,
+                opacity: varAppear,
+                transform: `scale(${varScale})`,
               }}
             >
-              값을 담는 공간
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: "#aaa",
+                  letterSpacing: 2,
+                }}
+              >
+                int형 변수
+              </div>
+              <div
+                style={{
+                  width: 240,
+                  height: 200,
+                  borderRadius: 20,
+                  border: `4px solid ${COLOR}`,
+                  background: `${COLOR}1a`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 4,
+                  position: "relative",
+                }}
+              >
+                {/* 타입 태그 */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -20,
+                    background: COLOR,
+                    borderRadius: 6,
+                    padding: "4px 16px",
+                    fontFamily: monoFont,
+                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "#1e1e1e",
+                  }}
+                >
+                  int
+                </div>
+                {/* 변수명 */}
+                <div
+                  style={{
+                    fontFamily: monoFont,
+                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontSize: 28,
+                    color: "#888",
+                  }}
+                >
+                  age
+                </div>
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 24,
+                  color: "#666",
+                  fontStyle: "italic",
+                }}
+              >
+                값을 담는 공간
+              </div>
             </div>
           </div>
-        </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={valueVsVar.narration}
@@ -838,24 +843,26 @@ const TypeScene: React.FC<{
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(config.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <TypeBox
-            color={color}
-            value={value}
-            label={label}
-            startFrame={s}
-            dropStartFrame={dropStart}
-          />
-        </div>
-        <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
+        <ContentArea>
+          <Audio src={staticFile(config.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <TypeBox
+              color={color}
+              value={value}
+              label={label}
+              startFrame={s}
+              dropStartFrame={dropStart}
+            />
+          </div>
+          <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={config.narration}
@@ -881,18 +888,20 @@ const BooleanScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(booleanScene.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
-        </div>
-        <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
+        <ContentArea>
+          <Audio src={staticFile(booleanScene.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <BooleanToggleAnim startFrame={s} dropStartFrame={dropStart} />
+          </div>
+          <CodeBox lines={[{ text: code, isNew: true }]} startFrame={s} />
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={booleanScene.narration}
@@ -929,19 +938,21 @@ const SummaryScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(summaryScene.audio)} />
-        {starts.map((startFrom, i) => (
-          <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
-            <CodeBox
-              lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
-                text,
-                isNew: j === i,
-              }))}
-              startFrame={0}
-              charsPerSecond={SUMMARY_CPS}
-            />
-          </Sequence>
-        ))}
+        <ContentArea>
+          <Audio src={staticFile(summaryScene.audio)} />
+          {starts.map((startFrom, i) => (
+            <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
+              <CodeBox
+                lines={SUMMARY_LINES.slice(0, i + 1).map((text, j) => ({
+                  text,
+                  isNew: j === i,
+                }))}
+                startFrame={0}
+                charsPerSecond={SUMMARY_CPS}
+              />
+            </Sequence>
+          ))}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={summaryScene.narration}

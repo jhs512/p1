@@ -14,6 +14,7 @@ import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./005-audio";
 import {
   CROSS,
+  ContentArea,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -319,73 +320,75 @@ const IntroScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(intro.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "46%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            gap: 24,
-            alignItems: "center",
-          }}
-        >
-          {INTRO_OPS.map((op, i) => {
-            const appear = spring({
-              frame: frame - i * 8,
-              fps,
-              config: { damping: 13, stiffness: 140 },
-              durationInFrames: 30,
-            });
-            const sc = interpolate(appear, [0, 1], [0.3, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            return (
-              <div
-                key={op}
-                style={{
-                  width: i === 2 ? 140 : 200,
-                  height: 200,
-                  borderRadius: 28,
-                  border: `3px solid ${C_LOG}88`,
-                  background: `${C_LOG}18`,
-                  boxShadow: `0 0 36px ${C_LOG}22`,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  transform: `scale(${sc})`,
-                  opacity: appear,
-                }}
-              >
-                <span
+        <ContentArea>
+          <Audio src={staticFile(intro.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "46%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              gap: 24,
+              alignItems: "center",
+            }}
+          >
+            {INTRO_OPS.map((op, i) => {
+              const appear = spring({
+                frame: frame - i * 8,
+                fps,
+                config: { damping: 13, stiffness: 140 },
+                durationInFrames: 30,
+              });
+              const sc = interpolate(appear, [0, 1], [0.3, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              return (
+                <div
+                  key={op}
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
-                    fontSize: 64,
-                    fontWeight: 700,
-                    color: C_LOG,
+                    width: i === 2 ? 140 : 200,
+                    height: 200,
+                    borderRadius: 28,
+                    border: `3px solid ${C_LOG}88`,
+                    background: `${C_LOG}18`,
+                    boxShadow: `0 0 36px ${C_LOG}22`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    transform: `scale(${sc})`,
+                    opacity: appear,
                   }}
                 >
-                  {op}
-                </span>
-                <span
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 22,
-                    color: C_LOG,
-                    opacity: 0.7,
-                  }}
-                >
-                  {op === "&&" ? "AND" : op === "||" ? "OR" : "NOT"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+                  <span
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 64,
+                      fontWeight: 700,
+                      color: C_LOG,
+                    }}
+                  >
+                    {op}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 22,
+                      color: C_LOG,
+                      opacity: 0.7,
+                    }}
+                  >
+                    {op === "&&" ? "AND" : op === "||" ? "OR" : "NOT"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
@@ -408,80 +411,82 @@ const AndScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {/* 헤더 */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "18%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 36,
-              opacity: 0.5,
-              color: "#d4d4d4",
-              lineHeight: 1.7,
-              textAlign: "center",
-            }}
-          >
-            <div>
-              <span style={{ color: C_BOOL }}>boolean</span>
-              <span style={{ color: "#d4d4d4" }}> x = </span>
-              <span style={{ color: C_TRUE }}>true</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
+          {/* 헤더 */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "18%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 36,
+                opacity: 0.5,
+                color: "#d4d4d4",
+                lineHeight: 1.7,
+                textAlign: "center",
+              }}
+            >
+              <div>
+                <span style={{ color: C_BOOL }}>boolean</span>
+                <span style={{ color: "#d4d4d4" }}> x = </span>
+                <span style={{ color: C_TRUE }}>true</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div>
+                <span style={{ color: C_BOOL }}>boolean</span>
+                <span style={{ color: "#d4d4d4" }}> y = </span>
+                <span style={{ color: C_FALSE }}>false</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
             </div>
-            <div>
-              <span style={{ color: C_BOOL }}>boolean</span>
-              <span style={{ color: "#d4d4d4" }}> y = </span>
-              <span style={{ color: C_FALSE }}>false</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
+          )}
+
+          {/* 케이스 1: true && false → false */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "44%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={true}
+                op="&&"
+                right={false}
+                result={false}
+                startFrame={s}
+                dim={frame >= split0}
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* 케이스 1: true && false → false */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "44%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={true}
-              op="&&"
-              right={false}
-              result={false}
-              startFrame={s}
-              dim={frame >= split0}
-            />
-          </div>
-        )}
-
-        {/* 케이스 2: true && true → true */}
-        {frame >= split0 && (
-          <div
-            style={{
-              position: "absolute",
-              top: "64%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={true}
-              op="&&"
-              right={true}
-              result={true}
-              startFrame={split0}
-            />
-          </div>
-        )}
+          {/* 케이스 2: true && true → true */}
+          {frame >= split0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "64%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={true}
+                op="&&"
+                right={true}
+                result={true}
+                startFrame={split0}
+              />
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
@@ -504,102 +509,104 @@ const OrScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {/* 헤더: 변수 선언 (두 줄) */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "18%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 36,
-              opacity: 0.5,
-              color: "#d4d4d4",
-              lineHeight: 1.7,
-              textAlign: "center",
-            }}
-          >
-            <div>
-              <span style={{ color: C_BOOL }}>boolean</span>
-              <span style={{ color: "#d4d4d4" }}> x = </span>
+          {/* 헤더: 변수 선언 (두 줄) */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "18%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 36,
+                opacity: 0.5,
+                color: "#d4d4d4",
+                lineHeight: 1.7,
+                textAlign: "center",
+              }}
+            >
+              <div>
+                <span style={{ color: C_BOOL }}>boolean</span>
+                <span style={{ color: "#d4d4d4" }}> x = </span>
+                <span style={{ color: C_TRUE }}>true</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div>
+                <span style={{ color: C_BOOL }}>boolean</span>
+                <span style={{ color: "#d4d4d4" }}> y = </span>
+                <span style={{ color: C_FALSE }}>false</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+            </div>
+          )}
+
+          {/* 식 레이블: x || y → true */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "40%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 34,
+                color: "#aaaaaa",
+              }}
+            >
+              <span style={{ color: "#d4d4d4" }}>x </span>
+              <span style={{ color: C_LOG }}>||</span>
+              <span style={{ color: "#d4d4d4" }}> y</span>
+              <span style={{ color: "#555" }}> → </span>
               <span style={{ color: C_TRUE }}>true</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
             </div>
-            <div>
-              <span style={{ color: C_BOOL }}>boolean</span>
-              <span style={{ color: "#d4d4d4" }}> y = </span>
-              <span style={{ color: C_FALSE }}>false</span>
-              <span style={{ color: "#d4d4d4" }}>;</span>
+          )}
+
+          {/* 케이스 1: true || false → true */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "54%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={true}
+                op="||"
+                right={false}
+                result={true}
+                startFrame={s}
+                dim={frame >= split0}
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* 식 레이블: x || y → true */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "40%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 34,
-              color: "#aaaaaa",
-            }}
-          >
-            <span style={{ color: "#d4d4d4" }}>x </span>
-            <span style={{ color: C_LOG }}>||</span>
-            <span style={{ color: "#d4d4d4" }}> y</span>
-            <span style={{ color: "#555" }}> → </span>
-            <span style={{ color: C_TRUE }}>true</span>
-          </div>
-        )}
-
-        {/* 케이스 1: true || false → true */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "54%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={true}
-              op="||"
-              right={false}
-              result={true}
-              startFrame={s}
-              dim={frame >= split0}
-            />
-          </div>
-        )}
-
-        {/* 케이스 2: false || false → false */}
-        {frame >= split0 && (
-          <div
-            style={{
-              position: "absolute",
-              top: "72%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={false}
-              op="||"
-              right={false}
-              result={false}
-              startFrame={split0}
-            />
-          </div>
-        )}
+          {/* 케이스 2: false || false → false */}
+          {frame >= split0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "72%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={false}
+                op="||"
+                right={false}
+                result={false}
+                startFrame={split0}
+              />
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
@@ -622,48 +629,50 @@ const NotScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {/* !true → false */}
-        {frame >= s && (
-          <div
-            style={{
-              position: "absolute",
-              top: "42%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={true}
-              op="!"
-              result={false}
-              startFrame={s}
-              dim={frame >= split0}
-              prefixOp="!"
-            />
-          </div>
-        )}
+          {/* !true → false */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "42%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={true}
+                op="!"
+                result={false}
+                startFrame={s}
+                dim={frame >= split0}
+                prefixOp="!"
+              />
+            </div>
+          )}
 
-        {/* !false → true */}
-        {frame >= split0 && (
-          <div
-            style={{
-              position: "absolute",
-              top: "62%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <EvalRow
-              left={false}
-              op="!"
-              result={true}
-              startFrame={split0}
-              prefixOp="!"
-            />
-          </div>
-        )}
+          {/* !false → true */}
+          {frame >= split0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "62%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <EvalRow
+                left={false}
+                op="!"
+                result={true}
+                startFrame={split0}
+                prefixOp="!"
+              />
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
@@ -691,20 +700,21 @@ const SummaryScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 22,
-            width: 900,
-          }}
-        >
-          {SUMMARY_ROWS.map((row, i) => {
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 22,
+              width: 900,
+            }}
+          >
+            {SUMMARY_ROWS.map((row, i) => {
             const appear = spring({
               frame: frame - i * 10,
               fps,
@@ -767,7 +777,8 @@ const SummaryScene: React.FC = () => {
               </div>
             );
           })}
-        </div>
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}

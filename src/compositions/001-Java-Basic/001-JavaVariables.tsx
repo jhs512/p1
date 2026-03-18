@@ -22,6 +22,7 @@ import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
 import {
   CHARS_PER_SEC,
   CROSS,
+  ContentArea,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -499,8 +500,10 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(intro.audio)} />
-        <BoxMetaphorAnim />
+        <ContentArea>
+          <Audio src={staticFile(intro.audio)} />
+          <BoxMetaphorAnim />
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
@@ -734,41 +737,43 @@ const CombinedDeclarationInitScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
-        <Sequence durationInFrames={SPLIT}>
-          <Audio src={staticFile(declaration.audio)} />
-        </Sequence>
-        <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
-          <Audio src={staticFile(initialization.audio)} />
-        </Sequence>
+        <ContentArea>
+          {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
+          <Sequence durationInFrames={SPLIT}>
+            <Audio src={staticFile(declaration.audio)} />
+          </Sequence>
+          <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
+            <Audio src={staticFile(initialization.audio)} />
+          </Sequence>
 
-        {/* 제목: 씬 전환 시 교체 */}
-        <Sequence durationInFrames={SPLIT}>
-          <SceneTitle title={declaration.title} />
-        </Sequence>
-        <Sequence from={SPLIT}>
-          <SceneTitle title={initialization.title} />
-        </Sequence>
+          {/* 제목: 씬 전환 시 교체 */}
+          <Sequence durationInFrames={SPLIT}>
+            <SceneTitle title={declaration.title} />
+          </Sequence>
+          <Sequence from={SPLIT}>
+            <SceneTitle title={initialization.title} />
+          </Sequence>
 
-        {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
-        <Sequence durationInFrames={SPLIT}>
-          <CodeBox
-            lines={declaration.code}
-            startFrame={AUDIO_CONFIG.declaration.speechStartFrame}
+          {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
+          <Sequence durationInFrames={SPLIT}>
+            <CodeBox
+              lines={declaration.code}
+              startFrame={AUDIO_CONFIG.declaration.speechStartFrame}
+            />
+          </Sequence>
+          <Sequence from={SPLIT}>
+            <CodeBox
+              lines={initialization.code}
+              startFrame={AUDIO_CONFIG.initialization.speechStartFrame}
+            />
+          </Sequence>
+
+          {/* 박스: 전 구간에 걸쳐 살아있는 단일 박스 */}
+          <CombinedVariableBox
+            emptyStart={emptyBoxStart}
+            fillStart={fillBoxStart}
           />
-        </Sequence>
-        <Sequence from={SPLIT}>
-          <CodeBox
-            lines={initialization.code}
-            startFrame={AUDIO_CONFIG.initialization.speechStartFrame}
-          />
-        </Sequence>
-
-        {/* 박스: 전 구간에 걸쳐 살아있는 단일 박스 */}
-        <CombinedVariableBox
-          emptyStart={emptyBoxStart}
-          fillStart={fillBoxStart}
-        />
+        </ContentArea>
       </AbsoluteFill>
 
       {/* 자막: opacity 영향 없이 항상 선명하게
@@ -834,65 +839,67 @@ const InterpretScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
 
-        {frame >= s && (
-          <div style={{
-            position: "absolute", top: "46%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 34, lineHeight: 2.1,
-            background: "#252525", borderRadius: 20,
-            padding: "36px 48px",
-            width: 900, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
-          }}>
+          {frame >= s && (
+            <div style={{
+              position: "absolute", top: "46%", left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 34, lineHeight: 2.1,
+              background: "#252525", borderRadius: 20,
+              padding: "36px 48px",
+              width: 900, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+            }}>
 
-            {/* Line 1: int age; */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
-              <div>
-                <span style={{ color: "#4ec9b0" }}>int</span>
-                {" "}{ageSpan(phase === 1, C_SPACE)}
-                <span style={{ color: "#d4d4d4" }}>;</span>
-              </div>
-              {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
-            </div>
-
-            {/* Line 2: age = 25; */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
-              <div>
-                {ageSpan(phase === 1, C_SPACE)}
-                <span style={{ color: "#d4d4d4" }}> = </span>
-                <span style={{ color: "#b5cea8" }}>25</span>
-                <span style={{ color: "#d4d4d4" }}>;</span>
-              </div>
-              {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
-            </div>
-
-            {/* Line 3: System.out.println(age); */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase < 2 ? 0.28 : 1 }}>
-              <div>
-                <span style={{ color: "#569cd6" }}>System</span>
-                <span style={{ color: "#d4d4d4" }}>.out.</span>
-                <span style={{ color: "#dcdcaa" }}>println</span>
-                <span style={{ color: "#d4d4d4" }}>(</span>
-                {ageSpan(phase === 2, C_VAL)}
-                <span style={{ color: "#d4d4d4" }}>);</span>
-              </div>
-              {phase >= 2 && (
-                <div style={{ opacity: ann2, display: "flex", alignItems: "center", gap: 8 }}>
-                  {badge("← 값", C_VAL, ann2)}
-                  <span style={{
-                    fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                    fontSize: 26, color: "#b5cea8",
-                    background: "#2d2d2d", borderRadius: 8,
-                    padding: "4px 14px", border: "1px solid #444",
-                  }}>= 25</span>
+              {/* Line 1: int age; */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+                <div>
+                  <span style={{ color: "#4ec9b0" }}>int</span>
+                  {" "}{ageSpan(phase === 1, C_SPACE)}
+                  <span style={{ color: "#d4d4d4" }}>;</span>
                 </div>
-              )}
-            </div>
+                {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+              </div>
 
-          </div>
-        )}
+              {/* Line 2: age = 25; */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+                <div>
+                  {ageSpan(phase === 1, C_SPACE)}
+                  <span style={{ color: "#d4d4d4" }}> = </span>
+                  <span style={{ color: "#b5cea8" }}>25</span>
+                  <span style={{ color: "#d4d4d4" }}>;</span>
+                </div>
+                {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+              </div>
+
+              {/* Line 3: System.out.println(age); */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase < 2 ? 0.28 : 1 }}>
+                <div>
+                  <span style={{ color: "#569cd6" }}>System</span>
+                  <span style={{ color: "#d4d4d4" }}>.out.</span>
+                  <span style={{ color: "#dcdcaa" }}>println</span>
+                  <span style={{ color: "#d4d4d4" }}>(</span>
+                  {ageSpan(phase === 2, C_VAL)}
+                  <span style={{ color: "#d4d4d4" }}>);</span>
+                </div>
+                {phase >= 2 && (
+                  <div style={{ opacity: ann2, display: "flex", alignItems: "center", gap: 8 }}>
+                    {badge("← 값", C_VAL, ann2)}
+                    <span style={{
+                      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 26, color: "#b5cea8",
+                      background: "#2d2d2d", borderRadius: 8,
+                      padding: "4px 14px", border: "1px solid #444",
+                    }}>= 25</span>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          )}
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
     </>
@@ -973,106 +980,108 @@ const QuizScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
 
-        {/* 오디오: 문제 */}
-        <Sequence durationInFrames={qDur}>
-          <Audio src={staticFile(qCfg.audio)} />
-        </Sequence>
-        {/* 오디오: 정답 */}
-        <Sequence from={REVEAL_START}>
-          <Audio src={staticFile(rCfg.audio)} />
-        </Sequence>
+          {/* 오디오: 문제 */}
+          <Sequence durationInFrames={qDur}>
+            <Audio src={staticFile(qCfg.audio)} />
+          </Sequence>
+          {/* 오디오: 정답 */}
+          <Sequence from={REVEAL_START}>
+            <Audio src={staticFile(rCfg.audio)} />
+          </Sequence>
 
-        {/* Quiz 라벨 */}
-        {frame >= qCfg.speechStartFrame && !isReveal && (
-          <div style={{
-            position: "absolute", top: 180, left: 0, right: 0,
-            textAlign: "center", fontFamily: uiFont,
-            fontSize: 48, fontWeight: 900, color: "#f5c842",
-            letterSpacing: 6,
-          }}>
-            QUIZ
-          </div>
-        )}
-
-        {/* 정답 라벨 */}
-        {isReveal && (
-          <div style={{
-            position: "absolute", top: 180, left: 0, right: 0,
-            textAlign: "center", fontFamily: uiFont,
-            fontSize: 48, fontWeight: 900, color: "#4ec9b0",
-            letterSpacing: 6, opacity: revealAnim,
-          }}>
-            정답
-          </div>
-        )}
-
-        {/* 코드 블록: age = age + 2; */}
-        <div style={{
-          position: "absolute", top: "42%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          background: "#252525", borderRadius: 20,
-          padding: "36px 56px",
-          boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
-        }}>
-          {/* 코드 + 어노테이션: 각 age를 column으로 묶어 중심 자동 정렬 */}
-          <div style={{
-            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 38, color: "#d4d4d4",
-            display: "flex", alignItems: "flex-start",
-          }}>
-            {/* 왼쪽 age + ↑공간 */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              {ageSpan("space")}
-              <div style={{
-                fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3,
-                textAlign: "center", marginTop: 6,
-                opacity: isReveal ? revealAnim : 0,
-              }}>↑<br/>공간</div>
+          {/* Quiz 라벨 */}
+          {frame >= qCfg.speechStartFrame && !isReveal && (
+            <div style={{
+              position: "absolute", top: 180, left: 0, right: 0,
+              textAlign: "center", fontFamily: uiFont,
+              fontSize: 48, fontWeight: 900, color: "#f5c842",
+              letterSpacing: 6,
+            }}>
+              QUIZ
             </div>
+          )}
 
-            {/* = */}
-            <span style={{ alignSelf: "flex-start" }}> = </span>
-
-            {/* 오른쪽 age + ↑값 */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              {ageSpan("value")}
-              <div style={{
-                fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3,
-                textAlign: "center", marginTop: 6,
-                opacity: isReveal ? revealAnim : 0,
-              }}>↑<br/>값</div>
+          {/* 정답 라벨 */}
+          {isReveal && (
+            <div style={{
+              position: "absolute", top: 180, left: 0, right: 0,
+              textAlign: "center", fontFamily: uiFont,
+              fontSize: 48, fontWeight: 900, color: "#4ec9b0",
+              letterSpacing: 6, opacity: revealAnim,
+            }}>
+              정답
             </div>
+          )}
 
-            {/* + 2; */}
-            <span style={{ alignSelf: "flex-start", color: "#d4d4d4" }}> + </span>
-            <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>2</span>
-            <span style={{ alignSelf: "flex-start" }}>;</span>
-          </div>
-        </div>
-
-        {/* 카운트다운 */}
-        {isCountdown && (
+          {/* 코드 블록: age = age + 2; */}
           <div style={{
-            position: "absolute", top: "60%", left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
+            position: "absolute", top: "42%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "#252525", borderRadius: 20,
+            padding: "36px 56px",
+            boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
           }}>
+            {/* 코드 + 어노테이션: 각 age를 column으로 묶어 중심 자동 정렬 */}
             <div style={{
               fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 120, fontWeight: 700, color: "#f5c842", opacity: 0.9,
+              fontSize: 38, color: "#d4d4d4",
+              display: "flex", alignItems: "flex-start",
             }}>
-              {secondsLeft}
-            </div>
-            <div style={{ width: 500, height: 8, background: "#333", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{
-                width: `${cdProgress * 100}%`, height: "100%",
-                background: "#f5c842", borderRadius: 4,
-              }} />
+              {/* 왼쪽 age + ↑공간 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {ageSpan("space")}
+                <div style={{
+                  fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3,
+                  textAlign: "center", marginTop: 6,
+                  opacity: isReveal ? revealAnim : 0,
+                }}>↑<br/>공간</div>
+              </div>
+
+              {/* = */}
+              <span style={{ alignSelf: "flex-start" }}> = </span>
+
+              {/* 오른쪽 age + ↑값 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {ageSpan("value")}
+                <div style={{
+                  fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3,
+                  textAlign: "center", marginTop: 6,
+                  opacity: isReveal ? revealAnim : 0,
+                }}>↑<br/>값</div>
+              </div>
+
+              {/* + 2; */}
+              <span style={{ alignSelf: "flex-start", color: "#d4d4d4" }}> + </span>
+              <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>2</span>
+              <span style={{ alignSelf: "flex-start" }}>;</span>
             </div>
           </div>
-        )}
 
+          {/* 카운트다운 */}
+          {isCountdown && (
+            <div style={{
+              position: "absolute", top: "60%", left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
+            }}>
+              <div style={{
+                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 120, fontWeight: 700, color: "#f5c842", opacity: 0.9,
+              }}>
+                {secondsLeft}
+              </div>
+              <div style={{ width: 500, height: 8, background: "#333", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{
+                  width: `${cdProgress * 100}%`, height: "100%",
+                  background: "#f5c842", borderRadius: 4,
+                }} />
+              </div>
+            </div>
+          )}
+
+        </ContentArea>
       </AbsoluteFill>
 
       {/* 자막: 문제 */}
@@ -1105,10 +1114,12 @@ const PrintScene: React.FC = () => {
       <AbsoluteFill
         style={{ background: "#1e1e1e", opacity }}
       >
-        <Audio src={staticFile(print.audio)} />
-        <SceneTitle title={print.title} />
-        <CodeBox lines={print.code} startFrame={s} />
-        <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
+        <ContentArea>
+          <Audio src={staticFile(print.audio)} />
+          <SceneTitle title={print.title} />
+          <CodeBox lines={print.code} startFrame={s} />
+          <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={print.narration}

@@ -61,6 +61,34 @@ export function useFade(d: number, { out = true }: { out?: boolean } = {}) {
   return fadeIn * fadeOut;
 }
 
+// ── 상수: 자막 영역 ───────────────────────────────────────────
+/** 자막(bottom:220) + 자막 높이(~75px). ContentArea의 하단 여백으로 사용. */
+export const SUBTITLE_DEAD_ZONE = 295;
+
+// ── 컴포넌트: ContentArea ─────────────────────────────────────
+/**
+ * 자막 영역을 제외한 콘텐츠 전용 컨테이너.
+ * 이 안의 position:absolute 요소들은 자막 위 공간을 기준으로 배치된다.
+ * → 화면 수직 중앙이 자막 위 공간의 중앙과 일치하게 된다.
+ * Thumbnail/Overview 씬(flex centering 사용)에는 사용하지 않는다.
+ */
+export const ContentArea: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { height } = useVideoConfig();
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: height - SUBTITLE_DEAD_ZONE,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 // ── 컴포넌트: Subtitle ────────────────────────────────────────
 /**
  * 씬 하단 자막.
@@ -89,7 +117,7 @@ export const Subtitle: React.FC<{
         transform: "translateX(-50%)",
         textAlign: "center",
         fontFamily: uiFont,
-        fontSize: 32,
+        fontSize: 36,
         color: "#ffffff",
         background: "rgba(0,0,0,0.55)",
         borderRadius: 6,
