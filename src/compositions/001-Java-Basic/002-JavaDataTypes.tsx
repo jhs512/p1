@@ -47,7 +47,7 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: [
       "자료형이란 자료의 형태, 즉 데이터의 형태입니다.",
-      "자료형은 변수에 어떤 종류의 데이터를 넣을 수 있는지 결정합니다.",
+      "자료형은 변수에 어떤 종류의 데이터를\n넣을 수 있는지 결정합니다.",
       "[Java(발음:자바)]의 주요 자료형 4개를 알아보겠습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
@@ -57,9 +57,9 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.valueVsVar.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.valueVsVar.speechStartFrame,
     narration: [
-      "먼저 자료형 값과 자료형 변수의 차이를 살펴보겠습니다.",
+      "먼저 자료형 값과 자료형 변수의\n차이를 살펴보겠습니다.",
       "int형 값은 숫자 25처럼 데이터 자체입니다.",
-      "int형 변수는 그 값을 담는 이름 있는 공간입니다.",
+      "int형 변수는\n그 값을 담는 이름 있는 공간입니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.valueVsVar.narrationSplits,
   },
@@ -69,8 +69,8 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
     narration: [
       "int는 정수를 표현하는 자료형입니다.",
-      "int형 변수는 소수점 없는 정수만 담을 수 있습니다.",
-      "나이나 [개수(발음:개쑤)]처럼 소수점이 없는 숫자에 사용합니다.",
+      "int형 변수는 소수점 없는 정수만\n담을 수 있습니다.",
+      "나이나 [개수(발음:개쑤)]처럼\n소수점이 없는 숫자에 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
   },
@@ -103,7 +103,7 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
     narration: [
       "boolean은 참 또는 거짓을 표현하는 자료형입니다.",
-      "boolean형 변수는 true 또는 false 값만 가질 수 있습니다.",
+      "boolean형 변수는\ntrue 또는 false 값만 가질 수 있습니다.",
       "조건 검사 결과를 담을 때 사용합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,

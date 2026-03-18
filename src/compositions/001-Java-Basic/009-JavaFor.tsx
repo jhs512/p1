@@ -54,7 +54,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: [
-      "[for(발음:포)] 문은 초기식, 조건식, 증감식을 한 줄에 씁니다.",
+      "[for(발음:포)] 문은 초기식, 조건식, 증감식을\n한 줄에 씁니다.",
       "조건이 참인 동안 블록을 반복 실행합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
@@ -79,7 +79,7 @@ export const VIDEO_CONFIG = {
       "[i(발음:아이)]가 2일 때도 조건이 참입니다.",
       "[i(발음:아이)]가 3일 때도 조건이 참입니다.",
       "[i(발음:아이)]가 4일 때, 조건이 참인 마지막 실행입니다.",
-      "[i(발음:아이)]가 5가 되면 조건이 거짓이 되어 반복이 종료됩니다.",
+      "[i(발음:아이)]가 5가 되면 조건이 거짓이 되어\n반복이 종료됩니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.executionScene.narrationSplits,
   },
@@ -88,7 +88,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: [
-      "[for(발음:포)] 문은 초기식, 조건식, 증감식으로 반복을 제어합니다.",
+      "[for(발음:포)] 문은 초기식, 조건식, 증감식으로\n반복을 제어합니다.",
       "횟수가 정해진 반복에 적합합니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,

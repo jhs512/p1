@@ -6,7 +6,7 @@
 export const VOICE = "ko-KR-HyunsuMultilingualNeural";
 
 /** TTS 속도: +0% 기본, +20% 빠름, +40% 매우 빠름 */
-export const RATE = "+40%";
+export const RATE = "+30%";
 
 /**
  * 음성이 끝난 후 장면이 추가로 유지되는 프레임 수 (fps=30 기준)

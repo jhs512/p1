@@ -2,8 +2,8 @@
 
 export const AUDIO_CONFIG = {
   intro           : { durationInFrames: 243, narrationSplits: [118], sentenceEndFrames: [101], speechStartFrame: 5, speechEndFrame: 214, wordStartFrames: [[0,7,20,20,40,60],[73,118,118,140,163,176,176,181,191]] },
-  andScene        : { durationInFrames: 270, narrationSplits: [63], sentenceEndFrames: [42], speechStartFrame: 5, speechEndFrame: 239, wordStartFrames: [[0,8,56,56,67,80,96,100,100,106,122],[159,159,162,175,181,199,199,212,222]] },
-  orScene         : { durationInFrames: 270, narrationSplits: [147], sentenceEndFrames: [130], speechStartFrame: 5, speechEndFrame: 240, wordStartFrames: [[0,7,7,54,64,77,77,94,101,101],[111,147,157,157,167,186,186,191,196,212,212,224]] },
-  notScene        : { durationInFrames: 231, narrationSplits: [121], sentenceEndFrames: [103], speechStartFrame: 5, speechEndFrame: 201, wordStartFrames: [[0,5,5,19,32,32,45],[45,80,80,121,134,160,160,178]] },
-  summaryScene    : { durationInFrames: 228, narrationSplits: [78], sentenceEndFrames: [62], speechStartFrame: 5, speechEndFrame: 198, wordStartFrames: [[0,3,10,10,22],[38,78,90,90,98,121,132,143,143,163,171]] },
+  andScene        : { durationInFrames: 311, narrationSplits: [62], sentenceEndFrames: [42], speechStartFrame: 5, speechEndFrame: 280, wordStartFrames: [[0,9,55,67,67,82,99,103,111,139,139],[148,179,184,198,205,205,226,250,262]] },
+  orScene         : { durationInFrames: 282, narrationSplits: [154], sentenceEndFrames: [133], speechStartFrame: 5, speechEndFrame: 252, wordStartFrames: [[0,7,7,54,64,77,77,94,101,101],[112,147,159,159,170,194,194,199,205,223,223,235]] },
+  notScene        : { durationInFrames: 243, narrationSplits: [130], sentenceEndFrames: [113], speechStartFrame: 6, speechEndFrame: 212, wordStartFrames: [[0,6,6,22,37,37,51],[79,90,130,146,146,177,177,189]] },
+  summaryScene    : { durationInFrames: 300, narrationSplits: [78], sentenceEndFrames: [62], speechStartFrame: 5, speechEndFrame: 268, wordStartFrames: [[0,3,10,22,38],[38,78,91,100,118,131,154,164,176,176,189,206,230,239]] },
 } as const;

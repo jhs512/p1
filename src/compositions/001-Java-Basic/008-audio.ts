@@ -2,9 +2,9 @@
 
 export const AUDIO_CONFIG = {
   overview        : { durationInFrames: 178, narrationSplits: [81], sentenceEndFrames: [59], speechStartFrame: 5, speechEndFrame: 146, wordStartFrames: [[0,16,28,28],[40,70,82,82,98,118]] },
-  intro           : { durationInFrames: 228, narrationSplits: [121], sentenceEndFrames: [101], speechStartFrame: 9, speechEndFrame: 196, wordStartFrames: [[0,16,30,37,41,58,70,79,79],[112,127,140,143,152,173]] },
-  whileScene      : { durationInFrames: 270, narrationSplits: [123], sentenceEndFrames: [109], speechStartFrame: 6, speechEndFrame: 238, wordStartFrames: [[0,6,13,23,32,49,61,77,91],[123,140,156,170,191,212,221]] },
-  executionScene  : { durationInFrames: 654, narrationSplits: [127, 239, 334, 411, 520], sentenceEndFrames: [114, 222, 315, 393, 500], speechStartFrame: 4, speechEndFrame: 622, wordStartFrames: [[0,8,17,22,45,58,71,83,96],[127,145,155,160,179,194,203],[239,252,263,267,286,299],[334,344,355,359],[411,422,430,436,460,472,480],[520,531,540,545,565,577,582,598]] },
-  infiniteScene   : { durationInFrames: 199, narrationSplits: [86], sentenceEndFrames: [66], speechStartFrame: 5, speechEndFrame: 167, wordStartFrames: [[0,6,17,26,50],[80,91,104,118,128,145]] },
+  intro           : { durationInFrames: 247, narrationSplits: [141], sentenceEndFrames: [120], speechStartFrame: 6, speechEndFrame: 215, wordStartFrames: [[0,14,32,47,47,71,84,97,127],[146,159,159,163,172,193]] },
+  whileScene      : { durationInFrames: 299, narrationSplits: [142], sentenceEndFrames: [127], speechStartFrame: 5, speechEndFrame: 268, wordStartFrames: [[0,7,14,25,36,53,65,87,107],[142,160,176,190,214,239,251]] },
+  executionScene  : { durationInFrames: 720, narrationSplits: [163, 290, 381, 459, 574], sentenceEndFrames: [142, 270, 361, 439, 553], speechStartFrame: 5, speechEndFrame: 689, wordStartFrames: [[0,10,19,24,51,65,90,104,118],[149,168,180,185,204,218,240],[283,295,305,310,328,341],[375,387,397,402],[452,464,473,479,507,519,527],[566,580,590,595,614,626,631,661]] },
+  infiniteScene   : { durationInFrames: 216, narrationSplits: [86], sentenceEndFrames: [66], speechStartFrame: 5, speechEndFrame: 186, wordStartFrames: [[0,7,17,26,50],[80,92,107,124,135,161]] },
   summaryScene    : { durationInFrames: 176, narrationSplits: [94], sentenceEndFrames: [73], speechStartFrame: 7, speechEndFrame: 147, wordStartFrames: [[0,13,28,28,44,80],[100,100,114,119]] },
 } as const;

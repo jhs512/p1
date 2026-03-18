@@ -2,8 +2,8 @@
 
 export const AUDIO_CONFIG = {
   overview        : { durationInFrames: 164, narrationSplits: [81], sentenceEndFrames: [59], speechStartFrame: 5, speechEndFrame: 132, wordStartFrames: [[0,16,28,40],[40,70,86,101]] },
-  intro           : { durationInFrames: 229, narrationSplits: [119], sentenceEndFrames: [101], speechStartFrame: 5, speechEndFrame: 197, wordStartFrames: [[0,11,38,60,60,79,85,86],[119,131,131,143,164,174]] },
+  intro           : { durationInFrames: 244, narrationSplits: [133], sentenceEndFrames: [121], speechStartFrame: 5, speechEndFrame: 212, wordStartFrames: [[0,10,37,61,61,83,98,105],[133,146,146,158,179,189]] },
   forScene        : { durationInFrames: 226, narrationSplits: [115], sentenceEndFrames: [94], speechStartFrame: 7, speechEndFrame: 195, wordStartFrames: [[0,16,31,50,72],[109,116,123,128,150,164]] },
-  executionScene  : { durationInFrames: 569, narrationSplits: [112, 188, 264, 341, 447], sentenceEndFrames: [90, 166, 243, 320, 425], speechStartFrame: 6, speechEndFrame: 538, wordStartFrames: [[0,9,18,23,23,40,55,69],[106,115,124,124,129,146],[182,190,201,205,205,223],[256,266,277,281,300,300],[334,342,351,356,380,391,391,400],[439,448,455,460,479,479,493,497,514]] },
-  summaryScene    : { durationInFrames: 229, narrationSplits: [128], sentenceEndFrames: [109], speechStartFrame: 5, speechEndFrame: 196, wordStartFrames: [[0,10,36,52,76,92,92],[128,137,154,170]] },
+  executionScene  : { durationInFrames: 589, narrationSplits: [106, 182, 256, 334, 439], sentenceEndFrames: [86, 162, 239, 316, 422], speechStartFrame: 6, speechEndFrame: 558, wordStartFrames: [[0,9,18,23,23,40,55,69],[106,115,124,124,129,146],[182,190,201,205,205,223],[256,266,277,281,300,300],[334,342,351,356,380,392,392,400],[439,449,458,462,482,482,496,500,530]] },
+  summaryScene    : { durationInFrames: 250, narrationSplits: [145], sentenceEndFrames: [130], speechStartFrame: 5, speechEndFrame: 217, wordStartFrames: [[0,10,26,56,82,109,109],[145,158,176,191]] },
 } as const;

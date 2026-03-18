@@ -11,7 +11,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import { RATE, VOICE } from "../../global.config";
-import { AUDIO_CONFIG } from "./005-audio";
 import {
   CROSS,
   ContentArea,
@@ -21,6 +20,7 @@ import {
   uiFont,
   useFade,
 } from "../../utils/scene";
+import { AUDIO_CONFIG } from "./005-audio";
 
 export { RATE, VOICE };
 
@@ -48,8 +48,8 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.andScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.andScene.speechStartFrame,
     narration: [
-      "AND 연산자입니다. x가 [true(발음:트루)]여도 y가 [false(발음:폴스)]면 결과는 [false(발음:폴스)]입니다.",
-      "두 조건이 모두 [true(발음:트루)]여야 비로소 [true(발음:트루)]가 됩니다.",
+      "AND 연산자입니다.\nx가 [true(발음:트루)]여도 y가 [false(발음:폴스)]면\n결과는 [false(발음:폴스)]입니다.",
+      "두 조건이 모두 [true(발음:트루)]여야\n비로소 [true(발음:트루)]가 됩니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.andScene.narrationSplits,
   },
@@ -58,8 +58,8 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.orScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.orScene.speechStartFrame,
     narration: [
-      "OR 연산자입니다. x가 [true(발음:트루)]이므로 x || y는 [true(발음:트루)]입니다.",
-      "하나라도 [true(발음:트루)]면 [true(발음:트루)], 둘 다 [false(발음:폴스)]여야 [false(발음:폴스)]가 됩니다.",
+      "OR 연산자입니다.\nx가 [true(발음:트루)]이므로 x || y는 [true(발음:트루)]입니다.",
+      "하나라도 [true(발음:트루)]면 [true(발음:트루)],\n둘 다 [false(발음:폴스)]여야 [false(발음:폴스)]가 됩니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.orScene.narrationSplits,
   },
@@ -68,7 +68,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.notScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.notScene.speechStartFrame,
     narration: [
-      "NOT 연산자는 참을 거짓으로, 거짓을 참으로 뒤집습니다.",
+      "NOT 연산자는 참을 거짓으로,\n거짓을 참으로 뒤집습니다.",
       "[!true(발음:낫 트루)]는 [false(발음:폴스)], [!false(발음:낫 폴스)]는 [true(발음:트루)]입니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.notScene.narrationSplits,
@@ -79,7 +79,7 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: [
       "세 가지 논리 연산자를 정리했습니다.",
-      "[&&(발음:AND)]는 모두 참, [||(발음:OR)]는 하나라도 참, [!(발음:NOT)]은 반전입니다.",
+      "[&&(발음:AND)]는 모두 참이어야 결과가 참,\n[||(발음:OR)]는 하나라도 참이면 결과가 참,\n[!은(발음:나슨)] 반전입니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
@@ -254,7 +254,8 @@ const ThumbnailScene: React.FC = () => (
         lineHeight: 1,
         textAlign: "center",
         color: "#fff",
-        textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        textShadow:
+          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
       }}
     >
       Java
@@ -715,68 +716,68 @@ const SummaryScene: React.FC = () => {
             }}
           >
             {SUMMARY_ROWS.map((row, i) => {
-            const appear = spring({
-              frame: frame - i * 10,
-              fps,
-              config: { damping: 13, stiffness: 140 },
-              durationInFrames: 26,
-            });
-            const sc = interpolate(appear, [0, 1], [0.85, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            return (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 24,
-                  background: "#2a2a2a",
-                  border: `2px solid ${C_LOG}44`,
-                  borderRadius: 20,
-                  padding: "24px 36px",
-                  opacity: appear,
-                  transform: `scale(${sc})`,
-                }}
-              >
-                <span
+              const appear = spring({
+                frame: frame - i * 10,
+                fps,
+                config: { damping: 13, stiffness: 140 },
+                durationInFrames: 26,
+              });
+              const sc = interpolate(appear, [0, 1], [0.85, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              return (
+                <div
+                  key={i}
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
-                    color: C_LOG,
-                    fontSize: 44,
-                    fontWeight: 900,
-                    minWidth: 72,
-                    textAlign: "center",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 24,
+                    background: "#2a2a2a",
+                    border: `2px solid ${C_LOG}44`,
+                    borderRadius: 20,
+                    padding: "24px 36px",
+                    opacity: appear,
+                    transform: `scale(${sc})`,
                   }}
                 >
-                  {row.op}
-                </span>
-                <span
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 22,
-                    color: C_LOG,
-                    opacity: 0.65,
-                    minWidth: 54,
-                  }}
-                >
-                  {row.label}
-                </span>
-                <span style={{ color: "#555", fontSize: 28 }}>—</span>
-                <span
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 30,
-                    color: "#d4d4d4",
-                  }}
-                >
-                  {row.desc}
-                </span>
-              </div>
-            );
-          })}
+                  <span
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      color: C_LOG,
+                      fontSize: 44,
+                      fontWeight: 900,
+                      minWidth: 72,
+                      textAlign: "center",
+                    }}
+                  >
+                    {row.op}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 22,
+                      color: C_LOG,
+                      opacity: 0.65,
+                      minWidth: 54,
+                    }}
+                  >
+                    {row.label}
+                  </span>
+                  <span style={{ color: "#555", fontSize: 28 }}>—</span>
+                  <span
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 30,
+                      color: "#d4d4d4",
+                    }}
+                  >
+                    {row.desc}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </ContentArea>
       </AbsoluteFill>

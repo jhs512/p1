@@ -2,8 +2,8 @@
 
 export const AUDIO_CONFIG = {
   overview        : { durationInFrames: 203, narrationSplits: [97], sentenceEndFrames: [77], speechStartFrame: 5, speechEndFrame: 172, wordStartFrames: [[0,14,39,58],[88,88,101,107,125,142]] },
-  intro           : { durationInFrames: 217, narrationSplits: [102], sentenceEndFrames: [81], speechStartFrame: 5, speechEndFrame: 185, wordStartFrames: [[0,14,29,37,45,58],[94,107,119,124,149,161]] },
-  ifScene         : { durationInFrames: 262, narrationSplits: [104], sentenceEndFrames: [92], speechStartFrame: 9, speechEndFrame: 229, wordStartFrames: [[0,15,25,40,59,71],[104,124,135,152,164,171,190,195,207]] },
-  ifElseScene     : { durationInFrames: 243, narrationSplits: [107], sentenceEndFrames: [82], speechStartFrame: 5, speechEndFrame: 211, wordStartFrames: [[0,10,22,35,40,57],[89,112,127,146,165,179,189]] },
+  intro           : { durationInFrames: 236, narrationSplits: [102], sentenceEndFrames: [81], speechStartFrame: 5, speechEndFrame: 205, wordStartFrames: [[0,14,29,29,44,58],[94,109,132,132,155,178]] },
+  ifScene         : { durationInFrames: 274, narrationSplits: [104], sentenceEndFrames: [93], speechStartFrame: 9, speechEndFrame: 242, wordStartFrames: [[0,15,25,40,59,71],[104,125,136,154,167,190,199,203,217]] },
+  ifElseScene     : { durationInFrames: 261, narrationSplits: [105], sentenceEndFrames: [82], speechStartFrame: 5, speechEndFrame: 230, wordStartFrames: [[0,10,22,35,40,57],[94,111,130,148,166,191,203]] },
   summaryScene    : { durationInFrames: 227, narrationSplits: [120], sentenceEndFrames: [100], speechStartFrame: 5, speechEndFrame: 195, wordStartFrames: [[0,8,20,29,38,58,71,76],[112,124,128,139,151,161,173,176]] },
 } as const;
