@@ -29,8 +29,8 @@ const C_CASE   = "#c586c0"; // case/default 키워드 (보라)
 const C_ARROW  = "#4ec9b0"; // -> 화살표 (teal)
 const C_STR    = "#ce9178"; // 문자열 값 (주황)
 const C_RESULT = "#b5cea8"; // 결과값 (연초록)
-export const C_DIM    = "rgba(255,255,255,0.22)";
-export const C_RED    = "#f47c7c"; // 경고·오류
+const C_DIM    = "rgba(255,255,255,0.22)";
+const C_RED    = "#f47c7c"; // 경고·오류
 
 // ── SyntaxScene 타이핑 코드 라인 데이터 ──────────────────────
 const SYNTAX_LINES = [
@@ -86,7 +86,7 @@ const SYNTAX_CODE_CHARS = SYNTAX_FULL_CODE.length; // ~159
 const SYNTAX_CHARS_PER_SEC = 20;
 
 // 각 ' ->' part 의 누적 charIndex (glow 타이밍 계산용, 동적 계산)
-export const ARROW_CHAR_STARTS: number[] = (() => {
+const ARROW_CHAR_STARTS: number[] = (() => {
   let cum = 0;
   const starts: number[] = [];
   for (const line of SYNTAX_LINES) {
