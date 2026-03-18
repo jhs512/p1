@@ -5,5 +5,7 @@ export const AUDIO_CONFIG = {
   declaration     : { durationInFrames: 209, narrationSplits: [91], sentenceEndFrames: [71], speechStartFrame: 5, speechEndFrame: 179, wordStartFrames: [[0,7,25,36,51],[84,103,103,113,133,142,142,155]] },
   initialization  : { durationInFrames: 208, narrationSplits: [109], sentenceEndFrames: [89], speechStartFrame: 5, speechEndFrame: 178, wordStartFrames: [[0,8,21,35,45,51,56,73],[100,110,124,146]] },
   interpret       : { durationInFrames: 310, narrationSplits: [81, 219], sentenceEndFrames: [60, 197], speechStartFrame: 5, speechEndFrame: 279, wordStartFrames: [[0,10,21,28,37],[72,86,97,103,109,122,139,151,160,175],[212,215,226,239,256]] },
+  interpretQuiz   : { durationInFrames: 121, narrationSplits: [], sentenceEndFrames: [], speechStartFrame: 6, speechEndFrame: 94, wordStartFrames: [[0,2,14,32,32,43,71]] },
+  interpretReveal : { durationInFrames: 141, narrationSplits: [56], sentenceEndFrames: [37], speechStartFrame: 5, speechEndFrame: 115, wordStartFrames: [[0,11],[47,58,72,85,96]] },
   print           : { durationInFrames: 340, narrationSplits: [98, 233], sentenceEndFrames: [74, 212], speechStartFrame: 6, speechEndFrame: 309, wordStartFrames: [[0,4,30,40,53],[92,104,113,125,141,147,152,169,178,191],[227,238,257,269,276,289,291]] },
 } as const;

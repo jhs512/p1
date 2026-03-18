@@ -96,6 +96,25 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.interpret.narrationSplits,
   },
 
+  interpretQuiz: {
+    audio: "interpret-quiz.mp3",
+    durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
+    narration: ["이 코드에서 앞 부분의 age는 공간일까요, 값일까요?"] as string[],
+    narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
+  },
+
+  interpretReveal: {
+    audio: "interpret-reveal.mp3",
+    durationInFrames: AUDIO_CONFIG.interpretReveal.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.interpretReveal.speechStartFrame,
+    narration: [
+      "정답은 공간입니다.",
+      "값을 대입받는 왼쪽 자리이기 때문이죠.",
+    ] as string[],
+    narrationSplits: AUDIO_CONFIG.interpretReveal.narrationSplits,
+  },
+
   print: {
     audio: "scene3.mp3",
     durationInFrames: AUDIO_CONFIG.print.durationInFrames,
@@ -279,9 +298,10 @@ const BoxMetaphorAnim: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  const S2 = Math.floor(durationInFrames / 2); // 두 번째 자막 시작
-  const DROP_START = S2 + 20; // "값을 넣고" 시점
-  const EXTRACT_START = S2 + 60; // "꺼내 쓸 수 있습니다" 시점
+  // 발화 프레임 직접 참조 (CLAUDE.md 6번 원칙: 애니메이션은 발화 시작에 맞춘다)
+  const NAME_TAG_START  = AUDIO_CONFIG.intro.wordStartFrames[1][1]; // "이름을"
+  const DROP_START      = AUDIO_CONFIG.intro.wordStartFrames[1][3]; // "값을"
+  const EXTRACT_START   = AUDIO_CONFIG.intro.wordStartFrames[1][5]; // "꺼내"
 
   // 1) 상자 + 라벨 동시 등장
   const boxAppear = spring({
@@ -296,9 +316,9 @@ const BoxMetaphorAnim: React.FC = () => {
   });
   const labelAppear = boxAppear; // 상자와 같은 타이밍
 
-  // 3) "변수 : age" 이름 태그
+  // 3) "변수 : age" 이름 태그 — "이름을" 발화 시점에 등장
   const nameTag = spring({
-    frame: frame - S2,
+    frame: frame - NAME_TAG_START,
     fps,
     config: { damping: 12, stiffness: 180 },
     durationInFrames: 25,
@@ -622,10 +642,12 @@ const ThumbnailScene: React.FC = () => (
 const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
 const CHARS_PER_SEC = 10;
 const CROSS = 20; // 크로스페이드 프레임 수
+const QUIZ_THINKING_FRAMES = 150; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
-const { thumbnail, intro, declaration, initialization, interpret, print } = VIDEO_CONFIG;
+const { thumbnail, intro, declaration, initialization, interpret, interpretQuiz, interpretReveal, print } = VIDEO_CONFIG;
+const QUIZ_TOTAL_DURATION = interpretQuiz.durationInFrames + QUIZ_THINKING_FRAMES + interpretReveal.durationInFrames;
 
 // ── 컴포넌트: CombinedVariableBox ────────────────────────────
 // 선언(빈 박스) → 초기화(값 낙하) 전 구간을 하나의 박스로 이어서 표현
@@ -953,6 +975,180 @@ const InterpretScene: React.FC = () => {
   );
 };
 
+// ── 씬: QuizScene — 변수 해석 퀴즈 (age = age + 2;) ──────────
+//   Phase A (0..qDur): 문제 제시 + 오디오
+//   Phase B (qDur..qDur+150): 카운트다운 대기 (5초)
+//   Phase C (qDur+150..): 정답 공개 + 오디오
+const QuizScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const qCfg = interpretQuiz;
+  const rCfg = interpretReveal;
+
+  const qDur = qCfg.durationInFrames;
+  const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
+  const totalDur = QUIZ_TOTAL_DURATION;
+
+  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [totalDur - CROSS, totalDur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const isCountdown = frame >= qDur && frame < REVEAL_START;
+  const isReveal    = frame >= REVEAL_START;
+
+  // 카운트다운
+  const cdFrame    = frame - qDur;
+  const cdProgress = isCountdown
+    ? interpolate(cdFrame, [0, QUIZ_THINKING_FRAMES], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 0;
+  const secondsLeft = isCountdown ? Math.ceil((QUIZ_THINKING_FRAMES - cdFrame) / 30) : 0;
+
+  // 정답 공개 애니메이션
+  const revealAnim = spring({ frame: frame - REVEAL_START, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
+
+  const C_SPACE = "#e5c07b"; // 공간: amber
+  const C_VAL   = "#4ec9b0"; // 값: teal
+  const C_AGE   = "#9cdcfe"; // 변수명: light blue
+
+  // age 스팬: 공개 전=중립, 공개 후=역할별 색
+  const ageSpan = (role: "space" | "value") => {
+    const color  = role === "space" ? C_SPACE : C_VAL;
+    const active = isReveal;
+    return (
+      <span style={{
+        color: active ? color : C_AGE,
+        fontWeight: active ? 700 : 400,
+        background: active ? `${color}28` : "transparent",
+        borderRadius: 4, padding: "1px 5px",
+        outline: active ? `1.5px solid ${color}66` : "none",
+      }}>age</span>
+    );
+  };
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
+
+        {/* 오디오: 문제 */}
+        <Sequence durationInFrames={qDur}>
+          <Audio src={staticFile(qCfg.audio)} />
+        </Sequence>
+        {/* 오디오: 정답 */}
+        <Sequence from={REVEAL_START}>
+          <Audio src={staticFile(rCfg.audio)} />
+        </Sequence>
+
+        {/* Quiz 라벨 */}
+        {frame >= qCfg.speechStartFrame && !isReveal && (
+          <div style={{
+            position: "absolute", top: 180, left: 0, right: 0,
+            textAlign: "center", fontFamily: uiFont,
+            fontSize: 48, fontWeight: 900, color: "#f5c842",
+            letterSpacing: 6,
+          }}>
+            QUIZ
+          </div>
+        )}
+
+        {/* 정답 라벨 */}
+        {isReveal && (
+          <div style={{
+            position: "absolute", top: 180, left: 0, right: 0,
+            textAlign: "center", fontFamily: uiFont,
+            fontSize: 48, fontWeight: 900, color: "#4ec9b0",
+            letterSpacing: 6, opacity: revealAnim,
+          }}>
+            정답
+          </div>
+        )}
+
+        {/* 코드 블록: age = age + 2; */}
+        <div style={{
+          position: "absolute", top: "42%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "#252525", borderRadius: 20,
+          padding: "36px 56px",
+          boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+        }}>
+          {/* 코드 라인 */}
+          <div style={{
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 38, color: "#d4d4d4",
+            display: "flex", alignItems: "center",
+          }}>
+            {ageSpan("space")}
+            <span> = </span>
+            {ageSpan("value")}
+            <span style={{ color: "#d4d4d4" }}> + </span>
+            <span style={{ color: "#b5cea8" }}>2</span>
+            <span>;</span>
+          </div>
+
+          {/* 정답 어노테이션: age 각각 아래 정렬 (ch 단위 = 모노스페이스 1글자 폭) */}
+          {isReveal && (
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 38, // ch 기준 맞추기 위해 동일 fontSize
+              display: "flex", marginTop: 6,
+              opacity: revealAnim,
+            }}>
+              {/* 왼쪽 age (3ch) 아래 */}
+              <div style={{ width: "3ch", textAlign: "center" }}>
+                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3 }}>↑<br/>공간</div>
+              </div>
+              {/* " = " (3ch) */}
+              <div style={{ width: "3ch" }} />
+              {/* 오른쪽 age (3ch) 아래 */}
+              <div style={{ width: "3ch", textAlign: "center" }}>
+                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3 }}>↑<br/>값</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 카운트다운 */}
+        {isCountdown && (
+          <div style={{
+            position: "absolute", top: "60%", left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
+          }}>
+            <div style={{
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 120, fontWeight: 700, color: "#f5c842", opacity: 0.9,
+            }}>
+              {secondsLeft}
+            </div>
+            <div style={{ width: 500, height: 8, background: "#333", borderRadius: 4, overflow: "hidden" }}>
+              <div style={{
+                width: `${cdProgress * 100}%`, height: "100%",
+                background: "#f5c842", borderRadius: 4,
+              }} />
+            </div>
+          </div>
+        )}
+
+      </AbsoluteFill>
+
+      {/* 자막: 문제 */}
+      <Sequence durationInFrames={qDur}>
+        <Subtitle
+          sentences={qCfg.narration}
+          splits={[]}
+          speechStart={qCfg.speechStartFrame}
+        />
+      </Sequence>
+      {/* 자막: 정답 */}
+      <Sequence from={REVEAL_START}>
+        <Subtitle
+          sentences={rCfg.narration}
+          splits={rCfg.narrationSplits as unknown as number[]}
+          speechStart={rCfg.speechStartFrame}
+        />
+      </Sequence>
+    </>
+  );
+};
+
 const PrintScene: React.FC = () => {
   const frame = useCurrentFrame();
   const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
@@ -987,6 +1183,7 @@ const mergedSceneList = [
   { durationInFrames: intro.durationInFrames },
   { durationInFrames: COMBINED_DURATION },
   { durationInFrames: interpret.durationInFrames },
+  { durationInFrames: QUIZ_TOTAL_DURATION },
   { durationInFrames: print.durationInFrames },
 ];
 let _from = 0;
@@ -1022,7 +1219,10 @@ export const JavaVariables: React.FC = () => (
     <Sequence from={fromValues[3]} durationInFrames={interpret.durationInFrames}>
       <InterpretScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={print.durationInFrames}>
+    <Sequence from={fromValues[4]} durationInFrames={QUIZ_TOTAL_DURATION}>
+      <QuizScene />
+    </Sequence>
+    <Sequence from={fromValues[5]} durationInFrames={print.durationInFrames}>
       <PrintScene />
     </Sequence>
   </AbsoluteFill>

@@ -34,6 +34,13 @@
 - 자동으로 판단해 커밋 타이밍을 챙긴다. 사용자가 요청하지 않아도 된다.
 - 커밋 메시지는 한국어로 작성해도 된다.
 
+### 6. 애니메이션은 반드시 발화 시작 프레임에 맞춘다
+씬 안의 시각 애니메이션은 관련 단어/문장의 **발화 시작 프레임**과 동기화해야 한다.
+- `AUDIO_CONFIG.{씬}.wordStartFrames` 또는 `speechStartFrame` / `narrationSplits`를 직접 참조한다.
+- **`durationInFrames / 2 + offset` 같은 하드코딩 오프셋은 절대 금지.**
+- 예: "꺼내" 단어 시점에 꺼내기 애니메이션 → `AUDIO_CONFIG.intro.wordStartFrames[1][5]`
+- sync 후 wordStartFrames가 자동 갱신되므로 코드 수정 없이 타이밍이 유지된다.
+
 ---
 
 ## 프로젝트 구조
