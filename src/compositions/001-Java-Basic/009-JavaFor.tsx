@@ -10,7 +10,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
+import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./009-audio";
 import {
   CROSS,
@@ -32,18 +32,8 @@ const C_NUM  = "#b5cea8"; // 숫자 리터럴
 const C_DIM  = "rgba(255,255,255,0.22)";
 const C_RED  = "#f47c7c"; // 거짓/경고
 
-// ── ForScene 타이핑 애니메이션 완료 프레임 ─────────────────────
-// for (int i = 0; i < 5; i++) {\n    System.out.println(i);\n}
-// Line1: 30자, Line2: 26자, Line3: 1자 → 57자 + 개행 2자 = 59자
-const FOR_TYPING_CHARS = 59;
-const FOR_CHARS_PER_SEC = 10;
-const FOR_TYPING_END =
-  AUDIO_CONFIG.forScene.speechStartFrame +
-  Math.ceil((FOR_TYPING_CHARS / FOR_CHARS_PER_SEC) * 30);
-const FOR_SCENE_DURATION = Math.max(
-  AUDIO_CONFIG.forScene.durationInFrames,
-  FOR_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
-);
+// ── ForScene: 순차 등장 애니메이션 (init→cond→body→inc) ──────
+const FOR_SCENE_DURATION = AUDIO_CONFIG.forScene.durationInFrames;
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -300,63 +290,27 @@ const IntroScene: React.FC = () => {
   );
 };
 
-// ── ForScene — 코드 타이핑 ────────────────────────────────────
-const CODE_LINES = [
-  { parts: [
-    { text: "for",      color: C_FOR,  bold: true },
-    { text: " (",       color: "#d4d4d4" },
-    { text: "int",      color: C_INIT },
-    { text: " i = ",    color: "#d4d4d4" },
-    { text: "0",        color: C_NUM },
-    { text: "; ",       color: "#d4d4d4" },
-    { text: "i < 5",    color: C_COND },
-    { text: "; ",       color: "#d4d4d4" },
-    { text: "i++",      color: C_INC },
-    { text: ") {",      color: "#d4d4d4" },
-  ]},
-  { parts: [
-    { text: "    System", color: C_INIT },
-    { text: ".out.",    color: "#d4d4d4" },
-    { text: "println",  color: "#dcdcaa" },
-    { text: "(",        color: "#d4d4d4" },
-    { text: "i",        color: "#d4d4d4" },
-    { text: ");",       color: "#d4d4d4" },
-  ]},
-  { parts: [
-    { text: "}",        color: "#d4d4d4" },
-  ]},
-] as const;
-
-const FULL_CODE = CODE_LINES.map(l => l.parts.map(p => p.text).join("")).join("\n");
-const TOTAL_CHARS = FULL_CODE.length;
-
+// ── ForScene — 초기식→조건식→블록→증감식 순차 등장 ────────────
 const ForScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { forScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const s = cfg.speechStartFrame;
-  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
+  const s = cfg.speechStartFrame;                          // ≈ 7
+  const [split0 = Infinity] = cfg.narrationSplits as readonly number[]; // ≈ 107
   const opacity = useFade(d);
 
-  const charsVisible = Math.min(
-    TOTAL_CHARS,
-    Math.max(0, ((frame - s) / fps) * FOR_CHARS_PER_SEC),
-  );
+  const cfg_spring = { damping: 14, stiffness: 160 };
+  const dur = 22;
 
-  let remaining = Math.floor(charsVisible);
-  const lineVisibility = CODE_LINES.map(line => {
-    const lineLen = line.parts.reduce((acc, p) => acc + p.text.length, 0);
-    const show = Math.min(lineLen, remaining);
-    remaining = Math.max(0, remaining - lineLen);
-    return show;
-  });
+  // 등장 순서: 초기식 → 조건식 → 블록(body) → 증감식
+  const initAppear = spring({ frame: frame - s,           fps, config: cfg_spring, durationInFrames: dur });
+  const condAppear = spring({ frame: frame - (s + 24),    fps, config: cfg_spring, durationInFrames: dur });
+  const bodyAppear = spring({ frame: frame - split0,      fps, config: cfg_spring, durationInFrames: dur });
+  const incAppear  = spring({ frame: frame - (split0+24), fps, config: cfg_spring, durationInFrames: dur });
 
-  const blockAppear = spring({ frame: frame - s, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 24 });
-  const sc = interpolate(blockAppear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  // phase2: 증감식(i++) 하이라이트
-  const phase2 = frame >= split0;
+  const slideY = (a: number) =>
+    `translateY(${interpolate(a, [0,1], [10,0], { extrapolateLeft:"clamp", extrapolateRight:"clamp" })}px)`;
 
   return (
     <>
@@ -365,44 +319,39 @@ const ForScene: React.FC = () => {
         {frame >= s && (
           <div style={{
             position: "absolute", top: "46%", left: "50%",
-            transform: `translate(-50%, -50%) scale(${sc})`,
+            transform: "translate(-50%, -50%)",
+            fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 34, lineHeight: 2.1,
+            background: "#252525", borderRadius: 20,
+            padding: "36px 52px",
+            width: 860, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
           }}>
-            <div style={{
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 34, lineHeight: 1.95,
-              background: "#252525", borderRadius: 20,
-              padding: "32px 48px",
-              opacity: blockAppear,
-              width: 860, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
-              whiteSpace: "pre",
-            }}>
-              {CODE_LINES.map((line, lineIdx) => {
-                const showChars = lineVisibility[lineIdx];
-                let rem = showChars;
-                return (
-                  <div key={lineIdx} style={{ lineHeight: 1.95 }}>
-                    {line.parts.map((part, pi) => {
-                      const show = Math.min(part.text.length, rem);
-                      rem = Math.max(0, rem - part.text.length);
-                      if (show <= 0) return null;
-                      // phase2: i++ 강조
-                      const isInc = lineIdx === 0 && pi === 8 && phase2;
-                      return (
-                        <span key={pi} style={{
-                          color: isInc ? C_INC : part.color,
-                          fontWeight: (part as { bold?: boolean }).bold ? 900 : undefined,
-                          background: isInc ? `${C_INC}22` : undefined,
-                          borderRadius: isInc ? 4 : undefined,
-                          padding: isInc ? "0 4px" : undefined,
-                        }}>
-                          {part.text.slice(0, show)}
-                        </span>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+            {/* ── Line 1: for (초기식; 조건식; 증감식) { ── */}
+            <div style={{ whiteSpace: "nowrap" }}>
+              {/* for ( ← 초기식과 함께 등장 */}
+              <span style={{ color: C_FOR, fontWeight: 900, opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>for</span>
+              <span style={{ color: "#d4d4d4", opacity: initAppear, display: "inline-block" }}>{" ("}</span>
+              {/* 초기식 */}
+              <span style={{ color: C_INIT, opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>int i = </span>
+              <span style={{ color: C_NUM,  opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>0</span>
+              {/* ; 조건식 */}
+              <span style={{ color: "#d4d4d4", opacity: condAppear, display: "inline-block" }}>{";"} </span>
+              <span style={{ color: C_COND, opacity: condAppear, display: "inline-block", transform: slideY(condAppear) }}>{"i < 5"}</span>
+              {/* ; 증감식 ← 블록 이후에 등장 */}
+              <span style={{ color: "#d4d4d4", opacity: incAppear, display: "inline-block" }}>{";"} </span>
+              <span style={{ color: C_INC,  opacity: incAppear, display: "inline-block", transform: slideY(incAppear) }}>i++</span>
+              {/* ) { ← 블록과 함께 등장 */}
+              <span style={{ color: "#d4d4d4", opacity: bodyAppear, display: "inline-block" }}>{") {"}</span>
             </div>
+            {/* ── Line 2: 블록 body ── */}
+            <div style={{ paddingLeft: 56, opacity: bodyAppear, transform: slideY(bodyAppear) }}>
+              <span style={{ color: C_INIT }}>System</span>
+              <span style={{ color: "#d4d4d4" }}>.out.</span>
+              <span style={{ color: "#dcdcaa" }}>println</span>
+              <span style={{ color: "#d4d4d4" }}>(i);</span>
+            </div>
+            {/* ── Line 3: } ← 블록과 함께 등장 ── */}
+            <div style={{ color: "#d4d4d4", opacity: bodyAppear }}>{"}"}</div>
           </div>
         )}
       </AbsoluteFill>
