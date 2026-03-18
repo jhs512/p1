@@ -328,20 +328,28 @@ const ForScene: React.FC = () => {
           }}>
             {/* ── Line 1: for (초기식; 조건식; 증감식) { ── */}
             <div style={{ whiteSpace: "nowrap" }}>
-              {/* for ( ← 초기식과 함께 등장 */}
-              <span style={{ color: C_FOR, fontWeight: 900, opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>for</span>
-              <span style={{ color: "#d4d4d4", opacity: initAppear, display: "inline-block" }}>{" ("}</span>
-              {/* 초기식 */}
-              <span style={{ color: C_INIT, opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>int i = </span>
-              <span style={{ color: C_NUM,  opacity: initAppear, display: "inline-block", transform: slideY(initAppear) }}>0</span>
-              {/* ; 조건식 */}
-              <span style={{ color: "#d4d4d4", opacity: condAppear, display: "inline-block" }}>{";"} </span>
-              <span style={{ color: C_COND, opacity: condAppear, display: "inline-block", transform: slideY(condAppear) }}>{"i < 5"}</span>
-              {/* ; 증감식 ← 블록 이후에 등장 */}
-              <span style={{ color: "#d4d4d4", opacity: incAppear, display: "inline-block" }}>{";"} </span>
-              <span style={{ color: C_INC,  opacity: incAppear, display: "inline-block", transform: slideY(incAppear) }}>i++</span>
+              {/* 초기식 그룹: for (int i = 0 */}
+              <span style={{ display: "inline-block", opacity: initAppear, transform: slideY(initAppear) }}>
+                <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
+                <span style={{ color: "#d4d4d4" }}>{" ("}</span>
+                <span style={{ color: C_INIT }}>int i</span>
+                <span style={{ color: "#d4d4d4" }}>{" = "}</span>
+                <span style={{ color: C_NUM }}>0</span>
+              </span>
+              {/* 조건식 그룹: ; i < 5 */}
+              <span style={{ display: "inline-block", opacity: condAppear, transform: slideY(condAppear) }}>
+                <span style={{ color: "#d4d4d4" }}>{"; "}</span>
+                <span style={{ color: C_COND }}>{"i < 5"}</span>
+              </span>
+              {/* 증감식 그룹: ; i++ ← 블록 이후에 등장 */}
+              <span style={{ display: "inline-block", opacity: incAppear, transform: slideY(incAppear) }}>
+                <span style={{ color: "#d4d4d4" }}>{"; "}</span>
+                <span style={{ color: C_INC }}>i++</span>
+              </span>
               {/* ) { ← 블록과 함께 등장 */}
-              <span style={{ color: "#d4d4d4", opacity: bodyAppear, display: "inline-block" }}>{") {"}</span>
+              <span style={{ display: "inline-block", opacity: bodyAppear }}>
+                <span style={{ color: "#d4d4d4" }}>{") {"}</span>
+              </span>
             </div>
             {/* ── Line 2: 블록 body ── */}
             <div style={{ paddingLeft: 56, opacity: bodyAppear, transform: slideY(bodyAppear) }}>
