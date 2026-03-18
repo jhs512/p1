@@ -32,8 +32,6 @@ const C_NUM    = "#b5cea8"; // 숫자 리터럴
 const C_INT    = "#4e9cd5"; // int 키워드
 const C_DIM    = "rgba(255,255,255,0.22)";
 
-// C_RED는 이후 씬에서 사용됨 — 미사용 경고 억제
-void [C_RED];
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -384,11 +382,168 @@ const WhileScene: React.FC = () => {
   );
 };
 
-const ExecutionScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Audio src={staticFile(VIDEO_CONFIG.executionScene.audio)} />
-  </AbsoluteFill>
-);
+const EXEC_STEPS = [
+  { count: 1, condPass: true,  output: ["1"] },
+  { count: 2, condPass: true,  output: ["1", "2"] },
+  { count: 3, condPass: true,  output: ["1", "2", "3"] },
+  { count: 4, condPass: true,  output: ["1", "2", "3", "4"] },
+  { count: 5, condPass: true,  output: ["1", "2", "3", "4", "5"] },
+  { count: 6, condPass: false, output: ["1", "2", "3", "4", "5"] },
+] as const;
+
+const ExecutionScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { executionScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const s = cfg.speechStartFrame;
+  const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
+  const opacity = useFade(d);
+
+  // Step timing: split0 기준으로 phase1(steps 0-2) / phase2(steps 3-5)
+  const phase1Len = Math.max(1, split0 - s);
+  const phase2Len = Math.max(1, d - split0);
+  let stepIdx: number;
+  if (frame < s) {
+    stepIdx = 0;
+  } else if (frame < split0) {
+    stepIdx = Math.min(2, Math.floor(((frame - s) / phase1Len) * 3));
+  } else {
+    stepIdx = Math.min(5, 3 + Math.floor(((frame - split0) / phase2Len) * 3));
+  }
+
+  const step = EXEC_STEPS[stepIdx];
+
+  // count 숫자 spring — stepIdx 변화마다 bounce
+  const stepStartFrame = stepIdx === 0 ? s
+    : stepIdx < 3
+      ? s + Math.round((stepIdx / 3) * phase1Len)
+      : split0 + Math.round(((stepIdx - 3) / 3) * phase2Len);
+
+  const countSpring = spring({
+    frame: frame - stepStartFrame,
+    fps,
+    config: { damping: 14, stiffness: 180 },
+    durationInFrames: 18,
+  });
+
+  // 활성 줄: condPass=false → 조건 줄 강조. 그 외 짝수 step = 조건 확인, 홀수 = 본문
+  const activeLineIsCondition = !step.condPass || stepIdx % 2 === 0;
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <Audio src={staticFile(cfg.audio)} />
+
+        {frame >= s && (
+          <div style={{
+            position: "absolute", top: "46%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex", gap: 28,
+            width: 980,
+          }}>
+            {/* 좌측: 코드 패널 */}
+            <div style={{
+              flex: "0 0 380px",
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              fontSize: 24, lineHeight: 2.0,
+              background: "#252525", borderRadius: 16,
+              padding: "24px 24px",
+            }}>
+              {/* int count = 1; */}
+              <div style={{ color: "#d4d4d4" }}>
+                <span style={{ color: C_INT }}>int</span>
+                <span> count = </span>
+                <span style={{ color: C_NUM }}>1</span>
+                <span>;</span>
+              </div>
+              {/* while 조건 줄 */}
+              <div style={{
+                background: activeLineIsCondition ? `${C_COND}22` : "transparent",
+                borderLeft: activeLineIsCondition ? `3px solid ${C_COND}` : "3px solid transparent",
+                paddingLeft: 8, borderRadius: "0 6px 6px 0",
+              }}>
+                <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
+                <span style={{ color: "#d4d4d4" }}> (</span>
+                <span style={{ color: C_COND }}>count {"<="} 5</span>
+                <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
+              </div>
+              {/* println 줄 */}
+              <div style={{
+                background: !activeLineIsCondition && step.condPass ? `${C_TEAL}18` : "transparent",
+                borderLeft: !activeLineIsCondition && step.condPass ? `3px solid ${C_TEAL}` : "3px solid transparent",
+                paddingLeft: 32, borderRadius: "0 6px 6px 0",
+              }}>
+                <span style={{ color: C_INT }}>System</span>
+                <span style={{ color: "#d4d4d4" }}>.out.</span>
+                <span style={{ color: "#dcdcaa" }}>println</span>
+                <span style={{ color: "#d4d4d4" }}>(count);</span>
+              </div>
+              {/* count++ */}
+              <div style={{ paddingLeft: 32, color: C_TEAL }}>count++;</div>
+              {/* } */}
+              <div style={{ color: "#d4d4d4" }}>{"}"}</div>
+            </div>
+
+            {/* 우측: 상태 패널 */}
+            <div style={{
+              flex: 1,
+              display: "flex", flexDirection: "column", gap: 20,
+              justifyContent: "center",
+            }}>
+              {/* count 박스 */}
+              <div style={{
+                background: "#2a2a2a", borderRadius: 16,
+                padding: "20px 32px",
+                border: `2px solid ${step.condPass ? C_TEAL : C_RED}55`,
+                display: "flex", alignItems: "center", gap: 16,
+              }}>
+                <span style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, color: "#d4d4d4", fontSize: 28 }}>count =</span>
+                <span style={{
+                  fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                  color: step.condPass ? C_TEAL : C_RED,
+                  fontSize: 52, fontWeight: 900,
+                  display: "inline-block",
+                  transform: `scale(${interpolate(countSpring, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                }}>{step.count}</span>
+              </div>
+
+              {/* 조건 배지 */}
+              <div style={{
+                background: step.condPass ? `${C_TEAL}18` : `${C_RED}18`,
+                border: `2px solid ${step.condPass ? C_TEAL : C_RED}66`,
+                borderRadius: 14, padding: "14px 28px",
+                display: "flex", alignItems: "center", gap: 12,
+              }}>
+                <span style={{ fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA, color: C_COND, fontSize: 24 }}>count {"<="} 5</span>
+                <span style={{ fontSize: 30 }}>{step.condPass ? "✓" : "✗"}</span>
+                <span style={{ fontFamily: uiFont, fontSize: 24, color: step.condPass ? C_TEAL : C_RED, fontWeight: 700 }}>
+                  {step.condPass ? "참" : "거짓"}
+                </span>
+              </div>
+
+              {/* 출력 로그 */}
+              <div style={{
+                background: "#252525", borderRadius: 14,
+                padding: "16px 28px",
+                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 26,
+              }}>
+                <div style={{ color: "#888", fontSize: 18, marginBottom: 8, fontFamily: uiFont }}>출력</div>
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                  {(step.output as readonly string[]).map((n, i) => (
+                    <span key={i} style={{ color: C_NUM }}>{n}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </AbsoluteFill>
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+    </>
+  );
+};
 
 const InfiniteScene: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
