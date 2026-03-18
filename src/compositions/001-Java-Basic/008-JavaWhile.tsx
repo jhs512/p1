@@ -1,4 +1,4 @@
-// src/compositions/001-Java-Basic/007-JavaWhile.tsx
+// src/compositions/001-Java-Basic/008-JavaWhile.tsx
 import { Audio } from "@remotion/media";
 import React from "react";
 import {
@@ -11,7 +11,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
-import { AUDIO_CONFIG } from "./007-audio";
+import { AUDIO_CONFIG } from "./008-audio";
 import {
   CROSS,
   MONO_NO_LIGA,
