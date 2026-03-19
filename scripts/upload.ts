@@ -37,29 +37,33 @@ async function getPlaylistVideos(
 ): Promise<Map<string, string>> {
   const map = new Map<string, string>(); // title → videoId
   let pageToken: string | undefined;
-  do {
-    const res = await yt.playlistItems.list({
-      part: ["snippet"],
-      playlistId,
-      maxResults: 50,
-      pageToken,
-    });
-    for (const item of res.data.items ?? []) {
-      const title = item.snippet?.title ?? "";
-      const videoId = item.snippet?.resourceId?.videoId ?? "";
-      if (title && videoId) map.set(title, videoId);
-    }
-    pageToken = res.data.nextPageToken ?? undefined;
-  } while (pageToken);
+  try {
+    do {
+      const res = await yt.playlistItems.list({
+        part: ["snippet"],
+        playlistId,
+        maxResults: 50,
+        pageToken,
+      });
+      for (const item of res.data.items ?? []) {
+        const title = item.snippet?.title ?? "";
+        const videoId = item.snippet?.resourceId?.videoId ?? "";
+        if (title && videoId) map.set(title, videoId);
+      }
+      pageToken = res.data.nextPageToken ?? undefined;
+    } while (pageToken);
+  } catch {
+    // 새로 생성된 재생목록은 API 전파 지연으로 조회 실패할 수 있음
+  }
   return map;
 }
 
-/** 재생목록 생성 또는 기존 ID 반환 */
+/** 재생목록 생성 또는 기존 ID 반환. created=true면 새로 생성된 것 */
 async function ensurePlaylist(
   yt: youtube_v3.Youtube,
   title: string,
   description: string,
-): Promise<string> {
+): Promise<{ id: string; created: boolean }> {
   // 내 재생목록 검색 (페이지네이션)
   let pageToken: string | undefined;
   let existing: { id?: string | null } | undefined;
@@ -76,7 +80,7 @@ async function ensurePlaylist(
   } while (pageToken);
   if (existing?.id) {
     console.log(`📋  재생목록 발견: "${title}" (${existing.id})`);
-    return existing.id;
+    return { id: existing.id, created: false };
   }
 
   // 생성
@@ -91,7 +95,7 @@ async function ensurePlaylist(
   if (!id) throw new Error("재생목록 생성 실패: API 응답에 id 없음");
   console.log(`📋  재생목록 생성: "${title}" (${id})`);
   console.log(`⚠️  YouTube Studio에서 이 재생목록을 '공식 시리즈'로 설정해주세요.`);
-  return id;
+  return { id, created: true };
 }
 
 /** 영상 업로드 */
@@ -219,14 +223,17 @@ async function addToPlaylist(
   const yt = await getYouTubeClient();
 
   // 5. 재생목록 확보
-  const playlistId = await ensurePlaylist(
+  const playlist = await ensurePlaylist(
     yt,
     YOUTUBE_CONFIG.playlist.title,
     YOUTUBE_CONFIG.playlist.description,
   );
+  const playlistId = playlist.id;
 
-  // 6. 기존 영상 목록 조회 (중복 체크)
-  const existingVideos = await getPlaylistVideos(yt, playlistId);
+  // 6. 기존 영상 목록 조회 (새 재생목록이면 비어있으므로 스킵)
+  const existingVideos = playlist.created
+    ? new Map<string, string>()
+    : await getPlaylistVideos(yt, playlistId);
 
   // 7. 썸네일용 Remotion 번들 (필요 시)
   let bundled: string | null = null;
@@ -298,8 +305,12 @@ async function addToPlaylist(
       // 영상 업로드
       const videoId = await uploadVideo(yt, mp4Path, meta);
 
-      // 썸네일 설정
-      await uploadThumbnail(yt, videoId, thumbPath);
+      // 썸네일 설정 (채널 미인증 시 실패 가능 — 경고만 출력)
+      try {
+        await uploadThumbnail(yt, videoId, thumbPath);
+      } catch (e: any) {
+        console.warn(`   ⚠️  썸네일 설정 실패 (채널 인증 필요?): ${e.message}`);
+      }
 
       // 자막 업로드 (SRT 파일 있을 때만)
       if (existsSync(srtPath)) {
