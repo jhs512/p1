@@ -138,7 +138,7 @@ const OverviewScene: React.FC = () => {
   const rootAppear  = spring({ frame: frame - s,      fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const leftAppear  = spring({ frame: frame - s - 10, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const rightAppear = spring({ frame: frame - s - 20, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
-  const forAppear   = spring({ frame: frame - split0,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  const forAppear   = spring({ frame: frame - AUDIO_CONFIG.overview.wordStartFrames[1][2],  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
 
   const nodeStyle = (color: string, active: boolean, appear: number): React.CSSProperties => {
     const sc = interpolate(appear, [0, 1], [0.75, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -312,9 +312,9 @@ const ForScene: React.FC = () => {
 
   // 등장 순서: 초기식 → 조건식 → 블록(body) → 증감식
   const initAppear = spring({ frame: frame - s,           fps, config: cfg_spring, durationInFrames: dur });
-  const condAppear = spring({ frame: frame - (s + 24),    fps, config: cfg_spring, durationInFrames: dur });
+  const condAppear = spring({ frame: frame - AUDIO_CONFIG.forScene.wordStartFrames[0][4], fps, config: cfg_spring, durationInFrames: dur });
   const bodyAppear = spring({ frame: frame - split0,      fps, config: cfg_spring, durationInFrames: dur });
-  const incAppear  = spring({ frame: frame - (split0+24), fps, config: cfg_spring, durationInFrames: dur });
+  const incAppear  = spring({ frame: frame - AUDIO_CONFIG.forScene.wordStartFrames[1][3], fps, config: cfg_spring, durationInFrames: dur });
 
   const slideY = (a: number) =>
     `translateY(${interpolate(a, [0,1], [10,0], { extrapolateLeft:"clamp", extrapolateRight:"clamp" })}px)`;
