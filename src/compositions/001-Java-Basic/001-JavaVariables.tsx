@@ -30,6 +30,7 @@ import {
   useFade,
 } from "../../utils/scene";
 import { AUDIO_CONFIG } from "./001-audio";
+import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
 
 export { RATE, VOICE };
 
@@ -1149,9 +1150,9 @@ const totalDuration = _from;
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {
-  fps: 30,
-  width: 1080,
-  height: 1920,
+  fps: SERIES_FPS,
+  width: SERIES_WIDTH,
+  height: SERIES_HEIGHT,
   durationInFrames: totalDuration,
 };
 

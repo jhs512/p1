@@ -12,6 +12,7 @@ import {
 } from "remotion";
 import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./007-audio";
+import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
 import {
   CROSS,
   ContentArea,
@@ -691,9 +692,9 @@ const SummaryScene: React.FC = () => {
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  fps: 30,
-  width: 1080,
-  height: 1920,
+  fps: SERIES_FPS,
+  width: SERIES_WIDTH,
+  height: SERIES_HEIGHT,
   durationInFrames: totalDuration,
 };
 

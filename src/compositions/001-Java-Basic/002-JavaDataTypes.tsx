@@ -22,6 +22,7 @@ import {
   useFade,
 } from "../../utils/scene";
 import { AUDIO_CONFIG } from "./002-audio";
+import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
 
 export { RATE, VOICE };
 
@@ -985,9 +986,9 @@ const totalDuration = _from;
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  fps: 30,
-  width: 1080,
-  height: 1920,
+  fps: SERIES_FPS,
+  width: SERIES_WIDTH,
+  height: SERIES_HEIGHT,
   durationInFrames: totalDuration,
 };
 
