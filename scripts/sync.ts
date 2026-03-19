@@ -6,12 +6,11 @@
  *
  * 자동 처리:
  *  1. narration 텍스트 해시로 변경된 씬만 감지
- *  2. edge-tts 로 mp3 재생성
- *  3. ffprobe 로 실측 duration → durationInFrames 계산
- *  4. ffmpeg silencedetect(-40dB) 로 발화 시작/종료 프레임 감지 → speechStartFrame / speechEndFrame
- *  5. ffmpeg silencedetect(-25dB) + 간격 제약 greedy selection → narrationSplits / sentenceEndFrames
- *     (문장 내 자연 쉼이 문장 경계보다 길어도 올바른 N-1개 지점 선택)
- *  6. Whisper 단어 타임스탬프 → wordStartFrames (문장별 TTS 비율 매핑)
+ *  2. edge-tts + Word Boundary 이벤트로 mp3 생성 및 단어 타이밍 추출
+ *  3. ffprobe로 실측 duration → durationInFrames 계산
+ *  4. Word Boundary → speechStartFrame / speechEndFrame
+ *  5. Word Boundary → narrationSplits / sentenceEndFrames
+ *  6. Word Boundary → wordStartFrames (display 단어별 발화 시작 프레임)
  *  7. 결과를 <id>-audio.ts 파일로 자동 저장
  */
 
@@ -23,7 +22,6 @@ import path from "path";
 
 const FPS = 30;
 const SCENE_TAIL_FRAMES = 15;
-const WORD_HIGHLIGHT_LEAD_FRAMES = 6;  // Whisper는 소리가 쌓인 후 인식 → 실제 발화보다 늦음. 6프레임(0.2s) 앞당겨 보정
 const PUBLIC_DIR = "public";
 const SRC_DIR = "src/compositions";
 
@@ -197,7 +195,7 @@ function tokenizeNarration(text: string): NarrationToken[] {
 // ── 전역 TTS 정렬 테이블 ───────────────────────────────────────
 // narration 모든 문장의 display 단어 → 전역 TTS 인덱스 매핑
 // 반환값:
-//   globalTtsCount: 전체 TTS 단어 수 (Whisper 인덱스 계산 기준)
+//   globalTtsCount: 전체 TTS 단어 수
 //   displayWords:   각 display 단어의 (sentenceIdx, displayIdx, firstTtsIdx, ttsCount)
 type DisplayWordInfo = {
   sentenceIdx: number;
@@ -220,113 +218,6 @@ export function buildGlobalAlignment(
     }
   }
   return { globalTtsCount: globalTtsIdx, displayWords };
-}
-
-// ── 발화 시작/종료 프레임 감지 (speechStartFrame / speechEndFrame) ─
-function detectSpeechBounds(audioFile: string, totalSecs: number): { speechStartFrame: number; speechEndFrame: number } {
-  const ffRes = spawnSync(
-    "ffmpeg",
-    ["-i", audioFile, "-af", "silencedetect=n=-40dB:d=0.03", "-f", "null", "-"],
-    { encoding: "utf-8" }
-  );
-  const output = (ffRes.stderr ?? "") + (ffRes.stdout ?? "");
-  const silences: { start: number; end: number | null }[] = [];
-  let pendingStart: number | null = null;
-  for (const line of output.split("\n")) {
-    const startM = line.match(/silence_start:\s*([\d.]+)/);
-    if (startM) pendingStart = parseFloat(startM[1]);
-    const endM = line.match(/silence_end:\s*([\d.]+)/);
-    if (endM) {
-      silences.push({ start: pendingStart ?? 0, end: parseFloat(endM[1]) });
-      pendingStart = null;
-    }
-  }
-  if (pendingStart !== null) silences.push({ start: pendingStart, end: null });
-
-  let speechStartFrame = 0;
-  const leading = silences.find((s) => s.start < 0.5 && s.end !== null);
-  if (leading) speechStartFrame = Math.round(leading.end! * FPS);
-
-  let speechEndFrame = Math.ceil(totalSecs * FPS);
-  const trailing = [...silences].reverse().find((s) => s.end === null || s.end >= totalSecs - 0.1);
-  if (trailing) speechEndFrame = Math.round(trailing.start * FPS);
-
-  return { speechStartFrame, speechEndFrame };
-}
-
-// ── 문장 분기 프레임 감지 (narrationSplits / sentenceEndFrames) ─
-//
-// 반환값:
-//   splits / sentenceEndFrames: 감지된 프레임
-//   tooManyCandidates: true → silencedetect를 신뢰할 수 없음 (문장 내 쉼 오감지 의심)
-//                             → 호출자가 Whisper wordStartFrames 기반으로 대체해야 함
-//
-// 문제: 문장 내 자연 쉼이 문장 경계보다 길면 top-N이 잘못된 지점을 선택한다.
-// 해결1: 간격 제약 greedy selection (같은 문장 내 두 쉼 동시 선택 방지)
-// 해결2: 후보 수가 sentenceCount 초과 시 tooManyCandidates=true 반환 → Whisper 우선
-function detectSplits(
-  audioFile: string,
-  sentenceCount: number,
-): { splits: number[]; sentenceEndFrames: number[]; tooManyCandidates: boolean } {
-  if (sentenceCount <= 1) return { splits: [], sentenceEndFrames: [], tooManyCandidates: false };
-
-  const probeRes = spawnSync(
-    "ffprobe",
-    ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", audioFile],
-    { encoding: "utf-8" }
-  );
-  const totalSecs = parseFloat(probeRes.stdout.trim());
-
-  const ffRes = spawnSync(
-    "ffmpeg",
-    ["-i", audioFile, "-af", "silencedetect=n=-25dB:d=0.2", "-f", "null", "-"],
-    { encoding: "utf-8" }
-  );
-  const output = (ffRes.stderr ?? "") + (ffRes.stdout ?? "");
-
-  const entries: { start: number; end: number; duration: number }[] = [];
-  let pendingStart: number | null = null;
-  for (const line of output.split("\n")) {
-    const startM = line.match(/silence_start:\s*([\d.]+)/);
-    if (startM) pendingStart = parseFloat(startM[1]);
-    const m = line.match(/silence_end:\s*([\d.]+)\s*\|\s*silence_duration:\s*([\d.]+)/);
-    if (m && pendingStart !== null) {
-      entries.push({ start: pendingStart, end: parseFloat(m[1]), duration: parseFloat(m[2]) });
-      pendingStart = null;
-    }
-  }
-
-  const candidates = entries
-    .filter((e) => e.end > 0.4 && e.end < totalSecs - 0.3 && e.duration > 0.25)
-    .sort((a, b) => b.duration - a.duration);   // 긴 silence 우선
-
-  // 후보 수 > sentenceCount → 문장 내 쉼 오감지 의심 → tooManyCandidates 플래그
-  const tooManyCandidates = candidates.length > sentenceCount;
-
-  // greedy selection: minSpread 간격 이내 후보 스킵
-  const minSpreadSecs = (totalSecs / sentenceCount) * 0.6;
-  const selected: typeof entries = [];
-  for (const e of candidates) {
-    if (selected.length >= sentenceCount - 1) break;
-    const tooClose = selected.some((s) => Math.abs(s.end - e.end) < minSpreadSecs);
-    if (!tooClose) selected.push(e);
-  }
-
-  // 간격 제약으로 부족해진 경우 제약 없이 나머지 채우기
-  if (selected.length < sentenceCount - 1) {
-    for (const e of candidates) {
-      if (selected.length >= sentenceCount - 1) break;
-      if (!selected.includes(e)) selected.push(e);
-    }
-  }
-
-  selected.sort((a, b) => a.start - b.start);   // 시간 순으로 재정렬
-
-  return {
-    splits:            selected.map((b) => Math.round(b.end   * FPS)),
-    sentenceEndFrames: selected.map((b) => Math.round(b.start * FPS)),
-    tooManyCandidates,
-  };
 }
 
 // ── AUDIO_CONFIG 파일 쓰기 ────────────────────────────────────
@@ -396,6 +287,10 @@ if (existsSync(audioConfigFile)) {
 
 const audioConfig: Record<string, SceneAudioData> = {};
 
+const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
+const ttsScript  = path.join(process.cwd(), "scripts", "tts_with_boundaries.py");
+const TICKS = 10_000_000;
+
 for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const narration = scene.narration;
   if (!narration) continue;
@@ -407,193 +302,127 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   if (hashes[key] === newHash) {
     if (existingAudioConfig[key]) {
       audioConfig[key] = existingAudioConfig[key];
-      if (audioConfig[key].speechStartFrame === 0 || audioConfig[key].speechEndFrame === 0) {
-        const probeR = spawnSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", `${PUBLIC_DIR}/${audio}`], { encoding: "utf-8" });
-        const totalSecs = parseFloat(probeR.stdout.trim());
-        const bounds = detectSpeechBounds(`${PUBLIC_DIR}/${audio}`, totalSecs);
-        audioConfig[key] = { ...audioConfig[key], ...bounds };
-        changed = true;
-        console.log(`[skip] ${audio}  speechStartFrame → ${bounds.speechStartFrame}, speechEndFrame → ${bounds.speechEndFrame} (재측정)`);
-      } else {
-        console.log(`[skip] ${audio}`);
-      }
+      console.log(`[skip] ${audio}`);
     }
     continue;
   }
 
   console.log(`[gen]  ${audio}`);
 
-  // 1) TTS 생성
+  // 1) TTS 생성 + Word Boundary 추출
   const ttsRes = spawnSync(
-    "edge-tts",
-    ["--voice", VOICE, "--rate", RATE, "--text", ttsText, "--write-media", `${PUBLIC_DIR}/${audio}`],
-    { stdio: "inherit" }
+    venvPython,
+    [ttsScript, VOICE, RATE, ttsText, `${PUBLIC_DIR}/${audio}`],
+    { encoding: "utf-8" }
   );
-  if (ttsRes.status !== 0) { console.error(`❌  Failed: ${audio}`); process.exit(1); }
+  if (ttsRes.status !== 0) {
+    console.error(`❌  Failed: ${audio}`);
+    if (ttsRes.stderr) console.error(ttsRes.stderr.slice(0, 300));
+    process.exit(1);
+  }
+
+  // Word Boundary 파싱
+  type WBEvent = { text: string; offset: number; duration: number };
+  let wordBoundaries: WBEvent[] = [];
+  try { wordBoundaries = JSON.parse(ttsRes.stdout.trim()) as WBEvent[]; } catch { /* ignore */ }
 
   // 2) durationInFrames
   const probeRes = spawnSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", `${PUBLIC_DIR}/${audio}`], { encoding: "utf-8" });
   const totalSecs = parseFloat(probeRes.stdout.trim());
-  console.log(`       실측 ${totalSecs.toFixed(2)}s`);
+  console.log(`       실측 ${totalSecs.toFixed(2)}s  (${wordBoundaries.length}개 Word Boundary)`);
   audioConfig[key] = { durationInFrames: Math.ceil(totalSecs * FPS) + SCENE_TAIL_FRAMES, narrationSplits: [], sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [] };
 
-  // 3) speechStartFrame / speechEndFrame
-  const bounds = detectSpeechBounds(`${PUBLIC_DIR}/${audio}`, totalSecs);
-  audioConfig[key].speechStartFrame = bounds.speechStartFrame;
-  audioConfig[key].speechEndFrame   = bounds.speechEndFrame;
-  console.log(`       speechStartFrame → ${bounds.speechStartFrame} (${(bounds.speechStartFrame / FPS).toFixed(2)}s)`);
-  console.log(`       speechEndFrame   → ${bounds.speechEndFrame} (${(bounds.speechEndFrame / FPS).toFixed(2)}s)`);
+  // 3) speechStartFrame / speechEndFrame (Word Boundary 기반)
+  if (wordBoundaries.length > 0) {
+    const first = wordBoundaries[0];
+    const last  = wordBoundaries[wordBoundaries.length - 1];
+    audioConfig[key].speechStartFrame = Math.round((first.offset / TICKS) * FPS);
+    audioConfig[key].speechEndFrame   = Math.round(((last.offset + last.duration) / TICKS) * FPS);
+  } else {
+    // fallback: 0 / totalFrames
+    audioConfig[key].speechStartFrame = 0;
+    audioConfig[key].speechEndFrame   = audioConfig[key].durationInFrames - SCENE_TAIL_FRAMES;
+  }
+  console.log(`       speechStartFrame → ${audioConfig[key].speechStartFrame} (${(audioConfig[key].speechStartFrame / FPS).toFixed(2)}s)`);
+  console.log(`       speechEndFrame   → ${audioConfig[key].speechEndFrame} (${(audioConfig[key].speechEndFrame / FPS).toFixed(2)}s)`);
 
-  // 4) narrationSplits / sentenceEndFrames (1차: silencedetect)
-  //    tooManyCandidates=true → 문장 내 쉼 오감지 의심 → Whisper 후처리로 덮어씀 (step 5B)
-  const { splits, sentenceEndFrames, tooManyCandidates } = detectSplits(`${PUBLIC_DIR}/${audio}`, narration.length);
-  if (splits.length > 0) {
+  // 4) narrationSplits / sentenceEndFrames (Word Boundary + buildGlobalAlignment 기반)
+  if (narration.length > 1 && wordBoundaries.length > 0) {
+    const { displayWords: dwInfos } = buildGlobalAlignment(narration);
+
+    // 각 문장의 TTS 단어 수 계산
+    const sentenceTtsCounts: number[] = narration.map((_, si) => {
+      const dws = dwInfos.filter(dw => dw.sentenceIdx === si);
+      if (dws.length === 0) return 0;
+      const last = dws[dws.length - 1];
+      return last.firstTtsIdx + last.ttsCount - dws[0].firstTtsIdx;
+    });
+
+    // 각 문장의 시작 TTS 인덱스
+    const sentenceStartTtsIdx: number[] = narration.map((_, si) => {
+      const first = dwInfos.find(dw => dw.sentenceIdx === si);
+      return first ? first.firstTtsIdx : 0;
+    });
+
+    const splits: number[] = [];
+    const ends: number[] = [];
+
+    for (let si = 0; si < narration.length - 1; si++) {
+      // si 문장의 마지막 WB 이벤트
+      const endIdx = Math.min(sentenceStartTtsIdx[si] + sentenceTtsCounts[si] - 1, wordBoundaries.length - 1);
+      const lastWb = wordBoundaries[Math.max(0, endIdx)];
+      ends.push(Math.round(((lastWb.offset + lastWb.duration) / TICKS) * FPS));
+
+      // si+1 문장의 첫 WB 이벤트
+      const nextStartIdx = Math.min(sentenceStartTtsIdx[si + 1], wordBoundaries.length - 1);
+      const nextWb = wordBoundaries[nextStartIdx];
+      splits.push(Math.round((nextWb.offset / TICKS) * FPS));
+    }
+
+    // 마지막 문장 end
+    const lastSi = narration.length - 1;
+    const lastEndIdx = Math.min(sentenceStartTtsIdx[lastSi] + sentenceTtsCounts[lastSi] - 1, wordBoundaries.length - 1);
+    const lastWbFinal = wordBoundaries[Math.max(0, lastEndIdx)];
+    ends.push(Math.round(((lastWbFinal.offset + lastWbFinal.duration) / TICKS) * FPS));
+
     audioConfig[key].narrationSplits   = splits;
-    audioConfig[key].sentenceEndFrames = sentenceEndFrames;
-    const warn = tooManyCandidates ? " ⚠️  silencedetect 후보 과다 — Whisper 후처리 예정" : "";
-    console.log(`       narrationSplits    → [${splits.join(", ")}]${warn}`);
-    console.log(`       sentenceEndFrames  → [${sentenceEndFrames.join(", ")}]`);
+    audioConfig[key].sentenceEndFrames = ends.slice(0, -1);  // 마지막 문장 end는 저장 불필요
+    console.log(`       narrationSplits    → [${splits.join(", ")}]`);
+    console.log(`       sentenceEndFrames  → [${ends.slice(0, -1).join(", ")}]`);
   }
 
-  // 5) Whisper 단어 타임스탬프 → wordStartFrames (문장별 분류 + PRONUNCIATION 정렬 기반)
-  //    전략:
-  //      A) Whisper 단어들을 문장별로 분류: 연속 단어 간 gap > SENTENCE_GAP_FRAMES이면 새 문장
-  //      B) 분류 수 = narration.length이면 문장별 TTS 비율 매핑 (가장 정확)
-  //      C) 불일치면 전역 비율 fallback (구 방식)
-  //    이유: Whisper가 한 TTS 단어를 여러 단어로 쪼개면(예: "출력해보겠습니다." → 2개)
-  //          전역 비율이 이후 단어를 모두 1개씩 앞 Whisper 단어로 밀어버림.
-  //          문장별 분류는 이 drift를 문장 단위로 격리해 누적을 방지.
-  audioConfig[key].wordStartFrames = narration.map(() => []);  // 기본: 빈 배열
+  // 5) wordStartFrames (Word Boundary 직접 인덱스 매핑)
+  if (wordBoundaries.length > 0) {
+    const { displayWords: dwInfos } = buildGlobalAlignment(narration);
+    const result: number[][] = narration.map(() => []);
 
-  const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
-  const whisperScript = path.join(process.cwd(), "scripts", "whisper_words.py");
-  const whisperRes = spawnSync(
-    venvPython,
-    [whisperScript, `${PUBLIC_DIR}/${audio}`],
-    { encoding: "utf-8" }
-  );
-
-  if (whisperRes.status === 0 && whisperRes.stdout.trim()) {
-    type WhisperWord = { start: number; end: number; word: string };
-    type WhisperSeg  = { start: number; end: number };
-    let allWhisperWords: WhisperWord[] = [];
-    let whisperSegments: WhisperSeg[]  = [];
-
-    try {
-      const raw = JSON.parse(whisperRes.stdout.trim());
-      if (Array.isArray(raw)) {
-        // 구버전 호환: words 배열만 반환한 경우
-        allWhisperWords = raw as WhisperWord[];
+    for (const dw of dwInfos) {
+      let frame: number;
+      if (dw.ttsCount === 0) {
+        // 묵음 단어: -1로 마킹 (이후에 채워짐)
+        frame = -1;
       } else {
-        // 신버전: { segments: [...], words: [...] }
-        allWhisperWords = (raw.words  ?? []) as WhisperWord[];
-        whisperSegments = (raw.segments ?? []) as WhisperSeg[];
+        const wbIdx = Math.min(dw.firstTtsIdx, wordBoundaries.length - 1);
+        frame = Math.round((wordBoundaries[wbIdx].offset / TICKS) * FPS);
       }
-    } catch { /* ignore */ }
-
-    // ── 5A) tooManyCandidates → Whisper segment 갭으로 narrationSplits 재계산 ─
-    //   Whisper segment는 단어보다 신뢰도 높은 자연 경계.
-    //   segment 간 gap이 가장 큰 N-1개 = 문장 경계 (문장 내 쉼 < 문장 간 쉼).
-    if (tooManyCandidates && whisperSegments.length >= narration.length) {
-      type SegGap = { gapSecs: number; nextIdx: number };
-      const segGaps: SegGap[] = [];
-      for (let i = 1; i < whisperSegments.length; i++) {
-        segGaps.push({ gapSecs: whisperSegments[i].start - whisperSegments[i - 1].end, nextIdx: i });
-      }
-      const topGaps = [...segGaps]
-        .sort((a, b) => b.gapSecs - a.gapSecs)
-        .slice(0, narration.length - 1)
-        .sort((a, b) => a.nextIdx - b.nextIdx);
-
-      const segSplits = topGaps.map((g) =>
-        Math.max(0, Math.round(whisperSegments[g.nextIdx].start * FPS) - WORD_HIGHLIGHT_LEAD_FRAMES),
-      );
-      const segEnds = topGaps.map((g) => Math.round(whisperSegments[g.nextIdx - 1].end * FPS));
-
-      audioConfig[key].narrationSplits   = segSplits;
-      audioConfig[key].sentenceEndFrames = segEnds;
-      console.log(`       narrationSplits    → [${segSplits.join(", ")}] (Whisper segments) ✅`);
-      console.log(`       sentenceEndFrames  → [${segEnds.join(", ")}]`);
+      result[dw.sentenceIdx][dw.displayIdx] = frame;
     }
 
-    if (allWhisperWords.length > 0) {
-      // ── A) Whisper 단어를 문장별로 분류 (gap 기반) ──────────────
-      const SENTENCE_GAP_FRAMES = 20;  // 0.67s 이상 gap → 새 문장 경계
-      const whisperSentences: WhisperWord[][] = [];
-      let curSentence: WhisperWord[] = [allWhisperWords[0]];
-      for (let i = 1; i < allWhisperWords.length; i++) {
-        const gap = (allWhisperWords[i].start - allWhisperWords[i - 1].start) * FPS;
-        if (gap > SENTENCE_GAP_FRAMES) {
-          whisperSentences.push(curSentence);
-          curSentence = [];
-        }
-        curSentence.push(allWhisperWords[i]);
-      }
-      whisperSentences.push(curSentence);
-
-      const useSentenceLocal = whisperSentences.length === narration.length;
-      if (!useSentenceLocal) {
-        console.log(`       whisper sentences → ${whisperSentences.length} (narration: ${narration.length}) — 전역 비율 fallback`);
-      }
-
-      // ── B/C) 문장별 또는 전역 비율로 프레임 계산 ──────────────
-      const { globalTtsCount, displayWords: dwInfos } = buildGlobalAlignment(narration);
-      const T = globalTtsCount;
-
-      const result: number[][] = narration.map(() => []);
-      for (let si = 0; si < narration.length; si++) {
-        const sentenceDws = dwInfos.filter((dw) => dw.sentenceIdx === si);
-
-        // 문장별 매핑 준비 (useSentenceLocal=true 시 사전 계산)
-        let ws: WhisperWord[] = allWhisperWords;
-        let sentenceTtsCount = T;
-        let localDwInfos: DisplayWordInfo[] = dwInfos;
-        if (useSentenceLocal) {
-          ws = whisperSentences[si];
-          const aligned = buildGlobalAlignment([narration[si]]);
-          sentenceTtsCount = aligned.globalTtsCount;
-          localDwInfos = aligned.displayWords;  // sentenceIdx=0, displayIdx 동일
-        }
-
-        // Pass 1: 비-zero TTS 단어의 프레임 계산
-        const rawFrames: (number | null)[] = sentenceDws.map((dw) => {
-          if (dw.ttsCount === 0) return null;
-          const localDw = useSentenceLocal
-            ? localDwInfos.find((d) => d.displayIdx === dw.displayIdx)
-            : dw;
-          if (!localDw) return null;
-          const localT = useSentenceLocal ? sentenceTtsCount : T;
-          const ratio = localT <= 1 ? 0 : localDw.firstTtsIdx / (localT - 1);
-          const wIdx = Math.min(ws.length - 1, Math.round(ratio * (ws.length - 1)));
-          return Math.max(0, Math.round(ws[wIdx].start * FPS) - WORD_HIGHLIGHT_LEAD_FRAMES);
-        });
-
-        // Pass 2: zero-TTS 단어 채우기
-        const firstNonNull = rawFrames.find((f) => f !== null) ?? audioConfig[key].speechStartFrame;
-        let lastNonNull = firstNonNull;
-        let seenNonNull = false;
-
-        for (let i = 0; i < sentenceDws.length; i++) {
-          const dw = sentenceDws[i];
-          if (rawFrames[i] !== null) {
-            lastNonNull = rawFrames[i]!;
-            seenNonNull = true;
-            result[si][dw.displayIdx] = rawFrames[i]!;
-          } else {
-            result[si][dw.displayIdx] = seenNonNull ? lastNonNull : firstNonNull;
-          }
-        }
-      }
-
-      audioConfig[key].wordStartFrames = result;
-      console.log(`       wordStartFrames   → ${result.map((s) => `[${s.join(",")}]`).join(" | ")}`);
-      if (tooManyCandidates) {
-        console.log(`       ⚠️  narrationSplits 신뢰도 낮음 — 문장 내 쉼 오감지 의심. 필요시 수동 교정.`);
+    // -1(묵음) 채우기: 앞/뒤 유효한 프레임으로 대체
+    for (const row of result) {
+      const firstValid = row.find(f => f !== -1) ?? audioConfig[key].speechStartFrame;
+      let lastValid = firstValid;
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] === -1) row[i] = lastValid;
+        else lastValid = row[i];
       }
     }
+
+    audioConfig[key].wordStartFrames = result;
+    console.log(`       wordStartFrames   → ${result.map(s => `[${s.join(",")}]`).join(" | ")}`);
   } else {
-    console.log(`       wordStartFrames   → Whisper 실패 (빈 배열)`);
-    if (whisperRes.stderr) console.error(whisperRes.stderr.slice(0, 300));
+    audioConfig[key].wordStartFrames = narration.map(() => []);
+    console.log(`       wordStartFrames   → Word Boundary 없음 (빈 배열)`);
   }
 
   hashes[key] = newHash;
