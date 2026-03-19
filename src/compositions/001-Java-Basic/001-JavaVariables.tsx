@@ -119,6 +119,7 @@ export const VIDEO_CONFIG = {
       "정답은 공간입니다.",
       "값을 대입받는 왼쪽 자리이기 때문이죠.",
       "우측의 [age(발음:에이지)]는 값 4로 해석해야 합니다.",
+      "여기 [int(발음:인트)]가 정확히 뭔지는 나중에 다음에 알아보겠습니다.",
     ] as string[],
     narrationSplits: AUDIO_CONFIG.interpretReveal.narrationSplits,
   },
