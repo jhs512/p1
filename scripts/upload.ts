@@ -87,7 +87,8 @@ async function ensurePlaylist(
       status: { privacyStatus: "public" },
     },
   });
-  const id = created.data.id!;
+  const id = created.data.id;
+  if (!id) throw new Error("재생목록 생성 실패: API 응답에 id 없음");
   console.log(`📋  재생목록 생성: "${title}" (${id})`);
   console.log(`⚠️  YouTube Studio에서 이 재생목록을 '공식 시리즈'로 설정해주세요.`);
   return id;
@@ -125,7 +126,8 @@ async function uploadVideo(
     },
     media: { body: createReadStream(videoPath) },
   });
-  const videoId = res.data.id!;
+  const videoId = res.data.id;
+  if (!videoId) throw new Error("영상 업로드 실패: API 응답에 id 없음");
   console.log(`   ✅  업로드 완료: https://youtu.be/${videoId}`);
   return videoId;
 }
@@ -229,6 +231,7 @@ async function addToPlaylist(
   // 7. 썸네일용 Remotion 번들 (필요 시)
   let bundled: string | null = null;
   let uploaded = 0;
+  const failed: string[] = [];
 
   // 8. 에피소드별 처리
   for (const ep of targets) {
@@ -241,21 +244,6 @@ async function addToPlaylist(
       continue;
     }
 
-    const defaults = YOUTUBE_CONFIG.defaults;
-    const meta = {
-      title,
-      description: "description" in epConfig ? (epConfig as any).description : "",
-      tags: "tags" in epConfig ? (epConfig as any).tags : [...defaults.tags],
-      categoryId:
-        "categoryId" in epConfig ? (epConfig as any).categoryId : defaults.categoryId,
-      privacyStatus: (
-        "privacyStatus" in epConfig
-          ? (epConfig as any).privacyStatus
-          : defaults.privacyStatus
-      ) as PrivacyStatus,
-      language: defaults.language,
-    };
-
     const mp4Path = path.join(OUT_DIR, seriesDir, `${ep}.mp4`);
     const srtPath = path.join(OUT_DIR, seriesDir, `${ep}.srt`);
 
@@ -265,51 +253,74 @@ async function addToPlaylist(
       continue;
     }
 
-    // 썸네일 렌더링
-    if (!bundled) {
-      console.log(`\n🎬  Remotion 번들링 (썸네일용)…`);
-      bundled = await bundle({
-        entryPoint: path.resolve("src/index.ts"),
-        webpackOverride: (c: any) => c,
+    try {
+      const defaults = YOUTUBE_CONFIG.defaults;
+      const ep_ = epConfig as Record<string, unknown>;
+      const meta = {
+        title,
+        description: (ep_.description as string) ?? "",
+        tags: Array.isArray(ep_.tags) ? (ep_.tags as string[]) : [...defaults.tags],
+        categoryId: (ep_.categoryId as string) ?? defaults.categoryId,
+        privacyStatus: ((ep_.privacyStatus as PrivacyStatus) ?? defaults.privacyStatus),
+        language: defaults.language,
+      };
+
+      // 썸네일 렌더링
+      if (!bundled) {
+        console.log(`\n🎬  Remotion 번들링 (썸네일용)…`);
+        bundled = await bundle({
+          entryPoint: path.resolve("src/index.ts"),
+          webpackOverride: (c) => c,
+        });
+      }
+      const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
+      const compositionId = langDir
+        ? [dirPrefix, langDir, ep].join("-")
+        : [dirPrefix, ep].join("-");
+      const thumbDir = path.join(OUT_DIR, seriesDir);
+      const thumbPath = path.join(thumbDir, `${ep}-thumb.jpeg`);
+      mkdirSync(thumbDir, { recursive: true });
+
+      const composition = await selectComposition({
+        serveUrl: bundled,
+        id: compositionId,
       });
+      await renderStill({
+        composition,
+        serveUrl: bundled,
+        output: thumbPath,
+        frame: 0,
+        imageFormat: "jpeg",
+        jpegQuality: 90,
+      });
+      console.log(`   🖼️  썸네일 렌더링 완료: ${thumbPath}`);
+
+      // 영상 업로드
+      const videoId = await uploadVideo(yt, mp4Path, meta);
+
+      // 썸네일 설정
+      await uploadThumbnail(yt, videoId, thumbPath);
+
+      // 자막 업로드 (SRT 파일 있을 때만)
+      if (existsSync(srtPath)) {
+        await uploadCaption(yt, videoId, srtPath, meta.language);
+      }
+
+      // 재생목록 추가
+      await addToPlaylist(yt, playlistId, videoId);
+      uploaded++;
+    } catch (err: any) {
+      console.error(`\n❌  "${title}" 업로드 실패: ${err.message ?? err}`);
+      failed.push(ep);
     }
-    const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
-    const compositionId = [dirPrefix, langDir, ep].join("-");
-    const thumbDir = path.join(OUT_DIR, seriesDir);
-    const thumbPath = path.join(thumbDir, `${ep}-thumb.jpeg`);
-    mkdirSync(thumbDir, { recursive: true });
-
-    const composition = await selectComposition({
-      serveUrl: bundled,
-      id: compositionId,
-    });
-    await renderStill({
-      composition,
-      serveUrl: bundled,
-      output: thumbPath,
-      frame: 0,
-      imageFormat: "jpeg",
-      jpegQuality: 90,
-    });
-    console.log(`   🖼️  썸네일 렌더링 완료: ${thumbPath}`);
-
-    // 영상 업로드
-    const videoId = await uploadVideo(yt, mp4Path, meta);
-
-    // 썸네일 설정
-    await uploadThumbnail(yt, videoId, thumbPath);
-
-    // 자막 업로드 (SRT 파일 있을 때만)
-    if (existsSync(srtPath)) {
-      await uploadCaption(yt, videoId, srtPath, meta.language);
-    }
-
-    // 재생목록 추가
-    await addToPlaylist(yt, playlistId, videoId);
-    uploaded++;
   }
 
-  console.log(`\n🎉  업로드 ${uploaded}개 / 전체 ${targets.length}개 에피소드\n`);
+  console.log(`\n🎉  업로드 ${uploaded}개 / 전체 ${targets.length}개 에피소드`);
+  if (failed.length > 0) {
+    console.error(`⚠️  실패: ${failed.join(", ")}`);
+    process.exit(1);
+  }
+  console.log();
 })().catch((err) => {
   console.error("\n❌ ", err.message ?? err);
   process.exit(1);

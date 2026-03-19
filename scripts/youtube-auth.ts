@@ -16,6 +16,11 @@ const PORT = 8070;
 const AUTH_TIMEOUT_MS = 120_000;
 
 export async function getYouTubeClient() {
+  if (!existsSync(CLIENT_PATH)) {
+    throw new Error(
+      "client.json 없음 — Google Cloud Console에서 OAuth 인증 정보를 다운로드하세요.",
+    );
+  }
   const clientJson = JSON.parse(readFileSync(CLIENT_PATH, "utf-8"));
   const { client_id, client_secret, redirect_uris } = clientJson.web;
 
