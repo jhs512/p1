@@ -5,8 +5,8 @@
  *   시리즈 전체:   pnpm srt 001
  *   전체:          pnpm srt
  */
+import { mkdirSync, readdirSync, statSync, writeFileSync } from "fs";
 import path from "path";
-import { readdirSync, statSync, mkdirSync, writeFileSync } from "fs";
 
 const SRC_DIR = "src/compositions";
 const arg = process.argv[2] ?? "";
@@ -68,13 +68,15 @@ function buildSRT(
   fps: number,
 ): string {
   if (entries.length === 0) return "";
-  return entries
-    .map((entry, i) => {
-      const start = frameToTimestamp(entry.startFrame, fps);
-      const end = frameToTimestamp(entry.endFrame, fps);
-      return `${i + 1}\n${start} --> ${end}\n${entry.text}`;
-    })
-    .join("\n\n") + "\n";
+  return (
+    entries
+      .map((entry, i) => {
+        const start = frameToTimestamp(entry.startFrame, fps);
+        const end = frameToTimestamp(entry.endFrame, fps);
+        return `${i + 1}\n${start} --> ${end}\n${entry.text}`;
+      })
+      .join("\n\n") + "\n"
+  );
 }
 
 // ── 메인 ─────────────────────────────────────────────────────
@@ -110,7 +112,9 @@ function buildSRT(
     const fps = mod.fps ?? 30;
 
     if (!Array.isArray(srtData)) {
-      console.warn(`  ${files[0]}: SRT_DATA not found or not an array — skipping`);
+      console.warn(
+        `  ${srtFilePath}: SRT_DATA not found or not an array — skipping`,
+      );
       continue;
     }
 
@@ -124,7 +128,9 @@ function buildSRT(
     const outputFile = path.join(outputDir, `${episodeNum}.srt`);
     writeFileSync(outputFile, srtContent, "utf-8");
 
-    console.log(`  ${srtFile} -> ${outputFile} (${(srtData as unknown[]).length} cues)`);
+    console.log(
+      `  ${srtFile} -> ${outputFile} (${(srtData as unknown[]).length} cues)`,
+    );
   }
 
   console.log(`\nDone. ${targets.length} episode(s) processed.`);
