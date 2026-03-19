@@ -45,9 +45,11 @@ const entries = ctx
     const epMatchLegacy = filename.match(/^(\d+)-/);
     const epNum = epMatch ? epMatch[1] : (epMatchLegacy ? epMatchLegacy[1] : filename); // "001"
     const dirPrefix = seriesFolder.match(/^(\d+)/)?.[1] ?? seriesFolder; // "001"
-    // 언어 폴더가 있으면 폴더 계층이 맥락을 제공하므로 ep 번호만 사용.
+    // 언어 폴더가 있으면 "001/KOR/001" 형태로 URL이 계층을 표현.
     // 언어 폴더가 없으면 기존 방식(001-001)으로 fallback.
-    const ep = langFolder ? epNum : [dirPrefix, epNum].filter(Boolean).join("-");
+    const ep = langFolder
+      ? [dirPrefix, langFolder, epNum].join("/")
+      : [dirPrefix, epNum].filter(Boolean).join("-");
     const totalFrames =
       mod.compositionMeta.durationInFrames ??
       Object.values(mod.VIDEO_CONFIG).reduce(
