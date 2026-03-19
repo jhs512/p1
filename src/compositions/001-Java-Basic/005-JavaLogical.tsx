@@ -722,8 +722,11 @@ const SummaryScene: React.FC = () => {
             }}
           >
             {SUMMARY_ROWS.map((row, i) => {
+              // &&(idx 0→85), ||(idx 5→150), !(idx 10→216) 발화 시점 기준
+              const opWordIndices = [0, 5, 10] as const;
+              const triggerFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][opWordIndices[i]] ?? i * 10;
               const appear = spring({
-                frame: frame - i * 10,
+                frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
                 durationInFrames: 26,

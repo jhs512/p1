@@ -470,7 +470,10 @@ const SummaryScene: React.FC = () => {
             display: "flex", flexDirection: "column", gap: 24, width: 860,
           }}>
             {SUMMARY_ROWS.map((row, i) => {
-              const appear = spring({ frame: frame - i * 12, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
+              // if(idx 0→frame 2), else(idx 4→frame 50) 발화 시점 기준
+              const kwWordIndices = [0, 4] as const;
+              const triggerFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[0][kwWordIndices[i]] ?? i * 12;
+              const appear = spring({ frame: frame - triggerFrame, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 26 });
               const sc     = interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
               return (
                 <div key={i} style={{
