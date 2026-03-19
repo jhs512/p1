@@ -176,17 +176,35 @@ function toTTSText(text: string, pronMap: Record<string, string> = {}): string {
 // ── 나레이션 토크나이저 ────────────────────────────────────────
 // [X(발음:Y)] → { display: X, tts: Y.split(" ") }
 // 일반 단어    → { display: word, tts: [word] }
+//
+// ⚠️ 핵심: [X(발음:Y)]바로뒤 처럼 ] 다음에 공백 없이 이어지는 문자는
+//   suffix로 캡처해 display·tts 모두 한 토큰으로 합친다.
+//   예) [개수(발음:개쑤)]처럼 → display:"개수처럼", tts:["개쑤처럼"]
+//   이렇게 해야 toDisplayText().split(/\s+/) 의 display 토큰 수 =
+//   buildGlobalAlignment 의 globalTtsCount 와 일치한다.
 type NarrationToken = { display: string; tts: string[] };
 function tokenizeNarration(text: string): NarrationToken[] {
   const tokens: NarrationToken[] = [];
-  const re = /\[([^(]+)\(발음:([^)]*)\)\]|(\S+)/g;
+  // Group 1,2: inline [X(발음:Y)], Group 3: trailing non-whitespace suffix, Group 4: plain word
+  const re = /\[([^(]+)\(발음:([^)]*)\)\](\S*)|(\S+)/g;
   let m;
   while ((m = re.exec(text)) !== null) {
     if (m[1] !== undefined) {
-      const pron = m[2].trim();
-      tokens.push({ display: m[1], tts: pron === "" ? [] : pron.split(/\s+/) });
+      const pron   = m[2].trim();
+      const suffix = m[3] ?? "";
+      const displayText = m[1] + suffix;
+      if (pron === "") {
+        // 묵음: suffix만 남기되, suffix도 없으면 완전 묵음
+        tokens.push({ display: displayText, tts: suffix ? [suffix] : [] });
+      } else {
+        const pronWords = pron.split(/\s+/);
+        // suffix는 마지막 TTS 단어에 붙인다
+        // (e.g. pron="낫 트루" suffix="는" → ["낫","트루는"])
+        if (suffix) pronWords[pronWords.length - 1] += suffix;
+        tokens.push({ display: displayText, tts: pronWords });
+      }
     } else {
-      tokens.push({ display: m[3], tts: [m[3]] });
+      tokens.push({ display: m[4], tts: [m[4]] });
     }
   }
   return tokens;
