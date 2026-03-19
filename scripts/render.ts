@@ -10,6 +10,8 @@ import { readdirSync, statSync, mkdirSync } from "fs";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
 
+const CROP_BOTTOM_PX = 240; // 하단 자막 안전구역 — 렌더 height에서 제거
+
 const SRC_DIR = "src/compositions";
 const arg = process.argv[2] ?? "";
 
@@ -77,10 +79,11 @@ function episodesOf(seriesDir: string) {
 
     const composition = await selectComposition({ serveUrl: bundled, id: compositionId });
     await renderMedia({
-      composition, serveUrl: bundled, codec: "h264", outputLocation: outputFile,
+      composition: { ...composition, height: composition.height - CROP_BOTTOM_PX },
+      serveUrl: bundled, codec: "h264", outputLocation: outputFile,
       onProgress: ({ progress }) => process.stdout.write(`\r   ⏳  ${(progress * 100).toFixed(1)}%`),
     });
-    console.log(`\n   ✅  Done`);
+    console.log(`\n   ✅  Done (${composition.width}×${composition.height - CROP_BOTTOM_PX})`);
   }
 
   console.log(`\n🎉  All ${targets.length} video(s) rendered.\n`);
