@@ -25,6 +25,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./006-3-audio.gen";
+import { CONTENT } from "./006-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -43,50 +44,35 @@ export const VIDEO_CONFIG = {
     audio: "if-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
-    narration: [
-      "제어문에는 조건문과 반복문이 있습니다.",
-      "조건문 중에 기본인 if 문을 알아보겠습니다.",
-    ] as string[],
+    narration: CONTENT.overview.narration as string[],
     narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
   },
   intro: {
     audio: "if-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
-    narration: [
-      "조건문은 조건이 참일 때만 코드를 실행합니다.",
-      "조건이 거짓일 때도 처리하려면\nelse를 사용합니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   ifScene: {
     audio: "if-if.mp3",
     durationInFrames: AUDIO_CONFIG.ifScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.ifScene.speechStartFrame,
-    narration: [
-      "score가 60 이상이면 합격 메시지를 출력합니다.",
-      "75는 60 이상이므로 조건이 참,\n블록 안의 코드가 실행됩니다.",
-    ] as string[],
+    narration: CONTENT.ifScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.ifScene.narrationSplits,
   },
   ifElseScene: {
     audio: "if-ifelse.mp3",
     durationInFrames: AUDIO_CONFIG.ifElseScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.ifElseScene.speechStartFrame,
-    narration: [
-      "else는 조건이 거짓일 때 실행되는 블록입니다.",
-      "score가 45라면 조건이 거짓이므로\nelse 블록이 실행됩니다.",
-    ] as string[],
+    narration: CONTENT.ifElseScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.ifElseScene.narrationSplits,
   },
   summaryScene: {
     audio: "if-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: [
-      "if는 조건이 참일 때, else는 거짓일 때 실행됩니다.",
-      "조건에 따라 서로 다른 코드를 실행할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };

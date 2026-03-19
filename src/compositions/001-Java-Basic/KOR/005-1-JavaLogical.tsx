@@ -25,6 +25,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./005-3-audio.gen";
+import { CONTENT } from "./005-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -40,50 +41,35 @@ export const VIDEO_CONFIG = {
     audio: "lgc-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
-    narration: [
-      "논리 연산자는 조건들을 연결하거나 뒤집는 연산자입니다.",
-      "[&&(발음:AND)], [||(발음:OR)], [!(발음:NOT)], 세 가지를 알아봅니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   andScene: {
     audio: "lgc-and.mp3",
     durationInFrames: AUDIO_CONFIG.andScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.andScene.speechStartFrame,
-    narration: [
-      "AND 연산자입니다.\nx가 [true(발음:트루)]여도 y가 [false(발음:폴스)]면\n결과는 [false(발음:폴스)]입니다.",
-      "두 조건이 모두 [true(발음:트루)]여야\n비로소 [true(발음:트루)]가 됩니다.",
-    ] as string[],
+    narration: CONTENT.andScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.andScene.narrationSplits,
   },
   orScene: {
     audio: "lgc-or.mp3",
     durationInFrames: AUDIO_CONFIG.orScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.orScene.speechStartFrame,
-    narration: [
-      "OR 연산자입니다.\nx가 [true(발음:트루)]이므로 x || y는 [true(발음:트루)]입니다.",
-      "하나라도 [true(발음:트루)]면 [true(발음:트루)],\n둘 다 [false(발음:폴스)]여야 [false(발음:폴스)]가 됩니다.",
-    ] as string[],
+    narration: CONTENT.orScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.orScene.narrationSplits,
   },
   notScene: {
     audio: "lgc-not.mp3",
     durationInFrames: AUDIO_CONFIG.notScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.notScene.speechStartFrame,
-    narration: [
-      "NOT 연산자는 참을 거짓으로,\n거짓을 참으로 뒤집습니다.",
-      "[!true(발음:낫 트루)]는 [false(발음:폴스)], [!false(발음:낫 폴스)]는 [true(발음:트루)]입니다.",
-    ] as string[],
+    narration: CONTENT.notScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.notScene.narrationSplits,
   },
   summaryScene: {
     audio: "lgc-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: [
-      "세 가지 논리 연산자를 정리했습니다.",
-      "[&&(발음:AND)]는 모두 참이어야 결과가 참,\n[||(발음:OR)]는 하나라도 참이면 결과가 참,\n[!은(발음:나슨)] 반전입니다.",
-    ] as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };

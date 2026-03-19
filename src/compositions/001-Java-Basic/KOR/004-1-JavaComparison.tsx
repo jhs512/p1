@@ -25,6 +25,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
+import { CONTENT } from "./004-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -53,34 +54,21 @@ export const VIDEO_CONFIG = {
     audio: "cmp-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
-    narration: [
-      "비교 연산자는 두 값을 비교해 참 또는 거짓을 반환합니다.",
-      "결과는 [boolean(발음:불리언)] 타입으로,\n조건문과 함께 자주 사용됩니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   compareScene: {
     audio: "cmp-compare.mp3",
     durationInFrames: AUDIO_CONFIG.compareScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.compareScene.speechStartFrame,
-    narration: [
-      "같음 연산자입니다,\n10과 3은 같지 않아 [false(발음:폴스)]입니다.",
-      "다름 연산자입니다,\n10과 3은 서로 다르므로 [true(발음:트루)]입니다.",
-      "초과 연산자입니다,\n10이 3보다 크므로 [true(발음:트루)]입니다.",
-      "미만 연산자입니다,\n10이 3보다 작지 않아 [false(발음:폴스)]입니다.",
-      "이상 연산자입니다,\n10이 3 이상이므로 [true(발음:트루)]입니다.",
-      "이하 연산자입니다,\n10이 3 이하가 아니므로 [false(발음:폴스)]입니다.",
-    ] as string[],
+    narration: CONTENT.compareScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.compareScene.narrationSplits,
   },
   summaryScene: {
     audio: "cmp-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: [
-      "여섯 가지 비교 연산자를 정리하면 이렇습니다.",
-      "결과가 참이면 [true(발음:트루)], [거짓이면(발음:거지시면)] [false(발음:폴스)]가 됩니다.",
-    ] as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
