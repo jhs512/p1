@@ -330,37 +330,33 @@ const OverviewScene: React.FC = () => {
                   <div style={nodeStyle(C_LOOP_NODE, true, rightAppear)}>
                     반복문
                   </div>
-                  {phase2 && (
-                    <>
-                      <div
-                        style={{
-                          width: 2,
-                          height: 20,
-                          background: "rgba(255,255,255,0.18)",
-                          opacity: whileAppear,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <div
-                        style={{
-                          fontFamily: monoFont,
-                          fontFeatureSettings: MONO_NO_LIGA,
-                          fontSize: 52,
-                          fontWeight: 900,
-                          color: C_WHILE,
-                          background: `${C_WHILE}18`,
-                          border: `2px solid ${C_WHILE}55`,
-                          borderRadius: 18,
-                          padding: "14px 44px",
-                          opacity: whileAppear,
-                          transform: `scale(${interpolate(whileAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                          boxShadow: `0 0 32px ${C_WHILE}33`,
-                        }}
-                      >
-                        while
-                      </div>
-                    </>
-                  )}
+                  <div
+                    style={{
+                      width: 2,
+                      height: 20,
+                      background: "rgba(255,255,255,0.18)",
+                      opacity: whileAppear,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 52,
+                      fontWeight: 900,
+                      color: C_WHILE,
+                      background: `${C_WHILE}18`,
+                      border: `2px solid ${C_WHILE}55`,
+                      borderRadius: 18,
+                      padding: "14px 44px",
+                      opacity: whileAppear,
+                      transform: `scale(${interpolate(whileAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      boxShadow: `0 0 32px ${C_WHILE}33`,
+                    }}
+                  >
+                    while
+                  </div>
                 </div>
               </div>
             </div>
