@@ -1060,7 +1060,7 @@ const QuizScene: React.FC = () => {
               </div>
 
               {/* = */}
-              <span style={{ alignSelf: "flex-start" }}> = </span>
+              <span style={{ alignSelf: "flex-start", margin: "0 8px" }}>=</span>
 
               {/* 오른쪽 age + ↑값 */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -1073,7 +1073,7 @@ const QuizScene: React.FC = () => {
               </div>
 
               {/* + 2; */}
-              <span style={{ alignSelf: "flex-start", color: "#d4d4d4" }}> + </span>
+              <span style={{ alignSelf: "flex-start", color: "#d4d4d4", margin: "0 8px" }}>+</span>
               <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>2</span>
               <span style={{ alignSelf: "flex-start" }}>;</span>
             </div>
