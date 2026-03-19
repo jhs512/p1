@@ -322,37 +322,34 @@ const OverviewScene: React.FC = () => {
                   }}
                 >
                   <div style={nodeStyle(C_FOR, true, rightAppear)}>반복문</div>
-                  {phase2 && (
-                    <>
-                      <div
-                        style={{
-                          width: 2,
-                          height: 20,
-                          background: "rgba(255,255,255,0.18)",
-                          opacity: forAppear,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <div
-                        style={{
-                          fontFamily: monoFont,
-                          fontFeatureSettings: MONO_NO_LIGA,
-                          fontSize: 52,
-                          fontWeight: 900,
-                          color: C_FOR,
-                          background: `${C_FOR}18`,
-                          border: `2px solid ${C_FOR}55`,
-                          borderRadius: 18,
-                          padding: "14px 44px",
-                          opacity: forAppear,
-                          transform: `scale(${interpolate(forAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                          boxShadow: `0 0 32px ${C_FOR}33`,
-                        }}
-                      >
-                        for
-                      </div>
-                    </>
-                  )}
+                  {/* 공간을 항상 확보해 컨테이너 높이 고정 — phase2 전엔 투명 */}
+                  <div
+                    style={{
+                      width: 2,
+                      height: 20,
+                      background: "rgba(255,255,255,0.18)",
+                      opacity: phase2 ? forAppear : 0,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 52,
+                      fontWeight: 900,
+                      color: C_FOR,
+                      background: `${C_FOR}18`,
+                      border: `2px solid ${C_FOR}55`,
+                      borderRadius: 18,
+                      padding: "14px 44px",
+                      opacity: phase2 ? forAppear : 0,
+                      transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      boxShadow: `0 0 32px ${C_FOR}33`,
+                    }}
+                  >
+                    for
+                  </div>
                 </div>
               </div>
             </div>
