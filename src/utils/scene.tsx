@@ -14,7 +14,7 @@ import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 
 import React from "react";
 
-import { CROSS } from "../config";
+import { CROSS, SCENE_TAIL_FRAMES } from "../config";
 import { toDisplayText } from "./narration";
 
 // ── 폰트 ─────────────────────────────────────────────────────
@@ -166,3 +166,19 @@ export const Subtitle: React.FC<{
     </div>
   );
 };
+
+// ── 유틸: calcDuration ────────────────────────────────────────
+/**
+ * 씬 durationInFrames 계산 — 오디오와 애니메이션 중 더 긴 쪽 반환 (헌법 6조)
+ * @param audioDurationInFrames  AUDIO_CONFIG.scene.durationInFrames
+ * @param animEndFrame           애니메이션 마지막 프레임 번호 (씬 기준 상대값)
+ * @param cross                  크로스페이드 프레임 (기본: CROSS=20)
+ * @param tail                   오디오 후 여유 프레임 (기본: SCENE_TAIL_FRAMES=15)
+ */
+export function calcDuration(
+  audioDurationInFrames: number,
+  animEndFrame: number,
+  { cross = CROSS, tail = SCENE_TAIL_FRAMES }: { cross?: number; tail?: number } = {},
+): number {
+  return Math.max(audioDurationInFrames, animEndFrame + cross + tail);
+}
