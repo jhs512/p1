@@ -570,6 +570,7 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
     </>
   );
@@ -795,6 +796,7 @@ const ValueVsVarScene: React.FC = () => {
         sentences={valueVsVar.narration}
         splits={splits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.valueVsVar.wordStartFrames}
       />
     </>
   );
@@ -870,6 +872,7 @@ const TypeScene: React.FC<{
         sentences={config.narration}
         splits={config.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG[sceneKey].wordStartFrames}
       />
     </>
   );
@@ -909,6 +912,7 @@ const BooleanScene: React.FC = () => {
         sentences={booleanScene.narration}
         splits={booleanScene.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.booleanScene.wordStartFrames}
       />
     </>
   );
@@ -960,6 +964,7 @@ const SummaryScene: React.FC = () => {
         sentences={summaryScene.narration}
         splits={summaryScene.narrationSplits}
         speechStart={summaryScene.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
     </>
   );

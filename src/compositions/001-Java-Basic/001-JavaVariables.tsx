@@ -511,6 +511,7 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         splits={intro.narrationSplits}
         speechStart={AUDIO_CONFIG.intro.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
     </>
   );
@@ -786,6 +787,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
           sentences={declaration.narration}
           splits={declaration.narrationSplits}
           speechStart={AUDIO_CONFIG.declaration.speechStartFrame}
+          wordFrames={AUDIO_CONFIG.declaration.wordStartFrames}
         />
       </Sequence>
       <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
@@ -793,6 +795,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
           sentences={initialization.narration}
           splits={initialization.narrationSplits}
           speechStart={AUDIO_CONFIG.initialization.speechStartFrame}
+          wordFrames={AUDIO_CONFIG.initialization.wordStartFrames}
         />
       </Sequence>
     </>
@@ -903,7 +906,7 @@ const InterpretScene: React.FC = () => {
           )}
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} wordFrames={AUDIO_CONFIG.interpret.wordStartFrames} />
     </>
   );
 };
@@ -1092,6 +1095,7 @@ const QuizScene: React.FC = () => {
           sentences={qCfg.narration}
           splits={[]}
           speechStart={qCfg.speechStartFrame}
+          wordFrames={AUDIO_CONFIG.interpretQuiz.wordStartFrames}
         />
       </Sequence>
       {/* 자막: 정답 */}
@@ -1100,6 +1104,7 @@ const QuizScene: React.FC = () => {
           sentences={rCfg.narration}
           splits={rCfg.narrationSplits as unknown as number[]}
           speechStart={rCfg.speechStartFrame}
+          wordFrames={AUDIO_CONFIG.interpretReveal.wordStartFrames}
         />
       </Sequence>
     </>
@@ -1127,6 +1132,7 @@ const PrintScene: React.FC = () => {
         sentences={print.narration}
         splits={print.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.print.wordStartFrames}
       />
     </>
   );

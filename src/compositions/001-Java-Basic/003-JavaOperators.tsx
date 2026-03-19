@@ -346,6 +346,7 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
     </>
   );
@@ -380,6 +381,7 @@ const AddSubScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.addSubScene.wordStartFrames}
       />
     </>
   );
@@ -418,6 +420,7 @@ const MulDivScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.mulDivScene.wordStartFrames}
       />
     </>
   );
@@ -637,6 +640,7 @@ const RemScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.remScene.wordStartFrames}
       />
     </>
   );
@@ -712,6 +716,7 @@ const SummaryScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
     </>
   );

@@ -406,6 +406,7 @@ const IntroScene: React.FC = () => {
         sentences={intro.narration}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
     </>
   );
@@ -477,6 +478,7 @@ const CompareScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
+        wordFrames={AUDIO_CONFIG.compareScene.wordStartFrames}
       />
     </>
   );
@@ -588,6 +590,7 @@ const SummaryScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
+        wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
     </>
   );

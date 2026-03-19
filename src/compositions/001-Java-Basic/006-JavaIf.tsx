@@ -279,7 +279,7 @@ const OverviewScene: React.FC = () => {
           )}
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} wordFrames={AUDIO_CONFIG.overview.wordStartFrames} />
     </>
   );
 };
@@ -373,7 +373,7 @@ const IntroScene: React.FC = () => {
           </div>
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} />
+      <Subtitle sentences={intro.narration} splits={intro.narrationSplits} speechStart={intro.speechStartFrame} wordFrames={AUDIO_CONFIG.intro.wordStartFrames} />
     </>
   );
 };
@@ -405,7 +405,7 @@ const IfScene: React.FC = () => {
           )}
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} wordFrames={AUDIO_CONFIG.ifScene.wordStartFrames} />
     </>
   );
 };
@@ -440,7 +440,7 @@ const IfElseScene: React.FC = () => {
           )}
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} />
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} wordFrames={AUDIO_CONFIG.ifElseScene.wordStartFrames} />
     </>
   );
 };
@@ -512,7 +512,7 @@ const SummaryScene: React.FC = () => {
           </div>
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={cfg.speechStartFrame} />
+      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={cfg.speechStartFrame} wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames} />
     </>
   );
 };

@@ -94,12 +94,14 @@ export const ContentArea: React.FC<{ children: React.ReactNode }> = ({ children 
  * 씬 하단 자막.
  * - `speechStart` 프레임 전에는 숨김
  * - `splits` 기준으로 문장 전환
+ * - `wordFrames` 전달 시 현재 발화 단어 노란색 하이라이팅
  */
 export const Subtitle: React.FC<{
   sentences: string[];
   splits?: readonly number[];
   speechStart?: number;
-}> = ({ sentences, splits, speechStart = 0 }) => {
+  wordFrames?: readonly (readonly number[])[];
+}> = ({ sentences, splits, speechStart = 0, wordFrames }) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
 
@@ -107,29 +109,55 @@ export const Subtitle: React.FC<{
 
   const starts = [speechStart, ...(splits ?? [])];
   const idx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
+  const displayText = toDisplayText(sentences[idx]);
+  const currentWordFrames = wordFrames?.[idx];
 
+  const containerStyle: React.CSSProperties = {
+    position: "absolute",
+    bottom: 10,
+    left: "50%",
+    transform: "translateX(-50%)",
+    textAlign: "center",
+    fontFamily: uiFont,
+    fontSize: 36,
+    color: "#ffffff",
+    background: "rgba(0,0,0,0.55)",
+    borderRadius: 6,
+    padding: "8px 16px",
+    lineHeight: 1.6,
+    width: "max-content",
+    maxWidth: width - 20,
+    wordBreak: "keep-all",
+    whiteSpace: "pre-wrap",
+  };
+
+  // wordFrames 없으면 기존 방식
+  if (!currentWordFrames || currentWordFrames.length === 0) {
+    return <div style={containerStyle}>{displayText}</div>;
+  }
+
+  // 현재 발화 중인 단어 인덱스
+  const currentWordIdx = currentWordFrames.reduce(
+    (acc, f, i) => (frame >= f ? i : acc), -1
+  );
+
+  // 공백/줄바꿈 토큰 보존하며 분리, 단어마다 하이라이팅
+  const tokens = displayText.split(/(\s+)/);
+  let wordIdx = 0;
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 10,
-        left: "50%",
-        transform: "translateX(-50%)",
-        textAlign: "center",
-        fontFamily: uiFont,
-        fontSize: 36,
-        color: "#ffffff",
-        background: "rgba(0,0,0,0.55)",
-        borderRadius: 6,
-        padding: "8px 16px",
-        lineHeight: 1.6,
-        width: "max-content",
-        maxWidth: width - 20,
-        wordBreak: "keep-all",
-        whiteSpace: "pre-wrap",
-      }}
-    >
-      {toDisplayText(sentences[idx])}
+    <div style={containerStyle}>
+      {tokens.map((token, i) => {
+        if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+        const thisWordIdx = wordIdx++;
+        return (
+          <span
+            key={i}
+            style={{ color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff" }}
+          >
+            {token}
+          </span>
+        );
+      })}
     </div>
   );
 };
