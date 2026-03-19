@@ -48,37 +48,53 @@ const entries = ctx
         (sum, s) => sum + s.durationInFrames,
         0,
       );
-    return { mod, dir: seriesFolder, ep, totalFrames };
+    return { mod, dir: seriesFolder, lang: langFolder, ep, totalFrames };
   })
   .filter(Boolean) as {
   mod: CompositionModule;
   dir: string;
+  lang: string | null;
   ep: string;
   totalFrames: number;
 }[];
 
-// 시리즈별로 그룹핑
-const byFolder = entries.reduce<Record<string, typeof entries>>((acc, e) => {
-  (acc[e.dir] ??= []).push(e);
-  return acc;
-}, {});
+// 시리즈 → 언어 2단계 그룹핑
+type Entry = (typeof entries)[number];
+const byFolder = entries.reduce<Record<string, Record<string, Entry[]>>>(
+  (acc, e) => {
+    const langKey = e.lang ?? "__none__";
+    ((acc[e.dir] ??= {})[langKey] ??= []).push(e);
+    return acc;
+  },
+  {},
+);
+
+const CompItem: React.FC<{ entry: Entry }> = ({ entry: { mod, ep, totalFrames } }) => (
+  <Composition
+    key={ep}
+    id={ep}
+    component={mod.Component}
+    durationInFrames={totalFrames}
+    fps={mod.compositionMeta.fps}
+    width={mod.compositionMeta.width}
+    height={mod.compositionMeta.height}
+    defaultProps={{}}
+  />
+);
 
 export const RemotionRoot: React.FC = () => (
   <>
-    {Object.entries(byFolder).map(([folder, items]) => (
-      <Folder key={folder} name={folder}>
-        {items.map(({ mod, ep, totalFrames }) => (
-          <Composition
-            key={ep}
-            id={ep}
-            component={mod.Component}
-            durationInFrames={totalFrames}
-            fps={mod.compositionMeta.fps}
-            width={mod.compositionMeta.width}
-            height={mod.compositionMeta.height}
-            defaultProps={{}}
-          />
-        ))}
+    {Object.entries(byFolder).map(([series, byLang]) => (
+      <Folder key={series} name={series}>
+        {Object.entries(byLang).map(([lang, items]) =>
+          lang === "__none__" ? (
+            items.map((e) => <CompItem key={e.ep} entry={e} />)
+          ) : (
+            <Folder key={lang} name={lang}>
+              {items.map((e) => <CompItem key={e.ep} entry={e} />)}
+            </Folder>
+          ),
+        )}
       </Folder>
     ))}
   </>
