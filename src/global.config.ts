@@ -18,6 +18,7 @@ export const SCENE_TAIL_FRAMES = 15;
  * 자막 단어 하이라이팅 — 한 번에 최대 몇 단어까지 노란색으로 표시할지
  * 1 = 단어 1개씩, 2 = 최대 2개, 3 = 최대 3개
  */
+export const HIGHLIGHT_MIN_WORDS = 3;
 export const HIGHLIGHT_MAX_WORDS = 3;
 
 /**

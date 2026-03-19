@@ -13,7 +13,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { toDisplayText } from "./narration";
-import { HIGHLIGHT_MAX_WORDS, HIGHLIGHT_SYLLABLE_THRESHOLD } from "../global.config";
+import { HIGHLIGHT_MIN_WORDS, HIGHLIGHT_MAX_WORDS, HIGHLIGHT_SYLLABLE_THRESHOLD } from "../global.config";
 
 // ── 폰트 ─────────────────────────────────────────────────────
 export let monoFont = "JetBrains Mono, monospace";
@@ -147,17 +147,18 @@ export const Subtitle: React.FC<{
   const wordTokens = tokens.filter(t => !/^\s+$/.test(t));
 
   // 하이라이팅 인덱스 집합 계산
-  // 현재 단어(1개)에서 시작 → 그 단어가 THRESHOLD 이하면 다음 단어도 추가
-  // → 추가된 단어도 THRESHOLD 이하면 한 번 더 (최대 HIGHLIGHT_MAX_WORDS개)
+  // 1) 최소 HIGHLIGHT_MIN_WORDS개는 무조건 포함 (음절 수 무관)
+  // 2) 이후 마지막 포함 단어가 THRESHOLD 이하면 계속 확장 (최대 HIGHLIGHT_MAX_WORDS개)
   const highlightedIndices = new Set<number>();
   if (currentWordIdx >= 0) {
-    highlightedIndices.add(currentWordIdx);
     let i = currentWordIdx;
-    while (highlightedIndices.size < HIGHLIGHT_MAX_WORDS) {
-      if ([...wordTokens[i]].length > HIGHLIGHT_SYLLABLE_THRESHOLD) break;
-      if (i + 1 >= wordTokens.length) break;
-      i++;
+    while (highlightedIndices.size < HIGHLIGHT_MAX_WORDS && i < wordTokens.length) {
       highlightedIndices.add(i);
+      // 최소 개수 미달이면 무조건 다음 추가, 이후엔 음절 수 확인
+      if (highlightedIndices.size >= HIGHLIGHT_MIN_WORDS) {
+        if ([...wordTokens[i]].length > HIGHLIGHT_SYLLABLE_THRESHOLD) break;
+      }
+      i++;
     }
   }
 
