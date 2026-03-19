@@ -19,6 +19,7 @@ import { createHash } from "crypto";
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "fs";
 import { spawnSync } from "child_process";
 import path from "path";
+import { loadTsExports, loadMergedConfig } from "./config-cascade";
 
 const PUBLIC_DIR = "public";
 const SRC_DIR = "src/compositions";
@@ -54,31 +55,7 @@ function resolveSeriesDir(parts: string[]): string {
 const SERIES_DIR = resolveSeriesDir(argParts.slice(0, -1));
 const compositionId = episodeId;
 
-// ── Config cascade (esbuild) ────────────────────────────────
-// 주의: config 파일은 remotion 심볼을 import하면 안 됨
-function loadTsExports(filePath: string): Record<string, unknown> {
-  if (!existsSync(filePath)) return {};
-  const result = buildSync({
-    entryPoints: [filePath],
-    bundle: true,
-    format: "cjs",
-    platform: "node",
-    write: false,
-    logLevel: "silent",
-  });
-  const code = result.outputFiles[0].text;
-  const mod = { exports: {} as Record<string, unknown> };
-  // eslint-disable-next-line no-new-func
-  new Function("module", "exports", "require", code)(mod, mod.exports, require);
-  return mod.exports as Record<string, unknown>;
-}
-
-function loadMergedConfig(seriesDir: string, episodeId: string): Record<string, unknown> {
-  const root    = loadTsExports("src/config.ts");
-  const course  = loadTsExports(path.join(seriesDir, "config.ts"));
-  const episode = loadTsExports(path.join(seriesDir, `${episodeId}.config.ts`));
-  return { ...root, ...course, ...episode };
-}
+// loadTsExports / loadMergedConfig → scripts/config-cascade.ts
 
 const mergedConfig      = loadMergedConfig(SERIES_DIR, compositionId);
 const FPS               = (mergedConfig.FPS               as number) ?? 30;
