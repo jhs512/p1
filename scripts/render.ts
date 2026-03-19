@@ -102,7 +102,8 @@ function episodesOf(seriesDir: string): Target[] {
 
   for (const { seriesDir, langDir, episodeNum } of targets) {
     const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
-    const compositionId = [dirPrefix, langDir, episodeNum].filter(Boolean).join("-"); // "001-KOR-001"
+    // 언어 폴더가 있으면 ID는 에피소드 번호만, 없으면 001-001 형식 (Root.tsx 와 동일 규칙)
+    const compositionId = langDir ? episodeNum : [dirPrefix, episodeNum].filter(Boolean).join("-");
     const outputDir = path.join("out", seriesDir);
     const outputFile = path.join(outputDir, episodeNum + ".mp4");
 

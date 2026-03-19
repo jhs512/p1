@@ -9,7 +9,7 @@ import React from "react";
 //   export const Component: React.FC = ...
 //
 // 파일 경로 → Remotion ID 규칙:
-//   src/compositions/001-Java-Basic/KOR/001-JavaVariables.tsx  →  folder "001-Java-Basic", id "001-KOR-001"
+//   src/compositions/001-Java-Basic/KOR/001-JavaVariables.tsx  →  folder "001-Java-Basic > KOR", id "001"
 //   render: pnpm render 001-Java-Basic/KOR/001
 
 interface CompositionModule {
@@ -41,7 +41,9 @@ const entries = ctx
     const epMatch = segments[segments.length - 1].match(/^(\d+)-/);
     const epNum = epMatch ? epMatch[1] : segments[segments.length - 1]; // "001"
     const dirPrefix = seriesFolder.match(/^(\d+)/)?.[1] ?? seriesFolder; // "001"
-    const ep = [dirPrefix, langFolder, epNum].filter(Boolean).join("-"); // "001-KOR-001"
+    // 언어 폴더가 있으면 폴더 계층이 맥락을 제공하므로 ep 번호만 사용.
+    // 언어 폴더가 없으면 기존 방식(001-001)으로 fallback.
+    const ep = langFolder ? epNum : [dirPrefix, epNum].filter(Boolean).join("-");
     const totalFrames =
       mod.compositionMeta.durationInFrames ??
       Object.values(mod.VIDEO_CONFIG).reduce(
