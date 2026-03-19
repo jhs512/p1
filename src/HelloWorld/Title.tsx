@@ -1,5 +1,7 @@
-import React from "react";
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+
+import React from "react";
+
 import { FONT_FAMILY } from "./constants";
 
 const title: React.CSSProperties = {

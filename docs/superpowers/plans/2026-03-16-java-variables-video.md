@@ -12,21 +12,21 @@
 
 ## File Map
 
-| 파일 | 역할 |
-|---|---|
-| `src/Root.tsx` | Composition 등록 |
-| `src/compositions/JavaVariables.tsx` | 씬 오케스트레이션 |
-| `src/hooks/useTypingEffect.ts` | 프레임 기반 타이핑 훅 |
-| `src/components/CodeBox.tsx` | 코드 표시 + 타이핑 |
-| `src/components/ConsoleOutput.tsx` | 콘솔 출력 박스 |
-| `src/components/SceneTitle.tsx` | 씬 상단 제목 |
-| `src/components/Caption.tsx` | 씬 하단 설명 |
-| `src/scenes/Intro.tsx` | 인트로 씬 |
-| `src/scenes/DeclarationScene.tsx` | 씬 1 — 변수 선언 |
-| `src/scenes/InitScene.tsx` | 씬 2 — 변수 초기화 |
-| `src/scenes/PrintScene.tsx` | 씬 3 — 변수 출력 |
-| `src/scenes/Outro.tsx` | 아웃트로 씬 |
-| `src/hooks/useTypingEffect.test.ts` | 훅 유닛 테스트 |
+| 파일                                 | 역할                  |
+| ------------------------------------ | --------------------- |
+| `src/Root.tsx`                       | Composition 등록      |
+| `src/compositions/JavaVariables.tsx` | 씬 오케스트레이션     |
+| `src/hooks/useTypingEffect.ts`       | 프레임 기반 타이핑 훅 |
+| `src/components/CodeBox.tsx`         | 코드 표시 + 타이핑    |
+| `src/components/ConsoleOutput.tsx`   | 콘솔 출력 박스        |
+| `src/components/SceneTitle.tsx`      | 씬 상단 제목          |
+| `src/components/Caption.tsx`         | 씬 하단 설명          |
+| `src/scenes/Intro.tsx`               | 인트로 씬             |
+| `src/scenes/DeclarationScene.tsx`    | 씬 1 — 변수 선언      |
+| `src/scenes/InitScene.tsx`           | 씬 2 — 변수 초기화    |
+| `src/scenes/PrintScene.tsx`          | 씬 3 — 변수 출력      |
+| `src/scenes/Outro.tsx`               | 아웃트로 씬           |
+| `src/hooks/useTypingEffect.test.ts`  | 훅 유닛 테스트        |
 
 ---
 
@@ -35,6 +35,7 @@
 ### Task 1: Remotion 프로젝트 생성
 
 **Files:**
+
 - Create: `src/` (전체 프로젝트 디렉토리)
 
 - [ ] **Step 1: 프로젝트 생성**
@@ -45,6 +46,7 @@ npx create-video@latest .
 ```
 
 예상 프롬프트 순서:
+
 1. "The directory is not empty. Continue?" → `y`
 2. 템플릿 선택 → `TypeScript` 선택
 3. 나머지 기본값 유지 (Enter)
@@ -84,6 +86,7 @@ git commit -m "chore: bootstrap Remotion project"
 ### Task 2: 폰트 패키지 설치 및 설정
 
 **Files:**
+
 - Modify: `src/Root.tsx`
 - Create: `src/fonts.ts`
 
@@ -99,6 +102,7 @@ npm install @remotion/google-fonts
 
 ```ts
 import { continueRender, delayRender } from "remotion";
+
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 
@@ -109,15 +113,15 @@ export const monoFont = jetBrains.fontFamily;
 export const uiFont = notoSans.fontFamily;
 
 const handle = delayRender("Loading Google Fonts");
-Promise.all([
-  jetBrains.waitUntilDone(),
-  notoSans.waitUntilDone(),
-]).then(() => continueRender(handle));
+Promise.all([jetBrains.waitUntilDone(), notoSans.waitUntilDone()]).then(() =>
+  continueRender(handle),
+);
 ```
 
 - [ ] **Step 3: `src/Root.tsx` 수정 — fonts import 추가**
 
 `Root.tsx` 상단에 다음 줄 추가 (모듈 임포트 시 font loading + delayRender 실행):
+
 ```ts
 import "./fonts";
 ```
@@ -145,14 +149,16 @@ git commit -m "chore: add JetBrains Mono and Noto Sans KR fonts with delayRender
 ### Task 3: `useTypingEffect` 훅 + 유닛 테스트
 
 **Files:**
+
 - Create: `src/hooks/useTypingEffect.ts`
 - Create: `src/hooks/useTypingEffect.test.ts`
 
 - [ ] **Step 1: 테스트 파일 작성**
 
 `src/hooks/useTypingEffect.test.ts`:
+
 ```ts
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // 훅 내부 로직을 순수 함수로 분리해 테스트
 function computeVisibleText(
@@ -160,10 +166,10 @@ function computeVisibleText(
   frame: number,
   startFrame: number,
   fps: number,
-  charsPerSecond: number
+  charsPerSecond: number,
 ): { visibleText: string; isDone: boolean } {
   const charsVisible = Math.floor(
-    Math.max(0, frame - startFrame) / fps * charsPerSecond
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
   );
   return {
     visibleText: text.slice(0, charsVisible),
@@ -173,7 +179,13 @@ function computeVisibleText(
 
 describe("computeVisibleText", () => {
   it("타이핑 시작 전(startFrame 이전)에는 빈 문자열 반환", () => {
-    const { visibleText, isDone } = computeVisibleText("int age;", 10, 20, 30, 10);
+    const { visibleText, isDone } = computeVisibleText(
+      "int age;",
+      10,
+      20,
+      30,
+      10,
+    );
     expect(visibleText).toBe("");
     expect(isDone).toBe(false);
   });
@@ -212,18 +224,19 @@ Expected: `computeVisibleText is not defined` 또는 유사한 오류.
 - [ ] **Step 3: 훅 구현**
 
 `src/hooks/useTypingEffect.ts`:
+
 ```ts
 import { useCurrentFrame, useVideoConfig } from "remotion";
 
 export function useTypingEffect(
   text: string,
   startFrame: number,
-  charsPerSecond = 10
+  charsPerSecond = 10,
 ): { visibleText: string; isDone: boolean } {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const charsVisible = Math.floor(
-    Math.max(0, frame - startFrame) / fps * charsPerSecond
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
   );
   return {
     visibleText: text.slice(0, charsVisible),
@@ -254,6 +267,7 @@ git commit -m "feat: add useTypingEffect hook with unit tests"
 ### Task 4: `SceneTitle` + `Caption` 컴포넌트
 
 **Files:**
+
 - Create: `src/components/SceneTitle.tsx`
 - Create: `src/components/Caption.tsx`
 
@@ -261,6 +275,7 @@ git commit -m "feat: add useTypingEffect hook with unit tests"
 
 ```tsx
 import React from "react";
+
 import { uiFont } from "../fonts";
 
 interface SceneTitleProps {
@@ -291,6 +306,7 @@ export const SceneTitle: React.FC<SceneTitleProps> = ({ title }) => (
 
 ```tsx
 import { interpolate, useCurrentFrame } from "remotion";
+
 import { uiFont } from "../fonts";
 
 interface CaptionProps {
@@ -300,10 +316,15 @@ interface CaptionProps {
 
 export const Caption: React.FC<CaptionProps> = ({ text, fadeInStartFrame }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [fadeInStartFrame, fadeInStartFrame + 15], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const opacity = interpolate(
+    frame,
+    [fadeInStartFrame, fadeInStartFrame + 15],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <div
@@ -341,6 +362,7 @@ git commit -m "feat: add SceneTitle and Caption components"
 ### Task 5: `CodeBox` 컴포넌트
 
 **Files:**
+
 - Create: `src/components/CodeBox.tsx`
 
 `CodeBox`는 `lines` 배열을 받아 `isNew: true`인 줄만 타이핑 애니메이션, `isNew: false`인 줄은 dimmed로 표시한다.
@@ -349,6 +371,7 @@ git commit -m "feat: add SceneTitle and Caption components"
 
 ```tsx
 import React from "react";
+
 import { monoFont } from "../fonts";
 import { useTypingEffect } from "../hooks/useTypingEffect";
 
@@ -371,11 +394,11 @@ const StaticLine: React.FC<{ text: string }> = ({ text }) => (
 );
 
 // isNew: true 줄 — 타이핑 애니메이션 + 토큰 컬러링
-const TypingLine: React.FC<{ text: string; startFrame: number; charsPerSecond: number }> = ({
-  text,
-  startFrame,
-  charsPerSecond,
-}) => {
+const TypingLine: React.FC<{
+  text: string;
+  startFrame: number;
+  charsPerSecond: number;
+}> = ({ text, startFrame, charsPerSecond }) => {
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
     <div style={{ color: "#d4d4d4", lineHeight: "1.8" }}>
@@ -391,10 +414,18 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
     <>
       {parts.map((part, i) => {
         if (/^(int|String|boolean)$/.test(part)) {
-          return <span key={i} style={{ color: "#4ec9b0" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#4ec9b0" }}>
+              {part}
+            </span>
+          );
         }
         if (/^\d+$/.test(part)) {
-          return <span key={i} style={{ color: "#b5cea8" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#b5cea8" }}>
+              {part}
+            </span>
+          );
         }
         return <span key={i}>{part}</span>;
       })}
@@ -423,10 +454,15 @@ export const CodeBox: React.FC<CodeBoxProps> = ({
   >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine key={i} text={line.text} startFrame={startFrame} charsPerSecond={charsPerSecond} />
+        <TypingLine
+          key={i}
+          text={line.text}
+          startFrame={startFrame}
+          charsPerSecond={charsPerSecond}
+        />
       ) : (
         <StaticLine key={i} text={line.text} />
-      )
+      ),
     )}
   </div>
 );
@@ -448,13 +484,16 @@ git commit -m "feat: add CodeBox component with typing animation and token color
 ### Task 6: `ConsoleOutput` 컴포넌트
 
 **Files:**
+
 - Create: `src/components/ConsoleOutput.tsx`
 
 - [ ] **Step 1: `ConsoleOutput.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
 import { monoFont } from "../fonts";
 
 interface ConsoleOutputProps {
@@ -462,7 +501,10 @@ interface ConsoleOutputProps {
   startFrame: number;
 }
 
-export const ConsoleOutput: React.FC<ConsoleOutputProps> = ({ text, startFrame }) => {
+export const ConsoleOutput: React.FC<ConsoleOutputProps> = ({
+  text,
+  startFrame,
+}) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [startFrame, startFrame + 15], [0, 1], {
     extrapolateLeft: "clamp",
@@ -507,13 +549,16 @@ git commit -m "feat: add ConsoleOutput component"
 ### Task 7: `Intro` 씬
 
 **Files:**
+
 - Create: `src/scenes/Intro.tsx`
 
 - [ ] **Step 1: `Intro.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
 import { uiFont } from "../fonts";
 
 export const Intro: React.FC = () => {
@@ -529,11 +574,34 @@ export const Intro: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill style={{ background: "#1e1e1e", justifyContent: "center", alignItems: "center", flexDirection: "column", gap: 24 }}>
-      <div style={{ fontFamily: uiFont, fontSize: 52, fontWeight: 700, color: "#ffffff", opacity: titleOpacity }}>
+    <AbsoluteFill
+      style={{
+        background: "#1e1e1e",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        gap: 24,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 52,
+          fontWeight: 700,
+          color: "#ffffff",
+          opacity: titleOpacity,
+        }}
+      >
         Java 변수란?
       </div>
-      <div style={{ fontFamily: uiFont, fontSize: 26, color: "#aaaaaa", opacity: subtitleOpacity }}>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 26,
+          color: "#aaaaaa",
+          opacity: subtitleOpacity,
+        }}
+      >
         변수는 값을 담는 그릇입니다
       </div>
     </AbsoluteFill>
@@ -553,21 +621,24 @@ git commit -m "feat: add Intro scene"
 ### Task 8: `DeclarationScene` (씬 1)
 
 **Files:**
+
 - Create: `src/scenes/DeclarationScene.tsx`
 
 - [ ] **Step 1: `DeclarationScene.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
+import { Caption } from "../components/Caption";
 import { CodeBox } from "../components/CodeBox";
 import { SceneTitle } from "../components/SceneTitle";
-import { Caption } from "../components/Caption";
 
 const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
 // "int age;" = 8자 → 8/10*30 = 24프레임 후 완료 → frame 44
-const TYPING_DONE_FRAME = TYPING_START + Math.ceil(8 / CHARS_PER_SEC * 30);
+const TYPING_DONE_FRAME = TYPING_START + Math.ceil((8 / CHARS_PER_SEC) * 30);
 
 export const DeclarationScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -605,21 +676,24 @@ git commit -m "feat: add DeclarationScene (scene 1)"
 ### Task 9: `InitScene` (씬 2)
 
 **Files:**
+
 - Create: `src/scenes/InitScene.tsx`
 
 - [ ] **Step 1: `InitScene.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
+import { Caption } from "../components/Caption";
 import { CodeBox } from "../components/CodeBox";
 import { SceneTitle } from "../components/SceneTitle";
-import { Caption } from "../components/Caption";
 
 const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
 // "age = 25;" = 9자 → Math.ceil(9/10*30) = 27프레임 후 완료
-const TYPING_DONE_FRAME = TYPING_START + Math.ceil(9 / CHARS_PER_SEC * 30);
+const TYPING_DONE_FRAME = TYPING_START + Math.ceil((9 / CHARS_PER_SEC) * 30);
 
 export const InitScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -660,22 +734,25 @@ git commit -m "feat: add InitScene (scene 2)"
 ### Task 10: `PrintScene` (씬 3)
 
 **Files:**
+
 - Create: `src/scenes/PrintScene.tsx`
 
 - [ ] **Step 1: `PrintScene.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
+import { Caption } from "../components/Caption";
 import { CodeBox } from "../components/CodeBox";
 import { ConsoleOutput } from "../components/ConsoleOutput";
 import { SceneTitle } from "../components/SceneTitle";
-import { Caption } from "../components/Caption";
 
 const TYPING_START = 20;
 const CHARS_PER_SEC = 10;
 // "System.out.println(age);" = 26자 → Math.ceil(26/10*30) = 78프레임 후 완료
-const TYPING_DONE_FRAME = TYPING_START + Math.ceil(26 / CHARS_PER_SEC * 30);
+const TYPING_DONE_FRAME = TYPING_START + Math.ceil((26 / CHARS_PER_SEC) * 30);
 
 export const PrintScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -718,13 +795,16 @@ git commit -m "feat: add PrintScene (scene 3)"
 ### Task 11: `Outro` 씬
 
 **Files:**
+
 - Create: `src/scenes/Outro.tsx`
 
 - [ ] **Step 1: `Outro.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
 import { uiFont } from "../fonts";
 
 export const Outro: React.FC = () => {
@@ -776,19 +856,22 @@ git commit -m "feat: add Outro scene"
 ### Task 12: `JavaVariables` Composition + `Root.tsx` 완성
 
 **Files:**
+
 - Create: `src/compositions/JavaVariables.tsx`
 - Modify: `src/Root.tsx`
 
 - [ ] **Step 1: `JavaVariables.tsx` 작성**
 
 ```tsx
-import React from "react";
 import { AbsoluteFill, Sequence } from "remotion";
-import { Intro } from "../scenes/Intro";
+
+import React from "react";
+
 import { DeclarationScene } from "../scenes/DeclarationScene";
 import { InitScene } from "../scenes/InitScene";
-import { PrintScene } from "../scenes/PrintScene";
+import { Intro } from "../scenes/Intro";
 import { Outro } from "../scenes/Outro";
+import { PrintScene } from "../scenes/PrintScene";
 
 export const JavaVariables: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
@@ -817,7 +900,9 @@ export const JavaVariables: React.FC = () => (
 
 ```tsx
 import "./fonts";
+
 import { Composition } from "remotion";
+
 import { JavaVariables } from "./compositions/JavaVariables";
 
 export const RemotionRoot: React.FC = () => (

@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { random, useVideoConfig } from "remotion";
+
+import { useState } from "react";
 
 export const Atom: React.FC<{
   scale: number;

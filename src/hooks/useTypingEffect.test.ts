@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // 훅 내부 로직을 순수 함수로 분리해 테스트
 function computeVisibleText(
@@ -6,10 +6,10 @@ function computeVisibleText(
   frame: number,
   startFrame: number,
   fps: number,
-  charsPerSecond: number
+  charsPerSecond: number,
 ): { visibleText: string; isDone: boolean } {
   const charsVisible = Math.floor(
-    Math.max(0, frame - startFrame) / fps * charsPerSecond
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
   );
   return {
     visibleText: text.slice(0, charsVisible),
@@ -19,7 +19,13 @@ function computeVisibleText(
 
 describe("computeVisibleText", () => {
   it("타이핑 시작 전(startFrame 이전)에는 빈 문자열 반환", () => {
-    const { visibleText, isDone } = computeVisibleText("int age;", 10, 20, 30, 10);
+    const { visibleText, isDone } = computeVisibleText(
+      "int age;",
+      10,
+      20,
+      30,
+      10,
+    );
     expect(visibleText).toBe("");
     expect(isDone).toBe(false);
   });

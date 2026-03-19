@@ -15,6 +15,7 @@
 ### Task 1: 0002-JavaDataTypes.tsx 골격 생성
 
 **Files:**
+
 - Create: `src/compositions/0002-JavaDataTypes.tsx`
 
 VIDEO_CONFIG와 빈 씬 컴포넌트를 갖춘 골격을 만든다. 이 단계에서 `0002-audio.ts`는 없지만 `pnpm sync 0002`가 다음 Task에서 스텁을 자동 생성한다.
@@ -23,12 +24,11 @@ VIDEO_CONFIG와 빈 씬 컴포넌트를 갖춘 골격을 만든다. 이 단계�
 
 ```tsx
 // src/compositions/0002-JavaDataTypes.tsx
-import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Easing,
   Sequence,
-  Audio,
   continueRender,
   delayRender,
   interpolate,
@@ -37,18 +37,27 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import { VOICE, RATE, PRONUNCIATION, SCENE_TAIL_FRAMES } from "../global.config";
+
+import React from "react";
+
+import {
+  PRONUNCIATION,
+  RATE,
+  SCENE_TAIL_FRAMES,
+  VOICE,
+} from "../global.config";
 import { AUDIO_CONFIG } from "./0002-audio";
 
 // sync.ts 가 이 파일을 esbuild 로 로드할 때 사용
 export { VOICE, RATE, PRONUNCIATION };
 
 // ── 상수 ─────────────────────────────────────────────────────
-const CROSS = 20;           // 크로스페이드 프레임
-const TYPING_START = 20;    // 타이핑 시작 프레임 (씬 내 상대값)
-const CHARS_PER_SEC = 10;   // 타이핑 속도
+const CROSS = 20; // 크로스페이드 프레임
+const TYPING_START = 20; // 타이핑 시작 프레임 (씬 내 상대값)
+const CHARS_PER_SEC = 10; // 타이핑 속도
 
 /** 텍스트 길이 → 타이핑 완료 프레임 (씬 내 상대값) */
 const typingDone = (chars: number) =>
@@ -56,24 +65,24 @@ const typingDone = (chars: number) =>
 
 /** 타입별 상자 색상 */
 const TYPE_COLORS: Record<string, string> = {
-  int:     "#4e9cd5",
-  double:  "#d4c04e",
-  String:  "#4ec970",
+  int: "#4e9cd5",
+  double: "#d4c04e",
+  String: "#4ec970",
   boolean: "#d4834e",
 };
 
 // ── 폰트 ─────────────────────────────────────────────────────
 let monoFont = "JetBrains Mono, monospace";
-let uiFont   = "Noto Sans KR, sans-serif";
+let uiFont = "Noto Sans KR, sans-serif";
 
 if (typeof window !== "undefined") {
   const _jb = loadJetBrains();
   const _ns = loadNotoSans();
   monoFont = _jb.fontFamily;
-  uiFont   = _ns.fontFamily;
+  uiFont = _ns.fontFamily;
   const _h = delayRender("Loading Google Fonts");
   Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
-    continueRender(_h)
+    continueRender(_h),
   );
 }
 
@@ -140,16 +149,40 @@ export const VIDEO_CONFIG = {
 
 // ── 빈 씬 플레이스홀더 ─────────────────────────────────────────
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#050510", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: uiFont, fontSize: 120, fontWeight: 900, color: "#fff", textAlign: "center" }}>
-      Java<br /><span style={{ color: "#4ec9b0" }}>자료형</span>
+  <AbsoluteFill
+    style={{
+      background: "#050510",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 120,
+        fontWeight: 900,
+        color: "#fff",
+        textAlign: "center",
+      }}
+    >
+      Java
+      <br />
+      <span style={{ color: "#4ec9b0" }}>자료형</span>
     </div>
   </AbsoluteFill>
 );
 
 const PlaceholderScene: React.FC<{ label: string }> = ({ label }) => (
-  <AbsoluteFill style={{ background: "#1e1e1e", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: uiFont, fontSize: 60, color: "#fff" }}>{label}</div>
+  <AbsoluteFill
+    style={{
+      background: "#1e1e1e",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <div style={{ fontFamily: uiFont, fontSize: 60, color: "#fff" }}>
+      {label}
+    </div>
   </AbsoluteFill>
 );
 
@@ -184,25 +217,46 @@ export const compositionMeta = {
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaDataTypes: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.intro.durationInFrames}
+    >
       <PlaceholderScene label="Intro" />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={VIDEO_CONFIG.intScene.durationInFrames}
+    >
       <PlaceholderScene label="int" />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}>
+    <Sequence
+      from={fromValues[3]}
+      durationInFrames={VIDEO_CONFIG.doubleScene.durationInFrames}
+    >
       <PlaceholderScene label="double" />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}>
+    <Sequence
+      from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.stringScene.durationInFrames}
+    >
       <PlaceholderScene label="String" />
     </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
+    <Sequence
+      from={fromValues[5]}
+      durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}
+    >
       <PlaceholderScene label="boolean" />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence
+      from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
+    >
       <PlaceholderScene label="Summary" />
     </Sequence>
   </AbsoluteFill>
@@ -220,6 +274,7 @@ export { JavaDataTypes as Component };
 ### Task 2: 오디오 생성 및 0002-audio.ts 자동 생성
 
 **Files:**
+
 - Auto-create: `src/compositions/0002-audio.ts`
 - Auto-create: `public/dt-intro.mp3`, `public/dt-int.mp3`, `public/dt-double.mp3`, `public/dt-string.mp3`, `public/dt-boolean.mp3`, `public/dt-summary.mp3`
 
@@ -230,6 +285,7 @@ pnpm sync 0002
 ```
 
 Expected output:
+
 ```
 📄  src/compositions/0002-JavaDataTypes.tsx
 
@@ -252,16 +308,17 @@ cat src/compositions/0002-audio.ts
 ```
 
 Expected `0002-audio.ts`:
+
 ```ts
 // AUTO-GENERATED by `pnpm sync 0002` — do not edit manually
 
 export const AUDIO_CONFIG = {
-  intro         : { durationInFrames: NNN, narrationSplits: [NN] },
-  intScene      : { durationInFrames: NNN, narrationSplits: [NN] },
-  doubleScene   : { durationInFrames: NNN, narrationSplits: [NN] },
-  stringScene   : { durationInFrames: NNN, narrationSplits: [NN] },
-  booleanScene  : { durationInFrames: NNN, narrationSplits: [NN] },
-  summaryScene  : { durationInFrames: NNN, narrationSplits: [NN] },
+  intro: { durationInFrames: NNN, narrationSplits: [NN] },
+  intScene: { durationInFrames: NNN, narrationSplits: [NN] },
+  doubleScene: { durationInFrames: NNN, narrationSplits: [NN] },
+  stringScene: { durationInFrames: NNN, narrationSplits: [NN] },
+  booleanScene: { durationInFrames: NNN, narrationSplits: [NN] },
+  summaryScene: { durationInFrames: NNN, narrationSplits: [NN] },
 } as const;
 ```
 
@@ -280,6 +337,7 @@ pnpm dev
 ### Task 3: 공통 헬퍼 컴포넌트 추가 (useTypingEffect, SceneTitle, CodeBox, Subtitle)
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 0001과 동일한 패턴을 0002 파일 내에 인라인으로 추가한다.
@@ -291,12 +349,12 @@ pnpm dev
 function useTypingEffect(
   text: string,
   startFrame: number,
-  charsPerSecond = 10
+  charsPerSecond = 10,
 ): { visibleText: string; isDone: boolean } {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const charsVisible = Math.floor(
-    (Math.max(0, frame - startFrame) / fps) * charsPerSecond
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
   );
   return {
     visibleText: text.slice(0, charsVisible),
@@ -312,11 +370,20 @@ function useTypingEffect(
 ```tsx
 // ── 컴포넌트: SceneTitle ──────────────────────────────────────
 const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{
-    position: "absolute", top: 160, left: 0, right: 0,
-    textAlign: "center", fontFamily: uiFont, fontSize: 42,
-    fontWeight: 700, color: "#ffffff", letterSpacing: 1,
-  }}>
+  <div
+    style={{
+      position: "absolute",
+      top: 160,
+      left: 0,
+      right: 0,
+      textAlign: "center",
+      fontFamily: uiFont,
+      fontSize: 42,
+      fontWeight: 700,
+      color: "#ffffff",
+      letterSpacing: 1,
+    }}
+  >
     {title}
   </div>
 );
@@ -346,19 +413,31 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = CHARS_PER_SEC }) => (
-  <div style={{
-    position: "absolute", top: "57%", left: "50%",
-    transform: "translate(-50%, -50%)",
-    background: "#2d2d2d", borderRadius: 12,
-    padding: "40px 56px", minWidth: 780,
-    fontFamily: monoFont, fontSize: 36,
-  }}>
+  <div
+    style={{
+      position: "absolute",
+      top: "57%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "#2d2d2d",
+      borderRadius: 12,
+      padding: "40px 56px",
+      minWidth: 780,
+      fontFamily: monoFont,
+      fontSize: 36,
+    }}
+  >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine key={`new-${i}`} text={line.text} startFrame={startFrame} charsPerSecond={charsPerSecond} />
+        <TypingLine
+          key={`new-${i}`}
+          text={line.text}
+          startFrame={startFrame}
+          charsPerSecond={charsPerSecond}
+        />
       ) : (
         <StaticLine key={`static-${i}`} text={line.text} />
-      )
+      ),
     )}
   </div>
 );
@@ -380,33 +459,50 @@ const Subtitle: React.FC<{
   const ranges = sentences.map((_, i) => {
     if (splits && splits.length >= sentences.length - 1) {
       const start = i === 0 ? 0 : splits[i - 1];
-      const end   = i < splits.length ? splits[i] : durationInFrames;
+      const end = i < splits.length ? splits[i] : durationInFrames;
       return { start, end };
     }
     const totalChars = sentences.reduce((sum, s) => sum + s.length, 0);
     let cumulative = 0;
-    sentences.slice(0, i).forEach((s) => { cumulative += s.length; });
+    sentences.slice(0, i).forEach((s) => {
+      cumulative += s.length;
+    });
     const start = Math.floor((cumulative / totalChars) * durationInFrames);
     cumulative += sentences[i].length;
-    const end   = Math.floor((cumulative / totalChars) * durationInFrames);
+    const end = Math.floor((cumulative / totalChars) * durationInFrames);
     return { start, end };
   });
-  const idx = ranges.findIndex(({ start, end }) => frame >= start && frame < end);
+  const idx = ranges.findIndex(
+    ({ start, end }) => frame >= start && frame < end,
+  );
   const currentIdx = idx === -1 ? sentences.length - 1 : idx;
   const { start } = ranges[currentIdx];
   const opacity = interpolate(frame, [start, start + 12], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
   return (
-    <div style={{
-      position: "absolute", bottom: 100, left: "50%",
-      transform: "translateX(-50%)", textAlign: "center",
-      fontFamily: uiFont, fontSize: 32, color: "#ffffff",
-      opacity, background: "rgba(0,0,0,0.55)",
-      borderRadius: 6, padding: "8px 16px", lineHeight: 1.6,
-      width: "max-content", maxWidth: compositionWidth - 20,
-      wordBreak: "keep-all", whiteSpace: "pre-line",
-    }}>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 100,
+        left: "50%",
+        transform: "translateX(-50%)",
+        textAlign: "center",
+        fontFamily: uiFont,
+        fontSize: 32,
+        color: "#ffffff",
+        opacity,
+        background: "rgba(0,0,0,0.55)",
+        borderRadius: 6,
+        padding: "8px 16px",
+        lineHeight: 1.6,
+        width: "max-content",
+        maxWidth: compositionWidth - 20,
+        wordBreak: "keep-all",
+        whiteSpace: "pre-line",
+      }}
+    >
       {sentences[currentIdx]}
     </div>
   );
@@ -418,6 +514,7 @@ const Subtitle: React.FC<{
 ### Task 4: ColorizedCode 구현 (per-keyword 색상)
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `ColorizedCode` 컴포넌트 추가** (상수 선언 바로 다음, `useTypingEffect` 이전)
@@ -428,17 +525,29 @@ const Subtitle: React.FC<{
 const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   // 순서 중요: double → int 순으로 매칭 (더 긴 것 먼저)
   const parts = text.split(
-    /(\bdouble\b|\bint\b|\bString\b|\bboolean\b|"[^"]*"|\b\d+(?:\.\d+)?\b)/g
+    /(\bdouble\b|\bint\b|\bString\b|\bboolean\b|"[^"]*"|\b\d+(?:\.\d+)?\b)/g,
   );
   return (
     <>
       {parts.map((part, i) => {
         if (TYPE_COLORS[part])
-          return <span key={i} style={{ color: TYPE_COLORS[part] }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: TYPE_COLORS[part] }}>
+              {part}
+            </span>
+          );
         if (/^"/.test(part))
-          return <span key={i} style={{ color: "#ce9178" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#ce9178" }}>
+              {part}
+            </span>
+          );
         if (/^\d/.test(part))
-          return <span key={i} style={{ color: "#b5cea8" }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: "#b5cea8" }}>
+              {part}
+            </span>
+          );
         return <span key={i}>{part}</span>;
       })}
     </>
@@ -455,6 +564,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
 ### Task 5: TypeBox 컴포넌트
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `TypeBox` 추가** (Subtitle 컴포넌트 다음, 씬 컴포넌트 이전)
@@ -475,64 +585,92 @@ const TypeBox: React.FC<{
   // 상자 등장 (spring)
   const boxE = frame - startFrame;
   const boxAppear = spring({
-    frame: boxE, fps,
+    frame: boxE,
+    fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 35,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   // 값 낙하 (단일 엘리먼트, Y 이동 + opacity 0→1, 깜빡임 없음)
   const dropE = frame - dropStartFrame;
   const DROP_FRAMES = 30;
   const dropY = interpolate(dropE, [0, DROP_FRAMES], [-140, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
     easing: Easing.out(Easing.quad),
   });
   const dropO = interpolate(dropE, [0, 4], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
   const dropGlow = interpolate(
     dropE,
     [DROP_FRAMES - 2, DROP_FRAMES + 2, DROP_FRAMES + 14],
     [0, 1, 0.2],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
   if (boxE < 0) return null;
 
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", gap: 12,
-      transform: `scale(${boxScale})`, opacity: boxAppear,
-    }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        transform: `scale(${boxScale})`,
+        opacity: boxAppear,
+      }}
+    >
       {label && (
-        <div style={{
-          fontFamily: uiFont, fontSize: 38, fontWeight: 700,
-          color, letterSpacing: 4,
-        }}>
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 38,
+            fontWeight: 700,
+            color,
+            letterSpacing: 4,
+          }}
+        >
           {label}
         </div>
       )}
-      <div style={{
-        position: "relative",
-        border: `4px solid ${color}`,
-        borderRadius: 20, width: 260, height: 180,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: `${color}1a`,
-        boxShadow: dropGlow > 0.05
-          ? `0 0 ${Math.round(dropGlow * 50)}px ${color}`
-          : "none",
-      }}>
+      <div
+        style={{
+          position: "relative",
+          border: `4px solid ${color}`,
+          borderRadius: 20,
+          width: 260,
+          height: 180,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: `${color}1a`,
+          boxShadow:
+            dropGlow > 0.05
+              ? `0 0 ${Math.round(dropGlow * 50)}px ${color}`
+              : "none",
+        }}
+      >
         {dropE >= 0 && (
-          <div style={{
-            position: "absolute", left: "50%", top: "50%",
-            transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-            fontFamily: monoFont, fontSize: 64, fontWeight: 700,
-            color: "#d4d4d4", opacity: dropO,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
+              fontFamily: monoFont,
+              fontSize: 64,
+              fontWeight: 700,
+              color: "#d4d4d4",
+              opacity: dropO,
+            }}
+          >
             {value}
           </div>
         )}
@@ -547,6 +685,7 @@ const TypeBox: React.FC<{
 ### Task 6: BooleanToggleAnim 컴포넌트
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `BooleanToggleAnim` 추가** (TypeBox 바로 다음)
@@ -565,12 +704,14 @@ const BooleanToggleAnim: React.FC<{
   // 상자 등장
   const boxE = frame - startFrame;
   const boxAppear = spring({
-    frame: boxE, fps,
+    frame: boxE,
+    fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 35,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   // true/false 토글 (frame-based, CSS transition 없음)
@@ -583,34 +724,56 @@ const BooleanToggleAnim: React.FC<{
 
   // 값 페이드인 (drop 시작 시)
   const valueOpacity = interpolate(frame - dropStartFrame, [0, 8], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   if (boxE < 0) return null;
 
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", gap: 12,
-      transform: `scale(${boxScale})`, opacity: boxAppear,
-    }}>
-      <div style={{
-        fontFamily: uiFont, fontSize: 38, fontWeight: 700,
-        color: COLOR, letterSpacing: 4,
-      }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        transform: `scale(${boxScale})`,
+        opacity: boxAppear,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 38,
+          fontWeight: 700,
+          color: COLOR,
+          letterSpacing: 4,
+        }}
+      >
         boolean
       </div>
-      <div style={{
-        position: "relative",
-        border: `4px solid ${COLOR}`,
-        borderRadius: 20, width: 260, height: 180,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: `${COLOR}1a`,
-      }}>
-        <span style={{
-          fontFamily: monoFont, fontSize: 56, fontWeight: 700,
-          color: toggleColor, opacity: valueOpacity,
-        }}>
+      <div
+        style={{
+          position: "relative",
+          border: `4px solid ${COLOR}`,
+          borderRadius: 20,
+          width: 260,
+          height: 180,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: `${COLOR}1a`,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: monoFont,
+            fontSize: 56,
+            fontWeight: 700,
+            color: toggleColor,
+            opacity: valueOpacity,
+          }}
+        >
           {displayValue}
         </span>
       </div>
@@ -633,40 +796,73 @@ git commit -m "feat: 0002 skeleton + audio + core components (ColorizedCode, Typ
 ### Task 7: ThumbnailScene 완성
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `ThumbnailScene` 교체** (기존 플레이스홀더를 실제 구현으로 교체)
 
 ```tsx
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{
-    background: "#050510",
-    alignItems: "center", justifyContent: "center",
-    flexDirection: "column", gap: 24,
-  }}>
+  <AbsoluteFill
+    style={{
+      background: "#050510",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      gap: 24,
+    }}
+  >
     {/* 글로우 배경 */}
-    <div style={{
-      position: "absolute", width: 900, height: 900, borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-      top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-    }} />
-    <div style={{
-      fontFamily: uiFont, fontSize: 28, fontWeight: 700,
-      color: "#4ec9b0", letterSpacing: 10, opacity: 0.8,
-    }}>
+    <div
+      style={{
+        position: "absolute",
+        width: 900,
+        height: 900,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    />
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 28,
+        fontWeight: 700,
+        color: "#4ec9b0",
+        letterSpacing: 10,
+        opacity: 0.8,
+      }}
+    >
       JAVA
     </div>
-    <div style={{
-      fontFamily: uiFont, fontSize: 140, fontWeight: 900,
-      lineHeight: 1, textAlign: "center", color: "#ffffff",
-      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-    }}>
-      Java<br /><span style={{ color: "#4ec9b0" }}>자료형</span>
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 140,
+        fontWeight: 900,
+        lineHeight: 1,
+        textAlign: "center",
+        color: "#ffffff",
+        textShadow:
+          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+      }}
+    >
+      Java
+      <br />
+      <span style={{ color: "#4ec9b0" }}>자료형</span>
     </div>
-    <div style={{
-      fontFamily: uiFont, fontSize: 32, color: "#4ec9b0",
-      letterSpacing: 4, opacity: 0.7,
-    }}>
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 32,
+        color: "#4ec9b0",
+        letterSpacing: 4,
+        opacity: 0.7,
+      }}
+    >
       int · double · String · boolean
     </div>
   </AbsoluteFill>
@@ -678,6 +874,7 @@ const ThumbnailScene: React.FC = () => (
 ### Task 8: IntroScene 구현
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `IntroScene` 구현 및 메인 컴포넌트에서 PlaceholderScene 교체**
@@ -691,13 +888,19 @@ const IntroScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
   const d = intro.durationInFrames;
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   const boxes = [
-    { label: "int",     color: TYPE_COLORS.int },
-    { label: "double",  color: TYPE_COLORS.double },
-    { label: "String",  color: TYPE_COLORS.String },
+    { label: "int", color: TYPE_COLORS.int },
+    { label: "double", color: TYPE_COLORS.double },
+    { label: "String", color: TYPE_COLORS.String },
     { label: "boolean", color: TYPE_COLORS.boolean },
   ];
 
@@ -705,33 +908,53 @@ const IntroScene: React.FC = () => {
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(intro.audio)} />
       {/* 2×2 그리드, stagger spring 등장 */}
-      <div style={{
-        position: "absolute", top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28,
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 28,
+        }}
+      >
         {boxes.map(({ label, color }, i) => {
           const delay = i * 5;
           const appear = spring({
-            frame: frame - delay, fps,
+            frame: frame - delay,
+            fps,
             config: { damping: 14, stiffness: 140 },
             durationInFrames: 35,
           });
           const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
-            extrapolateLeft: "clamp", extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
           });
           return (
-            <div key={label} style={{
-              transform: `scale(${boxScale})`, opacity: appear,
-              border: `4px solid ${color}`, borderRadius: 20,
-              width: 220, height: 150,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: `${color}1a`,
-            }}>
-              <span style={{
-                fontFamily: monoFont, fontSize: 38,
-                fontWeight: 700, color,
-              }}>
+            <div
+              key={label}
+              style={{
+                transform: `scale(${boxScale})`,
+                opacity: appear,
+                border: `4px solid ${color}`,
+                borderRadius: 20,
+                width: 220,
+                height: 150,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: `${color}1a`,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: monoFont,
+                  fontSize: 38,
+                  fontWeight: 700,
+                  color,
+                }}
+              >
                 {label}
               </span>
             </div>
@@ -767,6 +990,7 @@ const IntroScene: React.FC = () => {
 ### Task 9: intScene / doubleScene / stringScene 구현
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 세 씬은 동일한 패턴 (`TypeBox` + `CodeBox` + `Subtitle`). 코드·색상·값만 다르다.
@@ -808,18 +1032,28 @@ const TypeScene: React.FC<{
   const d = config.durationInFrames;
   const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
 
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const dropStart = typingDone(code.length);
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(config.audio)} />
       {/* TypeBox: 화면 상단 1/3 중앙 */}
-      <div style={{
-        position: "absolute", top: "30%", left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "30%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
         <TypeBox
           color={color}
           value={value}
@@ -863,6 +1097,7 @@ const TypeScene: React.FC<{
 ### Task 10: booleanScene 구현
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 - [ ] **Step 1: `BooleanScene` 추가**
@@ -874,17 +1109,27 @@ const BooleanScene: React.FC = () => {
   const { booleanScene } = VIDEO_CONFIG;
   const d = booleanScene.durationInFrames;
   const code = "boolean isStudent = true;";
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const dropStart = typingDone(code.length);
 
   return (
     <AbsoluteFill style={{ background: "#1e1e1e", opacity: fadeIn * fadeOut }}>
       <Audio src={staticFile(booleanScene.audio)} />
-      <div style={{
-        position: "absolute", top: "30%", left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "30%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
         <BooleanToggleAnim startFrame={10} dropStartFrame={dropStart} />
       </div>
       <CodeBox
@@ -904,7 +1149,10 @@ const BooleanScene: React.FC = () => {
 - [ ] **Step 2: 메인 컴포넌트에서 교체**
 
 ```tsx
-<Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}>
+<Sequence
+  from={fromValues[5]}
+  durationInFrames={VIDEO_CONFIG.booleanScene.durationInFrames}
+>
   <BooleanScene />
 </Sequence>
 ```
@@ -914,6 +1162,7 @@ const BooleanScene: React.FC = () => {
 ### Task 11: summaryScene 구현
 
 **Files:**
+
 - Modify: `src/compositions/0002-JavaDataTypes.tsx`
 
 4줄을 4개 Sequence로 순차 타이핑 (이전 줄은 static, 현재 줄은 isNew:true).
@@ -933,8 +1182,14 @@ const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { summaryScene } = VIDEO_CONFIG;
   const d = summaryScene.durationInFrames;
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(frame, [d - CROSS, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   const quarter = Math.floor(d / 4);
   // 마지막 구간은 나머지 전부
@@ -967,7 +1222,10 @@ const SummaryScene: React.FC = () => {
 - [ ] **Step 2: 메인 컴포넌트에서 교체**
 
 ```tsx
-<Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+<Sequence
+  from={fromValues[6]}
+  durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
+>
   <SummaryScene />
 </Sequence>
 ```
@@ -996,6 +1254,7 @@ npx tsc --noEmit
 Expected: 오류 없음. 오류 발생 시 오류 메시지에 따라 수정.
 
 자주 발생하는 오류:
+
 - `0002-audio.ts` AUDIO_CONFIG 키 누락: `pnpm sync 0002` 재실행
 - `TYPE_SCENE_DATA` 인덱스 오류: `sceneKey` 타입 확인
 
@@ -1011,15 +1270,15 @@ pnpm dev
 
 - [ ] **Step 2: 각 씬 확인 체크리스트**
 
-| 씬 | 확인 항목 |
-|---|---|
-| thumbnail | "Java 자료형" 텍스트 + teal 글로우 |
-| intro | 4개 colored 상자 stagger 등장 (파/노/초/주황) |
-| intScene | 파란 상자 spring 등장 → `int age = 25;` 타이핑 → `25` 낙하 |
-| doubleScene | 노란 상자 → `double height = 175.5;` 타이핑 → `175.5` 낙하 |
-| stringScene | 초록 상자 → `String name = "Java";` 타이핑 → `"Java"` 낙하 |
+| 씬           | 확인 항목                                                        |
+| ------------ | ---------------------------------------------------------------- |
+| thumbnail    | "Java 자료형" 텍스트 + teal 글로우                               |
+| intro        | 4개 colored 상자 stagger 등장 (파/노/초/주황)                    |
+| intScene     | 파란 상자 spring 등장 → `int age = 25;` 타이핑 → `25` 낙하       |
+| doubleScene  | 노란 상자 → `double height = 175.5;` 타이핑 → `175.5` 낙하       |
+| stringScene  | 초록 상자 → `String name = "Java";` 타이핑 → `"Java"` 낙하       |
 | booleanScene | 주황 상자 → `boolean isStudent = true;` 타이핑 → true↔false 토글 |
-| summaryScene | 4줄 코드 순차 타이핑, 타입 키워드 색상 구분 |
+| summaryScene | 4줄 코드 순차 타이핑, 타입 키워드 색상 구분                      |
 
 - [ ] **Step 3: 최종 커밋**
 

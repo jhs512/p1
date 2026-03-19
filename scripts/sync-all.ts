@@ -2,8 +2,8 @@
  * scripts/sync-all.ts — 사용법: pnpm sync:all
  * src/compositions/ 하위 모든 에피소드를 순서대로 sync 처리
  */
-import { readdirSync, statSync } from "fs";
 import { spawnSync } from "child_process";
+import { readdirSync, statSync } from "fs";
 import path from "path";
 
 const SRC_DIR = "src/compositions";
@@ -22,8 +22,14 @@ for (const series of seriesDirs) {
   for (const ep of episodes) {
     const target = `${series}/${ep}`;
     console.log(`\n${"━".repeat(50)}\n  sync ${target}\n${"━".repeat(50)}`);
-    const res = spawnSync("pnpm", ["sync", target], { stdio: "inherit", shell: true });
-    if (res.status !== 0) { console.error(`❌  Failed: ${target}`); anyFailed = true; }
+    const res = spawnSync("pnpm", ["sync", target], {
+      stdio: "inherit",
+      shell: true,
+    });
+    if (res.status !== 0) {
+      console.error(`❌  Failed: ${target}`);
+      anyFailed = true;
+    }
   }
 }
 if (anyFailed) process.exit(1);

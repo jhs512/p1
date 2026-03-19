@@ -5,9 +5,6 @@
 //   씬 데이터(자막·코드), 폰트, 훅, UI 컴포넌트, 씬, 컴포지션
 // TTS 설정·PRONUNCIATION 전역값은 global.config.ts 에서 관리합니다.
 // ─────────────────────────────────────────────────────────────
-
-import { Audio } from "@remotion/media";
-import React from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -18,6 +15,13 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
+import { Audio } from "@remotion/media";
+
+import React from "react";
+
+import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
+import { toDisplayText } from "../../../utils/narration";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -27,11 +31,9 @@ import {
   monoFont,
   uiFont,
   useFade,
-} from "../../utils/scene";
+} from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./001-audio";
-import { WIDTH, HEIGHT } from "./config";
-import { FPS, SCENE_TAIL_FRAMES } from "../../config";
-import { toDisplayText } from "../../utils/narration";
+import { HEIGHT, WIDTH } from "./config";
 
 // ── 타입 ─────────────────────────────────────────────────────
 export interface CodeLine {
@@ -105,7 +107,9 @@ export const VIDEO_CONFIG = {
     audio: "interpret-quiz.mp3",
     durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    narration: ["앞 부분의 age 변수는\n공간으로 해석해야할까요?\n아니면 값으로 해석해야 할까요?"] as string[],
+    narration: [
+      "앞 부분의 age 변수는\n공간으로 해석해야할까요?\n아니면 값으로 해석해야 할까요?",
+    ] as string[],
     narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
   },
 
@@ -232,7 +236,8 @@ const CodeBox: React.FC<{
       borderRadius: 12,
       padding: "48px 64px",
       minWidth: 800,
-      fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+      fontFamily: monoFont,
+      fontFeatureSettings: '"calt" 0, "liga" 0',
       fontSize: 36,
     }}
   >
@@ -271,7 +276,8 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
         background: "#0a0a0a",
         borderRadius: 8,
         padding: "12px 32px",
-        fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+        fontFamily: monoFont,
+        fontFeatureSettings: '"calt" 0, "liga" 0',
         fontSize: 32,
         color: "#89d185",
         opacity,
@@ -291,9 +297,9 @@ const BoxMetaphorAnim: React.FC = () => {
   const { fps } = useVideoConfig();
 
   // 발화 프레임 직접 참조 (CLAUDE.md 6번 원칙: 애니메이션은 발화 시작에 맞춘다)
-  const NAME_TAG_START  = AUDIO_CONFIG.intro.wordStartFrames[1][1]; // "이름을"
-  const DROP_START      = AUDIO_CONFIG.intro.wordStartFrames[1][3]; // "값을"
-  const EXTRACT_START   = AUDIO_CONFIG.intro.wordStartFrames[1][5]; // "꺼내"
+  const NAME_TAG_START = AUDIO_CONFIG.intro.wordStartFrames[1][1]; // "이름을"
+  const DROP_START = AUDIO_CONFIG.intro.wordStartFrames[1][3]; // "값을"
+  const EXTRACT_START = AUDIO_CONFIG.intro.wordStartFrames[1][5]; // "꺼내"
 
   // 1) 상자 + 라벨 동시 등장
   const boxAppear = spring({
@@ -418,7 +424,8 @@ const BoxMetaphorAnim: React.FC = () => {
                 left: "50%",
                 top: "50%",
                 transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-                fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+                fontFamily: monoFont,
+                fontFeatureSettings: '"calt" 0, "liga" 0',
                 fontSize: 90,
                 color: "#b5cea8",
                 fontWeight: 700,
@@ -461,7 +468,8 @@ const BoxMetaphorAnim: React.FC = () => {
               {/* 꺼낸 값 */}
               <span
                 style={{
-                  fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+                  fontFamily: monoFont,
+                  fontFeatureSettings: '"calt" 0, "liga" 0',
                   fontSize: 80,
                   color: "#b5cea8",
                   fontWeight: 700,
@@ -481,7 +489,8 @@ const BoxMetaphorAnim: React.FC = () => {
         style={{
           transform: `scale(${nameTagScale})`,
           opacity: nameTag,
-          fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+          fontFamily: monoFont,
+          fontFeatureSettings: '"calt" 0, "liga" 0',
           fontSize: 38,
         }}
       >
@@ -499,9 +508,7 @@ const IntroScene: React.FC = () => {
   const opacity = useFade(intro.durationInFrames);
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <BoxMetaphorAnim />
@@ -588,8 +595,20 @@ const QUIZ_THINKING_FRAMES = 150; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
-const { thumbnail, intro, declaration, initialization, interpret, interpretQuiz, interpretReveal, print } = VIDEO_CONFIG;
-const QUIZ_TOTAL_DURATION = interpretQuiz.durationInFrames + QUIZ_THINKING_FRAMES + interpretReveal.durationInFrames;
+const {
+  thumbnail,
+  intro,
+  declaration,
+  initialization,
+  interpret,
+  interpretQuiz,
+  interpretReveal,
+  print,
+} = VIDEO_CONFIG;
+const QUIZ_TOTAL_DURATION =
+  interpretQuiz.durationInFrames +
+  QUIZ_THINKING_FRAMES +
+  interpretReveal.durationInFrames;
 
 // ── 컴포넌트: CombinedVariableBox ────────────────────────────
 // 선언(빈 박스) → 초기화(값 낙하) 전 구간을 하나의 박스로 이어서 표현
@@ -686,7 +705,8 @@ const CombinedVariableBox: React.FC<{
         <span
           style={{
             position: "absolute",
-            fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontFamily: monoFont,
+            fontFeatureSettings: '"calt" 0, "liga" 0',
             fontSize: 44,
             color: "#b5cea8",
             opacity: insideOpacity,
@@ -701,7 +721,8 @@ const CombinedVariableBox: React.FC<{
             top: valueY,
             left: "50%",
             transform: "translateX(-50%)",
-            fontFamily: monoFont, fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontFamily: monoFont,
+            fontFeatureSettings: '"calt" 0, "liga" 0',
             fontSize: 44,
             color: "#b5cea8",
             opacity: fallingOpacity,
@@ -737,9 +758,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
           <Sequence durationInFrames={SPLIT}>
@@ -809,36 +828,61 @@ const CombinedDeclarationInitScene: React.FC = () => {
 const InterpretScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { interpret: cfg } = VIDEO_CONFIG;
-  const s   = cfg.speechStartFrame;
-  const [split0 = Infinity, split1 = Infinity] = cfg.narrationSplits as readonly number[];
+  const s = cfg.speechStartFrame;
+  const [split0 = Infinity, split1 = Infinity] =
+    cfg.narrationSplits as readonly number[];
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
 
   const phase = frame >= split1 ? 2 : frame >= split0 ? 1 : 0;
 
-  const ann1 = spring({ frame: frame - split0, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
-  const ann2 = spring({ frame: frame - split1, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
+  const ann1 = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 13, stiffness: 140 },
+    durationInFrames: 24,
+  });
+  const ann2 = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 13, stiffness: 140 },
+    durationInFrames: 24,
+  });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
-  const C_VAL   = "#4ec9b0"; // 값: teal
-  const C_AGE   = "#9cdcfe"; // 변수명: light blue
+  const C_VAL = "#4ec9b0"; // 값: teal
+  const C_AGE = "#9cdcfe"; // 변수명: light blue
 
   const badge = (label: string, color: string, anim: number) => (
-    <span style={{
-      opacity: anim, color, fontSize: 22, fontFamily: uiFont,
-      background: `${color}1a`, borderRadius: 6, padding: "2px 10px",
-      border: `1px solid ${color}55`,
-    }}>{label}</span>
+    <span
+      style={{
+        opacity: anim,
+        color,
+        fontSize: 22,
+        fontFamily: uiFont,
+        background: `${color}1a`,
+        borderRadius: 6,
+        padding: "2px 10px",
+        border: `1px solid ${color}55`,
+      }}
+    >
+      {label}
+    </span>
   );
 
   const ageSpan = (active: boolean, color: string) => (
-    <span style={{
-      color: active ? color : C_AGE,
-      fontWeight: active ? 700 : 400,
-      background: active ? `${color}28` : "transparent",
-      borderRadius: 4, padding: "1px 5px",
-      outline: active ? `1.5px solid ${color}66` : "none",
-    }}>age</span>
+    <span
+      style={{
+        color: active ? color : C_AGE,
+        fontWeight: active ? 700 : 400,
+        background: active ? `${color}28` : "transparent",
+        borderRadius: 4,
+        padding: "1px 5px",
+        outline: active ? `1.5px solid ${color}66` : "none",
+      }}
+    >
+      age
+    </span>
   );
 
   return (
@@ -848,28 +892,49 @@ const InterpretScene: React.FC = () => {
           <Audio src={staticFile(cfg.audio)} />
 
           {frame >= s && (
-            <div style={{
-              position: "absolute", top: "46%", left: "50%",
-              transform: "translate(-50%, -50%)",
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 34, lineHeight: 2.1,
-              background: "#252525", borderRadius: 20,
-              padding: "36px 48px",
-              width: 900, boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
-            }}>
-
+            <div
+              style={{
+                position: "absolute",
+                top: "46%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 34,
+                lineHeight: 2.1,
+                background: "#252525",
+                borderRadius: 20,
+                padding: "36px 48px",
+                width: 900,
+                boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+              }}
+            >
               {/* Line 1: int age; */}
-              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  opacity: phase === 2 ? 0.2 : 1,
+                }}
+              >
                 <div>
-                  <span style={{ color: "#4ec9b0" }}>int</span>
-                  {" "}{ageSpan(phase === 1, C_SPACE)}
+                  <span style={{ color: "#4ec9b0" }}>int</span>{" "}
+                  {ageSpan(phase === 1, C_SPACE)}
                   <span style={{ color: "#d4d4d4" }}>;</span>
                 </div>
                 {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
               </div>
 
               {/* Line 2: age = 25; */}
-              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase === 2 ? 0.2 : 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  opacity: phase === 2 ? 0.2 : 1,
+                }}
+              >
                 <div>
                   {ageSpan(phase === 1, C_SPACE)}
                   <span style={{ color: "#d4d4d4" }}> = </span>
@@ -880,7 +945,14 @@ const InterpretScene: React.FC = () => {
               </div>
 
               {/* Line 3: System.out.println(age); */}
-              <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: phase < 2 ? 0.28 : 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  opacity: phase < 2 ? 0.28 : 1,
+                }}
+              >
                 <div>
                   <span style={{ color: "#569cd6" }}>System</span>
                   <span style={{ color: "#d4d4d4" }}>.out.</span>
@@ -890,23 +962,42 @@ const InterpretScene: React.FC = () => {
                   <span style={{ color: "#d4d4d4" }}>);</span>
                 </div>
                 {phase >= 2 && (
-                  <div style={{ opacity: ann2, display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      opacity: ann2,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
                     {badge("← 값", C_VAL, ann2)}
-                    <span style={{
-                      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                      fontSize: 26, color: "#b5cea8",
-                      background: "#2d2d2d", borderRadius: 8,
-                      padding: "4px 14px", border: "1px solid #444",
-                    }}>= 25</span>
+                    <span
+                      style={{
+                        fontFamily: monoFont,
+                        fontFeatureSettings: MONO_NO_LIGA,
+                        fontSize: 26,
+                        color: "#b5cea8",
+                        background: "#2d2d2d",
+                        borderRadius: 8,
+                        padding: "4px 14px",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      = 25
+                    </span>
                   </div>
                 )}
               </div>
-
             </div>
           )}
         </ContentArea>
       </AbsoluteFill>
-      <Subtitle sentences={cfg.narration} splits={cfg.narrationSplits} speechStart={s} wordFrames={AUDIO_CONFIG.interpret.wordStartFrames} />
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.interpret.wordStartFrames}
+      />
     </>
   );
 };
@@ -928,26 +1019,36 @@ const QuizScene: React.FC = () => {
   const opacity = useFade(totalDur);
 
   const isCountdown = frame >= qDur && frame < REVEAL_START;
-  const isReveal    = frame >= REVEAL_START;
+  const isReveal = frame >= REVEAL_START;
 
   // 카운트다운
-  const cdFrame    = frame - qDur;
+  const cdFrame = frame - qDur;
   const cdProgress = isCountdown
-    ? interpolate(cdFrame, [0, QUIZ_THINKING_FRAMES], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    ? interpolate(cdFrame, [0, QUIZ_THINKING_FRAMES], [1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      })
     : 0;
-  const secondsLeft = isCountdown ? Math.ceil((QUIZ_THINKING_FRAMES - cdFrame) / 30) : 0;
+  const secondsLeft = isCountdown
+    ? Math.ceil((QUIZ_THINKING_FRAMES - cdFrame) / 30)
+    : 0;
 
   // 정답 공개 애니메이션
-  const revealAnim = spring({ frame: frame - REVEAL_START, fps, config: { damping: 13, stiffness: 140 }, durationInFrames: 24 });
+  const revealAnim = spring({
+    frame: frame - REVEAL_START,
+    fps,
+    config: { damping: 13, stiffness: 140 },
+    durationInFrames: 24,
+  });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
-  const C_VAL   = "#4ec9b0"; // 값: teal
-  const C_AGE   = "#9cdcfe"; // 변수명: light blue
+  const C_VAL = "#4ec9b0"; // 값: teal
+  const C_AGE = "#9cdcfe"; // 변수명: light blue
 
   // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
   const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordStartFrames[0][2]; // "age" = 단어 인덱스 2
   const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
-  const showPulse  = !isReveal && frame >= AGE_WORD_FRAME;
+  const showPulse = !isReveal && frame >= AGE_WORD_FRAME;
 
   // age 스팬: 질문=왼쪽 펄싱, 공개 후=역할별 색
   const ageSpan = (role: "space" | "value") => {
@@ -956,30 +1057,44 @@ const QuizScene: React.FC = () => {
     if (isReveal) {
       // 정답 공개: 역할별 색 + 하이라이트
       return (
-        <span style={{
-          color, fontWeight: 700,
-          background: `${color}28`,
-          borderRadius: 4, padding: "1px 5px",
-          outline: `1.5px solid ${color}66`,
-        }}>age</span>
+        <span
+          style={{
+            color,
+            fontWeight: 700,
+            background: `${color}28`,
+            borderRadius: 4,
+            padding: "1px 5px",
+            outline: `1.5px solid ${color}66`,
+          }}
+        >
+          age
+        </span>
       );
     }
 
     if (role === "space" && showPulse) {
       // 질문 단계: 왼쪽 age 펄싱 흰색 하이라이트 (정답 색 노출 없이)
       return (
-        <span style={{
-          color: "#ffffff", fontWeight: 700,
-          background: `rgba(255,255,255,0.10)`,
-          borderRadius: 4, padding: "1px 5px",
-          outline: `2px solid rgba(255,255,255,${pulseAlpha.toFixed(2)})`,
-        }}>age</span>
+        <span
+          style={{
+            color: "#ffffff",
+            fontWeight: 700,
+            background: `rgba(255,255,255,0.10)`,
+            borderRadius: 4,
+            padding: "1px 5px",
+            outline: `2px solid rgba(255,255,255,${pulseAlpha.toFixed(2)})`,
+          }}
+        >
+          age
+        </span>
       );
     }
 
     // 중립 (오른쪽 age, 발화 전)
     return (
-      <span style={{ color: C_AGE, borderRadius: 4, padding: "1px 5px" }}>age</span>
+      <span style={{ color: C_AGE, borderRadius: 4, padding: "1px 5px" }}>
+        age
+      </span>
     );
   };
 
@@ -987,7 +1102,6 @@ const QuizScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-
           {/* 오디오: 문제 */}
           <Sequence durationInFrames={qDur}>
             <Audio src={staticFile(qCfg.audio)} />
@@ -999,42 +1113,69 @@ const QuizScene: React.FC = () => {
 
           {/* Quiz 라벨 */}
           {frame >= qCfg.speechStartFrame && !isReveal && (
-            <div style={{
-              position: "absolute", top: 180, left: 0, right: 0,
-              textAlign: "center", fontFamily: uiFont,
-              fontSize: 48, fontWeight: 900, color: "#f5c842",
-              letterSpacing: 6,
-            }}>
+            <div
+              style={{
+                position: "absolute",
+                top: 180,
+                left: 0,
+                right: 0,
+                textAlign: "center",
+                fontFamily: uiFont,
+                fontSize: 48,
+                fontWeight: 900,
+                color: "#f5c842",
+                letterSpacing: 6,
+              }}
+            >
               QUIZ
             </div>
           )}
 
           {/* 정답 라벨 */}
           {isReveal && (
-            <div style={{
-              position: "absolute", top: 180, left: 0, right: 0,
-              textAlign: "center", fontFamily: uiFont,
-              fontSize: 48, fontWeight: 900, color: "#4ec9b0",
-              letterSpacing: 6, opacity: revealAnim,
-            }}>
+            <div
+              style={{
+                position: "absolute",
+                top: 180,
+                left: 0,
+                right: 0,
+                textAlign: "center",
+                fontFamily: uiFont,
+                fontSize: 48,
+                fontWeight: 900,
+                color: "#4ec9b0",
+                letterSpacing: 6,
+                opacity: revealAnim,
+              }}
+            >
               정답
             </div>
           )}
 
           {/* 코드 블록: int age = 4; / age = age + 2; */}
-          <div style={{
-            position: "absolute", top: "42%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "#252525", borderRadius: 20,
-            padding: "36px 56px",
-            boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "42%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              background: "#252525",
+              borderRadius: 20,
+              padding: "36px 56px",
+              boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+            }}
+          >
             {/* Line 1: int age = 4; */}
-            <div style={{
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 38, color: "#d4d4d4",
-              opacity: 0.5, marginBottom: 4,
-            }}>
+            <div
+              style={{
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 38,
+                color: "#d4d4d4",
+                opacity: 0.5,
+                marginBottom: 4,
+              }}
+            >
               <span style={{ color: "#4ec9b0" }}>int</span>
               <span style={{ color: "#9cdcfe" }}> age</span>
               <span> = </span>
@@ -1043,63 +1184,133 @@ const QuizScene: React.FC = () => {
             </div>
 
             {/* Line 2: age = age + 2; — 코드 + 어노테이션 */}
-            <div style={{
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 38, color: "#d4d4d4",
-              display: "flex", alignItems: "flex-start",
-            }}>
+            <div
+              style={{
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 38,
+                color: "#d4d4d4",
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
               {/* 왼쪽 age + ↑공간 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 {ageSpan("space")}
-                <div style={{
-                  fontFamily: uiFont, fontSize: 20, color: C_SPACE, lineHeight: 1.3,
-                  textAlign: "center", marginTop: 6,
-                  opacity: isReveal ? revealAnim : 0,
-                }}>↑<br/>공간</div>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 20,
+                    color: C_SPACE,
+                    lineHeight: 1.3,
+                    textAlign: "center",
+                    marginTop: 6,
+                    opacity: isReveal ? revealAnim : 0,
+                  }}
+                >
+                  ↑<br />
+                  공간
+                </div>
               </div>
 
               {/* = */}
-              <span style={{ alignSelf: "flex-start", margin: "0 8px" }}>=</span>
+              <span style={{ alignSelf: "flex-start", margin: "0 8px" }}>
+                =
+              </span>
 
               {/* 오른쪽 age + ↑값 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 {ageSpan("value")}
-                <div style={{
-                  fontFamily: uiFont, fontSize: 20, color: C_VAL, lineHeight: 1.3,
-                  textAlign: "center", marginTop: 6,
-                  opacity: isReveal ? revealAnim : 0,
-                }}>↑<br/>값 (= 4)</div>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 20,
+                    color: C_VAL,
+                    lineHeight: 1.3,
+                    textAlign: "center",
+                    marginTop: 6,
+                    opacity: isReveal ? revealAnim : 0,
+                  }}
+                >
+                  ↑<br />값 (= 4)
+                </div>
               </div>
 
               {/* + 2; */}
-              <span style={{ alignSelf: "flex-start", color: "#d4d4d4", margin: "0 8px" }}>+</span>
-              <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>2</span>
+              <span
+                style={{
+                  alignSelf: "flex-start",
+                  color: "#d4d4d4",
+                  margin: "0 8px",
+                }}
+              >
+                +
+              </span>
+              <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>
+                2
+              </span>
               <span style={{ alignSelf: "flex-start" }}>;</span>
             </div>
           </div>
 
           {/* 카운트다운 */}
           {isCountdown && (
-            <div style={{
-              position: "absolute", top: "60%", left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
-            }}>
-              <div style={{
-                fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 120, fontWeight: 700, color: "#f5c842", opacity: 0.9,
-              }}>
+            <div
+              style={{
+                position: "absolute",
+                top: "60%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 20,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: monoFont,
+                  fontFeatureSettings: MONO_NO_LIGA,
+                  fontSize: 120,
+                  fontWeight: 700,
+                  color: "#f5c842",
+                  opacity: 0.9,
+                }}
+              >
                 {secondsLeft}
               </div>
-              <div style={{ width: 500, height: 8, background: "#333", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{
-                  width: `${cdProgress * 100}%`, height: "100%",
-                  background: "#f5c842", borderRadius: 4,
-                }} />
+              <div
+                style={{
+                  width: 500,
+                  height: 8,
+                  background: "#333",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${cdProgress * 100}%`,
+                    height: "100%",
+                    background: "#f5c842",
+                    borderRadius: 4,
+                  }}
+                />
               </div>
             </div>
           )}
-
         </ContentArea>
       </AbsoluteFill>
 
@@ -1132,9 +1343,7 @@ const PrintScene: React.FC = () => {
   const consoleStart = typingDone(newLine.text.length, s);
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(print.audio)} />
           <SceneTitle title={print.title} />
@@ -1171,9 +1380,14 @@ const totalDuration = _from;
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
-export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: string }> = (() => {
+export const SRT_DATA: Array<{
+  startFrame: number;
+  endFrame: number;
+  text: string;
+}> = (() => {
   const CROSS_VAL = 20;
-  const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+  const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
+    [];
 
   // fromValues 재계산
   const sceneDurations = [
@@ -1216,43 +1430,78 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
   // froms[0] = thumbnail → 나레이션 없음
   // froms[1] = intro
-  addScene(froms[1], intro.narration, AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
-    intro.durationInFrames);
+  addScene(
+    froms[1],
+    intro.narration,
+    AUDIO_CONFIG.intro.speechStartFrame,
+    AUDIO_CONFIG.intro.narrationSplits,
+    AUDIO_CONFIG.intro.sentenceEndFrames,
+    intro.durationInFrames,
+  );
 
   // froms[2] = CombinedDeclarationInitScene (declaration + initialization)
   // declaration: offset = froms[2], initialization: offset = froms[2] + SPLIT - SCENE_TAIL_FRAMES
   // (initialization 오디오가 SPLIT-SCENE_TAIL_FRAMES 에서 시작)
   const SPLIT = declaration.durationInFrames;
-  addScene(froms[2], declaration.narration, AUDIO_CONFIG.declaration.speechStartFrame,
-    AUDIO_CONFIG.declaration.narrationSplits, AUDIO_CONFIG.declaration.sentenceEndFrames,
-    SPLIT);
+  addScene(
+    froms[2],
+    declaration.narration,
+    AUDIO_CONFIG.declaration.speechStartFrame,
+    AUDIO_CONFIG.declaration.narrationSplits,
+    AUDIO_CONFIG.declaration.sentenceEndFrames,
+    SPLIT,
+  );
   // initialization 자막은 SPLIT - SCENE_TAIL_FRAMES 오프셋에서 시작
-  addScene(froms[2] + SPLIT - SCENE_TAIL_FRAMES, initialization.narration, AUDIO_CONFIG.initialization.speechStartFrame,
-    AUDIO_CONFIG.initialization.narrationSplits, AUDIO_CONFIG.initialization.sentenceEndFrames,
-    initialization.durationInFrames);
+  addScene(
+    froms[2] + SPLIT - SCENE_TAIL_FRAMES,
+    initialization.narration,
+    AUDIO_CONFIG.initialization.speechStartFrame,
+    AUDIO_CONFIG.initialization.narrationSplits,
+    AUDIO_CONFIG.initialization.sentenceEndFrames,
+    initialization.durationInFrames,
+  );
 
   // froms[3] = InterpretScene
-  addScene(froms[3], interpret.narration, AUDIO_CONFIG.interpret.speechStartFrame,
-    AUDIO_CONFIG.interpret.narrationSplits, AUDIO_CONFIG.interpret.sentenceEndFrames,
-    interpret.durationInFrames);
+  addScene(
+    froms[3],
+    interpret.narration,
+    AUDIO_CONFIG.interpret.speechStartFrame,
+    AUDIO_CONFIG.interpret.narrationSplits,
+    AUDIO_CONFIG.interpret.sentenceEndFrames,
+    interpret.durationInFrames,
+  );
 
   // froms[4] = QuizScene (interpretQuiz + 150 + interpretReveal)
   const qDur = interpretQuiz.durationInFrames;
   const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
   // interpretQuiz 자막
-  addScene(froms[4], interpretQuiz.narration, AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    AUDIO_CONFIG.interpretQuiz.narrationSplits, AUDIO_CONFIG.interpretQuiz.sentenceEndFrames,
-    qDur);
+  addScene(
+    froms[4],
+    interpretQuiz.narration,
+    AUDIO_CONFIG.interpretQuiz.speechStartFrame,
+    AUDIO_CONFIG.interpretQuiz.narrationSplits,
+    AUDIO_CONFIG.interpretQuiz.sentenceEndFrames,
+    qDur,
+  );
   // interpretReveal 자막 (REVEAL_START 이후)
-  addScene(froms[4] + REVEAL_START, interpretReveal.narration, AUDIO_CONFIG.interpretReveal.speechStartFrame,
-    AUDIO_CONFIG.interpretReveal.narrationSplits, AUDIO_CONFIG.interpretReveal.sentenceEndFrames,
-    interpretReveal.durationInFrames);
+  addScene(
+    froms[4] + REVEAL_START,
+    interpretReveal.narration,
+    AUDIO_CONFIG.interpretReveal.speechStartFrame,
+    AUDIO_CONFIG.interpretReveal.narrationSplits,
+    AUDIO_CONFIG.interpretReveal.sentenceEndFrames,
+    interpretReveal.durationInFrames,
+  );
 
   // froms[5] = PrintScene
-  addScene(froms[5], print.narration, AUDIO_CONFIG.print.speechStartFrame,
-    AUDIO_CONFIG.print.narrationSplits, AUDIO_CONFIG.print.sentenceEndFrames,
-    print.durationInFrames);
+  addScene(
+    froms[5],
+    print.narration,
+    AUDIO_CONFIG.print.speechStartFrame,
+    AUDIO_CONFIG.print.narrationSplits,
+    AUDIO_CONFIG.print.sentenceEndFrames,
+    print.durationInFrames,
+  );
 
   return entries;
 })();
@@ -1279,7 +1528,10 @@ export const JavaVariables: React.FC = () => (
     <Sequence from={fromValues[2]} durationInFrames={COMBINED_DURATION}>
       <CombinedDeclarationInitScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={interpret.durationInFrames}>
+    <Sequence
+      from={fromValues[3]}
+      durationInFrames={interpret.durationInFrames}
+    >
       <InterpretScene />
     </Sequence>
     <Sequence from={fromValues[4]} durationInFrames={QUIZ_TOTAL_DURATION}>

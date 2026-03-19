@@ -22,14 +22,15 @@ pnpm dev
 
 ```bash
 # 특정 에피소드 싱크
-pnpm sync 001-Java-Basic/001
-pnpm sync 001-Java-Basic/002
+pnpm sync 001-Java-Basic/KOR/001
+pnpm sync 001-Java-Basic/KOR/002
 
 # 전체 에피소드 일괄 싱크
 pnpm sync:all
 ```
 
 `sync`가 자동으로 처리하는 것:
+
 - 변경된 씬만 TTS 재생성 (hash 기반 감지)
 - `durationInFrames`, `speechStartFrame`, `narrationSplits` 자동 계산 → `{id}-audio.ts` 저장
 
@@ -37,8 +38,8 @@ pnpm sync:all
 
 ```bash
 # 특정 에피소드 렌더링
-pnpm render 001-Java-Basic/001
-pnpm render 001-Java-Basic/002
+pnpm render 001-Java-Basic/KOR/001
+pnpm render 001-Java-Basic/KOR/002
 # → out/ 폴더에 mp4 파일 생성
 
 # Remotion CLI 직접 사용
@@ -79,10 +80,12 @@ src/
     scene.tsx                   — 공유 상수·훅·컴포넌트 (모든 씬 파일이 import)
   compositions/
     001-Java-Basic/
-      config.ts                 — 강좌 레벨 설정 (VOICE, RATE, WIDTH, HEIGHT)
-      001.config.ts             — 에피소드 레벨 설정 (선택, 강좌 설정 override)
-      001-JavaVariables.tsx     — 에피소드 컴포지션
-      001-audio.ts              — AUTO-GENERATED: durationInFrames, narrationSplits 등
+      config.ts                 — 강좌 레벨 설정 (언어 무관한 공통값)
+      KOR/
+        config.ts               — 언어 레벨 설정 (VOICE, RATE, WIDTH, HEIGHT)
+        001.config.ts           — 에피소드 레벨 설정 (선택, 언어 설정 override)
+        001-JavaVariables.tsx   — 에피소드 컴포지션
+        001-audio.ts            — AUTO-GENERATED: durationInFrames, narrationSplits 등
 scripts/
   sync.ts                       — TTS 생성 + audio config 자동 업데이트
   sync-all.ts                   — 전체 에피소드 일괄 sync
@@ -95,9 +98,10 @@ out/                            — 렌더링 출력
 ## 설정 계층 (Config Cascade)
 
 ```
-src/config.ts                       ← 루트 (FPS, CROSS, CHARS_PER_SEC, SCENE_TAIL_FRAMES)
-  └─ compositions/001-Java-Basic/config.ts    ← 강좌 (VOICE, RATE, WIDTH, HEIGHT)
-       └─ compositions/001-Java-Basic/001.config.ts  ← 에피소드 (선택적 override)
+src/config.ts                                    ← 루트 (FPS, CROSS, CHARS_PER_SEC, SCENE_TAIL_FRAMES)
+  └─ compositions/001-Java-Basic/config.ts       ← 강좌 (언어 무관한 공통값)
+       └─ compositions/001-Java-Basic/KOR/config.ts     ← 언어 (VOICE, RATE, WIDTH, HEIGHT)
+            └─ compositions/001-Java-Basic/KOR/001.config.ts  ← 에피소드 (선택적 override)
 ```
 
 하위 레벨이 상위 레벨을 덮어씀. `pnpm sync` 시 자동으로 cascade된 설정값 사용.
@@ -111,6 +115,7 @@ src/config.ts                       ← 루트 (FPS, CROSS, CHARS_PER_SEC, SCENE
 ```
 
 예시:
+
 ```
 [double(발음:더블)]          → 자막: double / TTS: 더블
 [System.out.println(발음:print line)]  → 자막: System.out.println / TTS: print line

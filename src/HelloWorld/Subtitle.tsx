@@ -1,5 +1,7 @@
-import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
+
+import React from "react";
+
 import { COLOR_1, FONT_FAMILY } from "./constants";
 
 const subtitle: React.CSSProperties = {

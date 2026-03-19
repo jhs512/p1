@@ -33,15 +33,15 @@ String msg = switch (day) {
 
 ## 색상 팔레트
 
-| 상수 | 값 | 역할 |
-|---|---|---|
-| `C_SWITCH` | `#569cd6` | `switch` 키워드 (파랑) |
-| `C_CASE` | `#c586c0` | `case` 키워드 (보라) |
-| `C_ARROW` | `#4ec9b0` | `->` 화살표 (teal) |
-| `C_STR` | `#ce9178` | 문자열 값 (주황) |
-| `C_RESULT` | `#b5cea8` | 결과값 (연초록) |
-| `C_DIM` | `rgba(255,255,255,0.22)` | 흐린 요소 |
-| `C_RED` | `#f47c7c` | 경고·오류 (fall-through 흘러내림 표시) |
+| 상수       | 값                       | 역할                                   |
+| ---------- | ------------------------ | -------------------------------------- |
+| `C_SWITCH` | `#569cd6`                | `switch` 키워드 (파랑)                 |
+| `C_CASE`   | `#c586c0`                | `case` 키워드 (보라)                   |
+| `C_ARROW`  | `#4ec9b0`                | `->` 화살표 (teal)                     |
+| `C_STR`    | `#ce9178`                | 문자열 값 (주황)                       |
+| `C_RESULT` | `#b5cea8`                | 결과값 (연초록)                        |
+| `C_DIM`    | `rgba(255,255,255,0.22)` | 흐린 요소                              |
+| `C_RED`    | `#f47c7c`                | 경고·오류 (fall-through 흘러내림 표시) |
 
 ---
 
@@ -49,14 +49,14 @@ String msg = switch (day) {
 
 sync 스크립트가 VIDEO_CONFIG 키를 그대로 AUDIO_CONFIG 키로 사용한다. 구현 시 아래 키 이름을 정확히 사용해야 한다.
 
-| VIDEO_CONFIG 키 | AUDIO_CONFIG 키 |
-|---|---|
-| `overview` | `AUDIO_CONFIG.overview` |
-| `intro` | `AUDIO_CONFIG.intro` |
-| `syntaxScene` | `AUDIO_CONFIG.syntaxScene` |
+| VIDEO_CONFIG 키      | AUDIO_CONFIG 키                   |
+| -------------------- | --------------------------------- |
+| `overview`           | `AUDIO_CONFIG.overview`           |
+| `intro`              | `AUDIO_CONFIG.intro`              |
+| `syntaxScene`        | `AUDIO_CONFIG.syntaxScene`        |
 | `noFallthroughScene` | `AUDIO_CONFIG.noFallthroughScene` |
-| `multiCaseScene` | `AUDIO_CONFIG.multiCaseScene` |
-| `summaryScene` | `AUDIO_CONFIG.summaryScene` |
+| `multiCaseScene`     | `AUDIO_CONFIG.multiCaseScene`     |
+| `summaryScene`       | `AUDIO_CONFIG.summaryScene`       |
 
 ---
 
@@ -171,14 +171,14 @@ sync 스크립트가 VIDEO_CONFIG 키를 그대로 AUDIO_CONFIG 키로 사용한
 
 **ThumbnailScene: 나레이션 없음 — 오디오 파일 없음**
 
-| VIDEO_CONFIG 키 | 오디오 파일명 |
-|---|---|
-| `overview` | `switch-overview.mp3` |
-| `intro` | `switch-intro.mp3` |
-| `syntaxScene` | `switch-syntax.mp3` |
+| VIDEO_CONFIG 키      | 오디오 파일명              |
+| -------------------- | -------------------------- |
+| `overview`           | `switch-overview.mp3`      |
+| `intro`              | `switch-intro.mp3`         |
+| `syntaxScene`        | `switch-syntax.mp3`        |
 | `noFallthroughScene` | `switch-nofallthrough.mp3` |
-| `multiCaseScene` | `switch-multicase.mp3` |
-| `summaryScene` | `switch-summary.mp3` |
+| `multiCaseScene`     | `switch-multicase.mp3`     |
+| `summaryScene`       | `switch-summary.mp3`       |
 
 ---
 

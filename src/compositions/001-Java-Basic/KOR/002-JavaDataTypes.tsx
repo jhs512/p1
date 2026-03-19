@@ -1,6 +1,4 @@
 // src/compositions/0002-JavaDataTypes.tsx
-import { Audio } from "@remotion/media";
-import React from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -11,6 +9,13 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
+import { Audio } from "@remotion/media";
+
+import React from "react";
+
+import { FPS } from "../../../config";
+import { toDisplayText } from "../../../utils/narration";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -19,11 +24,9 @@ import {
   monoFont,
   uiFont,
   useFade,
-} from "../../utils/scene";
+} from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./002-audio";
-import { WIDTH, HEIGHT } from "./config";
-import { FPS } from "../../config";
-import { toDisplayText } from "../../utils/narration";
+import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const typingDone = (chars: number, speechStart: number) =>
@@ -503,9 +506,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <div
@@ -521,8 +522,9 @@ const IntroScene: React.FC = () => {
           >
             {boxes.map(({ label, color }, i) => {
               // 각 박스를 두 번째 문장의 단어 발화 시점에 맞춰 순서대로 등장
-              const wordTriggers = AUDIO_CONFIG.intro.wordStartFrames[1] as readonly number[];
-              const triggerFrame = wordTriggers[i * 2] ?? (i * 5);
+              const wordTriggers = AUDIO_CONFIG.intro
+                .wordStartFrames[1] as readonly number[];
+              const triggerFrame = wordTriggers[i * 2] ?? i * 5;
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,
@@ -590,8 +592,9 @@ const ValueVsVarScene: React.FC = () => {
   const opacity = useFade(d);
 
   // "int형 값" → 문장 1 첫 단어, "int형 변수" → 문장 2 첫 단어
-  const valueWordFrame = AUDIO_CONFIG.valueVsVar.wordStartFrames[1][0] ?? split0;
-  const varWordFrame   = AUDIO_CONFIG.valueVsVar.wordStartFrames[2][0] ?? split1;
+  const valueWordFrame =
+    AUDIO_CONFIG.valueVsVar.wordStartFrames[1][0] ?? split0;
+  const varWordFrame = AUDIO_CONFIG.valueVsVar.wordStartFrames[2][0] ?? split1;
 
   const valueAppear = spring({
     frame: frame - valueWordFrame,
@@ -613,16 +616,19 @@ const ValueVsVarScene: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const arrowOp = interpolate(frame, [varWordFrame, varWordFrame + 15], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const arrowOp = interpolate(
+    frame,
+    [varWordFrame, varWordFrame + 15],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(valueVsVar.audio)} />
 
@@ -714,7 +720,9 @@ const ValueVsVarScene: React.FC = () => {
             </div>
 
             {/* 화살표 */}
-            <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>→</div>
+            <div style={{ fontSize: 56, color: "#555", opacity: arrowOp }}>
+              →
+            </div>
 
             {/* 오른쪽: int형 변수 */}
             <div
@@ -848,9 +856,7 @@ const TypeScene: React.FC<{
 
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(config.audio)} />
           <div
@@ -894,9 +900,7 @@ const BooleanScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill
-        style={{ background: "#1e1e1e", opacity }}
-      >
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(booleanScene.audio)} />
           <div
@@ -996,9 +1000,14 @@ const totalDuration = _from;
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
-export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: string }> = (() => {
+export const SRT_DATA: Array<{
+  startFrame: number;
+  endFrame: number;
+  text: string;
+}> = (() => {
   const CROSS_VAL = 20;
-  const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+  const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
+    [];
 
   const addScene = (
     offset: number,
@@ -1034,33 +1043,68 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro
-  addScene(froms[1], VIDEO_CONFIG.intro.narration, AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames);
+  addScene(
+    froms[1],
+    VIDEO_CONFIG.intro.narration,
+    AUDIO_CONFIG.intro.speechStartFrame,
+    AUDIO_CONFIG.intro.narrationSplits,
+    AUDIO_CONFIG.intro.sentenceEndFrames,
+    VIDEO_CONFIG.intro.durationInFrames,
+  );
   // [2]=valueVsVar
-  addScene(froms[2], VIDEO_CONFIG.valueVsVar.narration, AUDIO_CONFIG.valueVsVar.speechStartFrame,
-    AUDIO_CONFIG.valueVsVar.narrationSplits, AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
-    VIDEO_CONFIG.valueVsVar.durationInFrames);
+  addScene(
+    froms[2],
+    VIDEO_CONFIG.valueVsVar.narration,
+    AUDIO_CONFIG.valueVsVar.speechStartFrame,
+    AUDIO_CONFIG.valueVsVar.narrationSplits,
+    AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
+    VIDEO_CONFIG.valueVsVar.durationInFrames,
+  );
   // [3]=intScene
-  addScene(froms[3], VIDEO_CONFIG.intScene.narration, AUDIO_CONFIG.intScene.speechStartFrame,
-    AUDIO_CONFIG.intScene.narrationSplits, AUDIO_CONFIG.intScene.sentenceEndFrames,
-    VIDEO_CONFIG.intScene.durationInFrames);
+  addScene(
+    froms[3],
+    VIDEO_CONFIG.intScene.narration,
+    AUDIO_CONFIG.intScene.speechStartFrame,
+    AUDIO_CONFIG.intScene.narrationSplits,
+    AUDIO_CONFIG.intScene.sentenceEndFrames,
+    VIDEO_CONFIG.intScene.durationInFrames,
+  );
   // [4]=doubleScene
-  addScene(froms[4], VIDEO_CONFIG.doubleScene.narration, AUDIO_CONFIG.doubleScene.speechStartFrame,
-    AUDIO_CONFIG.doubleScene.narrationSplits, AUDIO_CONFIG.doubleScene.sentenceEndFrames,
-    VIDEO_CONFIG.doubleScene.durationInFrames);
+  addScene(
+    froms[4],
+    VIDEO_CONFIG.doubleScene.narration,
+    AUDIO_CONFIG.doubleScene.speechStartFrame,
+    AUDIO_CONFIG.doubleScene.narrationSplits,
+    AUDIO_CONFIG.doubleScene.sentenceEndFrames,
+    VIDEO_CONFIG.doubleScene.durationInFrames,
+  );
   // [5]=stringScene
-  addScene(froms[5], VIDEO_CONFIG.stringScene.narration, AUDIO_CONFIG.stringScene.speechStartFrame,
-    AUDIO_CONFIG.stringScene.narrationSplits, AUDIO_CONFIG.stringScene.sentenceEndFrames,
-    VIDEO_CONFIG.stringScene.durationInFrames);
+  addScene(
+    froms[5],
+    VIDEO_CONFIG.stringScene.narration,
+    AUDIO_CONFIG.stringScene.speechStartFrame,
+    AUDIO_CONFIG.stringScene.narrationSplits,
+    AUDIO_CONFIG.stringScene.sentenceEndFrames,
+    VIDEO_CONFIG.stringScene.durationInFrames,
+  );
   // [6]=booleanScene
-  addScene(froms[6], VIDEO_CONFIG.booleanScene.narration, AUDIO_CONFIG.booleanScene.speechStartFrame,
-    AUDIO_CONFIG.booleanScene.narrationSplits, AUDIO_CONFIG.booleanScene.sentenceEndFrames,
-    VIDEO_CONFIG.booleanScene.durationInFrames);
+  addScene(
+    froms[6],
+    VIDEO_CONFIG.booleanScene.narration,
+    AUDIO_CONFIG.booleanScene.speechStartFrame,
+    AUDIO_CONFIG.booleanScene.narrationSplits,
+    AUDIO_CONFIG.booleanScene.sentenceEndFrames,
+    VIDEO_CONFIG.booleanScene.durationInFrames,
+  );
   // [7]=summaryScene
-  addScene(froms[7], VIDEO_CONFIG.summaryScene.narration, AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits, AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames);
+  addScene(
+    froms[7],
+    VIDEO_CONFIG.summaryScene.narration,
+    AUDIO_CONFIG.summaryScene.speechStartFrame,
+    AUDIO_CONFIG.summaryScene.narrationSplits,
+    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    VIDEO_CONFIG.summaryScene.durationInFrames,
+  );
 
   return entries;
 })();

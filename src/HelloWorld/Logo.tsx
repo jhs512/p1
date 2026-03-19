@@ -1,4 +1,3 @@
-import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
@@ -6,7 +5,11 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
+import { zColor } from "@remotion/zod-types";
+
 import { z } from "zod";
+
 import { Arc } from "./Arc";
 import { Atom } from "./Atom";
 

@@ -13,8 +13,8 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
-import { FPS, SCENE_TAIL_FRAMES } from "../../config";
-import { toDisplayText } from "../../utils/narration";
+import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
+import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
@@ -23,7 +23,7 @@ import {
   monoFont,
   uiFont,
   useFade,
-} from "../../utils/scene";
+} from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./008-audio";
 import { HEIGHT, WIDTH } from "./config";
 

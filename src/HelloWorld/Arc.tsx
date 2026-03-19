@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { random, useVideoConfig } from "remotion";
+
+import { useState } from "react";
 
 const getCircumferenceOfArc = (rx: number, ry: number) => {
   return Math.PI * 2 * Math.sqrt((rx * rx + ry * ry) / 2);

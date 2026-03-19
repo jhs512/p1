@@ -14,15 +14,15 @@ Java 기초 쇼츠 시리즈 두 번째 영상. 0001(변수)에서 `int age = 25
 
 ## 씬 구성
 
-| 씬 키 | 내용 | 색상 | 씬 길이 |
-|---|---|---|---|
-| `thumbnail` | 정지 화면 (유튜브 자동 썸네일) | — | 30프레임 고정 (나레이션 없음) |
-| `intro` | 자료형 개념 소개 + 4개 상자 동시 등장 | 멀티컬러 | ~7s |
-| `intScene` | int — 정수형 설명 + 코드 예시 | 파랑 `#4e9cd5` | ~8s |
-| `doubleScene` | double — 실수형 설명 + 코드 예시 | 노랑 `#d4c04e` | ~8s |
-| `stringScene` | String — 문자열 설명 + 코드 예시 | 초록 `#4ec970` | ~8s |
-| `booleanScene` | boolean — 참/거짓 설명 + 토글 애니 | 주황 `#d4834e` | ~8s |
-| `summaryScene` | 4개 타입 코드 한 화면 리뷰 | 멀티컬러 | ~8s |
+| 씬 키          | 내용                                  | 색상           | 씬 길이                       |
+| -------------- | ------------------------------------- | -------------- | ----------------------------- |
+| `thumbnail`    | 정지 화면 (유튜브 자동 썸네일)        | —              | 30프레임 고정 (나레이션 없음) |
+| `intro`        | 자료형 개념 소개 + 4개 상자 동시 등장 | 멀티컬러       | ~7s                           |
+| `intScene`     | int — 정수형 설명 + 코드 예시         | 파랑 `#4e9cd5` | ~8s                           |
+| `doubleScene`  | double — 실수형 설명 + 코드 예시      | 노랑 `#d4c04e` | ~8s                           |
+| `stringScene`  | String — 문자열 설명 + 코드 예시      | 초록 `#4ec970` | ~8s                           |
+| `booleanScene` | boolean — 참/거짓 설명 + 토글 애니    | 주황 `#d4834e` | ~8s                           |
+| `summaryScene` | 4개 타입 코드 한 화면 리뷰            | 멀티컬러       | ~8s                           |
 
 thumbnail은 나레이션이 없으므로 `audio` 키를 갖지 않고 `durationInFrames: 30`을 VIDEO_CONFIG에 직접 지정한다.
 
@@ -43,14 +43,14 @@ public/dt-summary.mp3
 
 VIDEO_CONFIG 키와 오디오 파일 매핑:
 
-| VIDEO_CONFIG 키 | audio 파일 | AUDIO_CONFIG 키 |
-|---|---|---|
-| `intro` | `dt-intro.mp3` | `intro` |
-| `intScene` | `dt-int.mp3` | `intScene` |
-| `doubleScene` | `dt-double.mp3` | `doubleScene` |
-| `stringScene` | `dt-string.mp3` | `stringScene` |
-| `booleanScene` | `dt-boolean.mp3` | `booleanScene` |
-| `summaryScene` | `dt-summary.mp3` | `summaryScene` |
+| VIDEO_CONFIG 키 | audio 파일       | AUDIO_CONFIG 키 |
+| --------------- | ---------------- | --------------- |
+| `intro`         | `dt-intro.mp3`   | `intro`         |
+| `intScene`      | `dt-int.mp3`     | `intScene`      |
+| `doubleScene`   | `dt-double.mp3`  | `doubleScene`   |
+| `stringScene`   | `dt-string.mp3`  | `stringScene`   |
+| `booleanScene`  | `dt-boolean.mp3` | `booleanScene`  |
+| `summaryScene`  | `dt-summary.mp3` | `summaryScene`  |
 
 ---
 
@@ -103,28 +103,32 @@ summaryScene에서 4줄 순차 타이핑 (아래 summaryScene 항목 참조).
 
 ### 상자 색상 팔레트
 
-| 타입 | 상자 색 | 값 예시 |
-|---|---|---|
-| int | `#4e9cd5` (파랑) | `25` |
-| double | `#d4c04e` (노랑) | `175.5` |
-| String | `#4ec970` (초록) | `"Java"` |
-| boolean | `#d4834e` (주황) | `true` |
+| 타입    | 상자 색          | 값 예시  |
+| ------- | ---------------- | -------- |
+| int     | `#4e9cd5` (파랑) | `25`     |
+| double  | `#d4c04e` (노랑) | `175.5`  |
+| String  | `#4ec970` (초록) | `"Java"` |
+| boolean | `#d4834e` (주황) | `true`   |
 
 ### 인트로 씬
+
 - 4개 상자가 화면 중앙에 2×2 그리드로 stagger spring 등장 (0, 5, 10, 15프레임 딜레이)
 - 각 상자 안에 타입명 표시
 
 ### 타입 씬 공통 패턴 (4씬 동일)
+
 1. `TypeBox` spring 등장 (화면 중앙)
 2. 코드 타이핑 (`int age = 25;` 등) — `CodeBox` 재사용
 3. 값 낙하 애니메이션 (TypeBox 안으로 값이 위에서 내려옴)
 4. 자막 2문장
 
 ### boolean 씬 특수 애니메이션
+
 - TypeBox 안에서 `true` ↔ `false` 토글 (1.5초 주기, `interpolate` 기반)
 - true 색: `#4ec9b0`, false 색: `#f44747`
 
 ### summaryScene
+
 - 4줄 코드를 순차적으로 타이핑: 4개의 `<Sequence>`를 사용하며, 각 Sequence는 누적 `CodeLine[]`을 `<CodeBox>`에 넘긴다. 이전 줄은 `isNew: false`, 현재 타이핑 줄은 `isNew: true`.
 - 각 줄 타입 키워드에 해당 타입 색상 적용 (`ColorizedCode` 사용)
 
@@ -135,6 +139,7 @@ summaryScene에서 4줄 순차 타이핑 (아래 summaryScene 항목 참조).
 0001과 마찬가지로 **모든 컴포넌트는 `0002-JavaDataTypes.tsx` 파일 내에 인라인으로 정의**한다. 0001의 컴포넌트는 임포트하지 않고, 동일한 패턴을 파일 내에서 재구현한다.
 
 ### 복사 (0001과 동일 패턴)
+
 - `useTypingEffect` — 변경 없음
 - `SceneTitle` — 변경 없음
 - `StaticLine` / `TypingLine` / `CodeBox` — 변경 없음
@@ -143,6 +148,7 @@ summaryScene에서 4줄 순차 타이핑 (아래 summaryScene 항목 참조).
 ### 신규 또는 재설계
 
 #### `ColorizedCode` (0002 버전)
+
 0001의 `ColorizedCode`는 모든 타입 키워드를 단일 색(`#4ec9b0`)으로 표시했다. 0002에서는 **타입 키워드마다 고유 색상**을 사용하도록 재설계한다.
 
 키워드 → 색상 매핑:
@@ -158,13 +164,17 @@ summaryScene에서 4줄 순차 타이핑 (아래 summaryScene 항목 참조).
 구현: `KEYWORD_COLORS` 맵 + 정규식 분리 → `parts.map((part) => KEYWORD_COLORS[part] ? <span color={KEYWORD_COLORS[part]}> : ...)`
 
 #### `TypeBox`
+
 색상(`color: string`)과 값(`value: string`)을 받는 범용 변수 상자.
+
 - 상자가 spring으로 등장 (scale 0 → 1)
 - 지정 프레임 이후 값이 위에서 낙하 (translateY + opacity, 0001의 BoxMetaphorAnim 낙하 로직 기반)
 - Props: `color`, `value`, `startFrame`, `dropStartFrame`
 
 #### `BooleanToggleAnim`
+
 `TypeBox`를 래핑한 boolean 전용 컴포넌트.
+
 - TypeBox 내부 값이 `interpolate`로 `true` ↔ `false` 토글 (45프레임 주기)
 - true 색: `#4ec9b0`, false 색: `#f44747`
 

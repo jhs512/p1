@@ -1,10 +1,6 @@
 // ── src/utils/scene.tsx ───────────────────────────────────────
 // 모든 씬 파일이 공유하는 상수 · 훅 · 컴포넌트
 // ─────────────────────────────────────────────────────────────
-
-import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
-import React from "react";
 import {
   continueRender,
   delayRender,
@@ -12,18 +8,24 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { CROSS, CHARS_PER_SEC } from "../config";
+
+import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
+import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
+
+import React from "react";
+
+import { CROSS } from "../config";
 import { toDisplayText } from "./narration";
 
 // ── 폰트 ─────────────────────────────────────────────────────
 export let monoFont = "JetBrains Mono, monospace";
-export let uiFont   = "Noto Sans KR, sans-serif";
+export let uiFont = "Noto Sans KR, sans-serif";
 
 if (typeof window !== "undefined") {
   const _jb = loadJetBrains("normal", { ignoreTooManyRequestsWarning: true });
   const _ns = loadNotoSans("normal", { ignoreTooManyRequestsWarning: true });
   monoFont = _jb.fontFamily;
-  uiFont   = _ns.fontFamily;
+  uiFont = _ns.fontFamily;
   const _h = delayRender("Loading Google Fonts");
   Promise.all([_jb.waitUntilDone(), _ns.waitUntilDone()]).then(() =>
     continueRender(_h),
@@ -45,7 +47,7 @@ export { CROSS, CHARS_PER_SEC } from "../config";
  */
 export function useFade(d: number, { out = true }: { out?: boolean } = {}) {
   const frame = useCurrentFrame();
-  const fadeIn  = interpolate(frame, [0, CROSS], [0, 1], {
+  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -69,7 +71,9 @@ export const SUBTITLE_DEAD_ZONE = 75;
  * → 화면 수직 중앙이 자막 위 공간의 중앙과 일치하게 된다.
  * Thumbnail/Overview 씬(flex centering 사용)에는 사용하지 않는다.
  */
-export const ContentArea: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ContentArea: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { height } = useVideoConfig();
   return (
     <div
@@ -135,7 +139,8 @@ export const Subtitle: React.FC<{
 
   // 현재 발화 중인 단어 인덱스
   const currentWordIdx = currentWordFrames.reduce(
-    (acc, f, i) => (frame >= f ? i : acc), -1
+    (acc, f, i) => (frame >= f ? i : acc),
+    -1,
   );
 
   // 공백/줄바꿈 토큰 보존하며 분리
@@ -150,7 +155,9 @@ export const Subtitle: React.FC<{
         return (
           <span
             key={i}
-            style={{ color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff" }}
+            style={{
+              color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
+            }}
           >
             {token}
           </span>

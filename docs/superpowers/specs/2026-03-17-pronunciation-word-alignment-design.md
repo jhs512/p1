@@ -27,6 +27,7 @@
 ```
 
 구현:
+
 1. 단어 전체로 exact match 시도
 2. 없으면 trailing 구두점(`.,;:!?`) 제거 후 match 시도 → 매치되면 결과의 **마지막 TTS 단어**에 구두점 재부착 (multi-word 확장 시에도 항상 마지막에 붙임)
 3. 없으면 원본 단어 그대로 반환 (1개)
@@ -39,14 +40,15 @@
 type DisplayWordInfo = {
   sentenceIdx: number;
   displayIdx: number;
-  firstTtsIdx: number;   // 이 display 단어의 TTS 단어들이 시작하는 전역 인덱스
-  ttsCount: number;      // 이 display 단어가 TTS로 몇 개 단어로 확장되는지
+  firstTtsIdx: number; // 이 display 단어의 TTS 단어들이 시작하는 전역 인덱스
+  ttsCount: number; // 이 display 단어가 TTS로 몇 개 단어로 확장되는지
 };
 
 // 반환값: { globalTtsCount: number, displayWords: DisplayWordInfo[] }
 ```
 
 예시 — print 씬 narration 2번째 문장:
+
 ```
 display: ["System.out.println", "메서드를", "사용하면", ...]
 TTS:     ["print", "line",       "메서드를", "사용하면", ...]
@@ -67,6 +69,7 @@ display 단어 (si, di) with firstTtsIdx = k:
 ```
 
 **ttsCount = 0인 경우** (e.g., `"(자료)"` → `""`):
+
 - 같은 문장 내 앞선 display 단어 중 ttsCount > 0인 것의 frame 사용
 - 문장 내 앞선 non-zero 단어가 없으면 (= 문장 첫 단어가 zero-TTS): 그 문장에서 첫 번째 ttsCount > 0인 display 단어의 frame 사용
 - 문장 전체가 모두 zero-TTS이면 (극단적 케이스): `speechStartFrame` 사용
@@ -84,6 +87,7 @@ display 단어 (si, di) with firstTtsIdx = k:
 ### 검증
 
 `pnpm sync 001-Java-Basic/001` 후 `001-audio.ts`의 print 씬:
+
 - `wordStartFrames[1]` 길이 = 10 (display 단어 수)
 - `wordStartFrames[1][0]` ("System.out.println") ≠ `wordStartFrames[1][1]` ("메서드를") (더 이상 중복 없음)
 - `wordStartFrames[1][0]` frame이 "print"가 말해지는 타이밍에 위치
@@ -96,7 +100,7 @@ display 단어 (si, di) with firstTtsIdx = k:
 
 ## 변경 범위 요약
 
-| 파일 | 변경 |
-|---|---|
+| 파일              | 변경                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------- |
 | `scripts/sync.ts` | `getPronunciationExpansion()` + `buildGlobalAlignment()` 추가, Whisper Step 5 교체 |
-| 나머지 모든 파일 | 변경 없음 |
+| 나머지 모든 파일  | 변경 없음                                                                          |

@@ -1,6 +1,4 @@
 // src/compositions/001-Java-Basic/004-JavaComparison.tsx
-import { Audio } from "@remotion/media";
-import React from "react";
 import {
   AbsoluteFill,
   Sequence,
@@ -10,10 +8,13 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { AUDIO_CONFIG } from "./004-audio";
-import { WIDTH, HEIGHT } from "./config";
-import { FPS } from "../../config";
-import { toDisplayText } from "../../utils/narration";
+
+import { Audio } from "@remotion/media";
+
+import React from "react";
+
+import { FPS } from "../../../config";
+import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
@@ -22,7 +23,9 @@ import {
   monoFont,
   uiFont,
   useFade,
-} from "../../utils/scene";
+} from "../../../utils/scene";
+import { AUDIO_CONFIG } from "./004-audio";
+import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const BEAT_CROSS = 12; // 연산자 비트 간 크로스페이드
@@ -281,7 +284,8 @@ const ThumbnailScene: React.FC = () => (
         lineHeight: 1,
         textAlign: "center",
         color: "#fff",
-        textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        textShadow:
+          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
       }}
     >
       Java
@@ -300,7 +304,9 @@ const ThumbnailScene: React.FC = () => (
       }}
     >
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>10</span>
-      <span style={{ fontSize: 64, fontWeight: 900, color: "#4ec9b0" }}>==</span>
+      <span style={{ fontSize: 64, fontWeight: 900, color: "#4ec9b0" }}>
+        ==
+      </span>
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>3</span>
       <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
       <span style={{ fontSize: 56, fontWeight: 900, color: C_FALSE }}>
@@ -355,7 +361,9 @@ const IntroScene: React.FC = () => {
                 {row.map((op, i) => {
                   const idx = ri * 3 + i;
                   const wf = AUDIO_CONFIG.intro.wordStartFrames[0];
-                  const startFrame = Math.round(interpolate(idx, [0, 5], [wf[0], wf[wf.length - 1]]));
+                  const startFrame = Math.round(
+                    interpolate(idx, [0, 5], [wf[0], wf[wf.length - 1]]),
+                  );
                   const appear = spring({
                     frame: frame - startFrame,
                     fps,
@@ -614,9 +622,14 @@ const totalDuration = _from;
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
-export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: string }> = (() => {
+export const SRT_DATA: Array<{
+  startFrame: number;
+  endFrame: number;
+  text: string;
+}> = (() => {
   const CROSS_VAL = 20;
-  const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+  const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
+    [];
 
   const addScene = (
     offset: number,
@@ -652,17 +665,32 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro
-  addScene(froms[1], VIDEO_CONFIG.intro.narration, AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames);
+  addScene(
+    froms[1],
+    VIDEO_CONFIG.intro.narration,
+    AUDIO_CONFIG.intro.speechStartFrame,
+    AUDIO_CONFIG.intro.narrationSplits,
+    AUDIO_CONFIG.intro.sentenceEndFrames,
+    VIDEO_CONFIG.intro.durationInFrames,
+  );
   // [2]=compareScene
-  addScene(froms[2], VIDEO_CONFIG.compareScene.narration, AUDIO_CONFIG.compareScene.speechStartFrame,
-    AUDIO_CONFIG.compareScene.narrationSplits, AUDIO_CONFIG.compareScene.sentenceEndFrames,
-    VIDEO_CONFIG.compareScene.durationInFrames);
+  addScene(
+    froms[2],
+    VIDEO_CONFIG.compareScene.narration,
+    AUDIO_CONFIG.compareScene.speechStartFrame,
+    AUDIO_CONFIG.compareScene.narrationSplits,
+    AUDIO_CONFIG.compareScene.sentenceEndFrames,
+    VIDEO_CONFIG.compareScene.durationInFrames,
+  );
   // [3]=summaryScene
-  addScene(froms[3], VIDEO_CONFIG.summaryScene.narration, AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits, AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames);
+  addScene(
+    froms[3],
+    VIDEO_CONFIG.summaryScene.narration,
+    AUDIO_CONFIG.summaryScene.speechStartFrame,
+    AUDIO_CONFIG.summaryScene.narrationSplits,
+    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    VIDEO_CONFIG.summaryScene.durationInFrames,
+  );
 
   return entries;
 })();

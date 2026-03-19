@@ -54,10 +54,10 @@ src/
 
 ### 삭제되는 파일
 
-| 기존 파일 | 이동 대상 |
-|---|---|
-| `src/global.config.ts` | `src/config.ts` |
-| `src/global-pronunciation.ts` | `src/config.ts` |
+| 기존 파일                         | 이동 대상                  |
+| --------------------------------- | -------------------------- |
+| `src/global.config.ts`            | `src/config.ts`            |
+| `src/global-pronunciation.ts`     | `src/config.ts`            |
 | `001-Java-Basic/series.config.ts` | `001-Java-Basic/config.ts` |
 
 ---
@@ -84,19 +84,19 @@ export const PRONUNCIATION: Record<string, string> = {
 ```ts
 import { PRONUNCIATION as ROOT_PRON } from "../../config";
 
-export const WIDTH  = 1080;
+export const WIDTH = 1080;
 export const HEIGHT = 1680;
 
 // 언어 설정 (KOR 기준, 추후 ENG 추가 시 lang 필드 확장)
-export const VOICE  = "ko-KR-HyunsuMultilingualNeural";
-export const RATE   = "+30%";
+export const VOICE = "ko-KR-HyunsuMultilingualNeural";
+export const RATE = "+30%";
 
 // 강좌별 발음맵 (루트 발음맵 상속 + override)
 export const PRONUNCIATION: Record<string, string> = {
   ...ROOT_PRON,
   // Java 전용
   "System.out.println": "print line",
-  "double": "더블",
+  double: "더블",
 };
 ```
 
@@ -116,11 +116,11 @@ export const EPISODE_TITLE = "변수란 무엇인가?";
 
 ```ts
 // 현재
-hash(VOICE + RATE + ttsText)
+hash(VOICE + RATE + ttsText);
 
 // 변경 후
 const cfg = loadMergedConfig(seriesDir, episodeId);
-hash(cfg.VOICE + cfg.RATE + ttsText)
+hash(cfg.VOICE + cfg.RATE + ttsText);
 ```
 
 `config.ts`가 어느 레벨이든 변경되면 hash 불일치 → 해당 범위 자동 재생성.
@@ -133,8 +133,13 @@ hash(cfg.VOICE + cfg.RATE + ttsText)
 ```ts
 function loadTsExports(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {};
-  const result = buildSync({ entryPoints: [filePath], bundle: true,
-    format: "cjs", platform: "node", write: false });
+  const result = buildSync({
+    entryPoints: [filePath],
+    bundle: true,
+    format: "cjs",
+    platform: "node",
+    write: false,
+  });
   const code = result.outputFiles[0].text;
   const m: Record<string, unknown> = {};
   new Function("exports", "require", code)(m, require);
@@ -142,8 +147,8 @@ function loadTsExports(filePath: string): Record<string, unknown> {
 }
 
 function loadMergedConfig(seriesDir: string, episodeId: string) {
-  const root    = loadTsExports("src/config.ts");
-  const course  = loadTsExports(`${seriesDir}/config.ts`);
+  const root = loadTsExports("src/config.ts");
+  const course = loadTsExports(`${seriesDir}/config.ts`);
   const episode = loadTsExports(`${seriesDir}/${episodeId}.config.ts`);
   return { ...root, ...course, ...episode };
 }
@@ -164,7 +169,7 @@ const pronMap = mergedConfig.PRONUNCIATION as Record<string, string>;
 ```ts
 // 현재: sync.ts 상단 const FPS = 30; const SCENE_TAIL_FRAMES = 15;
 // 변경 후: mergedConfig에서 읽기
-const FPS              = (mergedConfig.FPS              as number) ?? 30;
+const FPS = (mergedConfig.FPS as number) ?? 30;
 const SCENE_TAIL_FRAMES = (mergedConfig.SCENE_TAIL_FRAMES as number) ?? 15;
 ```
 

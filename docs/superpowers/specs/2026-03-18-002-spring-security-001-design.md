@@ -136,15 +136,15 @@ export const compositionMeta = { fps: 30, width: 1080, height: 1920 };
 
 ## 색상 상수
 
-| 상수 | 값 | 용도 |
-|---|---|---|
-| `C_BG` | `#050510` | 배경색 (전체 공통) |
-| `C_SPRING` | `#6db33f` | Spring 그린 — 키워드/테마 |
-| `C_AUTHN` | `#e5c07b` | 인증 (Authentication) — 앰버 |
-| `C_AUTHZ` | `#c586c0` | 인가 (Authorization) — 퍼플 |
-| `C_CODE` | `#4e9cd5` | 코드 키워드 — 블루 |
-| `C_STRING` | `#ce9178` | 문자열 리터럴 — 오렌지 |
-| `C_RED` | `#f47c7c` | 경고/거부 — AuthZScene 접근 불가 |
+| 상수       | 값        | 용도                             |
+| ---------- | --------- | -------------------------------- |
+| `C_BG`     | `#050510` | 배경색 (전체 공통)               |
+| `C_SPRING` | `#6db33f` | Spring 그린 — 키워드/테마        |
+| `C_AUTHN`  | `#e5c07b` | 인증 (Authentication) — 앰버     |
+| `C_AUTHZ`  | `#c586c0` | 인가 (Authorization) — 퍼플      |
+| `C_CODE`   | `#4e9cd5` | 코드 키워드 — 블루               |
+| `C_STRING` | `#ce9178` | 문자열 리터럴 — 오렌지           |
+| `C_RED`    | `#f47c7c` | 경고/거부 — AuthZScene 접근 불가 |
 
 ---
 
@@ -165,13 +165,13 @@ public/
 
 **AUDIO_CONFIG 키 ↔ mp3 매핑:**
 
-| AUDIO_CONFIG 키 | mp3 파일 |
-|---|---|
-| `overview` | `ss-overview.mp3` |
-| `authn` | `ss-authn.mp3` |
-| `authz` | `ss-authz.mp3` |
-| `dependency` | `ss-dependency.mp3` |
-| `summary` | `ss-summary.mp3` |
+| AUDIO_CONFIG 키 | mp3 파일            |
+| --------------- | ------------------- |
+| `overview`      | `ss-overview.mp3`   |
+| `authn`         | `ss-authn.mp3`      |
+| `authz`         | `ss-authz.mp3`      |
+| `dependency`    | `ss-dependency.mp3` |
+| `summary`       | `ss-summary.mp3`    |
 
 > ThumbnailScene은 오디오 없음 — 해당 키 없음.
 

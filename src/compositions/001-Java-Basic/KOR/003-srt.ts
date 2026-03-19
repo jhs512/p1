@@ -4,9 +4,9 @@
  * Remotion 의존성 없음
  */
 import { AUDIO_CONFIG } from "./003-audio";
-import { toDisplayText } from "../../utils/narration";
+import { toDisplayText } from "../../../utils/narration";
 import { FPS } from "./config";
-import { CROSS } from "../../config";
+import { CROSS } from "../../../config";
 
 export const fps = FPS;
 

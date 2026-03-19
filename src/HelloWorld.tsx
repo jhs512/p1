@@ -1,13 +1,16 @@
-import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
-  interpolate,
   Sequence,
+  interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
+import { zColor } from "@remotion/zod-types";
+
 import { z } from "zod";
+
 import { Logo } from "./HelloWorld/Logo";
 import { Subtitle } from "./HelloWorld/Subtitle";
 import { Title } from "./HelloWorld/Title";

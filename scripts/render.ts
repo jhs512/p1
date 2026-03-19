@@ -1,14 +1,15 @@
 /**
  * scripts/render.ts
  *
- *   단일 에피소드:  pnpm render 001-Java-Basic/001
+ *   단일 에피소드:  pnpm render 001-Java-Basic/KOR/001
  *   시리즈 전체:   pnpm render 001          (001-* 폴더 안의 모든 에피소드)
  *   전체:          pnpm render              (모든 시리즈)
  */
-import path from "path";
-import { readdirSync, statSync, mkdirSync } from "fs";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
+
+import { mkdirSync, readdirSync, statSync } from "fs";
+import path from "path";
 
 const SRC_DIR = "src/compositions";
 const arg = process.argv[2] ?? "";
@@ -26,13 +27,14 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
   }
 
   if (arg.includes("/")) {
-    // 단일 에피소드: 001-Java-Basic/001  또는  001/001 (prefix 축약)
-    const parts      = arg.split("/");
-    const seriesArg  = parts.slice(0, -1).join("/");
+    // 단일 에피소드: 001-Java-Basic/KOR/001  또는  001/KOR/001 (prefix 축약)
+    const parts = arg.split("/");
     const episodeNum = parts[parts.length - 1];
+    const seriesArg = parts[0];
     // 정확히 일치하는 폴더 없으면 prefix로 검색
-    const seriesDir  = allSeries.find((d) => d === seriesArg)
-                    ?? allSeries.find((d) => d.startsWith(seriesArg));
+    const seriesDir =
+      allSeries.find((d) => d === seriesArg) ??
+      allSeries.find((d) => d.startsWith(seriesArg));
     if (!seriesDir) {
       console.error(`❌  No series folder matching "${seriesArg}" found.`);
       process.exit(1);
@@ -50,38 +52,68 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
 }
 
 function episodesOf(seriesDir: string) {
-  return readdirSync(path.join(SRC_DIR, seriesDir))
-    .filter((f) => /^\d+-.+\.tsx$/.test(f))
-    .map((f) => f.match(/^(\d+)/)?.[1])
-    .filter((ep): ep is string => !!ep)
-    .sort()
-    .map((episodeNum) => ({ seriesDir, episodeNum }));
+  // 시리즈 폴더 안에서 언어 서브폴더(KOR, ENG 등)를 포함해 에피소드 tsx 를 수집한다.
+  const seriesPath = path.join(SRC_DIR, seriesDir);
+  const entries = readdirSync(seriesPath, { withFileTypes: true });
+
+  // 언어 서브폴더가 있으면 그 안을 스캔, 없으면 seriesDir 직접 스캔 (하위 호환)
+  const langDirs = entries
+    .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
+    .map((e) => e.name);
+
+  const scanDirs = langDirs.length > 0 ? langDirs.map((l) => path.join(seriesPath, l)) : [seriesPath];
+
+  return scanDirs
+    .flatMap((dir) =>
+      readdirSync(dir)
+        .filter((f) => /^\d+-.+\.tsx$/.test(f))
+        .map((f) => f.match(/^(\d+)/)?.[1])
+        .filter((ep): ep is string => !!ep)
+        .map((episodeNum) => ({ seriesDir, episodeNum })),
+    )
+    .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
 }
 
 // ── 메인 ─────────────────────────────────────────────────────
 (async () => {
   const targets = collectTargets();
-  if (targets.length === 0) { console.error("❌  No targets found."); process.exit(1); }
+  if (targets.length === 0) {
+    console.error("❌  No targets found.");
+    process.exit(1);
+  }
 
   console.log(`\n🎬  Bundling…`);
-  const bundled = await bundle({ entryPoint: path.resolve("src/index.ts"), webpackOverride: (c) => c });
+  const bundled = await bundle({
+    entryPoint: path.resolve("src/index.ts"),
+    webpackOverride: (c) => c,
+  });
 
   for (const { seriesDir, episodeNum } of targets) {
-    const dirPrefix     = seriesDir.match(/^(\d+)/)?.[1] ?? "";
+    const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
     const compositionId = dirPrefix ? `${dirPrefix}-${episodeNum}` : episodeNum;
-    const outputDir     = path.join("out", seriesDir);
-    const outputFile    = path.join(outputDir, episodeNum + ".mp4");
+    const outputDir = path.join("out", seriesDir);
+    const outputFile = path.join(outputDir, episodeNum + ".mp4");
 
     mkdirSync(outputDir, { recursive: true });
     console.log(`\n▶  "${compositionId}" → ${outputFile}`);
 
-    const composition = await selectComposition({ serveUrl: bundled, id: compositionId });
+    const composition = await selectComposition({
+      serveUrl: bundled,
+      id: compositionId,
+    });
     await renderMedia({
-      composition, serveUrl: bundled, codec: "h264", outputLocation: outputFile,
-      onProgress: ({ progress }) => process.stdout.write(`\r   ⏳  ${(progress * 100).toFixed(1)}%`),
+      composition,
+      serveUrl: bundled,
+      codec: "h264",
+      outputLocation: outputFile,
+      onProgress: ({ progress }) =>
+        process.stdout.write(`\r   ⏳  ${(progress * 100).toFixed(1)}%`),
     });
     console.log(`\n   ✅  Done (${composition.width}×${composition.height})`);
   }
 
   console.log(`\n🎉  All ${targets.length} video(s) rendered.\n`);
-})().catch((err) => { console.error("\n❌ ", err.message ?? err); process.exit(1); });
+})().catch((err) => {
+  console.error("\n❌ ", err.message ?? err);
+  process.exit(1);
+});

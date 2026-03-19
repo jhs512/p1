@@ -15,6 +15,7 @@
 ### Task 1: Add thumbnail to VIDEO_CONFIG and destructuring
 
 **Files:**
+
 - Modify: `src/compositions/0001-JavaVariables.tsx`
 
 - [ ] **Step 1: Add `thumbnail` as first key in VIDEO_CONFIG**
@@ -36,10 +37,13 @@ export const VIDEO_CONFIG = {
 - [ ] **Step 2: Update destructuring**
 
 Find:
+
 ```ts
 const { declaration, initialization, print } = VIDEO_CONFIG;
 ```
+
 Replace with:
+
 ```ts
 const { thumbnail, declaration, initialization, print } = VIDEO_CONFIG;
 ```
@@ -107,10 +111,13 @@ const ThumbnailScene: React.FC = () => (
 - [ ] **Step 4: Update sceneList**
 
 Find:
+
 ```ts
 const sceneList = [declaration, initialization, print];
 ```
+
 Replace with:
+
 ```ts
 const sceneList = [thumbnail, declaration, initialization, print];
 ```
@@ -122,13 +129,22 @@ Find the `JavaVariables` component and update to:
 ```tsx
 export const JavaVariables: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={declaration.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={declaration.durationInFrames}
+    >
       <DeclarationScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={initialization.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={initialization.durationInFrames}
+    >
       <InitScene />
     </Sequence>
     <Sequence from={fromValues[3]} durationInFrames={print.durationInFrames}>

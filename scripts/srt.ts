@@ -1,7 +1,7 @@
 /**
  * scripts/srt.ts
  *
- *   단일 에피소드:  pnpm srt 001-Java-Basic/001
+ *   단일 에피소드:  pnpm srt 001-Java-Basic/KOR/001
  *   시리즈 전체:   pnpm srt 001
  *   전체:          pnpm srt
  */
@@ -23,8 +23,8 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
 
   if (arg.includes("/")) {
     const parts = arg.split("/");
-    const seriesArg = parts.slice(0, -1).join("/");
     const episodeNum = parts[parts.length - 1];
+    const seriesArg = parts[0];
     const seriesDir =
       allSeries.find((d) => d === seriesArg) ??
       allSeries.find((d) => d.startsWith(seriesArg));
@@ -44,12 +44,22 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
 }
 
 function episodesOf(seriesDir: string) {
-  return readdirSync(path.join(SRC_DIR, seriesDir))
-    .filter((f) => /^\d+-srt\.ts$/.test(f))
-    .map((f) => f.match(/^(\d+)/)?.[1])
-    .filter((ep): ep is string => !!ep)
-    .sort()
-    .map((episodeNum) => ({ seriesDir, episodeNum }));
+  const seriesPath = path.join(SRC_DIR, seriesDir);
+  const entries = readdirSync(seriesPath, { withFileTypes: true });
+  const langDirs = entries
+    .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
+    .map((e) => e.name);
+  const scanDirs = langDirs.length > 0 ? langDirs.map((l) => path.join(seriesPath, l)) : [seriesPath];
+
+  return scanDirs
+    .flatMap((dir) =>
+      readdirSync(dir)
+        .filter((f) => /^\d+-srt\.ts$/.test(f))
+        .map((f) => f.match(/^(\d+)/)?.[1])
+        .filter((ep): ep is string => !!ep)
+        .map((episodeNum) => ({ seriesDir, episodeNum })),
+    )
+    .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
 }
 
 // ── 프레임 → SRT 타임스탬프 변환 ────────────────────────────
@@ -88,15 +98,22 @@ function buildSRT(
   }
 
   for (const { seriesDir, episodeNum } of targets) {
-    // {id}-srt.ts 파일 경로 탐색
+    // {id}-srt.ts 파일 경로 탐색 — 언어 서브폴더(KOR 등) 안도 확인
     const seriesPath = path.join(SRC_DIR, seriesDir);
     const srtFile = `${episodeNum}-srt.ts`;
-    const srtFilePath = path.join(seriesPath, srtFile);
 
-    if (!readdirSync(seriesPath).includes(srtFile)) {
+    const seriesEntries = readdirSync(seriesPath, { withFileTypes: true });
+    const langDirs = seriesEntries
+      .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
+      .map((e) => path.join(seriesPath, e.name));
+    const searchDirs = langDirs.length > 0 ? langDirs : [seriesPath];
+
+    const foundDir = searchDirs.find((d) => readdirSync(d).includes(srtFile));
+    if (!foundDir) {
       console.error(`  No srt file for episode ${episodeNum} in ${seriesDir}`);
       continue;
     }
+    const srtFilePath = path.join(foundDir, srtFile);
     const compFile = path.resolve(srtFilePath);
 
     // 동적 import

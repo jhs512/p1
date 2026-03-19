@@ -56,7 +56,15 @@ Inline component inside `0001-JavaVariables.tsx` (consistent with the file's sin
 
 ```tsx
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
+  <AbsoluteFill
+    style={{
+      background: "#1e1e1e",
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      gap: 16,
+    }}
+  >
     {/* JAVA label */}
     {/* "Java 변수" large title */}
     {/* teal rule */}
@@ -80,13 +88,22 @@ const sceneList = [thumbnail, declaration, initialization, print];
 ```tsx
 export const JavaVariables: React.FC = () => (
   <AbsoluteFill style={{ background: "#1e1e1e" }}>
-    <Sequence from={fromValues[0]} durationInFrames={thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={declaration.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={declaration.durationInFrames}
+    >
       <DeclarationScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={initialization.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={initialization.durationInFrames}
+    >
       <InitScene />
     </Sequence>
     <Sequence from={fromValues[3]} durationInFrames={print.durationInFrames}>
