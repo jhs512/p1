@@ -83,8 +83,8 @@ function loadMergedConfig(seriesDir: string, episodeId: string): Record<string, 
 const mergedConfig      = loadMergedConfig(SERIES_DIR, compositionId);
 const FPS               = (mergedConfig.FPS               as number) ?? 30;
 const SCENE_TAIL_FRAMES = (mergedConfig.SCENE_TAIL_FRAMES  as number) ?? 15;
-const VOICE             = (mergedConfig.VOICE              as string);
-const RATE              = (mergedConfig.RATE               as string);
+const VOICE             = (mergedConfig.VOICE              as string) ?? "";  // course config.ts must export VOICE
+const RATE              = (mergedConfig.RATE               as string)  ?? "";  // course config.ts must export RATE
 
 const matchEntry = readdirSync(SERIES_DIR).find(
   (f) => f.startsWith(episodeId + "-") && f.endsWith(".tsx")
@@ -315,7 +315,7 @@ if (existsSync(audioConfigFile)) {
       const m2 = line.match(/^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\]/);
       if (m2) {
         const splits = m2[3].trim() ? m2[3].split(",").map(s => parseInt(s.trim())) : [];
-        existingAudioConfig[m2[1]] = { durationInFrames: parseInt(m2[2]), narrationSplits: splits, sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [] };
+        existingAudioConfig[m2[1]] = { durationInFrames: parseInt(m2[2]), narrationSplits: splits, sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [], wordEndFrames: [], wordStartMs: [] };
       }
     }
   } catch { /* ignore */ }
@@ -366,7 +366,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const probeRes = spawnSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", `${PUBLIC_DIR}/${audio}`], { encoding: "utf-8" });
   const totalSecs = parseFloat(probeRes.stdout.trim());
   console.log(`       실측 ${totalSecs.toFixed(2)}s  (${wordBoundaries.length}개 Word Boundary)`);
-  audioConfig[key] = { durationInFrames: Math.ceil(totalSecs * FPS) + SCENE_TAIL_FRAMES, narrationSplits: [], sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [], wordStartMs: [] };
+  audioConfig[key] = { durationInFrames: Math.ceil(totalSecs * FPS) + SCENE_TAIL_FRAMES, narrationSplits: [], sentenceEndFrames: [], speechStartFrame: 0, speechEndFrame: 0, wordStartFrames: [], wordEndFrames: [], wordStartMs: [] };
 
   // 3) speechStartFrame / speechEndFrame (Word Boundary 기반)
   if (wordBoundaries.length > 0) {
