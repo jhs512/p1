@@ -9,7 +9,7 @@ import React from "react";
 //   export const Component: React.FC = ...
 //
 // 파일 경로 → Remotion ID 규칙:
-//   src/compositions/001-Java-Basic/KOR/001-JavaVariables.tsx  →  folder "001-Java-Basic", id "001-001"
+//   src/compositions/001-Java-Basic/KOR/001-JavaVariables.tsx  →  folder "001-Java-Basic", id "001-KOR-001"
 //   render: pnpm render 001-Java-Basic/KOR/001
 
 interface CompositionModule {
@@ -33,10 +33,15 @@ const entries = ctx
     // 경로 파싱: "./001-Java-Basic/KOR/001-JavaVariables.tsx"
     const segments = key.replace(/^\.\//, "").split("/");
     const seriesFolder = segments[0]; // "001-Java-Basic" — Folder 그룹핑용
+    // 파일 직전 세그먼트가 대문자 2~3자이면 언어 폴더로 간주
+    const langFolder =
+      segments.length >= 3 && /^[A-Z]{2,3}$/.test(segments[segments.length - 2])
+        ? segments[segments.length - 2]
+        : null; // "KOR"
     const epMatch = segments[segments.length - 1].match(/^(\d+)-/);
     const epNum = epMatch ? epMatch[1] : segments[segments.length - 1]; // "001"
     const dirPrefix = seriesFolder.match(/^(\d+)/)?.[1] ?? seriesFolder; // "001"
-    const ep = dirPrefix ? `${dirPrefix}-${epNum}` : epNum; // "001-001"
+    const ep = [dirPrefix, langFolder, epNum].filter(Boolean).join("-"); // "001-KOR-001"
     const totalFrames =
       mod.compositionMeta.durationInFrames ??
       Object.values(mod.VIDEO_CONFIG).reduce(

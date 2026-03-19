@@ -14,9 +14,10 @@ import path from "path";
 const SRC_DIR = "src/compositions";
 const arg = process.argv[2] ?? "";
 
+type Target = { seriesDir: string; langDir: string | null; episodeNum: string };
+
 // ── 렌더링 대상 목록 수집 ─────────────────────────────────────
-// 반환 형식: [{ seriesDir, episodeNum }]
-function collectTargets(): { seriesDir: string; episodeNum: string }[] {
+function collectTargets(): Target[] {
   const allSeries = readdirSync(SRC_DIR)
     .filter((d) => statSync(path.join(SRC_DIR, d)).isDirectory())
     .sort();
@@ -31,6 +32,10 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
     const parts = arg.split("/");
     const episodeNum = parts[parts.length - 1];
     const seriesArg = parts[0];
+    const langDir =
+      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
+        ? parts[parts.length - 2]
+        : null;
     // 정확히 일치하는 폴더 없으면 prefix로 검색
     const seriesDir =
       allSeries.find((d) => d === seriesArg) ??
@@ -39,7 +44,7 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
       console.error(`❌  No series folder matching "${seriesArg}" found.`);
       process.exit(1);
     }
-    return [{ seriesDir, episodeNum }];
+    return [{ seriesDir, langDir, episodeNum }];
   }
 
   // 시리즈 prefix: "001" → 001-* 폴더
@@ -51,7 +56,7 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
   return matched.flatMap((s) => episodesOf(s));
 }
 
-function episodesOf(seriesDir: string) {
+function episodesOf(seriesDir: string): Target[] {
   // 시리즈 폴더 안에서 언어 서브폴더(KOR, ENG 등)를 포함해 에피소드 tsx 를 수집한다.
   const seriesPath = path.join(SRC_DIR, seriesDir);
   const entries = readdirSync(seriesPath, { withFileTypes: true });
@@ -61,17 +66,24 @@ function episodesOf(seriesDir: string) {
     .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
     .map((e) => e.name);
 
-  const scanDirs = langDirs.length > 0 ? langDirs.map((l) => path.join(seriesPath, l)) : [seriesPath];
+  if (langDirs.length > 0) {
+    return langDirs
+      .flatMap((langDir) =>
+        readdirSync(path.join(seriesPath, langDir))
+          .filter((f) => /^\d+-.+\.tsx$/.test(f))
+          .map((f) => f.match(/^(\d+)/)?.[1])
+          .filter((ep): ep is string => !!ep)
+          .map((episodeNum) => ({ seriesDir, langDir, episodeNum })),
+      )
+      .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
+  }
 
-  return scanDirs
-    .flatMap((dir) =>
-      readdirSync(dir)
-        .filter((f) => /^\d+-.+\.tsx$/.test(f))
-        .map((f) => f.match(/^(\d+)/)?.[1])
-        .filter((ep): ep is string => !!ep)
-        .map((episodeNum) => ({ seriesDir, episodeNum })),
-    )
-    .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
+  return readdirSync(seriesPath)
+    .filter((f) => /^\d+-.+\.tsx$/.test(f))
+    .map((f) => f.match(/^(\d+)/)?.[1])
+    .filter((ep): ep is string => !!ep)
+    .sort()
+    .map((episodeNum) => ({ seriesDir, langDir: null, episodeNum }));
 }
 
 // ── 메인 ─────────────────────────────────────────────────────
@@ -88,9 +100,9 @@ function episodesOf(seriesDir: string) {
     webpackOverride: (c) => c,
   });
 
-  for (const { seriesDir, episodeNum } of targets) {
+  for (const { seriesDir, langDir, episodeNum } of targets) {
     const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
-    const compositionId = dirPrefix ? `${dirPrefix}-${episodeNum}` : episodeNum;
+    const compositionId = [dirPrefix, langDir, episodeNum].filter(Boolean).join("-"); // "001-KOR-001"
     const outputDir = path.join("out", seriesDir);
     const outputFile = path.join(outputDir, episodeNum + ".mp4");
 
