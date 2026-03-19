@@ -13,6 +13,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { toDisplayText } from "./narration";
+import { HIGHLIGHT_MAX_WORDS, HIGHLIGHT_SYLLABLE_THRESHOLD } from "../global.config";
 
 // ── 폰트 ─────────────────────────────────────────────────────
 export let monoFont = "JetBrains Mono, monospace";
@@ -89,39 +90,6 @@ export const ContentArea: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
-// ── 헬퍼: 단어 하이라이팅 그룹 빌드 ─────────────────────────
-/**
- * words 배열을 하이라이팅 그룹으로 묶어 각 단어의 그룹 번호를 반환.
- * - 음절 수(유니코드 글자 수) > 5: 단독 그룹
- * - 음절 수 ≤ 5 (짧은 단어): 연속된 짧은 단어 묶음을 3개, 2개 단위로 분배
- *   (예: 5개 연속 → [3, 2], 6개 → [3, 3], 4개 → [2, 2])
- */
-function buildHighlightGroups(words: string[]): number[] {
-  const result: number[] = new Array(words.length);
-  let g = 0;
-  let i = 0;
-  while (i < words.length) {
-    if ([...words[i]].length > 5) {
-      result[i++] = g++;
-    } else {
-      // 연속 짧은 단어 런(run) 수집
-      const runStart = i;
-      while (i < words.length && [...words[i]].length <= 5) i++;
-      const runLen = i - runStart;
-      // 3개 우선, 4개는 2+2, 나머지는 3 또는 2
-      let j = runStart;
-      let rem = runLen;
-      while (rem > 0) {
-        const size = rem === 4 ? 2 : rem >= 3 ? 3 : rem;
-        for (let k = 0; k < size; k++) result[j++] = g;
-        g++;
-        rem -= size;
-      }
-    }
-  }
-  return result;
-}
-
 // ── 컴포넌트: Subtitle ────────────────────────────────────────
 /**
  * 씬 하단 자막.
@@ -178,11 +146,20 @@ export const Subtitle: React.FC<{
   const tokens = displayText.split(/(\s+)/);
   const wordTokens = tokens.filter(t => !/^\s+$/.test(t));
 
-  // 단어 그룹 빌드 (2-3개 묶음 하이라이팅)
-  const wordGroups = buildHighlightGroups(wordTokens);
-  const currentGroup = currentWordIdx >= 0 && currentWordIdx < wordGroups.length
-    ? wordGroups[currentWordIdx]
-    : -1;
+  // 하이라이팅 인덱스 집합 계산
+  // 현재 단어(1개)에서 시작 → 그 단어가 THRESHOLD 이하면 다음 단어도 추가
+  // → 추가된 단어도 THRESHOLD 이하면 한 번 더 (최대 HIGHLIGHT_MAX_WORDS개)
+  const highlightedIndices = new Set<number>();
+  if (currentWordIdx >= 0) {
+    highlightedIndices.add(currentWordIdx);
+    let i = currentWordIdx;
+    while (highlightedIndices.size < HIGHLIGHT_MAX_WORDS) {
+      if ([...wordTokens[i]].length > HIGHLIGHT_SYLLABLE_THRESHOLD) break;
+      if (i + 1 >= wordTokens.length) break;
+      i++;
+      highlightedIndices.add(i);
+    }
+  }
 
   let wordIdx = 0;
   return (
@@ -190,11 +167,10 @@ export const Subtitle: React.FC<{
       {tokens.map((token, i) => {
         if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
         const thisWordIdx = wordIdx++;
-        const highlighted = wordGroups[thisWordIdx] === currentGroup && currentGroup >= 0;
         return (
           <span
             key={i}
-            style={{ color: highlighted ? "#fbbf24" : "#ffffff" }}
+            style={{ color: highlightedIndices.has(thisWordIdx) ? "#fbbf24" : "#ffffff" }}
           >
             {token}
           </span>
