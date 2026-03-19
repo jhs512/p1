@@ -13,6 +13,7 @@ import {
 import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./006-audio";
 import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
+import { toDisplayText } from "../../utils/narration";
 import {
   CROSS,
   ContentArea,
@@ -533,6 +534,69 @@ const fromValues = sceneList.map((s, i) => {
   return f;
 });
 const totalDuration = _from;
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: string }> = (() => {
+  const CROSS_VAL = 20;
+  const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+
+  const addScene = (
+    offset: number,
+    narration: string[],
+    speechStartFrame: number,
+    narrationSplits: readonly number[],
+    sentenceEndFrames: readonly number[],
+    sceneDuration: number,
+  ) => {
+    const starts = [speechStartFrame, ...narrationSplits];
+    const ends = [...sentenceEndFrames, sceneDuration];
+    narration.forEach((text, i) => {
+      const s = starts[i];
+      const e = ends[i] ?? ends[ends.length - 1];
+      if (s !== undefined && e !== undefined && e > s) {
+        entries.push({
+          startFrame: offset + s,
+          endFrame: offset + e,
+          text: toDisplayText(text).replace(/\n/g, " "),
+        });
+      }
+    });
+  };
+
+  // fromValues 재계산
+  const sceneDurations = sceneList.map((s) => s.durationInFrames);
+  const froms: number[] = [];
+  let _f = 0;
+  for (let i = 0; i < sceneDurations.length; i++) {
+    froms.push(_f);
+    _f += sceneDurations[i] - (i < sceneDurations.length - 1 ? CROSS_VAL : 0);
+  }
+
+  // [0]=thumbnail: 나레이션 없음
+  // [1]=overview
+  addScene(froms[1], VIDEO_CONFIG.overview.narration, AUDIO_CONFIG.overview.speechStartFrame,
+    AUDIO_CONFIG.overview.narrationSplits, AUDIO_CONFIG.overview.sentenceEndFrames,
+    VIDEO_CONFIG.overview.durationInFrames);
+  // [2]=intro
+  addScene(froms[2], VIDEO_CONFIG.intro.narration, AUDIO_CONFIG.intro.speechStartFrame,
+    AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
+    VIDEO_CONFIG.intro.durationInFrames);
+  // [3]=ifScene
+  addScene(froms[3], VIDEO_CONFIG.ifScene.narration, AUDIO_CONFIG.ifScene.speechStartFrame,
+    AUDIO_CONFIG.ifScene.narrationSplits, AUDIO_CONFIG.ifScene.sentenceEndFrames,
+    VIDEO_CONFIG.ifScene.durationInFrames);
+  // [4]=ifElseScene
+  addScene(froms[4], VIDEO_CONFIG.ifElseScene.narration, AUDIO_CONFIG.ifElseScene.speechStartFrame,
+    AUDIO_CONFIG.ifElseScene.narrationSplits, AUDIO_CONFIG.ifElseScene.sentenceEndFrames,
+    VIDEO_CONFIG.ifElseScene.durationInFrames);
+  // [5]=summaryScene
+  addScene(froms[5], VIDEO_CONFIG.summaryScene.narration, AUDIO_CONFIG.summaryScene.speechStartFrame,
+    AUDIO_CONFIG.summaryScene.narrationSplits, AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    VIDEO_CONFIG.summaryScene.durationInFrames);
+
+  return entries;
+})();
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

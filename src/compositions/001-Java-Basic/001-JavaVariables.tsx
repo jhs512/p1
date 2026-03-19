@@ -31,6 +31,7 @@ import {
 } from "../../utils/scene";
 import { AUDIO_CONFIG } from "./001-audio";
 import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
+import { toDisplayText } from "../../utils/narration";
 
 export { RATE, VOICE };
 
@@ -1147,6 +1148,94 @@ const fromValues = mergedSceneList.map((s, i) => {
   return f;
 });
 const totalDuration = _from;
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: string }> = (() => {
+  const CROSS_VAL = 20;
+  const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+
+  // fromValues 재계산
+  const sceneDurations = [
+    thumbnail.durationInFrames,
+    intro.durationInFrames,
+    COMBINED_DURATION,
+    interpret.durationInFrames,
+    QUIZ_TOTAL_DURATION,
+    print.durationInFrames,
+  ];
+  const froms: number[] = [];
+  let _f = 0;
+  for (let i = 0; i < sceneDurations.length; i++) {
+    froms.push(_f);
+    _f += sceneDurations[i] - (i < sceneDurations.length - 1 ? CROSS_VAL : 0);
+  }
+
+  const addScene = (
+    offset: number,
+    narration: string[],
+    speechStartFrame: number,
+    narrationSplits: readonly number[],
+    sentenceEndFrames: readonly number[],
+    sceneDuration: number,
+  ) => {
+    const starts = [speechStartFrame, ...narrationSplits];
+    const ends = [...sentenceEndFrames, sceneDuration];
+    narration.forEach((text, i) => {
+      const s = starts[i];
+      const e = ends[i] ?? ends[ends.length - 1];
+      if (s !== undefined && e !== undefined && e > s) {
+        entries.push({
+          startFrame: offset + s,
+          endFrame: offset + e,
+          text: toDisplayText(text).replace(/\n/g, " "),
+        });
+      }
+    });
+  };
+
+  // froms[0] = thumbnail → 나레이션 없음
+  // froms[1] = intro
+  addScene(froms[1], intro.narration, AUDIO_CONFIG.intro.speechStartFrame,
+    AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
+    intro.durationInFrames);
+
+  // froms[2] = CombinedDeclarationInitScene (declaration + initialization)
+  // declaration: offset = froms[2], initialization: offset = froms[2] + SPLIT - SCENE_TAIL_FRAMES
+  // (initialization 오디오가 SPLIT-SCENE_TAIL_FRAMES 에서 시작)
+  const SPLIT = declaration.durationInFrames;
+  addScene(froms[2], declaration.narration, AUDIO_CONFIG.declaration.speechStartFrame,
+    AUDIO_CONFIG.declaration.narrationSplits, AUDIO_CONFIG.declaration.sentenceEndFrames,
+    SPLIT);
+  // initialization 자막은 SPLIT - SCENE_TAIL_FRAMES 오프셋에서 시작
+  addScene(froms[2] + SPLIT - SCENE_TAIL_FRAMES, initialization.narration, AUDIO_CONFIG.initialization.speechStartFrame,
+    AUDIO_CONFIG.initialization.narrationSplits, AUDIO_CONFIG.initialization.sentenceEndFrames,
+    initialization.durationInFrames);
+
+  // froms[3] = InterpretScene
+  addScene(froms[3], interpret.narration, AUDIO_CONFIG.interpret.speechStartFrame,
+    AUDIO_CONFIG.interpret.narrationSplits, AUDIO_CONFIG.interpret.sentenceEndFrames,
+    interpret.durationInFrames);
+
+  // froms[4] = QuizScene (interpretQuiz + 150 + interpretReveal)
+  const qDur = interpretQuiz.durationInFrames;
+  const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
+  // interpretQuiz 자막
+  addScene(froms[4], interpretQuiz.narration, AUDIO_CONFIG.interpretQuiz.speechStartFrame,
+    AUDIO_CONFIG.interpretQuiz.narrationSplits, AUDIO_CONFIG.interpretQuiz.sentenceEndFrames,
+    qDur);
+  // interpretReveal 자막 (REVEAL_START 이후)
+  addScene(froms[4] + REVEAL_START, interpretReveal.narration, AUDIO_CONFIG.interpretReveal.speechStartFrame,
+    AUDIO_CONFIG.interpretReveal.narrationSplits, AUDIO_CONFIG.interpretReveal.sentenceEndFrames,
+    interpretReveal.durationInFrames);
+
+  // froms[5] = PrintScene
+  addScene(froms[5], print.narration, AUDIO_CONFIG.print.speechStartFrame,
+    AUDIO_CONFIG.print.narrationSplits, AUDIO_CONFIG.print.sentenceEndFrames,
+    print.durationInFrames);
+
+  return entries;
+})();
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {
