@@ -20,8 +20,6 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 
 import { spawnSync } from "child_process";
 import path from "path";
 
-const FPS = 30;
-const SCENE_TAIL_FRAMES = 15;
 const PUBLIC_DIR = "public";
 const SRC_DIR = "src/compositions";
 
@@ -56,6 +54,38 @@ function resolveSeriesDir(parts: string[]): string {
 const SERIES_DIR = resolveSeriesDir(argParts.slice(0, -1));
 const compositionId = episodeId;
 
+// ── Config cascade (esbuild) ────────────────────────────────
+// 주의: config 파일은 remotion 심볼을 import하면 안 됨
+function loadTsExports(filePath: string): Record<string, unknown> {
+  if (!existsSync(filePath)) return {};
+  const result = buildSync({
+    entryPoints: [filePath],
+    bundle: true,
+    format: "cjs",
+    platform: "node",
+    write: false,
+    logLevel: "silent",
+  });
+  const code = result.outputFiles[0].text;
+  const mod = { exports: {} as Record<string, unknown> };
+  // eslint-disable-next-line no-new-func
+  new Function("module", "exports", "require", code)(mod, mod.exports, require);
+  return mod.exports as Record<string, unknown>;
+}
+
+function loadMergedConfig(seriesDir: string, episodeId: string): Record<string, unknown> {
+  const root    = loadTsExports("src/config.ts");
+  const course  = loadTsExports(path.join(seriesDir, "config.ts"));
+  const episode = loadTsExports(path.join(seriesDir, `${episodeId}.config.ts`));
+  return { ...root, ...course, ...episode };
+}
+
+const mergedConfig      = loadMergedConfig(SERIES_DIR, compositionId);
+const FPS               = (mergedConfig.FPS               as number) ?? 30;
+const SCENE_TAIL_FRAMES = (mergedConfig.SCENE_TAIL_FRAMES  as number) ?? 15;
+const VOICE             = (mergedConfig.VOICE              as string);
+const RATE              = (mergedConfig.RATE               as string);
+
 const matchEntry = readdirSync(SERIES_DIR).find(
   (f) => f.startsWith(episodeId + "-") && f.endsWith(".tsx")
 );
@@ -85,7 +115,6 @@ if (!existsSync(_audioConfigBootstrap)) {
 type SceneEntry = { narration?: string[]; audio: string; };
 
 function loadConfig(): {
-  VOICE: string; RATE: string;
   VIDEO_CONFIG: Record<string, SceneEntry>;
 } {
   const result = buildSync({
@@ -110,32 +139,13 @@ function loadConfig(): {
   return mod.exports as ReturnType<typeof loadConfig>;
 }
 
-const { VOICE, RATE, VIDEO_CONFIG } = loadConfig();
+const { VIDEO_CONFIG } = loadConfig();
 
 // ── 발음 사전 로드 ─────────────────────────────────────────────
-// 우선순위: inline(최우선) > 강좌별 pronunciation.ts > 전역 global-pronunciation.ts
-function loadPronunciationMap(filePath: string): Record<string, string> {
-  if (!existsSync(filePath)) return {};
-  try {
-    const result = buildSync({
-      entryPoints: [filePath], bundle: true,
-      platform: "node", format: "cjs", write: false,
-      packages: "external", logLevel: "silent",
-    });
-    const code = result.outputFiles[0].text;
-    const mod = { exports: {} as Record<string, unknown> };
-    new Function("module", "exports", "require", code)(mod, mod.exports, require);
-    return ((mod.exports as Record<string, unknown>).PRONUNCIATION ?? {}) as Record<string, string>;
-  } catch { return {}; }
-}
+// 우선순위: inline(최우선) > 강좌 config.ts PRONUNCIATION > 전역 src/config.ts PRONUNCIATION
+const pronMap = (mergedConfig.PRONUNCIATION as Record<string, string>) ?? {};
 
-const globalPronMap  = loadPronunciationMap(path.join("src", "global-pronunciation.ts"));
-const seriesPronMap  = loadPronunciationMap(path.join(SERIES_DIR, "pronunciation.ts"));
-// 강좌별이 전역을 덮어씀. inline은 toTTSText 내부에서 자동으로 최우선 처리.
-const PRON_MAP: Record<string, string> = { ...globalPronMap, ...seriesPronMap };
-
-if (Object.keys(globalPronMap).length)  console.log(`📖  전역 발음 사전: ${Object.keys(globalPronMap).length}개`);
-if (Object.keys(seriesPronMap).length)  console.log(`📖  강좌 발음 사전: ${Object.keys(seriesPronMap).length}개`);
+if (Object.keys(pronMap).length)  console.log(`📖  발음 사전: ${Object.keys(pronMap).length}개`);
 
 // ── 유틸 ──────────────────────────────────────────────────────
 type Hashes = Record<string, string>;
@@ -321,7 +331,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   const narration = scene.narration;
   if (!narration) continue;
 
-  const ttsText = toTTSText(narration.join(" "), PRON_MAP);
+  const ttsText = toTTSText(narration.join(" "), pronMap);
   const audio = scene.audio;
   const newHash = hash(VOICE + RATE + ttsText);
 
