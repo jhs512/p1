@@ -412,56 +412,35 @@ const IntroScene: React.FC = () => {
               opacity: blockAppear,
             }}
           >
-            {/* while (조건) { */}
+            {/* while (조건) { 실행코드 } — 단일 컨테이너 */}
             <div
               style={{
                 fontFamily: monoFont,
                 fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 42,
                 background: "#252525",
-                borderRadius: "16px 16px 0 0",
-                padding: "28px 52px 16px",
+                borderRadius: 16,
+                padding: "28px 52px",
                 border: "2px solid #3a3a3a",
-                borderBottom: "none",
+                lineHeight: 1.9,
               }}
             >
-              <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
-              <span style={{ color: "#d4d4d4" }}> (</span>
-              <span style={{ color: C_COND, fontWeight: 900 }}>조건</span>
-              <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
-            </div>
-            {/* 실행코드 */}
-            <div
-              style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 38,
-                background: "#252525",
-                padding: "16px 52px 16px 88px",
-                border: "2px solid #3a3a3a",
-                borderTop: "none",
-                borderBottom: "none",
-                color: "#888",
-                fontStyle: "italic",
-              }}
-            >
-              실행코드
-            </div>
-            {/* } */}
-            <div
-              style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
-                fontSize: 42,
-                background: "#252525",
-                borderRadius: "0 0 16px 16px",
-                padding: "16px 52px 28px",
-                border: "2px solid #3a3a3a",
-                borderTop: "none",
-                color: "#d4d4d4",
-              }}
-            >
-              {"}"}
+              <div style={{ fontSize: 42 }}>
+                <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
+                <span style={{ color: "#d4d4d4" }}> (</span>
+                <span style={{ color: C_COND, fontWeight: 900 }}>조건</span>
+                <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
+              </div>
+              <div
+                style={{
+                  fontSize: 38,
+                  paddingLeft: 44,
+                  color: "#888",
+                  fontStyle: "italic",
+                }}
+              >
+                실행코드
+              </div>
+              <div style={{ fontSize: 42, color: "#d4d4d4" }}>{"}"}</div>
             </div>
           </div>
         </ContentArea>
@@ -681,8 +660,8 @@ const ExecutionScene: React.FC = () => {
     0: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][0], // 51
     1: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][1], // 186
     2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0], // 304
-    // step 3 ("마찬가지입니다"): "참" 단어 없음 — 하이라이트 생략
-    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],     // 467
+    3: AUDIO_CONFIG.executionScene.wordTiming["마찬가지입니다"][0], // 370
+    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],          // 467
   };
   const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
   const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
