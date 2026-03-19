@@ -7,7 +7,7 @@
  *       [(자료)(발음:)]  →  자막: (자료) / TTS: (없음, 묵음)
  */
 
-const INLINE_RE = /\[([^(]+)\(발음:([^)]*)\)\]/g;
+const INLINE_RE = /\[(.*?)\(발음:([^)]*)\)\]/g;
 
 /** 자막 표시용: [X(발음:Y)] → X */
 export function toDisplayText(text: string): string {
