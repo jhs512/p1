@@ -3,7 +3,7 @@
  * scripts/srt.ts 가 이 파일을 import해서 .srt 파일 생성
  * Remotion 의존성 없음
  */
-import { AUDIO_CONFIG } from "./007-2-audio.gen";
+import { AUDIO_CONFIG } from "./007-3-audio.gen";
 import { toDisplayText } from "../../../utils/narration";
 import { FPS } from "./config";
 import { SCENE_TAIL_FRAMES, CROSS } from "../../../config";

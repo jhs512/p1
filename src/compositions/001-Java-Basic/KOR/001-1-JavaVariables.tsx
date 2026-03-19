@@ -32,7 +32,7 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./001-2-audio.gen";
+import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 타입 ─────────────────────────────────────────────────────

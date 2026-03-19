@@ -75,8 +75,8 @@ const SCENE_TAIL_FRAMES = (mergedConfig.SCENE_TAIL_FRAMES as number) ?? 15;
 const VOICE = (mergedConfig.VOICE as string) ?? ""; // course config.ts must export VOICE
 const RATE = (mergedConfig.RATE as string) ?? ""; // course config.ts must export RATE
 
-// 파일명 패턴: {episodeId}-1-{name}.tsx, {episodeId}-2-audio.gen.ts, {episodeId}-3-sub.gen.ts
-// 예: 001-1-JavaVariables.tsx, 001-2-audio.gen.ts, 001-3-sub.gen.ts
+// 파일명 패턴: {episodeId}-1-{name}.tsx, {episodeId}-3-audio.gen.ts, {episodeId}-4-sub.gen.ts
+// 예: 001-1-JavaVariables.tsx, 001-3-audio.gen.ts, 001-4-sub.gen.ts
 const filePrefix = episodeId; // "001"
 
 const matchEntry = readdirSync(SERIES_DIR).find(
@@ -98,7 +98,7 @@ console.log(`📄  ${COMPOSITION_FILE}\n`);
 // ── AUDIO_CONFIG 스텁 생성 ─────────────────────────────────────
 const _audioConfigBootstrap = path.join(
   COMPOSITION_DIR,
-  filePrefix + "-2-audio.gen.ts",
+  filePrefix + "-3-audio.gen.ts",
 );
 if (!existsSync(_audioConfigBootstrap)) {
   writeFileSync(
@@ -286,7 +286,7 @@ type SceneAudioData = {
 function writeAudioConfig(config: Record<string, SceneAudioData>): void {
   const audioConfigFile = path.join(
     COMPOSITION_DIR,
-    filePrefix + "-2-audio.gen.ts",
+    filePrefix + "-3-audio.gen.ts",
   );
   const lines = Object.entries(config)
     .map(([k, v]) => {
@@ -317,7 +317,7 @@ function writeAudioConfig(config: Record<string, SceneAudioData>): void {
 const hashes = loadHashes();
 let changed = false;
 
-const audioConfigFile = path.join(COMPOSITION_DIR, filePrefix + "-2-audio.gen.ts");
+const audioConfigFile = path.join(COMPOSITION_DIR, filePrefix + "-3-audio.gen.ts");
 let existingAudioConfig: Record<string, SceneAudioData> = {};
 if (existsSync(audioConfigFile)) {
   try {

@@ -1,9 +1,9 @@
 /**
- * 009-srt.ts — 009-JavaFor SRT 데이터
+ * 006-srt.ts — 006-JavaIf SRT 데이터
  * scripts/srt.ts 가 이 파일을 import해서 .srt 파일 생성
  * Remotion 의존성 없음
  */
-import { AUDIO_CONFIG } from "./009-2-audio.gen";
+import { AUDIO_CONFIG } from "./006-3-audio.gen";
 import { toDisplayText } from "../../../utils/narration";
 import { FPS } from "./config";
 import { CROSS } from "../../../config";
@@ -12,28 +12,24 @@ export const fps = FPS;
 
 const narrations = {
   overview: [
-    "반복문에는 여러 종류가 있습니다.",
-    "이번엔 [for(발음:포)] 문을 알아보겠습니다.",
+    "제어문에는 조건문과 반복문이 있습니다.",
+    "조건문 중에 기본인 if 문을 알아보겠습니다.",
   ],
   intro: [
-    "[for(발음:포)] 문은 초기식, 조건식, 증감식을\n한 줄에 씁니다.",
-    "조건이 참인 동안 블록을 반복 실행합니다.",
+    "조건문은 조건이 참일 때만 코드를 실행합니다.",
+    "조건이 거짓일 때도 처리하려면\nelse를 사용합니다.",
   ],
-  forScene: [
-    "초기식에서 변수를 초기화하고 조건식을 확인합니다.",
-    "블록 실행 후 증감식으로 변수를 변화시킵니다.",
+  ifScene: [
+    "score가 60 이상이면 합격 메시지를 출력합니다.",
+    "75는 60 이상이므로 조건이 참,\n블록 안의 코드가 실행됩니다.",
   ],
-  executionScene: [
-    "[i(발음:아이)]가 0일 때 조건이 참이므로 블록을 실행합니다.",
-    "[i(발음:아이)]가 1일 때도 조건이 참입니다.",
-    "[i(발음:아이)]가 2일 때도 조건이 참입니다.",
-    "[i(발음:아이)]가 3일 때도 조건이 참입니다.",
-    "[i(발음:아이)]가 4일 때, 조건이 참인 마지막 실행입니다.",
-    "[i(발음:아이)]가 5가 되면 조건이 거짓이 되어\n반복이 종료됩니다.",
+  ifElseScene: [
+    "else는 조건이 거짓일 때 실행되는 블록입니다.",
+    "score가 45라면 조건이 거짓이므로\nelse 블록이 실행됩니다.",
   ],
   summaryScene: [
-    "[for(발음:포)] 문은 초기식, 조건식, 증감식으로\n반복을 제어합니다.",
-    "횟수가 정해진 반복에 적합합니다.",
+    "if는 조건이 참일 때, else는 거짓일 때 실행됩니다.",
+    "조건에 따라 서로 다른 코드를 실행할 수 있습니다.",
   ],
 };
 
@@ -41,8 +37,8 @@ const sceneDurations = [
   30, // thumbnail
   AUDIO_CONFIG.overview.durationInFrames,
   AUDIO_CONFIG.intro.durationInFrames,
-  AUDIO_CONFIG.forScene.durationInFrames,
-  AUDIO_CONFIG.executionScene.durationInFrames,
+  AUDIO_CONFIG.ifScene.durationInFrames,
+  AUDIO_CONFIG.ifElseScene.durationInFrames,
   AUDIO_CONFIG.summaryScene.durationInFrames,
 ];
 
@@ -84,12 +80,12 @@ addScene(froms[1], narrations.overview, AUDIO_CONFIG.overview.speechStartFrame,
 addScene(froms[2], narrations.intro, AUDIO_CONFIG.intro.speechStartFrame,
   AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
   AUDIO_CONFIG.intro.durationInFrames);
-addScene(froms[3], narrations.forScene, AUDIO_CONFIG.forScene.speechStartFrame,
-  AUDIO_CONFIG.forScene.narrationSplits, AUDIO_CONFIG.forScene.sentenceEndFrames,
-  AUDIO_CONFIG.forScene.durationInFrames);
-addScene(froms[4], narrations.executionScene, AUDIO_CONFIG.executionScene.speechStartFrame,
-  AUDIO_CONFIG.executionScene.narrationSplits, AUDIO_CONFIG.executionScene.sentenceEndFrames,
-  AUDIO_CONFIG.executionScene.durationInFrames);
+addScene(froms[3], narrations.ifScene, AUDIO_CONFIG.ifScene.speechStartFrame,
+  AUDIO_CONFIG.ifScene.narrationSplits, AUDIO_CONFIG.ifScene.sentenceEndFrames,
+  AUDIO_CONFIG.ifScene.durationInFrames);
+addScene(froms[4], narrations.ifElseScene, AUDIO_CONFIG.ifElseScene.speechStartFrame,
+  AUDIO_CONFIG.ifElseScene.narrationSplits, AUDIO_CONFIG.ifElseScene.sentenceEndFrames,
+  AUDIO_CONFIG.ifElseScene.durationInFrames);
 addScene(froms[5], narrations.summaryScene, AUDIO_CONFIG.summaryScene.speechStartFrame,
   AUDIO_CONFIG.summaryScene.narrationSplits, AUDIO_CONFIG.summaryScene.sentenceEndFrames,
   AUDIO_CONFIG.summaryScene.durationInFrames);
