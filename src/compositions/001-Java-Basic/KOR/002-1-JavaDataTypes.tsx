@@ -25,7 +25,7 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./002-audio";
+import { AUDIO_CONFIG } from "./002-2-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────

@@ -54,8 +54,8 @@ function episodesOf(seriesDir: string) {
   return scanDirs
     .flatMap((dir) =>
       readdirSync(dir)
-        .filter((f) => /^\d+-srt\.ts$/.test(f))
-        .map((f) => f.match(/^(\d+)/)?.[1])
+        .filter((f) => /^\d+-3-sub\.gen\.ts$/.test(f))
+        .map((f) => f.match(/^(\d+)-3-/)?.[1])
         .filter((ep): ep is string => !!ep)
         .map((episodeNum) => ({ seriesDir, episodeNum })),
     )
@@ -100,7 +100,7 @@ function buildSRT(
   for (const { seriesDir, episodeNum } of targets) {
     // {id}-srt.ts 파일 경로 탐색 — 언어 서브폴더(KOR 등) 안도 확인
     const seriesPath = path.join(SRC_DIR, seriesDir);
-    const srtFile = `${episodeNum}-srt.ts`;
+    const srtFile = `${episodeNum}-3-sub.gen.ts`;
 
     const seriesEntries = readdirSync(seriesPath, { withFileTypes: true });
     const langDirs = seriesEntries

@@ -34,7 +34,7 @@ const SRC_DIR = "src/compositions";
 const arg = process.argv[2];
 if (!arg) {
   console.error(
-    "Usage: pnpm sync <series>/<lang>/<id>   e.g.  pnpm sync 001-Java-Basic/KOR/001",
+    "Usage: pnpm sync <series>/<lang>/<id>   e.g.  pnpm sync 001-Java-Basic/KOR/1",
   );
   process.exit(1);
 }
@@ -75,12 +75,16 @@ const SCENE_TAIL_FRAMES = (mergedConfig.SCENE_TAIL_FRAMES as number) ?? 15;
 const VOICE = (mergedConfig.VOICE as string) ?? ""; // course config.ts must export VOICE
 const RATE = (mergedConfig.RATE as string) ?? ""; // course config.ts must export RATE
 
+// 파일명 패턴: {episodeId}-1-{name}.tsx, {episodeId}-2-audio.gen.ts, {episodeId}-3-sub.gen.ts
+// 예: 001-1-JavaVariables.tsx, 001-2-audio.gen.ts, 001-3-sub.gen.ts
+const filePrefix = episodeId; // "001"
+
 const matchEntry = readdirSync(SERIES_DIR).find(
-  (f) => f.startsWith(episodeId + "-") && f.endsWith(".tsx"),
+  (f) => f.startsWith(filePrefix + "-1-") && f.endsWith(".tsx"),
 );
 if (!matchEntry) {
   console.error(
-    `❌  ${SERIES_DIR}/${episodeId}-*.tsx 파일을 찾을 수 없습니다.`,
+    `❌  ${SERIES_DIR}/${filePrefix}-1-*.tsx 파일을 찾을 수 없습니다.`,
   );
   process.exit(1);
 }
@@ -94,7 +98,7 @@ console.log(`📄  ${COMPOSITION_FILE}\n`);
 // ── AUDIO_CONFIG 스텁 생성 ─────────────────────────────────────
 const _audioConfigBootstrap = path.join(
   COMPOSITION_DIR,
-  compositionId + "-audio.ts",
+  filePrefix + "-2-audio.gen.ts",
 );
 if (!existsSync(_audioConfigBootstrap)) {
   writeFileSync(
@@ -281,7 +285,7 @@ type SceneAudioData = {
 function writeAudioConfig(config: Record<string, SceneAudioData>): void {
   const audioConfigFile = path.join(
     COMPOSITION_DIR,
-    compositionId + "-audio.ts",
+    filePrefix + "-2-audio.gen.ts",
   );
   const lines = Object.entries(config)
     .map(([k, v]) => {
@@ -306,7 +310,7 @@ function writeAudioConfig(config: Record<string, SceneAudioData>): void {
 const hashes = loadHashes();
 let changed = false;
 
-const audioConfigFile = path.join(COMPOSITION_DIR, compositionId + "-audio.ts");
+const audioConfigFile = path.join(COMPOSITION_DIR, filePrefix + "-2-audio.gen.ts");
 let existingAudioConfig: Record<string, SceneAudioData> = {};
 if (existsSync(audioConfigFile)) {
   try {

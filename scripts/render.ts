@@ -70,12 +70,13 @@ function episodesOf(seriesDir: string): Target[] {
     return langDirs
       .flatMap((langDir) =>
         readdirSync(path.join(seriesPath, langDir))
-          .filter((f) => /^\d+-.+\.tsx$/.test(f))
-          .map((f) => f.match(/^(\d+)/)?.[1])
+          // 패턴: {episodeNum}-1-{name}.tsx (타입 1 = 메인 tsx)
+          .filter((f) => /^\d+-1-.+\.tsx$/.test(f))
+          .map((f) => f.match(/^(\d+)-1-/)?.[1])
           .filter((ep): ep is string => !!ep)
           .map((episodeNum) => ({ seriesDir, langDir, episodeNum })),
       )
-      .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
+      .sort((a, b) => Number(a.episodeNum) - Number(b.episodeNum));
   }
 
   return readdirSync(seriesPath)

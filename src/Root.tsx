@@ -9,7 +9,7 @@ import React from "react";
 //   export const Component: React.FC = ...
 //
 // 파일 경로 → Remotion ID 규칙:
-//   src/compositions/001-Java-Basic/KOR/001-JavaVariables.tsx  →  folder "001-Java-Basic > KOR", id "001"
+//   src/compositions/001-Java-Basic/KOR/001-1-JavaVariables.tsx  →  folder "001-Java-Basic > KOR", id "001"
 //   render: pnpm render 001-Java-Basic/KOR/001
 
 interface CompositionModule {
@@ -38,8 +38,12 @@ const entries = ctx
       segments.length >= 3 && /^[A-Z]{2,3}$/.test(segments[segments.length - 2])
         ? segments[segments.length - 2]
         : null; // "KOR"
-    const epMatch = segments[segments.length - 1].match(/^(\d+)-/);
-    const epNum = epMatch ? epMatch[1] : segments[segments.length - 1]; // "001"
+    // 파일명 패턴: "001-1-JavaVariables.tsx" (에피소드번호-타입-이름)
+    // 첫 번째 숫자 그룹이 에피소드 번호, 두 번째가 파일 타입 (1=tsx, 2=audio.gen, 3=sub.gen)
+    const filename = segments[segments.length - 1];
+    const epMatch = filename.match(/^(\d+)-\d+-/);
+    const epMatchLegacy = filename.match(/^(\d+)-/);
+    const epNum = epMatch ? epMatch[1] : (epMatchLegacy ? epMatchLegacy[1] : filename); // "001"
     const dirPrefix = seriesFolder.match(/^(\d+)/)?.[1] ?? seriesFolder; // "001"
     // 언어 폴더가 있으면 폴더 계층이 맥락을 제공하므로 ep 번호만 사용.
     // 언어 폴더가 없으면 기존 방식(001-001)으로 fallback.
