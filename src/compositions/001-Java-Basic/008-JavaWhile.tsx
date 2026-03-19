@@ -160,7 +160,7 @@ const OverviewScene: React.FC = () => {
   const rootAppear  = spring({ frame: frame - s,      fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const leftAppear  = spring({ frame: frame - s - 10, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const rightAppear = spring({ frame: frame - s - 20, fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
-  const whileAppear = spring({ frame: frame - split0,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  const whileAppear = spring({ frame: frame - AUDIO_CONFIG.overview.wordStartFrames[1][3],  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
 
   const C_LOOP_NODE = "#4ec9b0";
   const C_COND_NODE = "#c586c0";

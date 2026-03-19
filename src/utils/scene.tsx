@@ -13,7 +13,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import { toDisplayText } from "./narration";
-import { HIGHLIGHT_MIN_WORDS, HIGHLIGHT_MAX_WORDS, HIGHLIGHT_SYLLABLE_THRESHOLD } from "../global.config";
 
 // ── 폰트 ─────────────────────────────────────────────────────
 export let monoFont = "JetBrains Mono, monospace";
@@ -144,23 +143,6 @@ export const Subtitle: React.FC<{
 
   // 공백/줄바꿈 토큰 보존하며 분리
   const tokens = displayText.split(/(\s+)/);
-  const wordTokens = tokens.filter(t => !/^\s+$/.test(t));
-
-  // 하이라이팅 인덱스 집합 계산
-  // 1) 최소 HIGHLIGHT_MIN_WORDS개는 무조건 포함 (음절 수 무관)
-  // 2) 이후 마지막 포함 단어가 THRESHOLD 이하면 계속 확장 (최대 HIGHLIGHT_MAX_WORDS개)
-  const highlightedIndices = new Set<number>();
-  if (currentWordIdx >= 0) {
-    let i = currentWordIdx;
-    while (highlightedIndices.size < HIGHLIGHT_MAX_WORDS && i < wordTokens.length) {
-      highlightedIndices.add(i);
-      // 최소 개수 미달이면 무조건 다음 추가, 이후엔 음절 수 확인
-      if (highlightedIndices.size >= HIGHLIGHT_MIN_WORDS) {
-        if ([...wordTokens[i]].length > HIGHLIGHT_SYLLABLE_THRESHOLD) break;
-      }
-      i++;
-    }
-  }
 
   let wordIdx = 0;
   return (
@@ -171,7 +153,7 @@ export const Subtitle: React.FC<{
         return (
           <span
             key={i}
-            style={{ color: highlightedIndices.has(thisWordIdx) ? "#fbbf24" : "#ffffff" }}
+            style={{ color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff" }}
           >
             {token}
           </span>

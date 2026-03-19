@@ -338,7 +338,7 @@ const IntroScene: React.FC = () => {
           >
             {INTRO_OPS.map((op, i) => {
               const appear = spring({
-                frame: frame - i * 8,
+                frame: frame - AUDIO_CONFIG.intro.wordStartFrames[1][i],
                 fps,
                 config: { damping: 13, stiffness: 140 },
                 durationInFrames: 30,

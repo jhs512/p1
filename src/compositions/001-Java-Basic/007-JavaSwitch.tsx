@@ -228,7 +228,7 @@ const OverviewScene: React.FC = () => {
   const rightAppear  = spring({ frame: frame - 20,  fps, config: { damping: 12, stiffness: 130 }, durationInFrames: 24 });
   const ifAppear     = spring({ frame: frame - 28,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
   // switch 노드: if 직후 등장 (frame 0부터 트리 완성)
-  const switchAppear = spring({ frame: frame - 38,  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
+  const switchAppear = spring({ frame: frame - AUDIO_CONFIG.overview.wordStartFrames[0][4],  fps, config: { damping: 12, stiffness: 160 }, durationInFrames: 22 });
 
   const C_COND = C_CASE;
   const C_LOOP = "#4ec9b0";

@@ -356,8 +356,10 @@ const IntroScene: React.FC = () => {
               <div key={ri} style={{ display: "flex", gap: 20 }}>
                 {row.map((op, i) => {
                   const idx = ri * 3 + i;
+                  const wf = AUDIO_CONFIG.intro.wordStartFrames[0];
+                  const startFrame = Math.round(interpolate(idx, [0, 5], [wf[0], wf[wf.length - 1]]));
                   const appear = spring({
-                    frame: frame - idx * 7,
+                    frame: frame - startFrame,
                     fps,
                     config: { damping: 13, stiffness: 145 },
                     durationInFrames: 30,

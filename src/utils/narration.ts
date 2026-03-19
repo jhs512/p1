@@ -14,7 +14,7 @@ export function toDisplayText(text: string): string {
   return text.replace(INLINE_RE, "$1");
 }
 
-/** TTS 읽기용: [X(발음:Y)] → Y */
+/** TTS 읽기용: [X(발음:Y)] → Y, \n → 공백 (TTS 쉼 방지), 연속 공백 정규화 */
 export function toTTSText(text: string): string {
-  return text.replace(INLINE_RE, (_, _display, pron) => pron.trim());
+  return text.replace(INLINE_RE, (_, _display, pron) => pron.trim()).replace(/\n/g, " ").replace(/  +/g, " ");
 }

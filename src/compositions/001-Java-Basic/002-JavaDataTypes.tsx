@@ -522,9 +522,11 @@ const IntroScene: React.FC = () => {
             }}
           >
             {boxes.map(({ label, color }, i) => {
-              const delay = i * 5;
+              // 각 박스를 두 번째 문장의 단어 발화 시점에 맞춰 순서대로 등장
+              const wordTriggers = AUDIO_CONFIG.intro.wordStartFrames[1] as readonly number[];
+              const triggerFrame = wordTriggers[i * 2] ?? (i * 5);
               const appear = spring({
-                frame: frame - delay,
+                frame: frame - triggerFrame,
                 fps,
                 config: { damping: 14, stiffness: 140 },
                 durationInFrames: 35,
@@ -589,8 +591,12 @@ const ValueVsVarScene: React.FC = () => {
   const COLOR = TYPE_COLORS.int;
   const opacity = useFade(d);
 
+  // "int형 값" → 문장 1 첫 단어, "int형 변수" → 문장 2 첫 단어
+  const valueWordFrame = AUDIO_CONFIG.valueVsVar.wordStartFrames[1][0] ?? split0;
+  const varWordFrame   = AUDIO_CONFIG.valueVsVar.wordStartFrames[2][0] ?? split1;
+
   const valueAppear = spring({
-    frame: frame - split0,
+    frame: frame - valueWordFrame,
     fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 30,
@@ -600,7 +606,7 @@ const ValueVsVarScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const varAppear = spring({
-    frame: frame - split1,
+    frame: frame - varWordFrame,
     fps,
     config: { damping: 14, stiffness: 140 },
     durationInFrames: 30,
@@ -609,7 +615,7 @@ const ValueVsVarScene: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const arrowOp = interpolate(frame, [split1, split1 + 15], [0, 1], {
+  const arrowOp = interpolate(frame, [varWordFrame, varWordFrame + 15], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });

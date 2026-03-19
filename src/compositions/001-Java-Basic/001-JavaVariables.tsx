@@ -944,9 +944,10 @@ const QuizScene: React.FC = () => {
   const C_VAL   = "#4ec9b0"; // 값: teal
   const C_AGE   = "#9cdcfe"; // 변수명: light blue
 
-  // 질문 단계에서 왼쪽 age 펄싱 (발화 시작 후)
+  // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
+  const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordStartFrames[0][2]; // "age" = 단어 인덱스 2
   const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
-  const showPulse  = !isReveal && frame >= qCfg.speechStartFrame;
+  const showPulse  = !isReveal && frame >= AGE_WORD_FRAME;
 
   // age 스팬: 질문=왼쪽 펄싱, 공개 후=역할별 색
   const ageSpan = (role: "space" | "value") => {

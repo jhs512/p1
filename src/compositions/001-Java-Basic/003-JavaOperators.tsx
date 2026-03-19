@@ -283,6 +283,12 @@ const IntroScene: React.FC = () => {
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames);
 
+  // 두 번째 문장(더하기, 빼기, 곱하기, 나누기, 나머지)의 앞 5단어 발화 프레임
+  const opWordFrames = (AUDIO_CONFIG.intro.wordStartFrames[1] ?? []) as readonly number[];
+  const currentOpIdx = opWordFrames.slice(0, 5).reduce(
+    (acc, f, i) => (frame >= f ? i : acc), -1
+  );
+
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
@@ -309,6 +315,7 @@ const IntroScene: React.FC = () => {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               });
+              const highlighted = i === currentOpIdx;
               return (
                 <div
                   key={op}
@@ -316,13 +323,14 @@ const IntroScene: React.FC = () => {
                     width: 180,
                     height: 180,
                     borderRadius: 24,
-                    border: `3px solid ${C_OP}88`,
-                    background: `${C_OP}1a`,
+                    border: `3px solid ${highlighted ? C_OP : `${C_OP}88`}`,
+                    background: highlighted ? `${C_OP}40` : `${C_OP}1a`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    transform: `scale(${sc})`,
+                    transform: `scale(${sc * (highlighted ? 1.08 : 1)})`,
                     opacity: appear,
+                    boxShadow: highlighted ? `0 0 24px ${C_OP}66` : "none",
                   }}
                 >
                   <span
