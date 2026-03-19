@@ -374,7 +374,7 @@ const WhileScene: React.FC = () => {
               }}>
                 {CODE_LINES.map((line, lineIdx) => {
                 const showChars = lineVisibility[lineIdx];
-                const isCountPlusPlus = lineIdx === 3 && frame >= split0;
+                const isCountPlusPlus = lineIdx === 3 && frame >= (AUDIO_CONFIG.whileScene.wordStartFrames[1][2] ?? split0);
                 let rem = showChars;
                 return (
                   <div key={lineIdx} style={{ lineHeight: 1.95 }}>
@@ -572,16 +572,17 @@ const InfiniteScene: React.FC = () => {
   const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
+  const MUHANROOP_FRAME = AUDIO_CONFIG.infiniteScene.wordStartFrames[0][4]; // "무한루프"
   const blockAppear = spring({ frame: frame - s, fps, config: { damping: 12, stiffness: 120 }, durationInFrames: 24 });
-  const warnAppear  = spring({ frame: frame - split0, fps, config: { damping: 10, stiffness: 160 }, durationInFrames: 20 });
-  const infAppear   = spring({ frame: frame - split0 - 10, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 22 });
+  const warnAppear  = spring({ frame: frame - MUHANROOP_FRAME, fps, config: { damping: 10, stiffness: 160 }, durationInFrames: 20 });
+  const infAppear   = spring({ frame: frame - MUHANROOP_FRAME - 10, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 22 });
 
   // 펄싱 — interpolate 패턴 (CSS animation 금지)
   const pulse = Math.abs(Math.sin(frame * 0.1));
   const borderOpacity = interpolate(pulse, [0, 1], [0.3, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const glowSize = interpolate(pulse, [0, 1], [8, 28], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const phase2 = frame >= split0;
+  const phase2 = frame >= MUHANROOP_FRAME;
 
   return (
     <>
