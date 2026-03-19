@@ -297,9 +297,9 @@ const BoxMetaphorAnim: React.FC = () => {
   const { fps } = useVideoConfig();
 
   // 발화 프레임 직접 참조 (CLAUDE.md 6번 원칙: 애니메이션은 발화 시작에 맞춘다)
-  const NAME_TAG_START = AUDIO_CONFIG.intro.wordStartFrames[1][1]; // "이름을"
-  const DROP_START = AUDIO_CONFIG.intro.wordStartFrames[1][3]; // "값을"
-  const EXTRACT_START = AUDIO_CONFIG.intro.wordStartFrames[1][5]; // "꺼내"
+  const NAME_TAG_START = AUDIO_CONFIG.intro.wordTiming["이름을"][0]; // "이름을"
+  const DROP_START = AUDIO_CONFIG.intro.wordTiming["값을"][0]; // "값을"
+  const EXTRACT_START = AUDIO_CONFIG.intro.wordTiming["꺼내"][0]; // "꺼내"
 
   // 1) 상자 + 라벨 동시 등장
   const boxAppear = spring({
@@ -1046,7 +1046,7 @@ const QuizScene: React.FC = () => {
   const C_AGE = "#9cdcfe"; // 변수명: light blue
 
   // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
-  const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordStartFrames[0][2]; // "age" = 단어 인덱스 2
+  const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordTiming["age"][0]; // "age"
   const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
   const showPulse = !isReveal && frame >= AGE_WORD_FRAME;
 

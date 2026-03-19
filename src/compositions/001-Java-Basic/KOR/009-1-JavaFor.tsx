@@ -200,7 +200,7 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 24,
   });
   const forAppear = spring({
-    frame: frame - AUDIO_CONFIG.overview.wordStartFrames[1][2],
+    frame: frame - AUDIO_CONFIG.overview.wordTiming["문을"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
     durationInFrames: 22,
@@ -535,7 +535,7 @@ const ForScene: React.FC = () => {
     durationInFrames: dur,
   });
   const condAppear = spring({
-    frame: frame - AUDIO_CONFIG.forScene.wordStartFrames[0][4],
+    frame: frame - AUDIO_CONFIG.forScene.wordTiming["확인합니다"][0],
     fps,
     config: cfg_spring,
     durationInFrames: dur,
@@ -547,7 +547,7 @@ const ForScene: React.FC = () => {
     durationInFrames: dur,
   });
   const incAppear = spring({
-    frame: frame - AUDIO_CONFIG.forScene.wordStartFrames[1][3],
+    frame: frame - AUDIO_CONFIG.forScene.wordTiming["증감식으로"][0],
     fps,
     config: cfg_spring,
     durationInFrames: dur,
@@ -1067,6 +1067,7 @@ const SummaryScene: React.FC = () => {
             {/* 요약 카드 — 각 단어 발화 시작 프레임에 맞춰 등장 */}
             {SUMMARY_ROWS.map((row, i) => {
               // 초기식=wordStartFrames[0][2], 조건식=[0][3], 증감식=[0][4]
+              // TODO: wordTiming 미지원 — 동적 인덱스
               const triggerFrame =
                 AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
               const appear = spring({

@@ -522,6 +522,7 @@ const IntroScene: React.FC = () => {
           >
             {boxes.map(({ label, color }, i) => {
               // 각 박스를 두 번째 문장의 단어 발화 시점에 맞춰 순서대로 등장
+              // TODO: wordTiming 미지원 — 동적 인덱스 (i * 2)
               const wordTriggers = AUDIO_CONFIG.intro
                 .wordStartFrames[1] as readonly number[];
               const triggerFrame = wordTriggers[i * 2] ?? i * 5;
@@ -593,8 +594,8 @@ const ValueVsVarScene: React.FC = () => {
 
   // "int형 값" → 문장 1 첫 단어, "int형 변수" → 문장 2 첫 단어
   const valueWordFrame =
-    AUDIO_CONFIG.valueVsVar.wordStartFrames[1][0] ?? split0;
-  const varWordFrame = AUDIO_CONFIG.valueVsVar.wordStartFrames[2][0] ?? split1;
+    AUDIO_CONFIG.valueVsVar.wordTiming["int형"][0] ?? split0;
+  const varWordFrame = AUDIO_CONFIG.valueVsVar.wordTiming["int형"][1] ?? split1;
 
   const valueAppear = spring({
     frame: frame - valueWordFrame,

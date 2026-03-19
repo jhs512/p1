@@ -307,7 +307,7 @@ const OverviewScene: React.FC = () => {
   });
   // switch 노드: if 직후 등장 (frame 0부터 트리 완성)
   const switchAppear = spring({
-    frame: frame - AUDIO_CONFIG.overview.wordStartFrames[0][4],
+    frame: frame - AUDIO_CONFIG.overview.wordTiming["switch"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
     durationInFrames: 22,

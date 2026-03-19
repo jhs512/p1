@@ -221,7 +221,7 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 24,
   });
   const whileAppear = spring({
-    frame: frame - AUDIO_CONFIG.overview.wordStartFrames[1][3],
+    frame: frame - AUDIO_CONFIG.overview.wordTiming["while"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
     durationInFrames: 22,
@@ -607,7 +607,7 @@ const WhileScene: React.FC = () => {
                   const isCountPlusPlus =
                     lineIdx === 3 &&
                     frame >=
-                      (AUDIO_CONFIG.whileScene.wordStartFrames[1][2] ?? split0);
+                      (AUDIO_CONFIG.whileScene.wordTiming["조건을"][1] ?? split0);
                   let rem = showChars;
                   return (
                     <div key={lineIdx} style={{ lineHeight: 1.95 }}>
@@ -931,7 +931,7 @@ const InfiniteScene: React.FC = () => {
   const s = cfg.speechStartFrame;
   const opacity = useFade(d);
 
-  const MUHANROOP_FRAME = AUDIO_CONFIG.infiniteScene.wordStartFrames[0][4]; // "무한루프"
+  const MUHANROOP_FRAME = AUDIO_CONFIG.infiniteScene.wordTiming["됩니다"][0]; // "무한루프"
   const blockAppear = spring({
     frame: frame - s,
     fps,

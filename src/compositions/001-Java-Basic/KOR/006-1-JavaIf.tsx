@@ -765,6 +765,7 @@ const SummaryScene: React.FC = () => {
           >
             {SUMMARY_ROWS.map((row, i) => {
               // if(idx 0→frame 2), else(idx 4→frame 50) 발화 시점 기준
+              // TODO: wordTiming 미지원 — 동적 인덱스
               const kwWordIndices = [0, 4] as const;
               const triggerFrame =
                 AUDIO_CONFIG.summaryScene.wordStartFrames[0][

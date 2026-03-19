@@ -285,6 +285,7 @@ const IntroScene: React.FC = () => {
   const opacity = useFade(intro.durationInFrames);
 
   // 두 번째 문장(더하기, 빼기, 곱하기, 나누기, 나머지)의 앞 5단어 발화 프레임
+  // TODO: wordTiming 미지원 — 동적 인덱스 (slice(0,5) 후 reduce로 순회)
   const opWordFrames = (AUDIO_CONFIG.intro.wordStartFrames[1] ??
     []) as readonly number[];
   const currentOpIdx = opWordFrames

@@ -360,9 +360,8 @@ const IntroScene: React.FC = () => {
               <div key={ri} style={{ display: "flex", gap: 20 }}>
                 {row.map((op, i) => {
                   const idx = ri * 3 + i;
-                  const wf = AUDIO_CONFIG.intro.wordStartFrames[0];
                   const startFrame = Math.round(
-                    interpolate(idx, [0, 5], [wf[0], wf[wf.length - 1]]),
+                    interpolate(idx, [0, 5], [AUDIO_CONFIG.intro.wordTiming["비교"][0], AUDIO_CONFIG.intro.wordTiming["반환합니다"][0]]),
                   );
                   const appear = spring({
                     frame: frame - startFrame,
