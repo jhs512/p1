@@ -16,3 +16,7 @@ docs/superpowers/
 
 # 임시 파일
 thumbnail-preview.html
+
+# YouTube OAuth 인증
+client.json
+token.json
