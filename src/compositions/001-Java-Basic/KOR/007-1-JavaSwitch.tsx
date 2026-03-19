@@ -25,6 +25,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./007-3-audio.gen";
+import { CONTENT } from "./007-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -129,52 +130,35 @@ export const VIDEO_CONFIG = {
     audio: "switch-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
-    narration: [
-      "다양한 조건을 처리할 때\n[switch(발음:스위치)] 표현식을 사용할 수 있습니다.",
-      "[if(발음:이프)]문 대신 더 깔끔하게\n조건을 분기할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.overview.narration as string[],
     narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
   },
   intro: {
     audio: "switch-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
-    narration: [
-      "요일에 따라 다른 메시지를 출력하려면\n[if(발음:이프)]문을 여러 번 반복해야 합니다.",
-      "[switch(발음:스위치)] 표현식을 쓰면\n훨씬 간결하게 작성할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   syntaxScene: {
     audio: "switch-syntax.mp3",
     durationInFrames: SYNTAX_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.syntaxScene.speechStartFrame,
-    narration: [
-      "[switch(발음:스위치)] 뒤에 조건값을 쓰고,\n각 케이스에 화살표로 결과를 연결합니다.",
-      "화살표 문법을 사용하면 코드가 훨씬 간결해집니다.",
-    ] as string[],
+    narration: CONTENT.syntaxScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.syntaxScene.narrationSplits,
   },
   multiCaseScene: {
     audio: "switch-multicase.mp3",
     durationInFrames: AUDIO_CONFIG.multiCaseScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.multiCaseScene.speechStartFrame,
-    narration: [
-      "여러 값을 하나의 케이스로 묶어\n중복 없이 처리할 수 있습니다.",
-      "[switch(발음:스위치)] 표현식은 값을 반환하므로\n변수에 바로 대입할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.multiCaseScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.multiCaseScene.narrationSplits,
   },
   summaryScene: {
     audio: "switch-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: [
-      "정리하겠습니다.",
-      "화살표 문법으로 각 케이스를\n간결하게 작성할 수 있습니다.",
-      "화살표 문법에서는 각 케이스가 끝나면\n자동으로 종료됩니다.",
-      "값 반환과 케이스 묶기로\n더욱 강력하게 사용할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
