@@ -1064,10 +1064,13 @@ const SummaryScene: React.FC = () => {
               </div>
             </div>
 
-            {/* 요약 카드 */}
+            {/* 요약 카드 — 각 단어 발화 시작 프레임에 맞춰 등장 */}
             {SUMMARY_ROWS.map((row, i) => {
+              // 초기식=wordStartFrames[0][2], 조건식=[0][3], 증감식=[0][4]
+              const triggerFrame =
+                AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
               const appear = spring({
-                frame: frame - (i + 1) * 14,
+                frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
                 durationInFrames: 26,
