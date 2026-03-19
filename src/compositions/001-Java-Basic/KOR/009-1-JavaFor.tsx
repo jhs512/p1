@@ -731,6 +731,20 @@ const ExecutionScene: React.FC = () => {
 
   const activeLineIsCondition = !step.condPass;
 
+  // 조건 하이라이트 — "참" 발화 시 i < 5 span에 amber glow
+  const COND_TRUE_FRAMES: Record<number, number> = {
+    0: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][0], // 47
+    1: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0], // 151
+    2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][1], // 228
+    3: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][2], // 305
+    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],     // 387
+  };
+  const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
+  const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   // 레이블 spring — 단계 전환마다 튀어오름
   const labelSpring = spring({
     frame: frame - stepStartFrame,
@@ -817,7 +831,17 @@ const ExecutionScene: React.FC = () => {
                   <span style={{ color: "#d4d4d4" }}> (</span>
                   <span style={{ color: C_INIT }}>int i = 0</span>
                   <span style={{ color: "#d4d4d4" }}>; </span>
-                  <span style={{ color: C_COND }}>i {"<"} 5</span>
+                  <span
+                    style={{
+                      color: C_COND,
+                      background: `rgba(229,192,123,${condHL * 0.38})`,
+                      borderRadius: 4,
+                      padding: "1px 5px",
+                      margin: "0 -5px",
+                    }}
+                  >
+                    i {"<"} 5
+                  </span>
                   <span style={{ color: "#d4d4d4" }}>; </span>
                   <span style={{ color: C_INC }}>i++</span>
                   <span style={{ color: "#d4d4d4" }}>) {"{"}</span>

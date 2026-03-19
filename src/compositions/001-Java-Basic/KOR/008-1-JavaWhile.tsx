@@ -676,6 +676,20 @@ const ExecutionScene: React.FC = () => {
   // condPass=false(count=6)일 때만 조건 줄 강조
   const activeLineIsCondition = !step.condPass;
 
+  // 조건 하이라이트 — "참" 발화 시 count <= 5 span에 amber glow
+  const COND_TRUE_FRAMES: Record<number, number> = {
+    0: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][0], // 51
+    1: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][1], // 186
+    2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0], // 304
+    // step 3 ("마찬가지입니다"): "참" 단어 없음 — 하이라이트 생략
+    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],     // 467
+  };
+  const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
+  const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
@@ -735,7 +749,17 @@ const ExecutionScene: React.FC = () => {
                 >
                   <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
                   <span style={{ color: "#d4d4d4" }}> (</span>
-                  <span style={{ color: C_COND }}>count {"<="} 5</span>
+                  <span
+                    style={{
+                      color: C_COND,
+                      background: `rgba(229,192,123,${condHL * 0.38})`,
+                      borderRadius: 4,
+                      padding: "1px 5px",
+                      margin: "0 -5px",
+                    }}
+                  >
+                    count {"<="} 5
+                  </span>
                   <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
                 </div>
                 {/* println 줄 — 인덴트: 16(base) + 40(indent) = 56 */}
