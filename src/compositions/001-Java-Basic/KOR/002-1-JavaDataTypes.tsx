@@ -26,6 +26,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
+import { CONTENT } from "./002-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -48,77 +49,49 @@ export const VIDEO_CONFIG = {
     audio: "dt-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
-    narration: [
-      "자료형이란 자료의 형태, 즉 데이터의 형태입니다.",
-      "자료형은 변수에 어떤 종류의 데이터를\n넣을 수 있는지 결정합니다.",
-      "[Java(발음:자바)]의 주요 자료형 4개를 알아보겠습니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   valueVsVar: {
     audio: "dt-value-vs-var.mp3",
     durationInFrames: AUDIO_CONFIG.valueVsVar.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.valueVsVar.speechStartFrame,
-    narration: [
-      "먼저 자료형 값과 자료형 변수의\n차이를 살펴보겠습니다.",
-      "int형 값은 숫자 25처럼 데이터 자체입니다.",
-      "int형 변수는\n그 값을 담는 이름 있는 공간입니다.",
-    ] as string[],
+    narration: CONTENT.valueVsVar.narration as string[],
     narrationSplits: AUDIO_CONFIG.valueVsVar.narrationSplits,
   },
   intScene: {
     audio: "dt-int.mp3",
     durationInFrames: AUDIO_CONFIG.intScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
-    narration: [
-      "int는 정수를 표현하는 자료형입니다.",
-      "int형 변수는 소수점 없는 정수만\n담을 수 있습니다.",
-      "나이나 [개수(발음:개쑤)]처럼\n소수점이 없는 숫자에 사용합니다.",
-    ] as string[],
+    narration: CONTENT.intScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
   },
   doubleScene: {
     audio: "dt-double.mp3",
     durationInFrames: AUDIO_CONFIG.doubleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
-    narration: [
-      "[double(발음:더블)]은 실수를 표현하는 자료형입니다.",
-      "[double(발음:더블)]형 변수는 소수점이 있는 수를 담습니다.",
-      "키나 무게처럼 정밀한 값이 필요할 때 사용합니다.",
-    ] as string[],
+    narration: CONTENT.doubleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
   },
   stringScene: {
     audio: "dt-string.mp3",
     durationInFrames: AUDIO_CONFIG.stringScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
-    narration: [
-      "String은 문자열을 표현하는 자료형입니다.",
-      "String형 변수는 텍스트 데이터를 담습니다.",
-      "정확히는 참조이지만, 지금은 넘어가겠습니다.",
-      "이름이나 메시지처럼 텍스트를 다룰 때 사용합니다.",
-    ] as string[],
+    narration: CONTENT.stringScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
   },
   booleanScene: {
     audio: "dt-boolean.mp3",
     durationInFrames: AUDIO_CONFIG.booleanScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
-    narration: [
-      "boolean은 참 또는 거짓을 표현하는 자료형입니다.",
-      "boolean형 변수는\ntrue 또는 false 값만 가질 수 있습니다.",
-      "조건 검사 결과를 담을 때 사용합니다.",
-    ] as string[],
+    narration: CONTENT.booleanScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,
   },
   summaryScene: {
     audio: "dt-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: [
-      "네 가지 자료형을 코드로 정리하면 이렇습니다.",
-      "상황에 맞는 자료형을 선택하는 것이 중요합니다.",
-    ] as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };

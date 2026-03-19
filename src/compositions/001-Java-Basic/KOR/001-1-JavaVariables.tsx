@@ -33,6 +33,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
+import { CONTENT } from "./001-2-content";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 타입 ─────────────────────────────────────────────────────
@@ -60,10 +61,7 @@ export const VIDEO_CONFIG = {
   intro: {
     audio: "scene0.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
-    narration: [
-      "변수는 데이터를 담는 상자입니다.",
-      "상자에 이름을 붙이고, 값을 넣고,\n꺼내 쓸 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
 
@@ -72,10 +70,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.declaration.durationInFrames,
     title: "1. 변수 선언 (Declaration)",
     code: codeUpTo(1),
-    narration: [
-      "변수를 사용하려면 먼저 선언이 필요합니다.",
-      "int age 라고 쓰면\n정수형 변수 age가 만들어집니다.",
-    ] as string[],
+    narration: CONTENT.declaration.narration as string[],
     narrationSplits: AUDIO_CONFIG.declaration.narrationSplits,
   },
 
@@ -84,10 +79,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.initialization.durationInFrames,
     title: "2. 변수 초기화 (Initialization)",
     code: codeUpTo(2),
-    narration: [
-      "선언한 변수에 처음으로 값을 넣는 것을\n초기화라고 합니다.",
-      "age 변수에는 25가 저장되었습니다.",
-    ] as string[],
+    narration: CONTENT.initialization.narration as string[],
     narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
   },
 
@@ -95,11 +87,7 @@ export const VIDEO_CONFIG = {
     audio: "interpret.mp3",
     durationInFrames: AUDIO_CONFIG.interpret.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpret.speechStartFrame,
-    narration: [
-      "변수의 해석은 두 가지로 구분됩니다.",
-      "선언하거나 값을 넣을 때만 공간으로 인식되고,\n그 외에는 값으로 인식됩니다.",
-      "이 부분의 age는 25로 해석됩니다.",
-    ] as string[],
+    narration: CONTENT.interpret.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpret.narrationSplits,
   },
 
@@ -107,9 +95,7 @@ export const VIDEO_CONFIG = {
     audio: "interpret-quiz.mp3",
     durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    narration: [
-      "앞 부분의 age 변수는\n공간으로 해석해야할까요?\n아니면 값으로 해석해야 할까요?",
-    ] as string[],
+    narration: CONTENT.interpretQuiz.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
   },
 
@@ -117,12 +103,7 @@ export const VIDEO_CONFIG = {
     audio: "interpret-reveal.mp3",
     durationInFrames: AUDIO_CONFIG.interpretReveal.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretReveal.speechStartFrame,
-    narration: [
-      "정답은 공간입니다.",
-      "값을 대입받는 왼쪽 자리이기 때문이죠.",
-      "우측의 [age(발음:에이지)]는 값 4로 해석해야 합니다.",
-      "여기 [int(발음:인트)]가 정확히 뭔지는 나중에 다음에 알아보겠습니다.",
-    ] as string[],
+    narration: CONTENT.interpretReveal.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpretReveal.narrationSplits,
   },
 
@@ -132,11 +113,7 @@ export const VIDEO_CONFIG = {
     title: "3. 변수 출력 (Print)",
     code: codeUpTo(3),
     consoleOutput: "> 25",
-    narration: [
-      "이제 변수의 값을 화면에 출력해보겠습니다.",
-      "[System.out.println(발음:print line)] 메서드를 사용하면\n괄호 안에 있는 변수의 값이 콘솔에 출력됩니다.",
-      "실행하면 25가 출력되는 것을 확인할 수 있습니다.",
-    ] as string[],
+    narration: CONTENT.print.narration as string[],
     narrationSplits: AUDIO_CONFIG.print.narrationSplits,
   },
 };
