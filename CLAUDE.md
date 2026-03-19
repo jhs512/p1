@@ -71,6 +71,22 @@ const sceneDuration = Math.max(
 - 예: "꺼내" 단어 시점에 꺼내기 애니메이션 → `AUDIO_CONFIG.intro.wordStartFrames[1][5]`
 - sync 후 wordStartFrames가 자동 갱신되므로 코드 수정 없이 타이밍이 유지된다.
 
+### 8. 나중에 등장하는 요소는 조건부 렌더링 대신 opacity로 제어한다
+
+`{condition && <Element />}` 패턴은 요소가 추가될 때 레이아웃이 변한다.
+부모가 `translate(-50%, -50%)` 수직 중앙정렬이면 높이 변화 시 전체가 위로 밀린다.
+
+```tsx
+// ❌ 금지 — 등장 시 컨테이너 높이가 늘어나 레이아웃이 밀림
+{phase2 && <div style={{ height: 100 }}>키워드</div>}
+
+// ✅ 올바름 — 항상 공간 확보, opacity로만 표시/숨김
+<div style={{ opacity: phase2 ? appear : 0 }}>키워드</div>
+```
+
+- **공간을 차지하는 모든 애니메이션 등장 요소에 적용 — 헌법.**
+- `visibility: hidden`도 동일 효과지만 `opacity`가 페이드 인 애니메이션과 조합하기 쉬움.
+
 ---
 
 ## 프로젝트 구조
