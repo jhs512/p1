@@ -12,6 +12,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { CROSS, CHARS_PER_SEC } from "../config";
 import { toDisplayText } from "./narration";
 
 // ── 폰트 ─────────────────────────────────────────────────────
@@ -34,11 +35,7 @@ if (typeof window !== "undefined") {
 /** JetBrains Mono 리가처 비활성화 — !=, ==, >= 가 합자로 변환되는 것을 막는다 */
 export const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
 
-/** 씬 간 크로스페이드 프레임 수 */
-export const CROSS = 20;
-
-/** 타이핑 이펙트 — 초당 글자 수 */
-export const CHARS_PER_SEC = 10;
+export { CROSS, CHARS_PER_SEC } from "../config";
 
 // ── 훅: useFade ───────────────────────────────────────────────
 /**
