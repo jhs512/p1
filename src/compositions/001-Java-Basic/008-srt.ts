@@ -5,12 +5,10 @@
  */
 import { AUDIO_CONFIG } from "./008-audio";
 import { toDisplayText } from "../../utils/narration";
-import { SERIES_FPS } from "./series.config";
+import { FPS } from "./config";
+import { SCENE_TAIL_FRAMES, CROSS } from "../../config";
 
-export const fps = SERIES_FPS;
-
-const CROSS = 20;
-const SCENE_TAIL_FRAMES = 15;
+export const fps = FPS;
 
 const narrations = {
   overview: [

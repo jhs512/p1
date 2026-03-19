@@ -1,5 +1,8 @@
 // src/compositions/001-Java-Basic/config.ts — 001 강좌 + 언어(KOR) 설정
-import { PRONUNCIATION as ROOT_PRON } from "../../config";
+import { PRONUNCIATION as ROOT_PRON, FPS as ROOT_FPS } from "../../config";
+
+// ── 프레임레이트 (루트에서 상속) ─────────────────────────────
+export const FPS = ROOT_FPS;
 
 // ── 영상 크기 ────────────────────────────────────────────────
 export const WIDTH  = 1080;

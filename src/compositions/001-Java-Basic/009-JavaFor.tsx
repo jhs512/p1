@@ -10,9 +10,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { RATE, VOICE } from "../../global.config";
 import { AUDIO_CONFIG } from "./009-audio";
-import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
+import { WIDTH, HEIGHT } from "./config";
+import { FPS } from "../../config";
 import { toDisplayText } from "../../utils/narration";
 import {
   CROSS,
@@ -23,8 +23,6 @@ import {
   uiFont,
   useFade,
 } from "../../utils/scene";
-
-export { RATE, VOICE };
 
 // ── 색상 상수 ─────────────────────────────────────────────────
 const C_FOR  = "#4ec9b0"; // for 키워드 — teal
@@ -746,9 +744,9 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  fps: SERIES_FPS,
-  width: SERIES_WIDTH,
-  height: SERIES_HEIGHT,
+  fps: FPS,
+  width: WIDTH,
+  height: HEIGHT,
   durationInFrames: totalDuration,
 };
 

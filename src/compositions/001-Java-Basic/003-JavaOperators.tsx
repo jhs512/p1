@@ -10,7 +10,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { RATE, VOICE } from "../../global.config";
 import {
   CROSS,
   ContentArea,
@@ -21,10 +20,9 @@ import {
   useFade,
 } from "../../utils/scene";
 import { AUDIO_CONFIG } from "./003-audio";
-import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
+import { WIDTH, HEIGHT } from "./config";
+import { FPS } from "../../config";
 import { toDisplayText } from "../../utils/narration";
-
-export { RATE, VOICE };
 
 // ── 상수 ─────────────────────────────────────────────────────
 const C_INT = "#4e9cd5";
@@ -813,9 +811,9 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
-  fps: SERIES_FPS,
-  width: SERIES_WIDTH,
-  height: SERIES_HEIGHT,
+  fps: FPS,
+  width: WIDTH,
+  height: HEIGHT,
   durationInFrames: totalDuration,
 };
 

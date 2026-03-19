@@ -18,7 +18,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { RATE, SCENE_TAIL_FRAMES, VOICE } from "../../global.config";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -30,10 +29,9 @@ import {
   useFade,
 } from "../../utils/scene";
 import { AUDIO_CONFIG } from "./001-audio";
-import { SERIES_WIDTH, SERIES_HEIGHT, SERIES_FPS } from "./series.config";
+import { WIDTH, HEIGHT } from "./config";
+import { FPS, SCENE_TAIL_FRAMES } from "../../config";
 import { toDisplayText } from "../../utils/narration";
-
-export { RATE, VOICE };
 
 // ── 타입 ─────────────────────────────────────────────────────
 export interface CodeLine {
@@ -1261,9 +1259,9 @@ export const SRT_DATA: Array<{ startFrame: number; endFrame: number; text: strin
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {
-  fps: SERIES_FPS,
-  width: SERIES_WIDTH,
-  height: SERIES_HEIGHT,
+  fps: FPS,
+  width: WIDTH,
+  height: HEIGHT,
   durationInFrames: totalDuration,
 };
 
