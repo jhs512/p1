@@ -8,7 +8,7 @@ export const CONTENT = {
   painScene: {
     narration: [
       "같은 코드를 세 번 반복하고 있습니다.",
-      "나중에 고칠 때 세 군데를 모두 바꿔야 합니다.",
+      "나중에 민준을 철수로 고칠 때 세 군데를 모두 바꿔야 합니다.",
     ],
   },
   conceptScene: {

@@ -97,6 +97,9 @@ function useTypingEffect(
 
 // ── 컴포넌트: CodeLine ─────────────────────────────────────────
 const CodeLine: React.FC<{ text: string }> = ({ text }) => {
+  if (text.startsWith("//")) {
+    return <span style={{ color: "#6a9955" }}>{text}</span>;
+  }
   const parts = text.split(/(void|return|if|else|"[^"]*")/g);
   return (
     <>
@@ -232,10 +235,59 @@ const ThumbnailScene: React.FC = () => (
 // ── 씬: PainScene ─────────────────────────────────────────────
 const PAIN_LINES = [
   'System.out.println("안녕 민준");',
+  "// ...",
   'System.out.println("안녕 민준");',
+  "// ...",
   'System.out.println("안녕 민준");',
 ];
 const PAIN_CPS = 28;
+
+// "민준" → "철수" 글자 단위 교체 progress(0→1)
+function getReplaceWord(progress: number): string {
+  if (progress <= 0) return "민준";
+  if (progress >= 1) return "철수";
+  if (progress < 0.5) {
+    const left = Math.max(0, 2 - Math.floor(progress * 4));
+    return "민준".slice(0, left);
+  }
+  const added = Math.min(2, Math.ceil((progress - 0.5) * 4));
+  return "철수".slice(0, added);
+}
+
+const REPLACE_DUR = 24;  // 교체 애니메이션 프레임 수
+const REPLACE_GAP = 20;  // 줄 간격 프레임 수
+
+// println 줄: 타이핑 후 민준→철수 교체 애니메이션
+const PainPrintlnLine: React.FC<{
+  startFrame: number;
+  replaceStart: number;
+}> = ({ startFrame, replaceStart }) => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(
+    frame,
+    [replaceStart, replaceStart + REPLACE_DUR],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const word = getReplaceWord(progress);
+
+  if (frame < replaceStart) {
+    return (
+      <TypingCodeLine
+        text={'System.out.println("안녕 민준");'}
+        startFrame={startFrame}
+        cps={PAIN_CPS}
+      />
+    );
+  }
+  return (
+    <div style={{ lineHeight: "1.9", color: "#d4d4d4", whiteSpace: "pre" }}>
+      <span>System.out.println(</span>
+      <span style={{ color: C_STRING }}>"안녕 {word}"</span>
+      <span>);</span>
+    </div>
+  );
+};
 
 const PainScene: React.FC = () => {
   const { painScene: cfg } = VIDEO_CONFIG;
@@ -243,10 +295,9 @@ const PainScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
-  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 순차 타이핑
+  // 순차 타이핑 — 5줄 lineStarts 계산
   const lineStarts: number[] = [];
   let cumFrame = s;
   for (const line of PAIN_LINES) {
@@ -254,12 +305,13 @@ const PainScene: React.FC = () => {
     cumFrame += Math.ceil((line.length / PAIN_CPS) * fps);
   }
 
-  const highlightAppear = spring({
-    frame: frame - split,
-    fps,
-    config: { damping: 14, stiffness: 140 },
-    durationInFrames: 20,
-  });
+  // println 줄(0, 2, 4)별 교체 시작 프레임
+  // 줄 0: split, 줄 2: split+GAP, 줄 4: split+GAP*2
+  const replaceStarts = [
+    split,
+    split + REPLACE_GAP,
+    split + REPLACE_GAP * 2,
+  ];
 
   return (
     <>
@@ -281,23 +333,22 @@ const PainScene: React.FC = () => {
               fontSize: 32,
             }}
           >
-            {PAIN_LINES.map((line, i) => (
-              <div key={i} style={{ position: "relative" }}>
-                <TypingCodeLine text={line} startFrame={lineStarts[i]} cps={PAIN_CPS} />
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 2,
-                    left: 0,
-                    right: 0,
-                    height: 3,
-                    background: C_PAIN,
-                    opacity: highlightAppear,
-                    borderRadius: 2,
-                  }}
+            {PAIN_LINES.map((line, i) => {
+              if (line.startsWith("//")) {
+                return (
+                  <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={PAIN_CPS} />
+                );
+              }
+              // println 줄: 교체 애니메이션
+              const rIdx = [0, 2, 4].indexOf(i);
+              return (
+                <PainPrintlnLine
+                  key={i}
+                  startFrame={lineStarts[i]}
+                  replaceStart={replaceStarts[rIdx]}
                 />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ContentArea>
       </AbsoluteFill>
