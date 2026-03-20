@@ -660,6 +660,16 @@ const ExecutionScene: React.FC = () => {
     3: AUDIO_CONFIG.executionScene.wordTiming["마찬가지입니다"][0], // 370
     4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],          // 467
   };
+
+  // 출력 로그 — "실행" 발화 시점 이후에만 표시
+  const EXEC_FRAMES: Record<number, number> = {
+    0: AUDIO_CONFIG.executionScene.wordTiming["실행하고"][0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["실행합니다"][0],
+    2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0],
+    3: AUDIO_CONFIG.executionScene.wordTiming["마찬가지입니다"][0],
+    4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
+  };
+  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity);
   const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
   const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
@@ -858,7 +868,7 @@ const ExecutionScene: React.FC = () => {
                   </span>
                 </div>
 
-                {/* 출력 로그 */}
+                {/* 출력 로그 — "실행" 발화 이후에만 표시 */}
                 <div
                   style={{
                     background: "#252525",
@@ -867,6 +877,7 @@ const ExecutionScene: React.FC = () => {
                     fontFamily: monoFont,
                     fontFeatureSettings: MONO_NO_LIGA,
                     fontSize: 26,
+                    opacity: showOutput ? 1 : 0,
                   }}
                 >
                   <div

@@ -746,6 +746,16 @@ const ExecutionScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
+  // 출력 로그 — "실행" 발화 시점 이후에만 표시
+  const EXEC_FRAMES: Record<number, number> = {
+    0: AUDIO_CONFIG.executionScene.wordTiming["실행합니다"][0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0],
+    2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][1],
+    3: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][2],
+    4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
+  };
+  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity);
+
   // 레이블 spring — 단계 전환마다 튀어오름
   const labelSpring = spring({
     frame: frame - stepStartFrame,
@@ -950,7 +960,7 @@ const ExecutionScene: React.FC = () => {
                 </div>
               </div>
 
-              {/* 출력 로그 */}
+              {/* 출력 로그 — "실행" 발화 이후에만 표시 */}
               <div
                 style={{
                   background: "#252525",
@@ -959,6 +969,7 @@ const ExecutionScene: React.FC = () => {
                   fontFamily: monoFont,
                   fontFeatureSettings: MONO_NO_LIGA,
                   fontSize: 26,
+                  opacity: showOutput ? 1 : 0,
                 }}
               >
                 <div
