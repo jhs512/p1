@@ -310,36 +310,28 @@ const PainScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
-  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 코드 블록은 CROSS 이후에 등장 (썸네일 크로스페이드 겹침 방지)
-  const codeAppear = spring({
-    frame: frame - CROSS,
-    fps,
-    config: { damping: 14, stiffness: 120 },
-    durationInFrames: 16,
-  });
-
-  // 순차 타이핑 — 5줄 lineStarts 계산 (CROSS 이후 시작)
+  // 순차 타이핑 — 5줄 lineStarts 계산
   const lineStarts: number[] = [];
-  let cumFrame = Math.max(s, CROSS);
+  let cumFrame = s;
   for (const line of PAIN_LINES) {
     lineStarts.push(cumFrame);
     cumFrame += Math.ceil((line.length / PAIN_CPS) * fps);
   }
 
-  // println 줄(0, 2, 4)별 교체 시작 프레임
-  // 줄 0: split, 줄 2: split+GAP, 줄 4: split+GAP*2
+  // 교체는 5줄 타이핑 완료 후 시작 (split과 비교해 늦은 쪽 사용)
+  const typingDone = cumFrame;
+  const replaceBegin = Math.max(split, typingDone);
   const replaceStarts = [
-    split,
-    split + REPLACE_GAP,
-    split + REPLACE_GAP * 2,
+    replaceBegin,
+    replaceBegin + REPLACE_GAP,
+    replaceBegin + REPLACE_GAP * 2,
   ];
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -355,7 +347,6 @@ const PainScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
-              opacity: codeAppear,
             }}
           >
             {PAIN_LINES.map((line, i) => {
@@ -376,13 +367,13 @@ const PainScene: React.FC = () => {
             })}
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.painScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.painScene.wordStartFrames}
-      />
     </>
   );
 };
@@ -397,15 +388,14 @@ const ConceptScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const contentStart = Math.max(s, CROSS);
   const titleAppear = spring({
-    frame: frame - contentStart,
+    frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const descAppear = spring({
-    frame: frame - Math.max(split, CROSS),
+    frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -413,7 +403,7 @@ const ConceptScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -459,13 +449,13 @@ const ConceptScene: React.FC = () => {
             </div>
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.conceptScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.conceptScene.wordStartFrames}
-      />
     </>
   );
 };
@@ -483,18 +473,10 @@ const DeclarationScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const codeAppear = spring({
-    frame: frame - CROSS,
-    fps,
-    config: { damping: 14, stiffness: 120 },
-    durationInFrames: 16,
-  });
-
   const lineStarts: number[] = [];
-  let cumFrame = Math.max(s, CROSS);
+  let cumFrame = s;
   for (const line of DECLARE_LINES) {
     lineStarts.push(cumFrame);
     cumFrame += Math.ceil((line.length / DECLARE_CPS) * fps);
@@ -502,7 +484,7 @@ const DeclarationScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -518,7 +500,6 @@ const DeclarationScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
-              opacity: codeAppear,
             }}
           >
             {DECLARE_LINES.map((line, i) => (
@@ -526,13 +507,13 @@ const DeclarationScene: React.FC = () => {
             ))}
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.declarationScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.declarationScene.wordStartFrames}
-      />
     </>
   );
 };
@@ -547,25 +528,15 @@ const CallScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  const codeAppear = spring({
-    frame: frame - CROSS,
-    fps,
-    config: { damping: 14, stiffness: 120 },
-    durationInFrames: 16,
-  });
-
-  const contentStart = Math.max(s, CROSS);
   const lineStarts = CALL_LINES.map((_, i) => {
-    const lineDuration = (split - contentStart) / CALL_LINES.length;
-    return Math.round(contentStart + i * lineDuration);
+    const lineDuration = (split - s) / CALL_LINES.length;
+    return Math.round(s + i * lineDuration);
   });
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -581,7 +552,6 @@ const CallScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 40,
-              opacity: codeAppear,
             }}
           >
             {CALL_LINES.map((line, i) => (
@@ -589,13 +559,13 @@ const CallScene: React.FC = () => {
             ))}
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
-      />
     </>
   );
 };
@@ -611,15 +581,14 @@ const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const contentStart = Math.max(s, CROSS);
   const card0Appear = spring({
-    frame: frame - contentStart,
+    frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const card1Appear = spring({
-    frame: frame - Math.max(cfg.narrationSplits[0] ?? s + 30, CROSS),
+    frame: frame - (cfg.narrationSplits[0] ?? s + 30),
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -628,7 +597,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -667,13 +636,13 @@ const SummaryScene: React.FC = () => {
             ))}
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
-      />
     </>
   );
 };
@@ -705,15 +674,14 @@ const ComparisonScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const contentStart = Math.max(s, CROSS);
   const beforeAppear = spring({
-    frame: frame - contentStart,
+    frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const arrowAppear = spring({
-    frame: frame - (contentStart + Math.round((split - contentStart) / 2)),
+    frame: frame - (s + Math.round((split - s) / 2)),
     fps,
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 20,
@@ -782,7 +750,7 @@ const ComparisonScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -840,13 +808,13 @@ const ComparisonScene: React.FC = () => {
             </div>
           </div>
         </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
+        />
       </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
-      />
     </>
   );
 };
