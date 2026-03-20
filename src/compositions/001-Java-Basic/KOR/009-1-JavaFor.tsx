@@ -693,6 +693,31 @@ const ForScene: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: -2,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 24,
+                    fontWeight: 700,
+                    color: C_INC,
+                    background: `${C_INC}18`,
+                    border: `2px solid ${C_INC}55`,
+                    borderRadius: 12,
+                    padding: "8px 20px",
+                    opacity: incAppear,
+                    transform: slideY(incAppear),
+                  }}
+                >
+                  i를 1 증가
+                </div>
+              </div>
             </div>
           )}
         </ContentArea>
