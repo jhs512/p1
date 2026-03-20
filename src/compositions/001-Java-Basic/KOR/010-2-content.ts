@@ -7,8 +7,8 @@ export const CONTENT = {
   },
   painScene: {
     narration: [
-      "인사 코드를 이름마다 따로 작성하고 있습니다.",
-      "이름만 다를 뿐, 내용은 모두 같습니다.",
+      "같은 코드를 세 번 반복하고 있습니다.",
+      "나중에 고칠 때 세 군데를 모두 바꿔야 합니다.",
     ],
   },
   conceptScene: {
@@ -20,7 +20,7 @@ export const CONTENT = {
   declarationScene: {
     narration: [
       "함수는 이렇게 선언합니다.",
-      "지금은 함수 이름과 전달받는 값에만 집중하세요.",
+      "지금은 함수 이름에만 집중하세요.",
     ],
   },
   callScene: {

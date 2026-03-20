@@ -28,11 +28,8 @@ import { HEIGHT, WIDTH } from "./config";
 // ── 색상 상수 ─────────────────────────────────────────────────
 const C_FUNC    = "#dcdcaa"; // 함수 이름 (노란색)
 const C_KEYWORD = "#569cd6"; // void 키워드 (파란색)
-const C_TYPE    = "#4ec9b0"; // String 타입 (청록색)
-const C_PARAM   = "#9cdcfe"; // 매개변수 name (연파랑)
 const C_STRING  = "#ce9178"; // 문자열 리터럴 (주황색)
 const C_PAIN    = "#f47c7c"; // 고통 씬 강조 (빨간색)
-const BG        = "#1e1e1e"; // VS Code 다크 배경
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -93,20 +90,14 @@ function useTypingEffect(
 
 // ── 컴포넌트: CodeLine ─────────────────────────────────────────
 const CodeLine: React.FC<{ text: string }> = ({ text }) => {
-  const parts = text.split(
-    /(void|String|return|if|else|"[^"]*"|\b\d+(?:\.\d+)?\b)/g,
-  );
+  const parts = text.split(/(void|return|if|else|"[^"]*")/g);
   return (
     <>
       {parts.map((part, i) => {
-        if (part === "void" || part === "return" || part === "if" || part === "else")
+        if (["void", "return", "if", "else"].includes(part))
           return <span key={i} style={{ color: C_KEYWORD }}>{part}</span>;
-        if (part === "String")
-          return <span key={i} style={{ color: C_TYPE }}>{part}</span>;
         if (/^"/.test(part))
           return <span key={i} style={{ color: C_STRING }}>{part}</span>;
-        if (/^\d/.test(part))
-          return <span key={i} style={{ color: "#b5cea8" }}>{part}</span>;
         if (part.includes("greet"))
           return (
             <span key={i}>
@@ -115,19 +106,6 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
                   {seg}
                   {j < arr.length - 1 && (
                     <span style={{ color: C_FUNC }}>greet</span>
-                  )}
-                </React.Fragment>
-              ))}
-            </span>
-          );
-        if (part.includes("name"))
-          return (
-            <span key={i}>
-              {part.split("name").map((seg, j, arr) => (
-                <React.Fragment key={j}>
-                  {seg}
-                  {j < arr.length - 1 && (
-                    <span style={{ color: C_PARAM }}>name</span>
                   )}
                 </React.Fragment>
               ))}
@@ -147,31 +125,43 @@ const TypingCodeLine: React.FC<{
 }> = ({ text, startFrame, cps = CHARS_PER_SEC }) => {
   const { visibleText } = useTypingEffect(text, startFrame, cps);
   return (
-    <div style={{ lineHeight: "1.9", color: "#d4d4d4" }}>
+    <div style={{ lineHeight: "1.9", color: "#d4d4d4", whiteSpace: "pre" }}>
       <CodeLine text={visibleText} />
     </div>
   );
 };
 
-// ── 씬: ThumbnailScene ────────────────────────────────────────
+// ── 씬: ThumbnailScene (006 스타일 통일) ──────────────────────
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
       background: "#050510",
-      display: "flex",
-      flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      gap: 24,
+      flexDirection: "column",
+      gap: 28,
     }}
   >
+    {/* 배경 글로우 */}
+    <div
+      style={{
+        position: "absolute",
+        width: 860,
+        height: 860,
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${C_FUNC}1f 0%, transparent 70%)`,
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    />
     <div
       style={{
         fontFamily: uiFont,
-        fontSize: 28,
-        letterSpacing: 12,
-        color: C_TYPE,
-        textTransform: "uppercase",
+        fontSize: 26,
+        fontWeight: 700,
+        color: C_FUNC,
+        letterSpacing: 10,
         opacity: 0.8,
       }}
     >
@@ -180,26 +170,29 @@ const ThumbnailScene: React.FC = () => (
     <div
       style={{
         fontFamily: uiFont,
-        fontSize: 96,
+        fontSize: 108,
         fontWeight: 900,
-        color: "#ffffff",
+        lineHeight: 1,
         textAlign: "center",
-        lineHeight: 1.15,
-        whiteSpace: "pre-line",
+        color: "#fff",
+        textShadow: `0 0 60px ${C_FUNC}99, 0 0 120px ${C_FUNC}4d`,
       }}
     >
-      {"Java\n함수"}
+      Java
+      <br />
+      <span style={{ color: C_FUNC }}>함수</span>
     </div>
     <div
       style={{
         fontFamily: monoFont,
         fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 36,
+        fontSize: 56,
+        fontWeight: 900,
         color: C_FUNC,
         background: `${C_FUNC}18`,
         border: `2px solid ${C_FUNC}55`,
-        borderRadius: 12,
-        padding: "8px 28px",
+        borderRadius: 18,
+        padding: "18px 44px",
         marginTop: 8,
       }}
     >
@@ -210,11 +203,11 @@ const ThumbnailScene: React.FC = () => (
 
 // ── 씬: PainScene ─────────────────────────────────────────────
 const PAIN_LINES = [
-  'System.out.println("안녕하세요, 민준님!");',
-  'System.out.println("안녕하세요, 지아님!");',
-  'System.out.println("안녕하세요, 서준님!");',
+  'System.out.println("안녕 민준");',
+  'System.out.println("안녕 민준");',
+  'System.out.println("안녕 민준");',
 ];
-const PAIN_CPS = 30;
+const PAIN_CPS = 28;
 
 const PainScene: React.FC = () => {
   const { painScene: cfg } = VIDEO_CONFIG;
@@ -225,11 +218,15 @@ const PainScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const lineStarts = PAIN_LINES.map((_, i) => {
-    const lineDuration = (split - s) / PAIN_LINES.length;
-    return Math.round(s + i * lineDuration);
-  });
+  // 순차 타이핑: 이전 줄 완료 후 다음 줄 시작
+  const lineStarts: number[] = [];
+  let cumFrame = s;
+  for (const line of PAIN_LINES) {
+    lineStarts.push(cumFrame);
+    cumFrame += Math.ceil((line.length / PAIN_CPS) * fps);
+  }
 
+  // split 이후 빨간 밑줄 등장 ("세 군데를 모두 바꿔야" 시점)
   const highlightAppear = spring({
     frame: frame - split,
     fps,
@@ -239,7 +236,7 @@ const PainScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
+      <AbsoluteFill style={{ opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -251,7 +248,7 @@ const PainScene: React.FC = () => {
               background: "#2d2d2d",
               borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 820,
+              minWidth: 760,
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
@@ -264,6 +261,7 @@ const PainScene: React.FC = () => {
                   startFrame={lineStarts[i]}
                   cps={PAIN_CPS}
                 />
+                {/* 빨간 밑줄: "세 군데를 모두 바꿔야" 시점에 등장 */}
                 <div
                   style={{
                     position: "absolute",
@@ -316,7 +314,7 @@ const ConceptScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
+      <AbsoluteFill style={{ opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -375,8 +373,8 @@ const ConceptScene: React.FC = () => {
 
 // ── 씬: DeclarationScene ──────────────────────────────────────
 const DECLARE_LINES = [
-  "void greet(String name) {",
-  '    System.out.println("안녕하세요, " + name + "님!");',
+  "void greet() {",
+  '    System.out.println("안녕 민준");',
   "}",
 ];
 const DECLARE_CPS = 18;
@@ -386,20 +384,19 @@ const DeclarationScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
+  const { fps } = useVideoConfig();
 
-  const split = cfg.narrationSplits[0];
-  const typingWindow = split - s;
-  const totalChars = DECLARE_LINES.reduce((sum, l) => sum + l.length, 0);
-  let cumChars = 0;
-  const lineStarts = DECLARE_LINES.map((line) => {
-    const start = s + Math.floor((cumChars / totalChars) * typingWindow);
-    cumChars += line.length;
-    return start;
-  });
+  // 순차 타이핑: 이전 줄 완료 후 다음 줄 시작
+  const lineStarts: number[] = [];
+  let cumFrame = s;
+  for (const line of DECLARE_LINES) {
+    lineStarts.push(cumFrame);
+    cumFrame += Math.ceil((line.length / DECLARE_CPS) * fps);
+  }
 
   return (
     <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
+      <AbsoluteFill style={{ opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -411,7 +408,7 @@ const DeclarationScene: React.FC = () => {
               background: "#2d2d2d",
               borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 820,
+              minWidth: 760,
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
@@ -439,12 +436,8 @@ const DeclarationScene: React.FC = () => {
 };
 
 // ── 씬: CallScene ─────────────────────────────────────────────
-const CALL_LINES = [
-  'greet("민준");',
-  'greet("지아");',
-  'greet("서준");',
-];
-const CALL_CPS = 25;
+const CALL_LINES = ["greet();", "greet();", "greet();"];
+const CALL_CPS = 20;
 
 const CallScene: React.FC = () => {
   const { callScene: cfg } = VIDEO_CONFIG;
@@ -460,7 +453,7 @@ const CallScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
+      <AbsoluteFill style={{ opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -472,10 +465,10 @@ const CallScene: React.FC = () => {
               background: "#2d2d2d",
               borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 600,
+              minWidth: 400,
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 36,
+              fontSize: 40,
             }}
           >
             {CALL_LINES.map((line, i) => (
@@ -505,7 +498,7 @@ const SUMMARY_CARDS = CONTENT.summaryScene.cards as unknown as string[];
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d, { out: false });
+  const opacity = useFade(d, { out: false }); // 마지막 씬: fadeOut 없음
   const s = cfg.speechStartFrame;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -526,7 +519,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
+      <AbsoluteFill style={{ opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <div
@@ -604,7 +597,7 @@ export const compositionMeta = {
 
 // ── Root Component ────────────────────────────────────────────
 const JavaFunction: React.FC = () => (
-  <AbsoluteFill>
+  <AbsoluteFill style={{ background: "#1e1e1e" }}>
     <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
       <ThumbnailScene />
     </Sequence>
