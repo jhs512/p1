@@ -376,12 +376,26 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
 }
 ```
 
-### 7-2. 라벨 스타일
+### 7-2. 폰트 스케일 시스템 (FONT 상수)
+
+`src/utils/scene.tsx`에 정의된 글로벌 폰트 스케일을 사용한다.
+매번 하드코딩하지 않는다.
+
+```ts
+import { FONT } from "../../../utils/scene";
+
+FONT.label   // 26px — 라벨, 뱃지, 코드 블록 위 설명 텍스트
+FONT.heading // 32px — 씬 소제목, 섹션 헤더
+FONT.title   // 44px — 큰 제목, 카드 텍스트
+FONT.display // 56px — 강조 텍스트, 핵심 키워드
+```
+
+### 7-3. 라벨 스타일
 
 ```tsx
 const labelStyle = (color: string): React.CSSProperties => ({
   fontFamily: uiFont,
-  fontSize: 20~22,
+  fontSize: FONT.label,   // ← 하드코딩 금지, FONT.label 사용
   fontWeight: 700,
   color,
   letterSpacing: 2,
@@ -390,7 +404,7 @@ const labelStyle = (color: string): React.CSSProperties => ({
 });
 ```
 
-### 7-3. 코드 구문 색상 (colors.ts 기준)
+### 7-4. 코드 구문 색상 (colors.ts 기준)
 
 | 요소 | 상수 | 색상 |
 |------|------|------|
@@ -409,7 +423,7 @@ const labelStyle = (color: string): React.CSSProperties => ({
 | 흐릿한 텍스트 | `C_DIM` | rgba(255,255,255,0.22) |
 | 기본 텍스트 | `TEXT` | #d4d4d4 |
 
-### 7-4. 코드 연산자 공백 규칙
+### 7-5. 코드 연산자 공백 규칙
 
 연산자 양옆에 **반드시** 공백을 넣는다.
 
@@ -418,7 +432,7 @@ const labelStyle = (color: string): React.CSSProperties => ({
 ❌ age=age+2;
 ```
 
-### 7-5. 콘텐츠 배치
+### 7-6. 콘텐츠 배치
 
 ```tsx
 <ContentArea>
@@ -442,7 +456,7 @@ const labelStyle = (color: string): React.CSSProperties => ({
 - **CROSS = 20프레임** — 씬 간 겹치는 구간.
 - 각 씬의 `AbsoluteFill`에 `background: BG` 필수 → 겹침 시 뒤가 비치지 않음.
 - `useFade(d)`가 처음 20프레임 fadeIn, 마지막 20프레임 fadeOut 자동 처리.
-- `Subtitle`은 `AbsoluteFill` 안에 넣어야 함 — 전환 시 자막도 함께 페이드.
+- `Subtitle`은 `AbsoluteFill` **바깥**에 넣어야 함 — 전환 시 자막에 페이드가 걸리면 안 됨.
 - **CROSS 만큼 콘텐츠 시작을 딜레이하지 않는다** — 기존 1~10강은 딜레이 없음.
 
 ---
@@ -509,6 +523,7 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] `AbsoluteFill`에 `background: BG` 누락
 - [ ] `Subtitle`이 opacity wrapper 안쪽에 있음 (바깥이어야 함)
 - [ ] 코드에서 연산자 양옆 공백 누락 (`age=age+2;`)
+- [ ] 라벨/뱃지 fontSize 하드코딩 → `FONT.label` 사용
 
 ---
 

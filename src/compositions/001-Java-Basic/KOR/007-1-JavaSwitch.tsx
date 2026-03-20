@@ -18,6 +18,7 @@ import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -595,7 +596,7 @@ const IntroScene: React.FC = () => {
               <div
                 style={{
                   fontFamily: uiFont,
-                  fontSize: 20,
+                  fontSize: FONT.label,
                   color: C_DIM,
                   marginBottom: 12,
                 }}
@@ -630,7 +631,7 @@ const IntroScene: React.FC = () => {
               <div
                 style={{
                   fontFamily: uiFont,
-                  fontSize: 20,
+                  fontSize: FONT.label,
                   color: C_SWITCH,
                   marginBottom: 12,
                   fontWeight: 700,
@@ -965,12 +966,12 @@ const MultiCaseScene: React.FC = () => {
                     style={{
                       fontFamily: uiFont,
                       color: C_RESULT,
-                      fontSize: 22,
+                      fontSize: FONT.label,
                     }}
                   >
                     반환값
                   </span>
-                  <span style={{ color: C_ARROW, fontSize: 22 }}>→</span>
+                  <span style={{ color: C_ARROW, fontSize: FONT.label }}>→</span>
                   <span
                     style={{
                       fontFamily: monoFont,
@@ -983,7 +984,7 @@ const MultiCaseScene: React.FC = () => {
                     msg
                   </span>
                   <span
-                    style={{ fontFamily: uiFont, color: "#888", fontSize: 20 }}
+                    style={{ fontFamily: uiFont, color: "#888", fontSize: FONT.label }}
                   >
                     변수에 저장
                   </span>

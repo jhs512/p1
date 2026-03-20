@@ -26,6 +26,7 @@ import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -842,7 +843,7 @@ const InterpretScene: React.FC = () => {
       style={{
         opacity: anim,
         color,
-        fontSize: 22,
+        fontSize: FONT.label,
         fontFamily: uiFont,
         background: `${color}1a`,
         borderRadius: 6,
@@ -1188,7 +1189,7 @@ const QuizScene: React.FC = () => {
                 <div
                   style={{
                     fontFamily: uiFont,
-                    fontSize: 20,
+                    fontSize: FONT.label,
                     color: C_SPACE,
                     lineHeight: 1.3,
                     textAlign: "center",
@@ -1218,7 +1219,7 @@ const QuizScene: React.FC = () => {
                 <div
                   style={{
                     fontFamily: uiFont,
-                    fontSize: 20,
+                    fontSize: FONT.label,
                     color: C_VAL,
                     lineHeight: 1.3,
                     textAlign: "center",

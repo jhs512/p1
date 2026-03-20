@@ -20,6 +20,7 @@ import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -841,7 +842,7 @@ const ValueVsVarScene: React.FC = () => {
                     padding: "4px 16px",
                     fontFamily: monoFont,
                     fontFeatureSettings: MONO_NO_LIGA,
-                    fontSize: 22,
+                    fontSize: FONT.label,
                     fontWeight: 700,
                     color: BG,
                   }}

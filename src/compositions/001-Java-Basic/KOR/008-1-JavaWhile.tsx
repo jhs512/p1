@@ -18,6 +18,7 @@ import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -871,7 +872,7 @@ const ExecutionScene: React.FC = () => {
                   <div
                     style={{
                       color: "#888",
-                      fontSize: 18,
+                      fontSize: FONT.label,
                       marginBottom: 8,
                       fontFamily: uiFont,
                     }}

@@ -18,6 +18,7 @@ import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -368,7 +369,7 @@ const IntroScene: React.FC = () => {
                   <span
                     style={{
                       fontFamily: uiFont,
-                      fontSize: 22,
+                      fontSize: FONT.label,
                       color: C_LOG,
                       opacity: 0.7,
                     }}
@@ -758,7 +759,7 @@ const SummaryScene: React.FC = () => {
                   <span
                     style={{
                       fontFamily: uiFont,
-                      fontSize: 22,
+                      fontSize: FONT.label,
                       color: C_LOG,
                       opacity: 0.65,
                       minWidth: 54,

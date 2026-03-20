@@ -108,6 +108,7 @@ import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -231,32 +232,34 @@ const IntroScene: React.FC = () => {
   // TODO: 비주얼 구현
 
   return (
-    <AbsoluteFill style={{ background: BG, opacity }}>
-      <ContentArea>
-        <Audio src={staticFile(cfg.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "45%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            fontFamily: uiFont,
-            fontSize: 48,
-            fontWeight: 700,
-            color: C_TEAL,
-            textAlign: "center",
-          }}
-        >
-          TODO: IntroScene
-        </div>
-      </ContentArea>
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "45%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontFamily: uiFont,
+              fontSize: 48,
+              fontWeight: 700,
+              color: C_TEAL,
+              textAlign: "center",
+            }}
+          >
+            TODO: IntroScene
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 
@@ -272,64 +275,66 @@ const SummaryScene: React.FC = () => {
   const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill style={{ background: BG, opacity }}>
-      <ContentArea>
-        <Audio src={staticFile(cfg.audio)} />
-        <div
-          style={{
-            position: "absolute",
-            top: "45%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            gap: 48,
-            alignItems: "center",
-          }}
-        >
-          {SUMMARY_CARDS.map((card, i) => {
-            const appear = spring({
-              frame:
-                frame -
-                (AUDIO_CONFIG.summaryScene.wordStartFrames[
-                  cfg.narrationSplits.length > 0 ? 1 : 0
-                ]?.[i * 2] ?? s + i * 30),
-              fps,
-              config: { damping: 12, stiffness: 130 },
-              durationInFrames: 24,
-            });
-            return (
-              <div
-                key={i}
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 44,
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  background: \`\${C_FUNC}18\`,
-                  border: \`3px solid \${C_FUNC}66\`,
-                  borderRadius: 16,
-                  padding: "32px 48px",
-                  textAlign: "center",
-                  opacity: appear,
-                  transform: \`scale(\${interpolate(appear, [0, 1], [0.8, 1], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  })})\`,
-                }}
-              >
-                {card}
-              </div>
-            );
-          })}
-        </div>
-      </ContentArea>
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "45%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              gap: 48,
+              alignItems: "center",
+            }}
+          >
+            {SUMMARY_CARDS.map((card, i) => {
+              const appear = spring({
+                frame:
+                  frame -
+                  (AUDIO_CONFIG.summaryScene.wordStartFrames[
+                    cfg.narrationSplits.length > 0 ? 1 : 0
+                  ]?.[i * 2] ?? s + i * 30),
+                fps,
+                config: { damping: 12, stiffness: 130 },
+                durationInFrames: 24,
+              });
+              return (
+                <div
+                  key={i}
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: FONT.title,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    background: \`\${C_FUNC}18\`,
+                    border: \`3px solid \${C_FUNC}66\`,
+                    borderRadius: 16,
+                    padding: "32px 48px",
+                    textAlign: "center",
+                    opacity: appear,
+                    transform: \`scale(\${interpolate(appear, [0, 1], [0.8, 1], {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    })})\`,
+                  }}
+                >
+                  {card}
+                </div>
+              );
+            })}
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 

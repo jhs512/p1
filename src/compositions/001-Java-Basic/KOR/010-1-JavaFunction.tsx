@@ -15,6 +15,7 @@ import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -816,7 +817,7 @@ const ComparisonScene: React.FC = () => {
 
   const labelStyle = (color: string): React.CSSProperties => ({
     fontFamily: uiFont,
-    fontSize: 22,
+    fontSize: FONT.label,
     fontWeight: 700,
     color,
     letterSpacing: 2,
@@ -1010,7 +1011,7 @@ const RealExampleScene: React.FC = () => {
 
   const labelStyle = (color: string): React.CSSProperties => ({
     fontFamily: uiFont,
-    fontSize: 18,
+    fontSize: FONT.label,
     fontWeight: 700,
     color,
     letterSpacing: 2,
