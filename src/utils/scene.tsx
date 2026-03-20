@@ -37,6 +37,12 @@ if (typeof window !== "undefined") {
 /** JetBrains Mono 리가처 비활성화 — !=, ==, >= 가 합자로 변환되는 것을 막는다 */
 export const MONO_NO_LIGA = '"calt" 0, "liga" 0' as const;
 
+/** monoFont + 리가처 비활성화를 한번에 적용하는 스타일 객체 */
+export const monoStyle = {
+  fontFamily: monoFont,
+  fontFeatureSettings: MONO_NO_LIGA,
+} as const;
+
 export { CROSS, CHARS_PER_SEC } from "../config";
 
 // ── 폰트 스케일 ──────────────────────────────────────────────

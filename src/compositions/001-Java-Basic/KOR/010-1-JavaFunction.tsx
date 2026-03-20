@@ -46,56 +46,56 @@ export const VIDEO_CONFIG = {
     audio: "fn-pain.mp3",
     durationInFrames: AUDIO_CONFIG.painScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
-    narration: CONTENT.painScene.narration as unknown as string[],
+    narration: CONTENT.painScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
   },
   conceptScene: {
     audio: "fn-concept.mp3",
     durationInFrames: AUDIO_CONFIG.conceptScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
-    narration: CONTENT.conceptScene.narration as unknown as string[],
+    narration: CONTENT.conceptScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
   },
   declarationScene: {
     audio: "fn-declare.mp3",
     durationInFrames: AUDIO_CONFIG.declarationScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.declarationScene.speechStartFrame,
-    narration: CONTENT.declarationScene.narration as unknown as string[],
+    narration: CONTENT.declarationScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.declarationScene.narrationSplits,
   },
   callScene: {
     audio: "fn-call.mp3",
     durationInFrames: AUDIO_CONFIG.callScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
-    narration: CONTENT.callScene.narration as unknown as string[],
+    narration: CONTENT.callScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
   },
   summaryScene: {
     audio: "fn-summary.mp3",
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: CONTENT.summaryScene.narration as unknown as string[],
+    narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
   comparisonScene: {
     audio: "fn-compare.mp3",
     durationInFrames: AUDIO_CONFIG.comparisonScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
-    narration: CONTENT.comparisonScene.narration as unknown as string[],
+    narration: CONTENT.comparisonScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
   },
   realExampleScene: {
     audio: "fn-real.mp3",
     durationInFrames: AUDIO_CONFIG.realExampleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
-    narration: CONTENT.realExampleScene.narration as unknown as string[],
+    narration: CONTENT.realExampleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
   },
   outroScene: {
     audio: "fn-outro.mp3",
     durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
-    narration: CONTENT.outroScene.narration as unknown as string[],
+    narration: CONTENT.outroScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
   },
 } as const;
@@ -635,7 +635,7 @@ const CallScene: React.FC = () => {
 };
 
 // ── 씬: SummaryScene ──────────────────────────────────────────
-const SUMMARY_CARDS = CONTENT.summaryScene.cards as unknown as string[];
+const SUMMARY_CARDS = CONTENT.summaryScene.cards as string[];
 
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;

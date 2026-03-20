@@ -21,7 +21,7 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
-import { toDisplayText } from "../../../utils/narration";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -1380,16 +1380,9 @@ const totalDuration = _from;
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
-export const SRT_DATA: Array<{
-  startFrame: number;
-  endFrame: number;
-  text: string;
-}> = (() => {
-  const CROSS_VAL = 20;
-  const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
-    [];
+export const SRT_DATA: SrtEntry[] = (() => {
+  const entries: SrtEntry[] = [];
 
-  // fromValues 재계산
   const sceneDurations = [
     thumbnail.durationInFrames,
     intro.durationInFrames,
@@ -1398,39 +1391,12 @@ export const SRT_DATA: Array<{
     QUIZ_TOTAL_DURATION,
     print.durationInFrames,
   ];
-  const froms: number[] = [];
-  let _f = 0;
-  for (let i = 0; i < sceneDurations.length; i++) {
-    froms.push(_f);
-    _f += sceneDurations[i] - (i < sceneDurations.length - 1 ? CROSS_VAL : 0);
-  }
-
-  const addScene = (
-    offset: number,
-    narration: string[],
-    speechStartFrame: number,
-    narrationSplits: readonly number[],
-    sentenceEndFrames: readonly number[],
-    sceneDuration: number,
-  ) => {
-    const starts = [speechStartFrame, ...narrationSplits];
-    const ends = [...sentenceEndFrames, sceneDuration];
-    narration.forEach((text, i) => {
-      const s = starts[i];
-      const e = ends[i] ?? ends[ends.length - 1];
-      if (s !== undefined && e !== undefined && e > s) {
-        entries.push({
-          startFrame: offset + s,
-          endFrame: offset + e,
-          text: toDisplayText(text).replace(/\n/g, " "),
-        });
-      }
-    });
-  };
+  const froms = computeFromValues(sceneDurations);
 
   // froms[0] = thumbnail → 나레이션 없음
   // froms[1] = intro
-  addScene(
+  addSrtScene(
+    entries,
     froms[1],
     intro.narration,
     AUDIO_CONFIG.intro.speechStartFrame,
@@ -1443,7 +1409,8 @@ export const SRT_DATA: Array<{
   // declaration: offset = froms[2], initialization: offset = froms[2] + SPLIT - SCENE_TAIL_FRAMES
   // (initialization 오디오가 SPLIT-SCENE_TAIL_FRAMES 에서 시작)
   const SPLIT = declaration.durationInFrames;
-  addScene(
+  addSrtScene(
+    entries,
     froms[2],
     declaration.narration,
     AUDIO_CONFIG.declaration.speechStartFrame,
@@ -1452,7 +1419,8 @@ export const SRT_DATA: Array<{
     SPLIT,
   );
   // initialization 자막은 SPLIT - SCENE_TAIL_FRAMES 오프셋에서 시작
-  addScene(
+  addSrtScene(
+    entries,
     froms[2] + SPLIT - SCENE_TAIL_FRAMES,
     initialization.narration,
     AUDIO_CONFIG.initialization.speechStartFrame,
@@ -1462,7 +1430,8 @@ export const SRT_DATA: Array<{
   );
 
   // froms[3] = InterpretScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[3],
     interpret.narration,
     AUDIO_CONFIG.interpret.speechStartFrame,
@@ -1475,7 +1444,8 @@ export const SRT_DATA: Array<{
   const qDur = interpretQuiz.durationInFrames;
   const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
   // interpretQuiz 자막
-  addScene(
+  addSrtScene(
+    entries,
     froms[4],
     interpretQuiz.narration,
     AUDIO_CONFIG.interpretQuiz.speechStartFrame,
@@ -1484,7 +1454,8 @@ export const SRT_DATA: Array<{
     qDur,
   );
   // interpretReveal 자막 (REVEAL_START 이후)
-  addScene(
+  addSrtScene(
+    entries,
     froms[4] + REVEAL_START,
     interpretReveal.narration,
     AUDIO_CONFIG.interpretReveal.speechStartFrame,
@@ -1494,7 +1465,8 @@ export const SRT_DATA: Array<{
   );
 
   // froms[5] = PrintScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[5],
     print.narration,
     AUDIO_CONFIG.print.speechStartFrame,

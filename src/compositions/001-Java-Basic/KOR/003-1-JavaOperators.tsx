@@ -14,7 +14,7 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { toDisplayText } from "../../../utils/narration";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
@@ -752,50 +752,16 @@ const totalDuration = _from;
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
-export const SRT_DATA: Array<{
-  startFrame: number;
-  endFrame: number;
-  text: string;
-}> = (() => {
-  const CROSS_VAL = 20;
-  const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
-    [];
+export const SRT_DATA: SrtEntry[] = (() => {
+  const entries: SrtEntry[] = [];
 
-  const addScene = (
-    offset: number,
-    narration: string[],
-    speechStartFrame: number,
-    narrationSplits: readonly number[],
-    sentenceEndFrames: readonly number[],
-    sceneDuration: number,
-  ) => {
-    const starts = [speechStartFrame, ...narrationSplits];
-    const ends = [...sentenceEndFrames, sceneDuration];
-    narration.forEach((text, i) => {
-      const s = starts[i];
-      const e = ends[i] ?? ends[ends.length - 1];
-      if (s !== undefined && e !== undefined && e > s) {
-        entries.push({
-          startFrame: offset + s,
-          endFrame: offset + e,
-          text: toDisplayText(text).replace(/\n/g, " "),
-        });
-      }
-    });
-  };
-
-  // fromValues 재계산
   const sceneDurations = sceneList.map((s) => s.durationInFrames);
-  const froms: number[] = [];
-  let _f = 0;
-  for (let i = 0; i < sceneDurations.length; i++) {
-    froms.push(_f);
-    _f += sceneDurations[i] - (i < sceneDurations.length - 1 ? CROSS_VAL : 0);
-  }
+  const froms = computeFromValues(sceneDurations);
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro
-  addScene(
+  addSrtScene(
+    entries,
     froms[1],
     VIDEO_CONFIG.intro.narration,
     AUDIO_CONFIG.intro.speechStartFrame,
@@ -804,7 +770,8 @@ export const SRT_DATA: Array<{
     VIDEO_CONFIG.intro.durationInFrames,
   );
   // [2]=addSubScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[2],
     VIDEO_CONFIG.addSubScene.narration,
     AUDIO_CONFIG.addSubScene.speechStartFrame,
@@ -813,7 +780,8 @@ export const SRT_DATA: Array<{
     VIDEO_CONFIG.addSubScene.durationInFrames,
   );
   // [3]=mulDivScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[3],
     VIDEO_CONFIG.mulDivScene.narration,
     AUDIO_CONFIG.mulDivScene.speechStartFrame,
@@ -822,7 +790,8 @@ export const SRT_DATA: Array<{
     VIDEO_CONFIG.mulDivScene.durationInFrames,
   );
   // [4]=remScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[4],
     VIDEO_CONFIG.remScene.narration,
     AUDIO_CONFIG.remScene.speechStartFrame,
@@ -831,7 +800,8 @@ export const SRT_DATA: Array<{
     VIDEO_CONFIG.remScene.durationInFrames,
   );
   // [5]=summaryScene
-  addScene(
+  addSrtScene(
+    entries,
     froms[5],
     VIDEO_CONFIG.summaryScene.narration,
     AUDIO_CONFIG.summaryScene.speechStartFrame,
