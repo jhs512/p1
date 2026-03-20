@@ -253,20 +253,22 @@ const SomeScene: React.FC = () => {
 - `Subtitle`은 **반드시** `AbsoluteFill` 바깥 (opacity wrapper 밖) — 자막에 페이드 트랜지션이 걸리면 안 됨.
 - `ContentArea`로 자막 영역 제외한 공간에 콘텐츠 배치.
 
-### 5-3. IntroScene — 핵심 타이틀 + 키워드 카드 패턴
+### 5-3. IntroScene — 키워드 카드/박스 등장 패턴
 
-**1문장**: 큰 타이틀 텍스트 (개념 설명)
-**2문장~**: 키워드 카드/박스 등장
+각 키워드/개념을 `wordStartFrames` 시점에 맞춰 순서대로 spring 등장시킨다.
 
 ```tsx
-// 1문장: 타이틀 등장 + 2문장 시작 시 퇴장
-const titleAppear = spring({ frame: frame - s, fps, config: { damping: 14, stiffness: 120 }, durationInFrames: 24 });
-const titleExit = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
-const titleOpacity = titleAppear * (1 - titleExit);
-
-// 2문장: 키워드 카드 등장
-const cardAppear = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
+// 각 카드/박스를 단어 발화 시점에 등장
+const appear = spring({
+  frame: frame - AUDIO_CONFIG.intro.wordStartFrames[sentenceIdx][wordIdx],
+  fps,
+  config: { damping: 14, stiffness: 140 },
+  durationInFrames: 30,
+});
 ```
+
+> **금지**: "나왔다 사라지는" 타이틀 패턴 (`titleAppear * (1 - titleExit)`)은 사용하지 않는다.
+> 잠깐 보였다 사라지는 요소는 찌꺼기처럼 보인다.
 
 ### 5-4. ComparisonScene — Before/After 비교
 
