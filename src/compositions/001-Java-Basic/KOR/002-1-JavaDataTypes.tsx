@@ -20,6 +20,7 @@ import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
+  MONO_NO_LIGA,
   Subtitle,
   monoFont,
   uiFont,
@@ -182,7 +183,7 @@ const CodeBox: React.FC<{
       padding: "40px 56px",
       minWidth: 780,
       fontFamily: monoFont,
-      fontFeatureSettings: '"calt" 0, "liga" 0',
+      fontFeatureSettings: MONO_NO_LIGA,
       fontSize: 36,
     }}
   >
@@ -294,7 +295,7 @@ const TypeBox: React.FC<{
               top: "50%",
               transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
               fontFamily: monoFont,
-              fontFeatureSettings: '"calt" 0, "liga" 0',
+              fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 64,
               fontWeight: 700,
               color: "#d4d4d4",
@@ -383,7 +384,7 @@ const BooleanToggleAnim: React.FC<{
         <span
           style={{
             fontFamily: monoFont,
-            fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 56,
             fontWeight: 700,
             color: toggleColor,
@@ -528,7 +529,7 @@ const IntroScene: React.FC = () => {
                   <span
                     style={{
                       fontFamily: monoFont,
-                      fontFeatureSettings: '"calt" 0, "liga" 0',
+                      fontFeatureSettings: MONO_NO_LIGA,
                       fontSize: 38,
                       fontWeight: 700,
                       color,
@@ -672,7 +673,7 @@ const ValueVsVarScene: React.FC = () => {
                 <span
                   style={{
                     fontFamily: monoFont,
-                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontFeatureSettings: MONO_NO_LIGA,
                     fontSize: 80,
                     fontWeight: 700,
                     color: COLOR,
@@ -744,7 +745,7 @@ const ValueVsVarScene: React.FC = () => {
                     borderRadius: 6,
                     padding: "4px 16px",
                     fontFamily: monoFont,
-                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontFeatureSettings: MONO_NO_LIGA,
                     fontSize: 22,
                     fontWeight: 700,
                     color: "#1e1e1e",
@@ -756,7 +757,7 @@ const ValueVsVarScene: React.FC = () => {
                 <div
                   style={{
                     fontFamily: monoFont,
-                    fontFeatureSettings: '"calt" 0, "liga" 0',
+                    fontFeatureSettings: MONO_NO_LIGA,
                     fontSize: 28,
                     color: "#888",
                   }}

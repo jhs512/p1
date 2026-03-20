@@ -58,12 +58,12 @@ async function getPlaylistVideos(
   return map;
 }
 
-/** 재생목록 생성 또는 기존 ID 반환. created=true면 새로 생성된 것 */
+/** 재생목록 생성 또는 기존 ID 반환 */
 async function ensurePlaylist(
   yt: youtube_v3.Youtube,
   title: string,
   description: string,
-): Promise<{ id: string; created: boolean }> {
+): Promise<string> {
   // 내 재생목록 검색 (페이지네이션)
   let pageToken: string | undefined;
   let existing: { id?: string | null } | undefined;
@@ -80,7 +80,7 @@ async function ensurePlaylist(
   } while (pageToken);
   if (existing?.id) {
     console.log(`📋  재생목록 발견: "${title}" (${existing.id})`);
-    return { id: existing.id, created: false };
+    return existing.id;
   }
 
   // 생성
@@ -95,7 +95,7 @@ async function ensurePlaylist(
   if (!id) throw new Error("재생목록 생성 실패: API 응답에 id 없음");
   console.log(`📋  재생목록 생성: "${title}" (${id})`);
   console.log(`⚠️  YouTube Studio에서 이 재생목록을 '공식 시리즈'로 설정해주세요.`);
-  return { id, created: true };
+  return id;
 }
 
 /** 영상 업로드 */
@@ -223,17 +223,14 @@ async function addToPlaylist(
   const yt = await getYouTubeClient();
 
   // 5. 재생목록 확보
-  const playlist = await ensurePlaylist(
+  const playlistId = await ensurePlaylist(
     yt,
     YOUTUBE_CONFIG.playlist.title,
     YOUTUBE_CONFIG.playlist.description,
   );
-  const playlistId = playlist.id;
 
-  // 6. 기존 영상 목록 조회 (새 재생목록이면 비어있으므로 스킵)
-  const existingVideos = playlist.created
-    ? new Map<string, string>()
-    : await getPlaylistVideos(yt, playlistId);
+  // 6. 기존 영상 목록 조회 (새 재생목록도 즉시 조회 가능)
+  const existingVideos = await getPlaylistVideos(yt, playlistId);
 
   // 7. 썸네일용 Remotion 번들 (필요 시)
   let bundled: string | null = null;

@@ -214,7 +214,7 @@ const CodeBox: React.FC<{
       padding: "48px 64px",
       minWidth: 800,
       fontFamily: monoFont,
-      fontFeatureSettings: '"calt" 0, "liga" 0',
+      fontFeatureSettings: MONO_NO_LIGA,
       fontSize: 36,
     }}
   >
@@ -254,7 +254,7 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
         borderRadius: 8,
         padding: "12px 32px",
         fontFamily: monoFont,
-        fontFeatureSettings: '"calt" 0, "liga" 0',
+        fontFeatureSettings: MONO_NO_LIGA,
         fontSize: 32,
         color: "#89d185",
         opacity,
@@ -402,7 +402,7 @@ const BoxMetaphorAnim: React.FC = () => {
                 top: "50%",
                 transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
                 fontFamily: monoFont,
-                fontFeatureSettings: '"calt" 0, "liga" 0',
+                fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 90,
                 color: "#b5cea8",
                 fontWeight: 700,
@@ -446,7 +446,7 @@ const BoxMetaphorAnim: React.FC = () => {
               <span
                 style={{
                   fontFamily: monoFont,
-                  fontFeatureSettings: '"calt" 0, "liga" 0',
+                  fontFeatureSettings: MONO_NO_LIGA,
                   fontSize: 80,
                   color: "#b5cea8",
                   fontWeight: 700,
@@ -467,7 +467,7 @@ const BoxMetaphorAnim: React.FC = () => {
           transform: `scale(${nameTagScale})`,
           opacity: nameTag,
           fontFamily: monoFont,
-          fontFeatureSettings: '"calt" 0, "liga" 0',
+          fontFeatureSettings: MONO_NO_LIGA,
           fontSize: 38,
         }}
       >
@@ -683,7 +683,7 @@ const CombinedVariableBox: React.FC<{
           style={{
             position: "absolute",
             fontFamily: monoFont,
-            fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 44,
             color: "#b5cea8",
             opacity: insideOpacity,
@@ -699,7 +699,7 @@ const CombinedVariableBox: React.FC<{
             left: "50%",
             transform: "translateX(-50%)",
             fontFamily: monoFont,
-            fontFeatureSettings: '"calt" 0, "liga" 0',
+            fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 44,
             color: "#b5cea8",
             opacity: fallingOpacity,
