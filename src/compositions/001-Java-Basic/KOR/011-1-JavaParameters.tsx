@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS } from "../../../config";
 import {
+  ColorizedCode,
   ContentArea,
   SceneTitle,
   Subtitle,
@@ -95,6 +96,20 @@ const CALL_VALUES = [
   { label: '"서연"', result: '"서연님 안녕하세요"' },
 ] as const;
 
+const CODE_THEME = {
+  keywordColors: {
+    void: C_KEYWORD,
+    String: C_TYPE,
+    greet: C_FUNC,
+    println: C_FUNC,
+    name: C_VAR,
+  },
+  operators: ["(", ")", "{", "}", ";", "+"],
+  operatorColor: TEXT,
+  stringColor: C_STRING,
+  commentColor: C_COMMENT,
+} as const;
+
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
   const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
@@ -165,7 +180,7 @@ const ThumbnailScene: React.FC = () => {
           marginTop: 8,
         }}
       >
-        name
+        {CONTENT.thumbnail.badge}
       </div>
     </AbsoluteFill>
   );
@@ -177,19 +192,20 @@ const ConceptScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
   const s = cfg.speechStartFrame;
-  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
+  const [split0 = Infinity, split1 = split0] =
+    cfg.narrationSplits as readonly number[];
 
-  const leftCard = spring({
+  const fixedCardAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 40,
+    durationInFrames: 42,
   });
-  const rightCard = spring({
-    frame: frame - split0,
+  const parameterCardAppear = spring({
+    frame: frame - split1,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 40,
+    durationInFrames: 42,
   });
 
   return (
@@ -205,45 +221,45 @@ const ConceptScene: React.FC = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
-              gap: 36,
-              width: 920,
-              justifyContent: "center",
+              flexDirection: "column",
+              gap: 26,
+              width: 940,
             }}
           >
             {[
               {
-                title: "값이 고정된 함수",
+                title: "버튼이 하나뿐인 자판기",
                 code: [
                   "void greet() {",
                   '  println("민준님 안녕하세요");',
                   "}",
                 ],
-                note: "항상 같은 결과",
+                note: "누를 때마다 같은 음료만 나오는 것처럼 결과가 고정됨",
                 color: C_COMMENT,
-                appear: leftCard,
+                appear: fixedCardAppear,
               },
               {
-                title: "값을 바꾸고 싶은 함수",
+                title: "주문 칸이 있는 자판기",
                 code: [
                   "void greet(String name) {",
                   '  println(name + "님 안녕하세요");',
                   "}",
                 ],
-                note: "넣는 값마다 결과 변경",
+                note: "원하는 값을 넣으면 그 값에 맞춰 결과가 달라짐",
                 color: C_TEAL,
-                appear: rightCard,
+                appear: parameterCardAppear,
               },
-            ].map((card) => (
+            ].map((card, index) => (
               <div
                 key={card.title}
                 style={{
-                  width: 430,
+                  width: "100%",
                   background: BG_CODE,
                   borderRadius: 20,
                   padding: "28px 30px",
                   border: `2px solid ${card.color}44`,
                   opacity: card.appear,
-                  transform: `translateY(${interpolate(card.appear, [0, 1], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+                  transform: `translateY(${interpolate(card.appear, [0, 1], [index === 0 ? 18 : 28, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
                 }}
               >
                 <div
@@ -259,30 +275,95 @@ const ConceptScene: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    ...monoStyle,
-                    fontSize: 25,
-                    lineHeight: 1.9,
-                    color: TEXT,
-                    whiteSpace: "pre",
+                    display: "grid",
+                    gridTemplateColumns: "1.15fr 0.85fr",
+                    gap: 28,
+                    alignItems: "center",
                   }}
                 >
-                  {card.code.map((line) => (
-                    <div key={line}>{line}</div>
-                  ))}
-                </div>
-                <div
-                  style={{
-                    marginTop: 18,
-                    fontFamily: uiFont,
-                    fontSize: 24,
-                    fontWeight: 700,
-                    color: card.color,
-                  }}
-                >
-                  {card.note}
+                  <div
+                    style={{
+                      ...monoStyle,
+                      fontSize: 25,
+                      lineHeight: 1.9,
+                      color: TEXT,
+                      whiteSpace: "pre",
+                    }}
+                  >
+                    {card.code.map((line) => (
+                      <div key={line}>
+                        <ColorizedCode text={line} theme={CODE_THEME} />
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    style={{
+                      background:
+                        index === 0
+                          ? "rgba(255,255,255,0.05)"
+                          : `${C_TEAL}14`,
+                      border:
+                        index === 0
+                          ? "1px solid rgba(255,255,255,0.08)"
+                          : `1px solid ${C_TEAL}40`,
+                      borderRadius: 18,
+                      padding: "20px 22px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: uiFont,
+                        fontSize: 22,
+                        fontWeight: 700,
+                        color: "rgba(255,255,255,0.72)",
+                        marginBottom: 10,
+                      }}
+                    >
+                      중학생 비유
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: uiFont,
+                        fontSize: 26,
+                        fontWeight: 800,
+                        color: "#ffffff",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {card.note}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                opacity: spring({
+                  frame: frame - split0,
+                  fps,
+                  config: { damping: 12, stiffness: 140 },
+                  durationInFrames: 30,
+                }),
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: C_TEAL,
+                  background: `${C_TEAL}16`,
+                  border: `2px solid ${C_TEAL}40`,
+                  borderRadius: 999,
+                  padding: "12px 24px",
+                }}
+              >
+                매개변수 = 원하는 값을 고르는 주문 칸
+              </div>
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>

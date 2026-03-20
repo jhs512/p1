@@ -5,12 +5,13 @@ export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
     title: "Java\n매개변수",
-    badge: "매개변수",
+    badge: "입력값",
   },
   conceptScene: {
     narration: [
-      "함수 이름만 있으면 항상 같은 동작만 하게 됩니다.",
-      "함수마다 다른 값을 넣고 싶을 때 사용하는 것이 매개변수입니다.",
+      "매개변수가 없는 함수는 버튼이 하나뿐인 자판기와 비슷합니다.",
+      "버튼을 누를 때마다 같은 음료만 나오는 것처럼 결과가 늘 고정됩니다.",
+      "매개변수는 원하는 음료를 고를 수 있는 주문 칸처럼 함수에 넣을 값을 바꿔 주는 자리입니다.",
     ],
   },
   declarationScene: {
