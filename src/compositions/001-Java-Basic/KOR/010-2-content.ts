@@ -39,7 +39,7 @@ export const CONTENT = {
   comparisonScene: {
     narration: [
       "함수 없이는 같은 코드를 계속 반복해야 합니다.",
-      "함수를 쓰면 이름 하나로 해결됩니다.",
+      "함수를 선언하면, 반복되는 코드를 줄일 수 있습니다.",
     ],
   },
 } as const;
