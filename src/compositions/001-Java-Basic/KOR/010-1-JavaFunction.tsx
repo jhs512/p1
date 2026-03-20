@@ -473,6 +473,7 @@ const DeclarationScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
+  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const lineStarts: number[] = [];
@@ -481,6 +482,15 @@ const DeclarationScene: React.FC = () => {
     lineStarts.push(cumFrame);
     cumFrame += Math.ceil((line.length / DECLARE_CPS) * fps);
   }
+
+  // "이름에만" 발화 시점(frame 95)에 greet 함수명에 빨간 밑줄
+  const nameWordFrame = AUDIO_CONFIG.declarationScene.wordStartFrames[1][2]; // "이름에만" = 95
+  const underlineAppear = spring({
+    frame: frame - nameWordFrame,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 16,
+  });
 
   return (
     <>
@@ -502,9 +512,46 @@ const DeclarationScene: React.FC = () => {
               fontSize: 32,
             }}
           >
-            {DECLARE_LINES.map((line, i) => (
-              <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={DECLARE_CPS} />
-            ))}
+            {DECLARE_LINES.map((line, i) => {
+              // 첫 줄: void greet() { — greet에 밑줄
+              if (i === 0) {
+                const { visibleText } = useTypingEffect(line, lineStarts[i], DECLARE_CPS);
+                const parts = visibleText.split("greet");
+                return (
+                  <div key={i} style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
+                    <span style={{ color: C_KEYWORD }}>
+                      {parts[0]?.startsWith("void") ? "void" : ""}
+                    </span>
+                    {parts[0]?.replace("void", "")}
+                    {parts.length > 1 && (
+                      <span style={{
+                        color: C_FUNC,
+                        position: "relative",
+                        display: "inline",
+                      }}>
+                        greet
+                        <span style={{
+                          position: "absolute",
+                          bottom: -2,
+                          left: 0,
+                          right: 0,
+                          height: 3,
+                          background: C_PAIN,
+                          borderRadius: 2,
+                          opacity: underlineAppear,
+                          transform: `scaleX(${underlineAppear})`,
+                          transformOrigin: "left",
+                        }} />
+                      </span>
+                    )}
+                    {parts[1] ?? ""}
+                  </div>
+                );
+              }
+              return (
+                <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={DECLARE_CPS} />
+              );
+            })}
           </div>
         </ContentArea>
         <Subtitle
