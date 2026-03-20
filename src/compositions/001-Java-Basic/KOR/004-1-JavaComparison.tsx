@@ -573,7 +573,7 @@ const SummaryScene: React.FC = () => {
                     <span style={{ color: C_PURPLE }}>{beat.op}</span>
                     <span style={{ color: C_VAR, opacity: 0.45 }}>b</span>
                   </span>
-                  <span style={{ color: "#3a3a3a", fontSize: 28 }}>→</span>
+                  <span style={{ color: "#666", fontSize: 28 }}>→</span>
                   <span
                     style={{
                       fontFamily: monoFont,
