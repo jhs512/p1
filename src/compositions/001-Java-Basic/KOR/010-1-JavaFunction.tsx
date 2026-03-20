@@ -737,7 +737,7 @@ const SummaryScene: React.FC = () => {
     config: { damping: 14, stiffness: 200 },
     durationInFrames: 24,
   });
-  const titleOpacity = titleAppear * (1 - titleExit);
+  const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
 
   // "선언은" 발화(frame 106) → 카드0 등장
   const declareWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][0]; // "선언은"

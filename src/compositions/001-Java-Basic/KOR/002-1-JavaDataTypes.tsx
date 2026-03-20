@@ -509,7 +509,7 @@ const IntroScene: React.FC = () => {
     config: { damping: 14, stiffness: 200 },
     durationInFrames: 24,
   });
-  const titleOpacity = titleAppear * (1 - titleExit);
+  const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
 
   const boxes = [
     { label: "int", color: TYPE_COLORS.int },
@@ -659,7 +659,7 @@ const ValueVsVarScene: React.FC = () => {
     config: { damping: 14, stiffness: 200 },
     durationInFrames: 24,
   });
-  const msgOpacity = msgAppear * (1 - msgExit);
+  const msgOpacity = msgAppear * Math.max(0, 1 - msgExit);
 
   // "int형 값" → 문장 2 첫 단어, "int형 변수" → 문장 3 첫 단어
   const valueWordFrame =
