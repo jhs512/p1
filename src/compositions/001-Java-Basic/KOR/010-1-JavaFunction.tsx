@@ -732,10 +732,10 @@ const SummaryScene: React.FC = () => {
   });
   // 2문장 시작 시 타이틀 퇴장
   const titleExit = spring({
-    frame: frame - split,
+    frame: frame - (split - 20),
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 36,
+    durationInFrames: 24,
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 

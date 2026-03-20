@@ -504,10 +504,10 @@ const IntroScene: React.FC = () => {
     durationInFrames: 48,
   });
   const titleExit = spring({
-    frame: frame - split1,
+    frame: frame - (split1 - 20),
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 36,
+    durationInFrames: 24,
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 
@@ -654,10 +654,10 @@ const ValueVsVarScene: React.FC = () => {
     durationInFrames: 48,
   });
   const msgExit = spring({
-    frame: frame - split0,
+    frame: frame - (split0 - 20),
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 36,
+    durationInFrames: 24,
   });
   const msgOpacity = msgAppear * (1 - msgExit);
 

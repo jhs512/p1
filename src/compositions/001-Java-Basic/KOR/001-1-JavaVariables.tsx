@@ -1016,7 +1016,7 @@ const QuizScene: React.FC = () => {
 
   // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
   const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordTiming["age"][0]; // "age"
-  const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
+  const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.04));
   const showPulse = !isReveal && frame >= AGE_WORD_FRAME;
 
   // "우측의 age는 값으로 해석해야 합니다" 발화 시 우측 age glow
