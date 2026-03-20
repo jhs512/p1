@@ -69,6 +69,13 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.summaryScene.narration as unknown as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
+  comparisonScene: {
+    audio: "fn-compare.mp3",
+    durationInFrames: AUDIO_CONFIG.comparisonScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narration: CONTENT.comparisonScene.narration as unknown as string[],
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+  },
 } as const;
 
 // ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
@@ -131,42 +138,47 @@ const TypingCodeLine: React.FC<{
   );
 };
 
-// ── 씬: ThumbnailScene (006 스타일 통일) ──────────────────────
+// ── 씬: ThumbnailScene — 006 스타일 통일 ─────────────────────
+// 색상 통일: "Java" = C_FUNC(노란색), "함수" = 흰색, JAVA 라벨 = 흰색(저채도)
+// 배지 = 선언 void greet() / 사용 greet();
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
       background: "#050510",
+      display: "flex",
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "column",
       gap: 28,
     }}
   >
-    {/* 배경 글로우 */}
+    {/* 배경 글로우 원 */}
     <div
       style={{
         position: "absolute",
         width: 860,
         height: 860,
         borderRadius: "50%",
-        background: `radial-gradient(circle, ${C_FUNC}1f 0%, transparent 70%)`,
+        background: `radial-gradient(circle, ${C_FUNC}1a 0%, transparent 70%)`,
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
       }}
     />
+    {/* JAVA 라벨 */}
     <div
       style={{
         fontFamily: uiFont,
         fontSize: 26,
         fontWeight: 700,
-        color: C_FUNC,
+        color: "#ffffff",
         letterSpacing: 10,
-        opacity: 0.8,
+        opacity: 0.45,
       }}
     >
       JAVA
     </div>
+    {/* 메인 타이틀: Java(노란색) + 함수(흰색) */}
     <div
       style={{
         fontFamily: uiFont,
@@ -174,29 +186,45 @@ const ThumbnailScene: React.FC = () => (
         fontWeight: 900,
         lineHeight: 1,
         textAlign: "center",
-        color: "#fff",
-        textShadow: `0 0 60px ${C_FUNC}99, 0 0 120px ${C_FUNC}4d`,
+        color: C_FUNC,
+        textShadow: `0 0 60px ${C_FUNC}88, 0 0 120px ${C_FUNC}44`,
       }}
     >
       Java
       <br />
-      <span style={{ color: C_FUNC }}>함수</span>
+      <span
+        style={{
+          color: "#ffffff",
+          textShadow: "0 0 40px rgba(255,255,255,0.3)",
+        }}
+      >
+        함수
+      </span>
     </div>
-    <div
-      style={{
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 56,
-        fontWeight: 900,
-        color: C_FUNC,
-        background: `${C_FUNC}18`,
-        border: `2px solid ${C_FUNC}55`,
-        borderRadius: 18,
-        padding: "18px 44px",
-        marginTop: 8,
-      }}
-    >
-      greet()
+    {/* 배지 2개: 선언 / 사용 */}
+    <div style={{ display: "flex", gap: 20, marginTop: 8 }}>
+      {[
+        { label: "void greet() {}", comment: "선언" },
+        { label: "greet();", comment: "사용" },
+      ].map(({ label, comment }) => (
+        <div
+          key={comment}
+          style={{
+            fontFamily: monoFont,
+            fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 36,
+            fontWeight: 900,
+            color: C_FUNC,
+            background: `${C_FUNC}14`,
+            border: `2px solid ${C_FUNC}50`,
+            borderRadius: 14,
+            padding: "14px 32px",
+            textAlign: "center",
+          }}
+        >
+          {label}
+        </div>
+      ))}
     </div>
   </AbsoluteFill>
 );
@@ -218,7 +246,7 @@ const PainScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 순차 타이핑: 이전 줄 완료 후 다음 줄 시작
+  // 순차 타이핑
   const lineStarts: number[] = [];
   let cumFrame = s;
   for (const line of PAIN_LINES) {
@@ -226,7 +254,6 @@ const PainScene: React.FC = () => {
     cumFrame += Math.ceil((line.length / PAIN_CPS) * fps);
   }
 
-  // split 이후 빨간 밑줄 등장 ("세 군데를 모두 바꿔야" 시점)
   const highlightAppear = spring({
     frame: frame - split,
     fps,
@@ -256,12 +283,7 @@ const PainScene: React.FC = () => {
           >
             {PAIN_LINES.map((line, i) => (
               <div key={i} style={{ position: "relative" }}>
-                <TypingCodeLine
-                  text={line}
-                  startFrame={lineStarts[i]}
-                  cps={PAIN_CPS}
-                />
-                {/* 빨간 밑줄: "세 군데를 모두 바꿔야" 시점에 등장 */}
+                <TypingCodeLine text={line} startFrame={lineStarts[i]} cps={PAIN_CPS} />
                 <div
                   style={{
                     position: "absolute",
@@ -386,7 +408,6 @@ const DeclarationScene: React.FC = () => {
   const s = cfg.speechStartFrame;
   const { fps } = useVideoConfig();
 
-  // 순차 타이핑: 이전 줄 완료 후 다음 줄 시작
   const lineStarts: number[] = [];
   let cumFrame = s;
   for (const line of DECLARE_LINES) {
@@ -415,12 +436,7 @@ const DeclarationScene: React.FC = () => {
             }}
           >
             {DECLARE_LINES.map((line, i) => (
-              <TypingCodeLine
-                key={i}
-                text={line}
-                startFrame={lineStarts[i]}
-                cps={DECLARE_CPS}
-              />
+              <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={DECLARE_CPS} />
             ))}
           </div>
         </ContentArea>
@@ -472,12 +488,7 @@ const CallScene: React.FC = () => {
             }}
           >
             {CALL_LINES.map((line, i) => (
-              <TypingCodeLine
-                key={i}
-                text={line}
-                startFrame={lineStarts[i]}
-                cps={CALL_CPS}
-              />
+              <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={CALL_CPS} />
             ))}
           </div>
         </ContentArea>
@@ -498,7 +509,7 @@ const SUMMARY_CARDS = CONTENT.summaryScene.cards as unknown as string[];
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d, { out: false }); // 마지막 씬: fadeOut 없음
+  const opacity = useFade(d); // 마지막 씬 아님 → fadeOut 있음
   const s = cfg.speechStartFrame;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -569,6 +580,111 @@ const SummaryScene: React.FC = () => {
   );
 };
 
+// ── 씬: ComparisonScene — 함수 도입 전후 비교 (위/아래) ───────
+const BEFORE_LINES = PAIN_LINES; // 함수 없이: 3줄 반복
+const AFTER_LINES = [...DECLARE_LINES, "greet();", "greet();", "greet();"]; // 선언 + 3회 호출
+
+const ComparisonScene: React.FC = () => {
+  const { comparisonScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
+  const s = cfg.speechStartFrame;
+  const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const beforeAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+  const afterAppear = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+
+  const codeBoxStyle: React.CSSProperties = {
+    background: "#2d2d2d",
+    borderRadius: 12,
+    padding: "24px 40px",
+    fontFamily: monoFont,
+    fontFeatureSettings: MONO_NO_LIGA,
+    fontSize: 26,
+  };
+
+  const labelStyle = (color: string): React.CSSProperties => ({
+    fontFamily: uiFont,
+    fontSize: 22,
+    fontWeight: 700,
+    color,
+    letterSpacing: 2,
+    marginBottom: 10,
+    opacity: 0.85,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "45%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 32,
+              width: 880,
+            }}
+          >
+            {/* BEFORE — 위 */}
+            <div style={{ opacity: beforeAppear }}>
+              <div style={labelStyle(C_PAIN)}>함수 없이</div>
+              <div style={codeBoxStyle}>
+                {BEFORE_LINES.map((line, i) => (
+                  <div key={i} style={{ lineHeight: "1.8", color: "#d4d4d4", whiteSpace: "pre" }}>
+                    <CodeLine text={line} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* 구분선 */}
+            <div
+              style={{
+                height: 1,
+                background: "rgba(255,255,255,0.1)",
+                opacity: afterAppear,
+              }}
+            />
+            {/* AFTER — 아래 */}
+            <div style={{ opacity: afterAppear }}>
+              <div style={labelStyle(C_FUNC)}>함수 사용</div>
+              <div style={codeBoxStyle}>
+                {AFTER_LINES.map((line, i) => (
+                  <div key={i} style={{ lineHeight: "1.8", color: "#d4d4d4", whiteSpace: "pre" }}>
+                    <CodeLine text={line} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
+      />
+    </>
+  );
+};
+
 // ── 씬 목록 + fromValues 계산 ─────────────────────────────────
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
@@ -577,6 +693,7 @@ const sceneList = [
   VIDEO_CONFIG.declarationScene,
   VIDEO_CONFIG.callScene,
   VIDEO_CONFIG.summaryScene,
+  VIDEO_CONFIG.comparisonScene,
 ];
 
 let _from = 0;
@@ -615,6 +732,9 @@ const JavaFunction: React.FC = () => (
     </Sequence>
     <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
       <SummaryScene />
+    </Sequence>
+    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}>
+      <ComparisonScene />
     </Sequence>
   </AbsoluteFill>
 );

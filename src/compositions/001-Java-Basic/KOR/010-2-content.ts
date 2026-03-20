@@ -36,4 +36,10 @@ export const CONTENT = {
     ],
     cards: ["선언은 한 번", "호출은 여러 번"],
   },
+  comparisonScene: {
+    narration: [
+      "함수 없이는 같은 코드를 계속 반복해야 합니다.",
+      "함수를 쓰면 이름 하나로 해결됩니다.",
+    ],
+  },
 } as const;
