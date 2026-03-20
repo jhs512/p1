@@ -23,13 +23,18 @@ import {
 } from "../../../utils/scene";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import { CONTENT } from "./010-2-content";
+import {
+  BG,
+  BG_CODE,
+  BG_THUMB,
+  C_FUNC,
+  C_KEYWORD,
+  C_PAIN,
+  C_STRING,
+  C_TEAL,
+  TEXT,
+} from "./colors";
 import { HEIGHT, WIDTH } from "./config";
-
-// ── 색상 상수 ─────────────────────────────────────────────────
-const C_FUNC    = "#dcdcaa"; // 함수 이름 (노란색)
-const C_KEYWORD = "#569cd6"; // void 키워드 (파란색)
-const C_STRING  = "#ce9178"; // 문자열 리터럴 (주황색)
-const C_PAIN    = "#f47c7c"; // 고통 씬 강조 (빨간색)
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -98,7 +103,7 @@ function useTypingEffect(
 // ── 컴포넌트: CodeLine ─────────────────────────────────────────
 const CodeLine: React.FC<{ text: string }> = ({ text }) => {
   if (text.startsWith("//")) {
-    return <span style={{ color: "#6a9955" }}>{text}</span>;
+    return <span style={{ color: "#6a9955" }}>{text}</span>; // C_COMMENT
   }
   const parts = text.split(/(void|return|if|else|"[^"]*")/g);
   return (
@@ -135,7 +140,7 @@ const TypingCodeLine: React.FC<{
 }> = ({ text, startFrame, cps = CHARS_PER_SEC }) => {
   const { visibleText } = useTypingEffect(text, startFrame, cps);
   return (
-    <div style={{ lineHeight: "1.9", color: "#d4d4d4", whiteSpace: "pre" }}>
+    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
       <CodeLine text={visibleText} />
     </div>
   );
@@ -147,7 +152,7 @@ const TypingCodeLine: React.FC<{
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: "#050510",
+      background: BG_THUMB,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -162,7 +167,7 @@ const ThumbnailScene: React.FC = () => (
         width: 860,
         height: 860,
         borderRadius: "50%",
-        background: `radial-gradient(circle, ${C_FUNC}1a 0%, transparent 70%)`,
+        background: `radial-gradient(circle, ${C_TEAL}1e 0%, transparent 70%)`,
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
@@ -174,14 +179,14 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 26,
         fontWeight: 700,
-        color: "#ffffff",
+        color: C_TEAL,
         letterSpacing: 10,
-        opacity: 0.45,
+        opacity: 0.8,
       }}
     >
       JAVA
     </div>
-    {/* 메인 타이틀: Java(노란색) + 함수(흰색) */}
+    {/* 메인 타이틀: Java(흰색) + 함수(teal) — 다른 에피소드와 통일 */}
     <div
       style={{
         fontFamily: uiFont,
@@ -189,39 +194,28 @@ const ThumbnailScene: React.FC = () => (
         fontWeight: 900,
         lineHeight: 1,
         textAlign: "center",
-        color: C_FUNC,
-        textShadow: `0 0 60px ${C_FUNC}88, 0 0 120px ${C_FUNC}44`,
+        color: "#ffffff",
+        textShadow: `0 0 60px ${C_TEAL}99, 0 0 120px ${C_TEAL}44`,
       }}
     >
       Java
       <br />
-      <span
-        style={{
-          color: "#ffffff",
-          textShadow: "0 0 40px rgba(255,255,255,0.3)",
-        }}
-      >
-        함수
-      </span>
+      <span style={{ color: C_TEAL }}>함수</span>
     </div>
-    {/* 배지 2개: 선언 / 사용 */}
+    {/* 배지 2개: 함수 선언 / 함수 사용 */}
     <div style={{ display: "flex", gap: 20, marginTop: 8 }}>
-      {[
-        { label: "void greet() {}", comment: "선언" },
-        { label: "greet();", comment: "사용" },
-      ].map(({ label, comment }) => (
+      {["함수 선언", "함수 사용"].map((label) => (
         <div
-          key={comment}
+          key={label}
           style={{
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
-            fontSize: 36,
+            fontFamily: uiFont,
+            fontSize: 44,
             fontWeight: 900,
-            color: C_FUNC,
-            background: `${C_FUNC}14`,
-            border: `2px solid ${C_FUNC}50`,
-            borderRadius: 14,
-            padding: "14px 32px",
+            color: C_TEAL,
+            background: `${C_TEAL}18`,
+            border: `2px solid ${C_TEAL}55`,
+            borderRadius: 18,
+            padding: "18px 44px",
             textAlign: "center",
           }}
         >
@@ -281,7 +275,7 @@ const PainPrintlnLine: React.FC<{
     );
   }
   return (
-    <div style={{ lineHeight: "1.9", color: "#d4d4d4", whiteSpace: "pre" }}>
+    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
       <span>System.out.println(</span>
       <span style={{ color: C_STRING }}>"안녕 {word}"</span>
       <span>);</span>
@@ -324,7 +318,7 @@ const PainScene: React.FC = () => {
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "#2d2d2d",
+              background: BG_CODE,
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 760,
@@ -423,7 +417,7 @@ const ConceptScene: React.FC = () => {
               style={{
                 fontFamily: uiFont,
                 fontSize: 40,
-                color: "#d4d4d4",
+                color: TEXT,
                 opacity: descAppear,
                 lineHeight: 1.6,
               }}
@@ -477,7 +471,7 @@ const DeclarationScene: React.FC = () => {
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "#2d2d2d",
+              background: BG_CODE,
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 760,
@@ -529,7 +523,7 @@ const CallScene: React.FC = () => {
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "#2d2d2d",
+              background: BG_CODE,
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 400,
@@ -631,9 +625,23 @@ const SummaryScene: React.FC = () => {
   );
 };
 
-// ── 씬: ComparisonScene — 함수 도입 전후 비교 (위/아래) ───────
+// ── 씬: ComparisonScene — 고통코드 → 화살표 → 개선코드 ───────
 const BEFORE_LINES = PAIN_LINES; // 함수 없이: 3줄 반복
-const AFTER_LINES = [...DECLARE_LINES, "greet();", "greet();", "greet();"]; // 선언 + 3회 호출
+const AFTER_LINES = [
+  "void greet() {",
+  '    System.out.println("안녕 민준");',
+  "}",
+  "",
+  "greet();",
+  "greet();",
+  "greet();",
+];
+
+// 하이라이트할 줄 인덱스 (반복되는 println 줄)
+const BEFORE_HIGHLIGHT = [0, 2, 4]; // println 3줄
+// 함수 선언 블록 + 간결한 호출부
+const AFTER_HIGHLIGHT_DECLARE = [0, 1, 2]; // void greet() { ... }
+const AFTER_HIGHLIGHT_CALL = [4, 5, 6];    // greet(); x3
 
 const ComparisonScene: React.FC = () => {
   const { comparisonScene: cfg } = VIDEO_CONFIG;
@@ -650,20 +658,34 @@ const ComparisonScene: React.FC = () => {
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
+  const arrowAppear = spring({
+    frame: frame - (s + Math.round((split - s) / 2)),
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 20,
+  });
   const afterAppear = spring({
     frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
+  // 하이라이트 사각형은 after 등장 후 살짝 뒤에
+  const highlightAppear = spring({
+    frame: frame - (split + 12),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 20,
+  });
 
   const codeBoxStyle: React.CSSProperties = {
-    background: "#2d2d2d",
+    background: BG_CODE,
     borderRadius: 12,
-    padding: "24px 40px",
+    padding: "20px 32px",
     fontFamily: monoFont,
     fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 26,
+    fontSize: 24,
+    position: "relative",
   };
 
   const labelStyle = (color: string): React.CSSProperties => ({
@@ -675,6 +697,34 @@ const ComparisonScene: React.FC = () => {
     marginBottom: 10,
     opacity: 0.85,
   });
+
+  // 줄 하이라이트 사각형 (absolute overlay)
+  const HighlightRect: React.FC<{
+    lineIndices: number[];
+    color: string;
+    appear: number;
+  }> = ({ lineIndices, color, appear }) => {
+    if (lineIndices.length === 0) return null;
+    const lineH = 24 * 1.8; // fontSize * lineHeight
+    const top = lineIndices[0] * lineH;
+    const height = lineIndices.length * lineH;
+    return (
+      <div
+        style={{
+          position: "absolute",
+          left: 4,
+          right: 4,
+          top: 20 + top, // padding offset
+          height,
+          border: `2px solid ${color}`,
+          borderRadius: 6,
+          background: `${color}12`,
+          opacity: appear,
+          pointerEvents: "none",
+        }}
+      />
+    );
+  };
 
   return (
     <>
@@ -689,38 +739,49 @@ const ComparisonScene: React.FC = () => {
               transform: "translate(-50%, -50%)",
               display: "flex",
               flexDirection: "column",
-              gap: 32,
-              width: 880,
+              alignItems: "center",
+              gap: 24,
+              width: 900,
             }}
           >
-            {/* BEFORE — 위 */}
-            <div style={{ opacity: beforeAppear }}>
-              <div style={labelStyle(C_PAIN)}>함수 없이</div>
+            {/* 고통스러운 코드 — 위 */}
+            <div style={{ opacity: beforeAppear, width: "100%" }}>
+              <div style={labelStyle(C_PAIN)}>고통스러운 코드</div>
               <div style={codeBoxStyle}>
                 {BEFORE_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: "#d4d4d4", whiteSpace: "pre" }}>
+                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
                     <CodeLine text={line} />
                   </div>
                 ))}
+                <HighlightRect lineIndices={BEFORE_HIGHLIGHT} color={C_PAIN} appear={highlightAppear} />
               </div>
             </div>
-            {/* 구분선 */}
+            {/* 화살표 ▼ */}
             <div
               style={{
-                height: 1,
-                background: "rgba(255,255,255,0.1)",
-                opacity: afterAppear,
+                fontFamily: uiFont,
+                fontSize: 48,
+                color: C_TEAL,
+                opacity: arrowAppear,
+                transform: `translateY(${interpolate(arrowAppear, [0, 1], [10, 0], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })}px)`,
               }}
-            />
-            {/* AFTER — 아래 */}
-            <div style={{ opacity: afterAppear }}>
-              <div style={labelStyle(C_FUNC)}>함수 사용</div>
+            >
+              ▼
+            </div>
+            {/* 개선된 코드 — 아래 */}
+            <div style={{ opacity: afterAppear, width: "100%" }}>
+              <div style={labelStyle(C_FUNC)}>개선된 코드</div>
               <div style={codeBoxStyle}>
                 {AFTER_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: "#d4d4d4", whiteSpace: "pre" }}>
-                    <CodeLine text={line} />
+                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                    {line ? <CodeLine text={line} /> : "\u00A0"}
                   </div>
                 ))}
+                <HighlightRect lineIndices={AFTER_HIGHLIGHT_DECLARE} color={C_FUNC} appear={highlightAppear} />
+                <HighlightRect lineIndices={AFTER_HIGHLIGHT_CALL} color={C_TEAL} appear={highlightAppear} />
               </div>
             </div>
           </div>
@@ -765,7 +826,7 @@ export const compositionMeta = {
 
 // ── Root Component ────────────────────────────────────────────
 const JavaFunction: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
       <ThumbnailScene />
     </Sequence>
