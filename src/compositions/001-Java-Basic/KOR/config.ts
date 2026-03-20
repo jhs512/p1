@@ -6,7 +6,7 @@ export const FPS = ROOT_FPS;
 
 // ── 영상 크기 ────────────────────────────────────────────────
 export const WIDTH = 1080;
-export const HEIGHT = 1680;
+export const HEIGHT = 1920;
 
 // ── TTS 언어 설정 ─────────────────────────────────────────────
 export const VOICE = "ko-KR-HyunsuMultilingualNeural";
