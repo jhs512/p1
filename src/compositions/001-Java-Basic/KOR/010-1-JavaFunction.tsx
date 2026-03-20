@@ -938,31 +938,26 @@ const ComparisonScene: React.FC = () => {
 };
 
 // ── 씬: RealExampleScene — 할인 가격 하드코딩 → 함수로 해결 ────
-const REAL_PAIN_LINES = [
+const REAL_PAIN_CARD1 = [
   "if (price > 30000) {",
   "    price = (int)(price * 0.9);",
   "}",
-  "",
-  "if (price2 > 30000) {",
-  "    price2 = (int)(price2 * 0.9);",
-  "}",
-  "",
-  "if (price3 > 30000) {",
-  "    price3 = (int)(price3 * 0.9);",
+];
+const REAL_PAIN_CARD2 = [
+  "if (price > 30000) {",
+  "    price = (int)(price * 0.9);",
   "}",
 ];
-const REAL_CLEAN_LINES = [
+const REAL_CLEAN_FUNC = [
   "int discount(int price) {",
   "    if (price > 30000) {",
   "        return (int)(price * 0.9);",
   "    }",
   "    return price;",
   "}",
-  "",
-  "discount(50000);",
-  "discount(30000);",
-  "discount(80000);",
 ];
+const REAL_CLEAN_CART = ["discount(50000);"];
+const REAL_CLEAN_PAY = ["discount(80000);"];
 
 const RealExampleScene: React.FC = () => {
   const { realExampleScene: cfg } = VIDEO_CONFIG;
@@ -971,26 +966,34 @@ const RealExampleScene: React.FC = () => {
   const s = cfg.speechStartFrame;
   const split1 = cfg.narrationSplits[0]; // 2번째 문장 시작
   const split2 = cfg.narrationSplits[1]; // 3번째 문장 시작
+  const split3 = cfg.narrationSplits[2]; // 4번째 문장 시작
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 1문장: "실감나는 예시" → 고통 코드 등장
+  // 1문장: "실감나는 예시" → 고통 카드 2개 등장
   const beforeAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
-  // 2문장: "할인 가격을 구할 때마다" → 화살표 등장
+  // 2문장: 밑줄 애니메이션 (반복 지점 강조)
+  const underlineAppear = spring({
+    frame: frame - (split1 + 15),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 20,
+  });
+  // 3→4문장 사이: 화살표 등장
   const arrowAppear = spring({
-    frame: frame - (split1 + Math.round((split2 - split1) / 2)),
+    frame: frame - (split2 + Math.round((split3 - split2) * 0.7)),
     fps,
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 20,
   });
-  // 3문장: "함수로 만들면" → 개선 코드 등장
+  // 4문장: "함수로 만들면" → 개선 코드 등장
   const afterAppear = spring({
-    frame: frame - split2,
+    frame: frame - split3,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -999,24 +1002,24 @@ const RealExampleScene: React.FC = () => {
   const codeBoxStyle: React.CSSProperties = {
     background: BG_CODE,
     borderRadius: 12,
-    padding: "16px 28px",
+    padding: "14px 20px",
     fontFamily: monoFont,
     fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 19,
+    fontSize: 18,
   };
 
   const labelStyle = (color: string): React.CSSProperties => ({
     fontFamily: uiFont,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 700,
     color,
     letterSpacing: 2,
-    marginBottom: 10,
+    marginBottom: 8,
     opacity: 0.85,
   });
 
   // 코드 컬러링 — 할인 계산 예시
-  const colorCode = (text: string) => {
+  const colorCode = (text: string, underline = false) => {
     const parts = text.split(/(0\.\d+|\d+|"[^"]*"|\*|>|return|if|double|int|void)/g);
     return parts.map((p, i) => {
       if (p === "if")
@@ -1044,6 +1047,58 @@ const RealExampleScene: React.FC = () => {
     });
   };
 
+  // 반복 강조 밑줄이 필요한 줄 (> 30000, * 0.9 부분)
+  const painLineWithUnderline = (text: string, ul: number) => {
+    // > 30000 과 * 0.9 에 밑줄
+    const highlighted = text
+      .replace(/(> 30000)/, "{{UL1}}")
+      .replace(/(\* 0\.9)/, "{{UL2}}");
+    const segs = highlighted.split(/({{UL[12]}})/);
+    return segs.map((seg, i) => {
+      if (seg === "{{UL1}}") {
+        return (
+          <span key={i} style={{ position: "relative", display: "inline" }}>
+            {colorCode("> 30000")}
+            <span style={{
+              position: "absolute", bottom: -2, left: 0, right: 0,
+              height: 2, background: C_PAIN,
+              transform: `scaleX(${ul})`, transformOrigin: "left",
+            }} />
+          </span>
+        );
+      }
+      if (seg === "{{UL2}}") {
+        return (
+          <span key={i} style={{ position: "relative", display: "inline" }}>
+            {colorCode("* 0.9")}
+            <span style={{
+              position: "absolute", bottom: -2, left: 0, right: 0,
+              height: 2, background: C_PAIN,
+              transform: `scaleX(${ul})`, transformOrigin: "left",
+            }} />
+          </span>
+        );
+      }
+      return <React.Fragment key={i}>{colorCode(seg)}</React.Fragment>;
+    });
+  };
+
+  // 고통 카드 렌더러
+  const PainCard: React.FC<{ lines: string[]; label: string }> = ({ lines, label }) => (
+    <div style={{ flex: 1 }}>
+      <div style={labelStyle(C_PAIN)}>{label}</div>
+      <div style={codeBoxStyle}>
+        {lines.map((line, i) => (
+          <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+            {(line.includes("30000") || line.includes("0.9"))
+              ? painLineWithUnderline(line, underlineAppear)
+              : colorCode(line)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
@@ -1052,26 +1107,26 @@ const RealExampleScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "45%",
+              top: "42%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               gap: 16,
-              width: 900,
+              width: 920,
             }}
           >
-            {/* 고통스러운 코드 — 위 */}
-            <div style={{ opacity: beforeAppear, width: "100%" }}>
-              <div style={labelStyle(C_PAIN)}>매번 같은 조건을 반복</div>
-              <div style={codeBoxStyle}>
-                {REAL_PAIN_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
-                    {colorCode(line)}
-                  </div>
-                ))}
-              </div>
+            {/* 상단: 고통 카드 2개 위아래 */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              width: "100%",
+              opacity: beforeAppear,
+            }}>
+              <PainCard lines={REAL_PAIN_CARD1} label="장바구니 관련 소스코드" />
+              <PainCard lines={REAL_PAIN_CARD2} label="결제 관련 소스코드" />
             </div>
             {/* 화살표 ▼ */}
             <div
@@ -1088,15 +1143,47 @@ const RealExampleScene: React.FC = () => {
             >
               ▼
             </div>
-            {/* 함수로 해결 — 아래 */}
-            <div style={{ opacity: afterAppear, width: "100%" }}>
-              <div style={labelStyle(C_FUNC)}>함수로 해결</div>
-              <div style={codeBoxStyle}>
-                {REAL_CLEAN_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
-                    {line ? colorCode(line) : "\u00A0"}
+            {/* 하단: 3개 카드 — 함수 선언 + 장바구니 호출 + 결제 호출 */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              width: "100%",
+              opacity: afterAppear,
+            }}>
+              {/* 함수 선언 */}
+              <div>
+                <div style={labelStyle(C_FUNC)}>함수 선언</div>
+                <div style={codeBoxStyle}>
+                  {REAL_CLEAN_FUNC.map((line, i) => (
+                    <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                      {colorCode(line)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* 호출부 2개 나란히 */}
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={labelStyle(C_TEAL)}>장바구니</div>
+                  <div style={codeBoxStyle}>
+                    {REAL_CLEAN_CART.map((line, i) => (
+                      <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                        {colorCode(line)}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={labelStyle(C_TEAL)}>결제</div>
+                  <div style={codeBoxStyle}>
+                    {REAL_CLEAN_PAY.map((line, i) => (
+                      <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                        {colorCode(line)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

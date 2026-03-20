@@ -481,6 +481,23 @@ const IntroScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames);
+  const s = intro.speechStartFrame;
+  const split1 = intro.narrationSplits[0]; // 2문장 시작 (frame 106)
+
+  // 1문장: "자료 == 데이터" 타이틀
+  const titleAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  const titleExit = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const titleOpacity = titleAppear * (1 - titleExit);
 
   const boxes = [
     { label: "int", color: TYPE_COLORS.int },
@@ -494,6 +511,37 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          {/* 1문장: 자료 == 데이터 타이틀 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: `translate(-50%, -50%) scale(${interpolate(titleAppear, [0, 1], [0.85, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })})`,
+              opacity: titleOpacity,
+              textAlign: "center",
+              fontFamily: uiFont,
+              pointerEvents: "none",
+            }}
+          >
+            <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
+              자료
+            </span>
+            <span style={{
+              fontSize: 48, fontWeight: 700, color: TEXT,
+              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
+              margin: "0 16px",
+            }}>
+              ==
+            </span>
+            <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
+              데이터
+            </span>
+          </div>
+          {/* 2문장~: 자료형 박스 4개 */}
           <div
             style={{
               position: "absolute",
@@ -506,8 +554,6 @@ const IntroScene: React.FC = () => {
             }}
           >
             {boxes.map(({ label, color }, i) => {
-              // 각 박스를 두 번째 문장의 단어 발화 시점에 맞춰 순서대로 등장
-              // TODO: wordTiming 미지원 — 동적 인덱스 (i * 2)
               const wordTriggers = AUDIO_CONFIG.intro
                 .wordStartFrames[1] as readonly number[];
               const triggerFrame = wordTriggers[i * 2] ?? i * 5;
@@ -577,7 +623,22 @@ const ValueVsVarScene: React.FC = () => {
   const COLOR = TYPE_COLORS.int;
   const opacity = useFade(d);
 
-  // "int형 값" → 문장 1 첫 단어, "int형 변수" → 문장 2 첫 단어
+  // 1문장: "변수와 값은 엄연히 서로 다릅니다" 타이틀
+  const msgAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  const msgExit = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const msgOpacity = msgAppear * (1 - msgExit);
+
+  // "int형 값" → 문장 2 첫 단어, "int형 변수" → 문장 3 첫 단어
   const valueWordFrame =
     AUDIO_CONFIG.valueVsVar.wordTiming["int형"][0] ?? split0;
   const varWordFrame = AUDIO_CONFIG.valueVsVar.wordTiming["int형"][1] ?? split1;
@@ -617,6 +678,29 @@ const ValueVsVarScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(valueVsVar.audio)} />
+
+          {/* 1문장: 핵심 메시지 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: `translate(-50%, -50%) scale(${interpolate(msgAppear, [0, 1], [0.85, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })})`,
+              opacity: msgOpacity,
+              fontFamily: uiFont,
+              fontSize: 46,
+              fontWeight: 700,
+              color: C_TEAL,
+              textAlign: "center",
+              lineHeight: 1.5,
+              pointerEvents: "none",
+            }}
+          >
+            변수와 값은{"\n"}엄연히 서로 다릅니다
+          </div>
 
           {/* 제목 */}
           <div
