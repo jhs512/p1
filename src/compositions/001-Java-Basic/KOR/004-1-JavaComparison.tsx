@@ -27,15 +27,19 @@ import {
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import { CONTENT } from "./004-2-content";
 import { HEIGHT, WIDTH } from "./config";
+import {
+  BG,
+  BG_THUMB,
+  C_NUMBER,
+  C_PAIN,
+  C_PURPLE,
+  C_TEAL,
+  C_TYPE,
+  TEXT,
+} from "./colors";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const BEAT_CROSS = 12; // 연산자 비트 간 크로스페이드
-
-const C_INT = "#4e9cd5";
-const C_CMP = "#c586c0"; // 비교 연산자 — 보라
-const C_NUM = "#b5cea8";
-const C_TRUE = "#4ec9b0"; // true  → 틸
-const C_FALSE = "#f47c7c"; // false → 붉은
 
 // ── 비트 데이터 ───────────────────────────────────────────────
 const BEATS = [
@@ -257,7 +261,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 26,
         fontWeight: 700,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -278,7 +282,7 @@ const ThumbnailScene: React.FC = () => (
     >
       Java
       <br />
-      <span style={{ color: "#4ec9b0" }}>비교 연산자</span>
+      <span style={{ color: C_TEAL }}>비교 연산자</span>
     </div>
     {/* 예시: 10 == 3 → false */}
     <div
@@ -292,7 +296,7 @@ const ThumbnailScene: React.FC = () => (
       }}
     >
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>10</span>
-      <span style={{ fontSize: 64, fontWeight: 900, color: "#4ec9b0" }}>
+      <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>
         ==
       </span>
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>3</span>
@@ -329,7 +333,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <div
@@ -427,7 +431,7 @@ const CompareScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
 
@@ -443,7 +447,7 @@ const CompareScene: React.FC = () => {
                 fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 28,
                 opacity: headerOpacity * 0.55,
-                color: "#d4d4d4",
+                color: TEXT,
               }}
             >
               <ColorizedCode text="int a = 10, b = 3;" />
@@ -489,7 +493,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
 
@@ -503,7 +507,7 @@ const SummaryScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 28,
-              color: "#d4d4d4",
+              color: TEXT,
               opacity: 0.5,
             }}
           >
@@ -692,7 +696,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaComparison: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

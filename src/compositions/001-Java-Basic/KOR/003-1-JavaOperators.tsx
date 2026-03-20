@@ -27,13 +27,20 @@ import {
 import { AUDIO_CONFIG } from "./003-3-audio.gen";
 import { CONTENT } from "./003-2-content";
 import { HEIGHT, WIDTH } from "./config";
+import {
+  BG,
+  BG_CODE,
+  BG_THUMB,
+  C_COMMENT,
+  C_NUMBER,
+  C_OPERATOR,
+  C_STRING,
+  C_TEAL,
+  C_TYPE,
+  TEXT,
+} from "./colors";
 
 // ── 상수 ─────────────────────────────────────────────────────
-const C_INT = "#4e9cd5";
-const C_OP = "#d4834e";
-const C_NUM = "#b5cea8";
-const C_COMMENT = "#6a9955";
-const C_REM = "#4ec9b0"; // 나머지 연산자 강조색
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -118,7 +125,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
           );
         if (/^"/.test(part))
           return (
-            <span key={i} style={{ color: "#ce9178" }}>
+            <span key={i} style={{ color: C_STRING }}>
               {part}
             </span>
           );
@@ -139,7 +146,7 @@ const TypingLine: React.FC<{
   const { fps } = useVideoConfig();
   const visible = Math.floor((Math.max(0, frame - startFrame) / fps) * cps);
   return (
-    <div style={{ color: "#d4d4d4" }}>
+    <div style={{ color: TEXT }}>
       <ColorizedCode text={text.slice(0, visible)} />
     </div>
   );
@@ -160,7 +167,7 @@ const CodeLines: React.FC<{
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        background: "#2d2d2d",
+        background: BG_CODE,
         borderRadius: 14,
         padding: "36px 56px",
         minWidth: 820,
@@ -174,7 +181,7 @@ const CodeLines: React.FC<{
         const isLast = i === visibleLines.length - 1;
         if (!isLast) {
           return (
-            <div key={i} style={{ color: "#d4d4d4", opacity: 0.55 }}>
+            <div key={i} style={{ color: TEXT, opacity: 0.55 }}>
               <ColorizedCode text={l.text} />
             </div>
           );
@@ -196,7 +203,7 @@ const CodeLines: React.FC<{
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: "#050510",
+      background: BG_THUMB,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "column",
@@ -221,7 +228,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 28,
         fontWeight: 700,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -242,14 +249,14 @@ const ThumbnailScene: React.FC = () => (
     >
       Java
       <br />
-      <span style={{ color: "#4ec9b0" }}>산술 연산자</span>
+      <span style={{ color: C_TEAL }}>산술 연산자</span>
     </div>
     <div
       style={{
         fontFamily: monoFont,
         fontFeatureSettings: MONO_NO_LIGA,
         fontSize: 44,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 12,
         opacity: 0.7,
       }}
@@ -278,7 +285,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <div
@@ -358,7 +365,7 @@ const AddSubScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           {frame >= s && (
@@ -393,7 +400,7 @@ const MulDivScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           {frame >= s && (
@@ -457,7 +464,7 @@ const RemScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
 
@@ -506,7 +513,7 @@ const RemScene: React.FC = () => {
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 8,
-                  background: "#2d2d2d",
+                  background: BG_CODE,
                   borderRadius: 16,
                   padding: "20px 40px",
                 }}
@@ -593,12 +600,12 @@ const RemScene: React.FC = () => {
                 fontFamily: monoFont,
                 fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 28,
-                background: "#2d2d2d",
+                background: BG_CODE,
                 borderRadius: 12,
                 padding: "14px 32px",
               }}
             >
-              <span style={{ color: "#d4d4d4" }}>n</span>
+              <span style={{ color: TEXT }}>n</span>
               <span style={{ color: C_OP }}>%</span>
               <span style={{ color: C_INT }}>2</span>
               <span style={{ color: C_OP }}>==</span>
@@ -614,7 +621,7 @@ const RemScene: React.FC = () => {
                 → 짝수
               </span>
               <span style={{ color: "#444", margin: "0 8px" }}>/</span>
-              <span style={{ color: "#d4d4d4" }}>n</span>
+              <span style={{ color: TEXT }}>n</span>
               <span style={{ color: C_OP }}>%</span>
               <span style={{ color: C_INT }}>2</span>
               <span style={{ color: C_OP }}>==</span>
@@ -669,7 +676,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           {starts.map((startFrom, i) => (
@@ -680,7 +687,7 @@ const SummaryScene: React.FC = () => {
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: "#2d2d2d",
+                  background: BG_CODE,
                   borderRadius: 12,
                   padding: "36px 56px",
                   minWidth: 820,
@@ -692,7 +699,7 @@ const SummaryScene: React.FC = () => {
               >
                 {SUMMARY_LINES.slice(0, i + 1).map((text, j) =>
                   j < i ? (
-                    <div key={j} style={{ opacity: 0.5, color: "#d4d4d4" }}>
+                    <div key={j} style={{ opacity: 0.5, color: TEXT }}>
                       <ColorizedCode text={text} />
                     </div>
                   ) : (
@@ -840,7 +847,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaOperators: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

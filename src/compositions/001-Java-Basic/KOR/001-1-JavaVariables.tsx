@@ -35,6 +35,15 @@ import {
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { CONTENT } from "./001-2-content";
 import { HEIGHT, WIDTH } from "./config";
+import {
+  BG,
+  BG_CODE,
+  BG_THUMB,
+  C_NUMBER,
+  C_TEAL,
+  C_VAR,
+  TEXT,
+} from "./colors";
 
 // ── 타입 ─────────────────────────────────────────────────────
 export interface CodeLine {
@@ -163,13 +172,13 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
       {parts.map((part, i) => {
         if (/^(int|String|boolean)$/.test(part))
           return (
-            <span key={i} style={{ color: "#4ec9b0" }}>
+            <span key={i} style={{ color: C_TEAL }}>
               {part}
             </span>
           );
         if (/^\d+$/.test(part))
           return (
-            <span key={i} style={{ color: "#b5cea8" }}>
+            <span key={i} style={{ color: C_NUMBER }}>
               {part}
             </span>
           );
@@ -180,7 +189,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
 };
 
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
-  <div style={{ opacity: 0.5, color: "#d4d4d4", lineHeight: "1.8" }}>
+  <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>
     {text}
   </div>
 );
@@ -192,7 +201,7 @@ const TypingLine: React.FC<{
 }> = ({ text, startFrame, charsPerSecond }) => {
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
-    <div style={{ color: "#d4d4d4", lineHeight: "1.8" }}>
+    <div style={{ color: TEXT, lineHeight: "1.8" }}>
       <ColorizedCode text={visibleText} />
     </div>
   );
@@ -209,7 +218,7 @@ const CodeBox: React.FC<{
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: "#2d2d2d",
+      background: BG_CODE,
       borderRadius: 12,
       padding: "48px 64px",
       minWidth: 800,
@@ -365,7 +374,7 @@ const BoxMetaphorAnim: React.FC = () => {
           fontFamily: uiFont,
           fontSize: 42,
           fontWeight: 700,
-          color: "#4ec9b0",
+          color: C_TEAL,
           letterSpacing: 6,
           opacity: labelAppear,
         }}
@@ -404,7 +413,7 @@ const BoxMetaphorAnim: React.FC = () => {
                 fontFamily: monoFont,
                 fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 90,
-                color: "#b5cea8",
+                color: C_NUMBER,
                 fontWeight: 700,
                 opacity: dropO,
                 pointerEvents: "none",
@@ -436,7 +445,7 @@ const BoxMetaphorAnim: React.FC = () => {
                 style={{
                   fontFamily: uiFont,
                   fontSize: 52,
-                  color: "#4ec9b0",
+                  color: C_TEAL,
                   lineHeight: 1,
                 }}
               >
@@ -448,7 +457,7 @@ const BoxMetaphorAnim: React.FC = () => {
                   fontFamily: monoFont,
                   fontFeatureSettings: MONO_NO_LIGA,
                   fontSize: 80,
-                  color: "#b5cea8",
+                  color: C_NUMBER,
                   fontWeight: 700,
                   opacity: extractO,
                   display: "inline-block",
@@ -471,9 +480,9 @@ const BoxMetaphorAnim: React.FC = () => {
           fontSize: 38,
         }}
       >
-        <span style={{ color: "#4ec9b0" }}>변수</span>
+        <span style={{ color: C_TEAL }}>변수</span>
         <span style={{ color: "#808080", margin: "0 10px" }}>:</span>
-        <span style={{ color: "#9cdcfe" }}>age</span>
+        <span style={{ color: C_VAR }}>age</span>
       </div>
     </div>
   );
@@ -485,7 +494,7 @@ const IntroScene: React.FC = () => {
   const opacity = useFade(intro.durationInFrames);
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <BoxMetaphorAnim />
@@ -505,7 +514,7 @@ const IntroScene: React.FC = () => {
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: "#050510",
+      background: BG_THUMB,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "column",
@@ -531,7 +540,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 28,
         fontWeight: 700,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -552,13 +561,13 @@ const ThumbnailScene: React.FC = () => (
     >
       Java
       <br />
-      <span style={{ color: "#4ec9b0" }}>변수</span>
+      <span style={{ color: C_TEAL }}>변수</span>
     </div>
     <div
       style={{
         fontFamily: uiFont,
         fontSize: 32,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 4,
         opacity: 0.7,
       }}
@@ -657,7 +666,7 @@ const CombinedVariableBox: React.FC<{
         style={{
           fontFamily: uiFont,
           fontSize: 26,
-          color: "#4ec9b0",
+          color: C_TEAL,
           opacity: 0.85,
           letterSpacing: 2,
         }}
@@ -685,7 +694,7 @@ const CombinedVariableBox: React.FC<{
             fontFamily: monoFont,
             fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 44,
-            color: "#b5cea8",
+            color: C_NUMBER,
             opacity: insideOpacity,
           }}
         >
@@ -701,7 +710,7 @@ const CombinedVariableBox: React.FC<{
             fontFamily: monoFont,
             fontFeatureSettings: MONO_NO_LIGA,
             fontSize: 44,
-            color: "#b5cea8",
+            color: C_NUMBER,
             opacity: fallingOpacity,
             pointerEvents: "none",
           }}
@@ -735,7 +744,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
           <Sequence durationInFrames={SPLIT}>
@@ -827,8 +836,6 @@ const InterpretScene: React.FC = () => {
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
-  const C_VAL = "#4ec9b0"; // 값: teal
-  const C_AGE = "#9cdcfe"; // 변수명: light blue
 
   const badge = (label: string, color: string, anim: number) => (
     <span
@@ -864,7 +871,7 @@ const InterpretScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
 
@@ -896,9 +903,9 @@ const InterpretScene: React.FC = () => {
                 }}
               >
                 <div>
-                  <span style={{ color: "#4ec9b0" }}>int</span>{" "}
+                  <span style={{ color: C_TEAL }}>int</span>{" "}
                   {ageSpan(phase === 1, C_SPACE)}
-                  <span style={{ color: "#d4d4d4" }}>;</span>
+                  <span style={{ color: TEXT }}>;</span>
                 </div>
                 {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
               </div>
@@ -914,9 +921,9 @@ const InterpretScene: React.FC = () => {
               >
                 <div>
                   {ageSpan(phase === 1, C_SPACE)}
-                  <span style={{ color: "#d4d4d4" }}> = </span>
-                  <span style={{ color: "#b5cea8" }}>25</span>
-                  <span style={{ color: "#d4d4d4" }}>;</span>
+                  <span style={{ color: TEXT }}> = </span>
+                  <span style={{ color: C_NUMBER }}>25</span>
+                  <span style={{ color: TEXT }}>;</span>
                 </div>
                 {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
               </div>
@@ -932,11 +939,11 @@ const InterpretScene: React.FC = () => {
               >
                 <div>
                   <span style={{ color: "#569cd6" }}>System</span>
-                  <span style={{ color: "#d4d4d4" }}>.out.</span>
+                  <span style={{ color: TEXT }}>.out.</span>
                   <span style={{ color: "#dcdcaa" }}>println</span>
-                  <span style={{ color: "#d4d4d4" }}>(</span>
+                  <span style={{ color: TEXT }}>(</span>
                   {ageSpan(phase === 2, C_VAL)}
-                  <span style={{ color: "#d4d4d4" }}>);</span>
+                  <span style={{ color: TEXT }}>);</span>
                 </div>
                 {phase >= 2 && (
                   <div
@@ -953,8 +960,8 @@ const InterpretScene: React.FC = () => {
                         fontFamily: monoFont,
                         fontFeatureSettings: MONO_NO_LIGA,
                         fontSize: 26,
-                        color: "#b5cea8",
-                        background: "#2d2d2d",
+                        color: C_NUMBER,
+                        background: BG_CODE,
                         borderRadius: 8,
                         padding: "4px 14px",
                         border: "1px solid #444",
@@ -1019,8 +1026,6 @@ const QuizScene: React.FC = () => {
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
-  const C_VAL = "#4ec9b0"; // 값: teal
-  const C_AGE = "#9cdcfe"; // 변수명: light blue
 
   // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
   const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordTiming["age"][0]; // "age"
@@ -1077,7 +1082,7 @@ const QuizScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           {/* 오디오: 문제 */}
           <Sequence durationInFrames={qDur}>
@@ -1120,7 +1125,7 @@ const QuizScene: React.FC = () => {
                 fontFamily: uiFont,
                 fontSize: 48,
                 fontWeight: 900,
-                color: "#4ec9b0",
+                color: C_TEAL,
                 letterSpacing: 6,
                 opacity: revealAnim,
               }}
@@ -1148,15 +1153,15 @@ const QuizScene: React.FC = () => {
                 fontFamily: monoFont,
                 fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 38,
-                color: "#d4d4d4",
+                color: TEXT,
                 opacity: 0.5,
                 marginBottom: 4,
               }}
             >
-              <span style={{ color: "#4ec9b0" }}>int</span>
-              <span style={{ color: "#9cdcfe" }}> age</span>
+              <span style={{ color: C_TEAL }}>int</span>
+              <span style={{ color: C_VAR }}> age</span>
               <span> = </span>
-              <span style={{ color: "#b5cea8" }}>4</span>
+              <span style={{ color: C_NUMBER }}>4</span>
               <span>;</span>
             </div>
 
@@ -1166,7 +1171,7 @@ const QuizScene: React.FC = () => {
                 fontFamily: monoFont,
                 fontFeatureSettings: MONO_NO_LIGA,
                 fontSize: 38,
-                color: "#d4d4d4",
+                color: TEXT,
                 display: "flex",
                 alignItems: "flex-start",
               }}
@@ -1229,13 +1234,13 @@ const QuizScene: React.FC = () => {
               <span
                 style={{
                   alignSelf: "flex-start",
-                  color: "#d4d4d4",
+                  color: TEXT,
                   margin: "0 8px",
                 }}
               >
                 +
               </span>
-              <span style={{ alignSelf: "flex-start", color: "#b5cea8" }}>
+              <span style={{ alignSelf: "flex-start", color: C_NUMBER }}>
                 2
               </span>
               <span style={{ alignSelf: "flex-start" }}>;</span>
@@ -1320,7 +1325,7 @@ const PrintScene: React.FC = () => {
   const consoleStart = typingDone(newLine.text.length, s);
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(print.audio)} />
           <SceneTitle title={print.title} />
@@ -1492,7 +1497,7 @@ export const compositionMeta = {
 };
 
 export const JavaVariables: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={thumbnail.durationInFrames}

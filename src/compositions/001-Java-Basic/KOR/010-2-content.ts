@@ -42,4 +42,10 @@ export const CONTENT = {
       "함수를 선언하면, 반복되는 코드를 줄일 수 있습니다.",
     ],
   },
+  realExampleScene: {
+    narration: [
+      "조금 더 실감나는 예시로 비교해 보겠습니다.",
+      "같은 계산도 함수로 만들면 깔끔하게 해결됩니다.",
+    ],
+  },
 } as const;

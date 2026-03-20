@@ -81,6 +81,13 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.comparisonScene.narration as unknown as string[],
     narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
   },
+  realExampleScene: {
+    audio: "fn-real.mp3",
+    durationInFrames: AUDIO_CONFIG.realExampleScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
+    narration: CONTENT.realExampleScene.narration as unknown as string[],
+    narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
+  },
 } as const;
 
 // ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
@@ -715,7 +722,7 @@ const AFTER_HIGHLIGHT_CALL = [4, 5, 6];    // greet(); x3
 const ComparisonScene: React.FC = () => {
   const { comparisonScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
+  const opacity = useFade(d); // 마지막 씬 아님 → fadeOut 있음
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
@@ -866,6 +873,165 @@ const ComparisonScene: React.FC = () => {
   );
 };
 
+// ── 씬: RealExampleScene — 수식 반복 → 함수로 해결 ────────────
+const REAL_PAIN_LINES = [
+  "System.out.println(3.14 * 5 * 5);",
+  "System.out.println(3.14 * 10 * 10);",
+  "System.out.println(3.14 * 7 * 7);",
+];
+const REAL_CLEAN_LINES = [
+  "double area(int r) {",
+  "    return 3.14 * r * r;",
+  "}",
+  "",
+  "area(5);",
+  "area(10);",
+  "area(7);",
+];
+
+const RealExampleScene: React.FC = () => {
+  const { realExampleScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
+  const s = cfg.speechStartFrame;
+  const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const beforeAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+  const arrowAppear = spring({
+    frame: frame - (s + Math.round((split - s) / 2)),
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 20,
+  });
+  const afterAppear = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+
+  const codeBoxStyle: React.CSSProperties = {
+    background: BG_CODE,
+    borderRadius: 12,
+    padding: "20px 32px",
+    fontFamily: monoFont,
+    fontFeatureSettings: MONO_NO_LIGA,
+    fontSize: 22,
+  };
+
+  const labelStyle = (color: string): React.CSSProperties => ({
+    fontFamily: uiFont,
+    fontSize: 22,
+    fontWeight: 700,
+    color,
+    letterSpacing: 2,
+    marginBottom: 10,
+    opacity: 0.85,
+  });
+
+  // 수식 부분 컬러링 (3.14 * r * r 패턴)
+  const colorFormula = (text: string) => {
+    // 숫자 리터럴 + 연산자 하이라이팅
+    const parts = text.split(/(3\.14|\d+|"[^"]*"|\*|return|double|int|void)/g);
+    return parts.map((p, i) => {
+      if (["double", "int", "void"].includes(p))
+        return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
+      if (p === "return")
+        return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
+      if (/^[\d.]+$/.test(p))
+        return <span key={i} style={{ color: "#b5cea8" }}>{p}</span>;
+      if (/^"/.test(p))
+        return <span key={i} style={{ color: C_STRING }}>{p}</span>;
+      if (p.includes("area"))
+        return (
+          <span key={i}>
+            {p.split("area").map((seg, j, arr) => (
+              <React.Fragment key={j}>
+                {seg}
+                {j < arr.length - 1 && <span style={{ color: C_FUNC }}>area</span>}
+              </React.Fragment>
+            ))}
+          </span>
+        );
+      return <span key={i}>{p}</span>;
+    });
+  };
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <div
+            style={{
+              position: "absolute",
+              top: "45%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 24,
+              width: 900,
+            }}
+          >
+            {/* 고통스러운 코드 — 위 */}
+            <div style={{ opacity: beforeAppear, width: "100%" }}>
+              <div style={labelStyle(C_PAIN)}>같은 수식 반복</div>
+              <div style={codeBoxStyle}>
+                {REAL_PAIN_LINES.map((line, i) => (
+                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                    {colorFormula(line)}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* 화살표 ▼ */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 48,
+                color: C_TEAL,
+                opacity: arrowAppear,
+                transform: `translateY(${interpolate(arrowAppear, [0, 1], [10, 0], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })}px)`,
+              }}
+            >
+              ▼
+            </div>
+            {/* 함수로 해결 — 아래 */}
+            <div style={{ opacity: afterAppear, width: "100%" }}>
+              <div style={labelStyle(C_FUNC)}>함수로 해결</div>
+              <div style={codeBoxStyle}>
+                {REAL_CLEAN_LINES.map((line, i) => (
+                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                    {line ? colorFormula(line) : "\u00A0"}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ContentArea>
+        <Subtitle
+          sentences={cfg.narration}
+          splits={cfg.narrationSplits}
+          speechStart={s}
+          wordFrames={AUDIO_CONFIG.realExampleScene.wordStartFrames}
+        />
+      </AbsoluteFill>
+    </>
+  );
+};
+
 // ── 씬 목록 + fromValues 계산 ─────────────────────────────────
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
@@ -875,6 +1041,7 @@ const sceneList = [
   VIDEO_CONFIG.callScene,
   VIDEO_CONFIG.summaryScene,
   VIDEO_CONFIG.comparisonScene,
+  VIDEO_CONFIG.realExampleScene,
 ];
 
 let _from = 0;
@@ -916,6 +1083,9 @@ const JavaFunction: React.FC = () => (
     </Sequence>
     <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}>
       <ComparisonScene />
+    </Sequence>
+    <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.realExampleScene.durationInFrames}>
+      <RealExampleScene />
     </Sequence>
   </AbsoluteFill>
 );

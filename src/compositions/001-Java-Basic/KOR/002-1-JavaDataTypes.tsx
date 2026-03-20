@@ -29,16 +29,27 @@ import {
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
 import { CONTENT } from "./002-2-content";
 import { HEIGHT, WIDTH } from "./config";
+import {
+  BG,
+  BG_CODE,
+  BG_THUMB,
+  C_NUMBER,
+  C_OPERATOR,
+  C_STRING,
+  C_TEAL,
+  C_TYPE,
+  TEXT,
+} from "./colors";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const typingDone = (chars: number, speechStart: number) =>
   speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
 
 const TYPE_COLORS: Record<string, string> = {
-  int: "#4e9cd5",
+  int: C_TYPE,
   double: "#d4c04e",
   String: "#4ec970",
-  boolean: "#d4834e",
+  boolean: C_OPERATOR,
 };
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
@@ -114,13 +125,13 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
           );
         if (/^"/.test(part))
           return (
-            <span key={i} style={{ color: "#ce9178" }}>
+            <span key={i} style={{ color: C_STRING }}>
               {part}
             </span>
           );
         if (/^\d/.test(part))
           return (
-            <span key={i} style={{ color: "#b5cea8" }}>
+            <span key={i} style={{ color: C_NUMBER }}>
               {part}
             </span>
           );
@@ -149,7 +160,7 @@ function useTypingEffect(
 
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
-  <div style={{ color: "#d4d4d4", lineHeight: "1.8" }}>
+  <div style={{ color: TEXT, lineHeight: "1.8" }}>
     <ColorizedCode text={text} />
   </div>
 );
@@ -161,7 +172,7 @@ const TypingLine: React.FC<{
 }> = ({ text, startFrame, charsPerSecond }) => {
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
-    <div style={{ color: "#d4d4d4", lineHeight: "1.8" }}>
+    <div style={{ color: TEXT, lineHeight: "1.8" }}>
       <ColorizedCode text={visibleText} />
     </div>
   );
@@ -178,7 +189,7 @@ const CodeBox: React.FC<{
       top: "57%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: "#2d2d2d",
+      background: BG_CODE,
       borderRadius: 12,
       padding: "40px 56px",
       minWidth: 780,
@@ -298,7 +309,7 @@ const TypeBox: React.FC<{
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 64,
               fontWeight: 700,
-              color: "#d4d4d4",
+              color: TEXT,
               opacity: dropO,
             }}
           >
@@ -336,7 +347,7 @@ const BooleanToggleAnim: React.FC<{
   const elapsed = Math.max(0, frame - dropStartFrame);
   const cycleFrame = elapsed % (PERIOD * 2);
   const showTrue = cycleFrame < PERIOD;
-  const toggleColor = showTrue ? "#4ec9b0" : "#f44747";
+  const toggleColor = showTrue ? C_TEAL : "#f44747";
   const displayValue = showTrue ? "true" : "false";
 
   const valueOpacity = interpolate(frame - dropStartFrame, [0, 8], [0, 1], {
@@ -402,7 +413,7 @@ const BooleanToggleAnim: React.FC<{
 const ThumbnailScene: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: "#050510",
+      background: BG_THUMB,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "column",
@@ -427,7 +438,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: uiFont,
         fontSize: 28,
         fontWeight: 700,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 10,
         opacity: 0.8,
       }}
@@ -448,13 +459,13 @@ const ThumbnailScene: React.FC = () => (
     >
       Java
       <br />
-      <span style={{ color: "#4ec9b0" }}>자료형</span>
+      <span style={{ color: C_TEAL }}>자료형</span>
     </div>
     <div
       style={{
         fontFamily: uiFont,
         fontSize: 32,
-        color: "#4ec9b0",
+        color: C_TEAL,
         letterSpacing: 4,
         opacity: 0.7,
       }}
@@ -480,7 +491,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <div
@@ -603,7 +614,7 @@ const ValueVsVarScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(valueVsVar.audio)} />
 
@@ -748,7 +759,7 @@ const ValueVsVarScene: React.FC = () => {
                     fontFeatureSettings: MONO_NO_LIGA,
                     fontSize: 22,
                     fontWeight: 700,
-                    color: "#1e1e1e",
+                    color: BG,
                   }}
                 >
                   int
@@ -831,7 +842,7 @@ const TypeScene: React.FC<{
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(config.audio)} />
           <div
@@ -875,7 +886,7 @@ const BooleanScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(booleanScene.audio)} />
           <div
@@ -926,7 +937,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(summaryScene.audio)} />
           {starts.map((startFrom, i) => (
@@ -1094,7 +1105,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaDataTypes: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
