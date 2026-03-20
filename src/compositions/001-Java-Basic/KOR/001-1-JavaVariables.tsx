@@ -1037,11 +1037,21 @@ const QuizScene: React.FC = () => {
   const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.13));
   const showPulse = !isReveal && frame >= AGE_WORD_FRAME;
 
+  // "우측의 age는 값으로 해석해야 합니다" 발화 시 우측 age glow
+  const REVEAL_SPLIT2 = REVEAL_START + AUDIO_CONFIG.interpretReveal.narrationSplits[1];
+  const valueGlow = spring({
+    frame: frame - REVEAL_SPLIT2,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+    durationInFrames: 30,
+  });
+
   // age 스팬: 질문=왼쪽 펄싱, 공개 후=역할별 색
   const ageSpan = (role: "space" | "value") => {
     const color = role === "space" ? C_SPACE : C_VAL;
 
     if (isReveal) {
+      const glowing = role === "value" && frame >= REVEAL_SPLIT2;
       // 정답 공개: 역할별 색 + 하이라이트
       return (
         <span
@@ -1052,6 +1062,9 @@ const QuizScene: React.FC = () => {
             borderRadius: 4,
             padding: "1px 5px",
             outline: `1.5px solid ${color}66`,
+            boxShadow: glowing
+              ? `0 0 ${interpolate(valueGlow, [0, 1], [0, 18], { extrapolateRight: "clamp" })}px ${C_VAL}88, 0 0 ${interpolate(valueGlow, [0, 1], [0, 40], { extrapolateRight: "clamp" })}px ${C_VAL}44`
+              : "none",
           }}
         >
           age
