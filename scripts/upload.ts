@@ -170,6 +170,35 @@ async function uploadCaption(
   console.log(`   📝  자막 업로드 완료 (${language})`);
 }
 
+/** 기존 영상 메타데이터 업데이트 */
+async function updateVideoMeta(
+  yt: youtube_v3.Youtube,
+  videoId: string,
+  meta: {
+    title: string;
+    description: string;
+    tags: string[];
+    categoryId: string;
+    language: string;
+  },
+): Promise<void> {
+  await yt.videos.update({
+    part: ["snippet"],
+    requestBody: {
+      id: videoId,
+      snippet: {
+        title: meta.title,
+        description: meta.description,
+        tags: meta.tags,
+        categoryId: meta.categoryId,
+        defaultLanguage: meta.language,
+        defaultAudioLanguage: meta.language,
+      },
+    },
+  });
+  console.log(`   ✅  메타데이터 업데이트 완료: https://youtu.be/${videoId}`);
+}
+
 /** 재생목록에 영상 추가 */
 async function addToPlaylist(
   yt: youtube_v3.Youtube,
@@ -242,17 +271,14 @@ async function addToPlaylist(
     const epConfig = YOUTUBE_CONFIG.episodes[ep as keyof typeof YOUTUBE_CONFIG.episodes];
     const title = epConfig.title;
 
-    // 중복 체크
-    if (existingVideos.has(title)) {
-      console.log(`⏭️  "${title}" — 이미 재생목록에 존재, 스킵`);
-      continue;
-    }
+    const existingVideoId = existingVideos.get(title);
+    const isUpdate = !!existingVideoId;
 
     const mp4Path = path.join(OUT_DIR, seriesDir, `${ep}.mp4`);
     const srtPath = path.join(OUT_DIR, seriesDir, `${ep}.srt`);
 
-    // mp4 없으면 스킵
-    if (!existsSync(mp4Path)) {
+    // 신규 업로드인데 mp4 없으면 스킵
+    if (!isUpdate && !existsSync(mp4Path)) {
       console.warn(`⚠️  ${mp4Path} 없음, 스킵 (pnpm render 먼저 실행)`);
       continue;
     }
@@ -299,8 +325,18 @@ async function addToPlaylist(
       });
       console.log(`   🖼️  썸네일 렌더링 완료: ${thumbPath}`);
 
-      // 영상 업로드
-      const videoId = await uploadVideo(yt, mp4Path, meta);
+      let videoId: string;
+
+      if (isUpdate) {
+        // 기존 영상 → 메타데이터만 업데이트
+        videoId = existingVideoId;
+        console.log(`🔄  "${title}" — 기존 영상 메타 업데이트`);
+        await updateVideoMeta(yt, videoId, meta);
+      } else {
+        // 신규 → 영상 업로드 + 재생목록 추가
+        videoId = await uploadVideo(yt, mp4Path, meta);
+        await addToPlaylist(yt, playlistId, videoId);
+      }
 
       // 썸네일 설정 (채널 미인증 시 실패 가능 — 경고만 출력)
       try {
@@ -314,11 +350,9 @@ async function addToPlaylist(
         await uploadCaption(yt, videoId, srtPath, meta.language);
       }
 
-      // 재생목록 추가
-      await addToPlaylist(yt, playlistId, videoId);
       uploaded++;
     } catch (err: any) {
-      console.error(`\n❌  "${title}" 업로드 실패: ${err.message ?? err}`);
+      console.error(`\n❌  "${title}" ${isUpdate ? "업데이트" : "업로드"} 실패: ${err.message ?? err}`);
       failed.push(ep);
     }
   }
