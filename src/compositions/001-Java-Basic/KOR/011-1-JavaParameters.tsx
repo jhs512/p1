@@ -260,6 +260,17 @@ const getActiveStageIndex = (frame: number, trace: Trace) => {
   return 0;
 };
 
+const getSceneProgress = (
+  frame: number,
+  starts: readonly number[],
+  snapshotMap: readonly number[],
+) => {
+  const narrationIndex = getActiveIndex(frame, starts);
+  const snapshotIndex =
+    snapshotMap[Math.min(narrationIndex, snapshotMap.length - 1)] ?? 0;
+  return { narrationIndex, snapshotIndex };
+};
+
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
   const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
@@ -458,164 +469,9 @@ const ExecutionCard: React.FC<{
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "300px 1fr",
-          gap: 18,
-          alignItems: "stretch",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          <div
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              borderRadius: 18,
-              padding: "16px 18px",
-              border:
-                activeStageIndex === 0
-                  ? `2px solid ${snapshot.accent}55`
-                  : "2px solid rgba(255,255,255,0.08)",
-              opacity: callOpacity,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 20,
-                fontWeight: 800,
-                color: snapshot.accent,
-                marginBottom: 8,
-              }}
-            >
-              호출
-            </div>
-            <div
-              style={{
-                ...monoStyle,
-                fontSize: 24,
-                color: TEXT,
-                lineHeight: 1.6,
-              }}
-            >
-              <ColorizedCode text={snapshot.callLine} theme={CODE_THEME} />
-            </div>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              borderRadius: 18,
-              padding: "16px 18px",
-              border:
-                activeStageIndex >= 3
-                  ? `2px solid ${snapshot.accent}55`
-                  : "2px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 20,
-                fontWeight: 800,
-                color: snapshot.accent,
-                marginBottom: 10,
-              }}
-            >
-              출력
-            </div>
-            <div
-              style={{
-                ...monoStyle,
-                fontSize: 26,
-                color: "#ffffff",
-                background: "#1a1a1a",
-                borderRadius: 14,
-                minHeight: 64,
-                padding: "16px 18px",
-                opacity: outputOpacity,
-                boxShadow:
-                  outputOpacity > 0.2
-                    ? `0 0 24px ${snapshot.accent}22`
-                    : "none",
-              }}
-            >
-              {snapshot.outputLine}
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            background: "#252525",
-            borderRadius: 18,
-            padding: "18px 18px 16px",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: uiFont,
-              fontSize: 20,
-              fontWeight: 800,
-              color: snapshot.accent,
-              marginBottom: 12,
-            }}
-          >
-            실행 코드
-          </div>
-          <div
-            style={{
-              ...monoStyle,
-              fontSize: 25,
-              lineHeight: 1.82,
-              color: TEXT,
-            }}
-          >
-            {snapshot.code.map((line, index) => {
-              const highlighted = getLineHighlight(
-                frame,
-                trace,
-                snapshot,
-                index,
-              );
-              return (
-                <div
-                  key={`${snapshot.badge}-${index}`}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "34px 1fr",
-                    gap: 12,
-                    alignItems: "center",
-                    background: highlighted
-                      ? `${snapshot.accent}1f`
-                      : "transparent",
-                    border: highlighted
-                      ? `1px solid ${snapshot.accent}38`
-                      : "1px solid transparent",
-                    borderRadius: 12,
-                    padding: "2px 8px",
-                  }}
-                >
-                  <span style={{ color: C_DIM }}>{index + 1}</span>
-                  <span>
-                    <ColorizedCode text={line} theme={CODE_THEME} />
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
           gap: 10,
-          marginTop: 18,
+          marginBottom: 16,
         }}
       >
         {stageLabels.map((label, index) => (
@@ -642,6 +498,158 @@ const ExecutionCard: React.FC<{
             {index + 1}. {label}
           </div>
         ))}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            borderRadius: 18,
+            padding: "16px 18px",
+            border:
+              activeStageIndex === 0
+                ? `2px solid ${snapshot.accent}55`
+                : "2px solid rgba(255,255,255,0.08)",
+            opacity: callOpacity,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: uiFont,
+              fontSize: 20,
+              fontWeight: 800,
+              color: snapshot.accent,
+              marginBottom: 8,
+            }}
+          >
+            호출 카드
+          </div>
+          <div
+            style={{
+              ...monoStyle,
+              fontSize: 24,
+              color: TEXT,
+              lineHeight: 1.6,
+              whiteSpace: "pre",
+            }}
+          >
+            <ColorizedCode text={snapshot.callLine} theme={CODE_THEME} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "#252525",
+            borderRadius: 18,
+            padding: "18px 18px 16px",
+            border:
+              activeStageIndex >= 1
+                ? `2px solid ${snapshot.accent}22`
+                : "2px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: uiFont,
+              fontSize: 20,
+              fontWeight: 800,
+              color: snapshot.accent,
+              marginBottom: 12,
+            }}
+          >
+            코드 카드
+          </div>
+          <div
+            style={{
+              ...monoStyle,
+              fontSize: 25,
+              lineHeight: 1.82,
+              color: TEXT,
+            }}
+          >
+            {snapshot.code.map((line, index) => {
+              const highlighted = getLineHighlight(
+                frame,
+                trace,
+                snapshot,
+                index,
+              );
+              return (
+                <div
+                  key={`${snapshot.badge}-${index}`}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "34px 1fr",
+                    gap: 12,
+                    alignItems: "start",
+                    background: highlighted
+                      ? `${snapshot.accent}1f`
+                      : "transparent",
+                    border: highlighted
+                      ? `1px solid ${snapshot.accent}38`
+                      : "1px solid transparent",
+                    borderRadius: 12,
+                    padding: "3px 8px",
+                  }}
+                >
+                  <span style={{ color: C_DIM, paddingTop: 2 }}>
+                    {index + 1}
+                  </span>
+                  <span style={{ whiteSpace: "pre" }}>
+                    <ColorizedCode text={line} theme={CODE_THEME} />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            borderRadius: 18,
+            padding: "16px 18px",
+            border:
+              activeStageIndex >= 3
+                ? `2px solid ${snapshot.accent}55`
+                : "2px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: uiFont,
+              fontSize: 20,
+              fontWeight: 800,
+              color: snapshot.accent,
+              marginBottom: 10,
+            }}
+          >
+            출력 카드
+          </div>
+          <div
+            style={{
+              ...monoStyle,
+              fontSize: 26,
+              color: "#ffffff",
+              background: "#1a1a1a",
+              borderRadius: 14,
+              minHeight: 64,
+              padding: "16px 18px",
+              opacity: outputOpacity,
+              boxShadow:
+                outputOpacity > 0.2 ? `0 0 24px ${snapshot.accent}22` : "none",
+              whiteSpace: "pre",
+            }}
+          >
+            {snapshot.outputLine}
+          </div>
+        </div>
       </div>
 
       {snapshot.footer ? (
@@ -719,11 +727,15 @@ const ConceptScene: React.FC = () => {
     },
   ];
   const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
-  const snapshotIndex = getActiveIndex(frame, starts);
+  const { narrationIndex, snapshotIndex } = getSceneProgress(
+    frame,
+    starts,
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2],
+  );
   const snapshot = snapshots[Math.min(snapshotIndex, snapshots.length - 1)];
   const trace = buildTrace(
-    AUDIO_CONFIG.conceptScene.wordStartFrames[snapshotIndex],
-    starts[snapshotIndex] ?? cfg.speechStartFrame,
+    AUDIO_CONFIG.conceptScene.wordStartFrames[narrationIndex],
+    starts[narrationIndex] ?? cfg.speechStartFrame,
     snapshot.prepLineIndex !== undefined,
   );
 
@@ -810,11 +822,15 @@ const DeclarationScene: React.FC = () => {
     },
   ];
   const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
-  const snapshotIndex = getActiveIndex(frame, starts);
+  const { narrationIndex, snapshotIndex } = getSceneProgress(
+    frame,
+    starts,
+    [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3],
+  );
   const snapshot = snapshots[Math.min(snapshotIndex, snapshots.length - 1)];
   const trace = buildTrace(
-    AUDIO_CONFIG.declarationScene.wordStartFrames[snapshotIndex],
-    starts[snapshotIndex] ?? cfg.speechStartFrame,
+    AUDIO_CONFIG.declarationScene.wordStartFrames[narrationIndex],
+    starts[narrationIndex] ?? cfg.speechStartFrame,
     snapshot.prepLineIndex !== undefined,
   );
 
@@ -890,11 +906,15 @@ const CallScene: React.FC = () => {
     },
   ];
   const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
-  const snapshotIndex = getActiveIndex(frame, starts);
+  const { narrationIndex, snapshotIndex } = getSceneProgress(
+    frame,
+    starts,
+    [0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2],
+  );
   const snapshot = snapshots[Math.min(snapshotIndex, snapshots.length - 1)];
   const trace = buildTrace(
-    AUDIO_CONFIG.callScene.wordStartFrames[snapshotIndex],
-    starts[snapshotIndex] ?? cfg.speechStartFrame,
+    AUDIO_CONFIG.callScene.wordStartFrames[narrationIndex],
+    starts[narrationIndex] ?? cfg.speechStartFrame,
     snapshot.prepLineIndex !== undefined,
   );
 
@@ -970,11 +990,15 @@ const ResultScene: React.FC = () => {
     },
   ];
   const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
-  const snapshotIndex = getActiveIndex(frame, starts);
+  const { narrationIndex, snapshotIndex } = getSceneProgress(
+    frame,
+    starts,
+    [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
+  );
   const snapshot = snapshots[Math.min(snapshotIndex, snapshots.length - 1)];
   const trace = buildTrace(
-    AUDIO_CONFIG.resultScene.wordStartFrames[snapshotIndex],
-    starts[snapshotIndex] ?? cfg.speechStartFrame,
+    AUDIO_CONFIG.resultScene.wordStartFrames[narrationIndex],
+    starts[narrationIndex] ?? cfg.speechStartFrame,
     snapshot.prepLineIndex !== undefined,
   );
 
@@ -1023,9 +1047,15 @@ const SummaryScene: React.FC = () => {
     accent: C_TEAL,
     printLineIndex: 1,
   };
+  const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
+  const { narrationIndex } = getSceneProgress(
+    frame,
+    starts,
+    Array((cfg.narrationSplits?.length ?? 0) + 1).fill(0),
+  );
   const trace = buildTrace(
-    AUDIO_CONFIG.summaryScene.wordStartFrames[0],
-    cfg.speechStartFrame,
+    AUDIO_CONFIG.summaryScene.wordStartFrames[narrationIndex],
+    starts[narrationIndex] ?? cfg.speechStartFrame,
     false,
   );
   const chipFrames = [
