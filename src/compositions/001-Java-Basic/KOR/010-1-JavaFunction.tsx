@@ -632,19 +632,40 @@ const SUMMARY_CARDS = CONTENT.summaryScene.cards as unknown as string[];
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d); // 마지막 씬 아님 → fadeOut 있음
+  const opacity = useFade(d);
   const s = cfg.speechStartFrame;
+  const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const card0Appear = spring({
+  // 1문장: 요약 타이틀 등장
+  const titleAppear = spring({
     frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  // 2문장 시작 시 타이틀 퇴장
+  const titleExit = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const titleOpacity = titleAppear * (1 - titleExit);
+
+  // "선언은" 발화(frame 106) → 카드0 등장
+  const declareWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][0]; // "선언은"
+  const card0Appear = spring({
+    frame: frame - declareWordFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
+  // "호출은" 발화(frame 141) → 카드1 등장
+  const callWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][3]; // "호출은"
   const card1Appear = spring({
-    frame: frame - (cfg.narrationSplits[0] ?? s + 30),
+    frame: frame - callWordFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -663,33 +684,60 @@ const SummaryScene: React.FC = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
-              gap: 48,
+              flexDirection: "column",
               alignItems: "center",
+              gap: 48,
             }}
           >
-            {SUMMARY_CARDS.map((card, i) => (
-              <div
-                key={i}
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 44,
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  background: `${C_FUNC}18`,
-                  border: `3px solid ${C_FUNC}66`,
-                  borderRadius: 16,
-                  padding: "32px 48px",
-                  textAlign: "center",
-                  opacity: cardAppears[i],
-                  transform: `scale(${interpolate(cardAppears[i], [0, 1], [0.8, 1], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  })})`,
-                }}
-              >
-                {card}
-              </div>
-            ))}
+            {/* 1문장: 요약 타이틀 */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 52,
+                fontWeight: 700,
+                color: C_TEAL,
+                textAlign: "center",
+                opacity: titleOpacity,
+                transform: `scale(${interpolate(titleAppear, [0, 1], [0.85, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })})`,
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: -30,
+                marginLeft: -200,
+                width: 400,
+              }}
+            >
+              함수 = 이름 붙인{"\n"}코드 묶음
+            </div>
+            {/* 2문장: 카드 2장 */}
+            <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
+              {SUMMARY_CARDS.map((card, i) => (
+                <div
+                  key={i}
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 44,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    background: `${C_FUNC}18`,
+                    border: `3px solid ${C_FUNC}66`,
+                    borderRadius: 16,
+                    padding: "32px 48px",
+                    textAlign: "center",
+                    opacity: cardAppears[i],
+                    transform: `scale(${interpolate(cardAppears[i], [0, 1], [0.8, 1], {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    })})`,
+                  }}
+                >
+                  {card}
+                </div>
+              ))}
+            </div>
           </div>
         </ContentArea>
         <Subtitle
@@ -776,31 +824,45 @@ const ComparisonScene: React.FC = () => {
     opacity: 0.85,
   });
 
-  // 줄 하이라이트 사각형 (absolute overlay)
+  // 줄 하이라이트 사각형 (absolute overlay) — 연속 블록 단위로 분리
   const HighlightRect: React.FC<{
     lineIndices: number[];
     color: string;
     appear: number;
   }> = ({ lineIndices, color, appear }) => {
     if (lineIndices.length === 0) return null;
-    const lineH = 24 * 1.8; // fontSize * lineHeight
-    const top = lineIndices[0] * lineH;
-    const height = lineIndices.length * lineH;
+    const lineH = 24 * 1.7; // fontSize * lineHeight
+    // 연속 구간별 그룹핑
+    const groups: number[][] = [];
+    let cur: number[] = [];
+    for (const idx of lineIndices) {
+      if (cur.length > 0 && idx !== cur[cur.length - 1] + 1) {
+        groups.push(cur);
+        cur = [];
+      }
+      cur.push(idx);
+    }
+    if (cur.length > 0) groups.push(cur);
     return (
-      <div
-        style={{
-          position: "absolute",
-          left: 4,
-          right: 4,
-          top: 20 + top, // padding offset
-          height,
-          border: `2px solid ${color}`,
-          borderRadius: 6,
-          background: `${color}12`,
-          opacity: appear,
-          pointerEvents: "none",
-        }}
-      />
+      <>
+        {groups.map((g, gi) => (
+          <div
+            key={gi}
+            style={{
+              position: "absolute",
+              left: 4,
+              right: 4,
+              top: 20 + g[0] * lineH, // padding offset
+              height: g.length * lineH,
+              border: `2px solid ${color}`,
+              borderRadius: 6,
+              background: `${color}12`,
+              opacity: appear,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </>
     );
   };
 
