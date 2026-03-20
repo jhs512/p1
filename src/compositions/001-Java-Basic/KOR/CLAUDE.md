@@ -230,25 +230,27 @@ const SomeScene: React.FC = () => {
   // 애니메이션들...
 
   return (
-    <AbsoluteFill style={{ background: BG, opacity }}>
-      <ContentArea>
-        <Audio src={staticFile(cfg.audio)} />
-        {/* 비주얼 콘텐츠 */}
-      </ContentArea>
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          {/* 비주얼 콘텐츠 */}
+        </ContentArea>
+      </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.someScene.wordStartFrames}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 **핵심 규칙:**
 - `AbsoluteFill`에 **반드시** `background: BG` — 크로스페이드 시 뒤가 비침 방지.
-- `Subtitle`은 **반드시** `AbsoluteFill` 안 (opacity wrapper 안) — 트랜지션 시 자막도 함께 페이드.
+- `Subtitle`은 **반드시** `AbsoluteFill` 바깥 (opacity wrapper 밖) — 자막에 페이드 트랜지션이 걸리면 안 됨.
 - `ContentArea`로 자막 영역 제외한 공간에 콘텐츠 배치.
 
 ### 5-3. IntroScene — 핵심 타이틀 + 키워드 카드 패턴
@@ -505,7 +507,7 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] 조건부 렌더링으로 요소 등장 (`{show && <div>}`) → opacity 사용
 - [ ] 마지막 씬에 fadeOut 적용 → `useFade(d, { out: false })`
 - [ ] `AbsoluteFill`에 `background: BG` 누락
-- [ ] `Subtitle`이 opacity wrapper 바깥에 있음
+- [ ] `Subtitle`이 opacity wrapper 안쪽에 있음 (바깥이어야 함)
 - [ ] 코드에서 연산자 양옆 공백 누락 (`age=age+2;`)
 
 ---
