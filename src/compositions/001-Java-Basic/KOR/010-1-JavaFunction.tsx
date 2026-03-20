@@ -310,11 +310,20 @@ const PainScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 순차 타이핑 — 5줄 lineStarts 계산
+  // 코드 블록은 CROSS 이후에 등장 (썸네일 크로스페이드 겹침 방지)
+  const codeAppear = spring({
+    frame: frame - CROSS,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 16,
+  });
+
+  // 순차 타이핑 — 5줄 lineStarts 계산 (CROSS 이후 시작)
   const lineStarts: number[] = [];
-  let cumFrame = s;
+  let cumFrame = Math.max(s, CROSS);
   for (const line of PAIN_LINES) {
     lineStarts.push(cumFrame);
     cumFrame += Math.ceil((line.length / PAIN_CPS) * fps);
@@ -346,6 +355,7 @@ const PainScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
+              opacity: codeAppear,
             }}
           >
             {PAIN_LINES.map((line, i) => {
