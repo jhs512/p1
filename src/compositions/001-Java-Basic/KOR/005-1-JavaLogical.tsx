@@ -308,15 +308,46 @@ const IntroScene: React.FC = () => {
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames);
 
+  const titleAppear = spring({
+    frame: frame - intro.speechStartFrame,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  const titleScale = interpolate(titleAppear, [0, 1], [0.8, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+
+          {/* 핵심 키워드 타이틀 */}
           <div
             style={{
               position: "absolute",
-              top: "46%",
+              top: "22%",
+              left: "50%",
+              transform: `translate(-50%, -50%) scale(${titleScale})`,
+              fontFamily: uiFont,
+              fontSize: FONT.display,
+              fontWeight: 900,
+              color: "#4ec9b0",
+              opacity: titleAppear,
+              textShadow: "0 0 40px rgba(78,201,176,0.4)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            논리 연산자
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: "52%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",

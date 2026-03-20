@@ -18,6 +18,7 @@ import { toDisplayText } from "../../../utils/narration";
 import {
   CROSS,
   ContentArea,
+  FONT,
   MONO_NO_LIGA,
   Subtitle,
   monoFont,
@@ -34,6 +35,7 @@ import {
   C_PURPLE,
   C_TEAL,
   C_TYPE,
+  C_VAR,
   TEXT,
 } from "./colors";
 
@@ -500,14 +502,14 @@ const SummaryScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "24%",
+              top: "22%",
               left: "50%",
               transform: "translateX(-50%)",
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
-              fontSize: 28,
+              fontSize: FONT.heading,
               color: TEXT,
-              opacity: 0.5,
+              opacity: 0.6,
             }}
           >
             <ColorizedCode text="int a = 10, b = 3;" />
@@ -557,14 +559,19 @@ const SummaryScene: React.FC = () => {
                     style={{
                       fontFamily: monoFont,
                       fontFeatureSettings: MONO_NO_LIGA,
-                      color: C_PURPLE,
-                      fontSize: 40,
+                      fontSize: 36,
                       fontWeight: 700,
-                      minWidth: 76,
+                      minWidth: 200,
                       textAlign: "center",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
                     }}
                   >
-                    {beat.op}
+                    <span style={{ color: C_VAR, opacity: 0.45 }}>a</span>
+                    <span style={{ color: C_PURPLE }}>{beat.op}</span>
+                    <span style={{ color: C_VAR, opacity: 0.45 }}>b</span>
                   </span>
                   <span style={{ color: "#3a3a3a", fontSize: 28 }}>→</span>
                   <span

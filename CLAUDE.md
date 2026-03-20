@@ -119,6 +119,28 @@ const sceneDuration = Math.max(
 - 상세 설명 씬에서 포커싱 목적으로 이전 줄을 흐리게 하는 것은 허용.
 - **정리/요약 씬에서만 금지 — 헌법.**
 
+### 10. 빈 화면을 만들지 않는다
+
+씬에 자막만 있고 화면이 비어 있으면 안 된다. 나레이션이 시작되면 반드시 관련 비주얼이 함께 표시되어야 한다.
+
+빈 화면이 발생하는 경우 → 핵심 키워드를 화면 중앙에 크게 띄운다.
+
+```tsx
+// 예: IntroScene에서 "논리 연산자" 나레이션 시
+<div style={{
+  position: "absolute",
+  top: "45%", left: "50%",
+  transform: "translate(-50%, -50%)",
+  fontFamily: uiFont,
+  fontSize: FONT.display,
+  fontWeight: 900,
+  color: C_TEAL,
+  opacity: titleAppear,
+}}>
+  논리 연산자
+</div>
+```
+
 ---
 
 ## 프로젝트 구조

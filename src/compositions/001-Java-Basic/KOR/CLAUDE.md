@@ -528,6 +528,7 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] 코드에서 연산자 양옆 공백 누락 (`age=age+2;`)
 - [ ] 라벨/뱃지 fontSize 하드코딩 → `FONT.label` 사용
 - [ ] 정리/요약 씬에서 기존 코드 줄 비활성화(opacity 낮춤) → 전체 동일 opacity 유지
+- [ ] 씬에 자막만 있고 화면이 비어 있음 → 핵심 키워드를 중앙에 크게 표시
 
 ---
 
