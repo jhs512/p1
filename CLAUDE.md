@@ -103,6 +103,22 @@ const sceneDuration = Math.max(
 <div style={{ opacity: ifAppear }}>if</div>
 ```
 
+### 9. 정리/요약 씬에서 기존 코드 줄을 비활성화하지 않는다
+
+정리 씬은 전체를 한눈에 보여주는 것이 목적이다.
+새 줄이 타이핑되더라도 이전 줄의 opacity를 낮추지 않는다.
+
+```tsx
+// ❌ 금지 — 정리 씬에서 이전 줄 흐리게 처리
+<div style={{ opacity: 0.5, color: TEXT }}>{previousLine}</div>
+
+// ✅ 올바름 — 모든 줄 동일 opacity
+<div style={{ color: TEXT }}>{previousLine}</div>
+```
+
+- 상세 설명 씬에서 포커싱 목적으로 이전 줄을 흐리게 하는 것은 허용.
+- **정리/요약 씬에서만 금지 — 헌법.**
+
 ---
 
 ## 프로젝트 구조

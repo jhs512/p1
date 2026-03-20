@@ -705,7 +705,7 @@ const SummaryScene: React.FC = () => {
               >
                 {SUMMARY_LINES.slice(0, i + 1).map((text, j) =>
                   j < i ? (
-                    <div key={j} style={{ opacity: 0.5, color: TEXT }}>
+                    <div key={j} style={{ color: TEXT }}>
                       <ColorizedCode text={text} />
                     </div>
                   ) : (

@@ -291,6 +291,9 @@ const cardAppear = spring({ frame: frame - split0, fps, config: { damping: 14, s
 - 각 카드: `wordStartFrames`의 특정 단어 시점에 spring 등장
 - 카드 스타일: `border: 3px solid ${C_FUNC}66`, `background: ${C_FUNC}18`, `borderRadius: 16`
 - 카드 등장: `scale(0.8→1)` + `opacity(0→1)`
+- **정리/요약 씬에서 기존 코드 줄을 비활성화(opacity 낮추기)하지 않는다** — 헌법.
+  정리 씬은 전체를 한눈에 보여주는 것이 목적이므로, 새 줄이 추가되더라도 이전 줄은 동일한 opacity를 유지한다.
+  (상세 설명 씬에서 포커싱 목적으로 이전 줄을 흐리게 하는 것은 허용)
 
 ### 5-6. RealExampleScene — 실전 예시
 
@@ -524,6 +527,7 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] `Subtitle`이 opacity wrapper 안쪽에 있음 (바깥이어야 함)
 - [ ] 코드에서 연산자 양옆 공백 누락 (`age=age+2;`)
 - [ ] 라벨/뱃지 fontSize 하드코딩 → `FONT.label` 사용
+- [ ] 정리/요약 씬에서 기존 코드 줄 비활성화(opacity 낮춤) → 전체 동일 opacity 유지
 
 ---
 
