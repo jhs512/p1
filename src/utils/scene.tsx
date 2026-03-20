@@ -63,7 +63,7 @@ export const FONT = {
 
 // ── 훅: useFade ───────────────────────────────────────────────
 /** fadeIn/fadeOut에 사용할 프레임 수 (CROSS=0이어도 강제 fade 시 사용) */
-const FADE_FRAMES = 20;
+const FADE_FRAMES = 10;
 
 /**
  * 씬 경계 크로스페이드 opacity 값을 반환한다.
@@ -133,9 +133,8 @@ export const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
     style={{
       position: "absolute",
       top: 60,
-      left: 0,
-      right: 0,
-      textAlign: "center",
+      left: 60,
+      textAlign: "left",
       fontFamily: uiFont,
       fontSize: 42,
       fontWeight: 700,

@@ -226,7 +226,7 @@ const TypingCodeLine: React.FC<{
 // 배지 = 선언 void greet() / 사용 greet();
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [10, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });

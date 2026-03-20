@@ -72,7 +72,7 @@ export const VIDEO_CONFIG = {
   declaration: {
     audio: "scene1.mp3",
     durationInFrames: AUDIO_CONFIG.declaration.durationInFrames,
-    title: "1. 변수 선언 (Declaration)",
+    title: "변수 선언 (Declaration)",
     code: codeUpTo(1),
     narration: CONTENT.declaration.narration as string[],
     narrationSplits: AUDIO_CONFIG.declaration.narrationSplits,
@@ -81,7 +81,7 @@ export const VIDEO_CONFIG = {
   initialization: {
     audio: "scene2.mp3",
     durationInFrames: AUDIO_CONFIG.initialization.durationInFrames,
-    title: "2. 변수 초기화 (Initialization)",
+    title: "변수 초기화 (Initialization)",
     code: codeUpTo(2),
     narration: CONTENT.initialization.narration as string[],
     narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
@@ -114,7 +114,7 @@ export const VIDEO_CONFIG = {
   print: {
     audio: "scene3.mp3",
     durationInFrames: AUDIO_CONFIG.print.durationInFrames,
-    title: "3. 변수 출력 (Print)",
+    title: "변수 출력 (Print)",
     code: codeUpTo(3),
     consoleOutput: "> 25",
     narration: CONTENT.print.narration as string[],
@@ -487,7 +487,7 @@ const IntroScene: React.FC = () => {
 // ── 씬 컴포넌트 ───────────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });

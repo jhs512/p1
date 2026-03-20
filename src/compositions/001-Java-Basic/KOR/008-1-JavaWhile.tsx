@@ -103,7 +103,7 @@ export const VIDEO_CONFIG = {
 // ── 스텁 씬 컴포넌트 — 다음 태스크에서 완전히 구현 ───────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [10, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });

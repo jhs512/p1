@@ -12,7 +12,7 @@ export const SCENE_TAIL_FRAMES = 5;
 export const CROSS = 0;
 
 /** 썸네일 → 첫 씬 전용 크로스페이드 프레임 수 */
-export const THUMB_CROSS = 20;
+export const THUMB_CROSS = 25;
 
 /** 타이핑 이펙트 — 초당 글자 수 */
 export const CHARS_PER_SEC = 10;

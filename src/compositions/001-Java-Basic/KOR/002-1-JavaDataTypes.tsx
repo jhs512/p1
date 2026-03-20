@@ -415,7 +415,7 @@ const BooleanToggleAnim: React.FC<{
 // ── 씬: ThumbnailScene ───────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
