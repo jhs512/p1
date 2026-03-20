@@ -40,6 +40,12 @@ import {
   TEXT,
 } from "./colors";
 
+// 씬 내부에서 사용하는 색상 별칭
+const C_INT = C_NUMBER; // 숫자 리터럴
+const C_OP = C_OPERATOR; // 연산자
+const C_NUM = C_NUMBER; // 숫자 리터럴 (몫 등)
+const C_REM = C_TEAL; // 나머지(%) 강조
+
 // ── 상수 ─────────────────────────────────────────────────────
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
@@ -96,7 +102,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   );
 
   const TYPE_COLORS: Record<string, string> = {
-    int: C_INT,
+    int: C_TYPE,
     double: "#d4c04e",
     String: "#4ec970",
     boolean: "#d4834e",

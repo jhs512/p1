@@ -29,7 +29,6 @@ import { CONTENT } from "./004-2-content";
 import { HEIGHT, WIDTH } from "./config";
 import {
   BG,
-  BG_THUMB,
   C_NUMBER,
   C_PAIN,
   C_PURPLE,
@@ -85,7 +84,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const KEYWORDS = ["int", "double", "String", "boolean"];
   const OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "="];
   const TYPE_COLORS: Record<string, string> = {
-    int: C_INT,
+    int: C_TYPE,
     double: "#d4c04e",
     String: "#4ec970",
     boolean: "#d4834e",
@@ -101,13 +100,13 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
           );
         if (OPERATORS.includes(part))
           return (
-            <span key={i} style={{ color: C_CMP }}>
+            <span key={i} style={{ color: C_PURPLE }}>
               {part}
             </span>
           );
         if (/^\d/.test(part))
           return (
-            <span key={i} style={{ color: C_NUM }}>
+            <span key={i} style={{ color: C_NUMBER }}>
               {part}
             </span>
           );
@@ -167,7 +166,7 @@ const BeatCard: React.FC<{
     extrapolateRight: "clamp",
   });
 
-  const resultColor = result ? C_TRUE : C_FALSE;
+  const resultColor = result ? C_TEAL : C_PAIN;
 
   return (
     <AbsoluteFill style={{ opacity }}>
@@ -185,18 +184,18 @@ const BeatCard: React.FC<{
           fontFeatureSettings: MONO_NO_LIGA,
         }}
       >
-        <span style={{ color: C_NUM, fontSize: 92, fontWeight: 700 }}>10</span>
+        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>10</span>
         <span
           style={{
-            color: C_CMP,
+            color: C_PURPLE,
             fontSize: 100,
             fontWeight: 900,
-            textShadow: `0 0 40px ${C_CMP}88`,
+            textShadow: `0 0 40px ${C_PURPLE}88`,
           }}
         >
           {op}
         </span>
-        <span style={{ color: C_NUM, fontSize: 92, fontWeight: 700 }}>3</span>
+        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>3</span>
       </div>
 
       {/* 결과 배지 */}
@@ -295,13 +294,13 @@ const ThumbnailScene: React.FC = () => (
         fontFeatureSettings: MONO_NO_LIGA,
       }}
     >
-      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>10</span>
+      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>10</span>
       <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>
         ==
       </span>
-      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUM }}>3</span>
+      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>3</span>
       <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
-      <span style={{ fontSize: 56, fontWeight: 900, color: C_FALSE }}>
+      <span style={{ fontSize: 56, fontWeight: 900, color: C_PAIN }}>
         false
       </span>
     </div>
@@ -311,7 +310,7 @@ const ThumbnailScene: React.FC = () => (
         fontFamily: monoFont,
         fontFeatureSettings: MONO_NO_LIGA,
         fontSize: 30,
-        color: C_CMP,
+        color: C_PURPLE,
         opacity: 0.5,
         letterSpacing: 6,
         whiteSpace: "pre",
@@ -372,9 +371,9 @@ const IntroScene: React.FC = () => {
                         width: 160,
                         height: 160,
                         borderRadius: 24,
-                        border: `3px solid ${C_CMP}88`,
-                        background: `${C_CMP}18`,
-                        boxShadow: `0 0 30px ${C_CMP}22`,
+                        border: `3px solid ${C_PURPLE}88`,
+                        background: `${C_PURPLE}18`,
+                        boxShadow: `0 0 30px ${C_PURPLE}22`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -388,7 +387,7 @@ const IntroScene: React.FC = () => {
                           fontFeatureSettings: MONO_NO_LIGA,
                           fontSize: 52,
                           fontWeight: 700,
-                          color: C_CMP,
+                          color: C_PURPLE,
                         }}
                       >
                         {op}
@@ -538,7 +537,7 @@ const SummaryScene: React.FC = () => {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               });
-              const resColor = beat.result ? C_TRUE : C_FALSE;
+              const resColor = beat.result ? C_TEAL : C_PAIN;
               return (
                 <div
                   key={i}
@@ -558,7 +557,7 @@ const SummaryScene: React.FC = () => {
                     style={{
                       fontFamily: monoFont,
                       fontFeatureSettings: MONO_NO_LIGA,
-                      color: C_CMP,
+                      color: C_PURPLE,
                       fontSize: 40,
                       fontWeight: 700,
                       minWidth: 76,

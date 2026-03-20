@@ -837,6 +837,8 @@ const InterpretScene: React.FC = () => {
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
+  const C_AGE = C_VAR; // 변수 이름 기본 색
+  const C_VAL = C_TEAL; // 값: teal
 
   const badge = (label: string, color: string, anim: number) => (
     <span
@@ -1027,6 +1029,8 @@ const QuizScene: React.FC = () => {
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
+  const C_AGE = C_VAR; // 변수 이름 기본 색
+  const C_VAL = C_TEAL; // 값: teal
 
   // 질문 단계에서 왼쪽 age 펄싱 — "age" 단어 발화 시점부터
   const AGE_WORD_FRAME = AUDIO_CONFIG.interpretQuiz.wordTiming["age"][0]; // "age"
