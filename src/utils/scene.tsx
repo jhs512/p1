@@ -137,28 +137,36 @@ export const Subtitle: React.FC<{
   const displayText = toDisplayText(sentences[idx]);
   const currentWordFrames = wordFrames?.[idx];
 
-  const containerStyle: React.CSSProperties = {
+  const outerStyle: React.CSSProperties = {
     position: "absolute",
     bottom: BOTTOM_MARGIN + 10,
-    left: "50%",
-    transform: "translateX(-50%)",
+    left: 0,
+    right: 0,
+    display: "flex",
+    justifyContent: "center",
     textAlign: "center",
+  };
+
+  const innerStyle: React.CSSProperties = {
     fontFamily: uiFont,
     fontSize: 42,
     color: "#ffffff",
     background: "rgba(0,0,0,0.55)",
     borderRadius: 6,
-    padding: "8px 16px",
+    padding: 10,
     lineHeight: 1.6,
-    width: "max-content",
-    maxWidth: width - 20,
+    maxWidth: width - 80,
     wordBreak: "keep-all",
     whiteSpace: "pre-wrap",
   };
 
   // wordFrames 없으면 기존 방식
   if (!currentWordFrames || currentWordFrames.length === 0) {
-    return <div style={containerStyle}>{displayText}</div>;
+    return (
+      <div style={outerStyle}>
+        <div style={innerStyle}>{displayText}</div>
+      </div>
+    );
   }
 
   // 현재 발화 중인 단어 인덱스
@@ -172,21 +180,23 @@ export const Subtitle: React.FC<{
 
   let wordIdx = 0;
   return (
-    <div style={containerStyle}>
-      {tokens.map((token, i) => {
-        if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-        const thisWordIdx = wordIdx++;
-        return (
-          <span
-            key={i}
-            style={{
-              color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
-            }}
-          >
-            {token}
-          </span>
-        );
-      })}
+    <div style={outerStyle}>
+      <div style={innerStyle}>
+        {tokens.map((token, i) => {
+          if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+          const thisWordIdx = wordIdx++;
+          return (
+            <span
+              key={i}
+              style={{
+                color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
+              }}
+            >
+              {token}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 };

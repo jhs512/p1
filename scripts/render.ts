@@ -117,15 +117,19 @@ function episodesOf(seriesDir: string): Target[] {
       serveUrl: bundled,
       id: compositionId,
     });
+    const scale = 4 / 3; // 1080×1920 → 1440×2560 (2K)
     await renderMedia({
       composition,
       serveUrl: bundled,
       codec: "h264",
+      scale,
       outputLocation: outputFile,
       onProgress: ({ progress }) =>
         process.stdout.write(`\r   ⏳  ${(progress * 100).toFixed(1)}%`),
     });
-    console.log(`\n   ✅  Done (${composition.width}×${composition.height})`);
+    const outW = Math.round(composition.width * scale);
+    const outH = Math.round(composition.height * scale);
+    console.log(`\n   ✅  Done (${outW}×${outH})`);
   }
 
   console.log(`\n🎉  All ${targets.length} video(s) rendered.\n`);
