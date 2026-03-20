@@ -9,8 +9,9 @@
 
 ```
 {id}-1-{ComponentName}.tsx   — 메인 컴포지션 (씬 컴포넌트 + VIDEO_CONFIG + compositionMeta)
-{id}-2-content.ts            — 나레이션/콘텐츠 데이터
+{id}-2-content.ts            — 나레이션/콘텐츠 데이터 (satisfies EpisodeContent)
 {id}-3-audio.gen.ts          — AUTO-GENERATED (pnpm sync가 생성)
+{id}-4-sub.gen.ts            — AUTO-GENERATED (SRT 자막)
 ```
 
 **id 규칙**: `011`, `012` 등 3자리 숫자.
@@ -54,8 +55,11 @@ export const CONTENT = {
     ],
   },
   // ... 각 씬별 narration
-} as const;
+} satisfies EpisodeContent;
 ```
+
+- `satisfies EpisodeContent`으로 타입 검증한다 (`as const` 사용 금지).
+- `import type { EpisodeContent } from "../../../types/episode";` 필요.
 
 ### 나레이션 규칙
 
@@ -84,10 +88,11 @@ import {
   staticFile, useCurrentFrame, useVideoConfig,
 } from "remotion";
 import {
-  CHARS_PER_SEC, CROSS, MONO_NO_LIGA,
+  CHARS_PER_SEC, CROSS, FONT, MONO_NO_LIGA,
   ContentArea, Subtitle,
-  monoFont, uiFont, useFade,
+  monoFont, monoStyle, uiFont, useFade,
 } from "../../../utils/scene";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { AUDIO_CONFIG } from "./{id}-3-audio.gen";
 import { CONTENT } from "./{id}-2-content";
 import { FPS, HEIGHT, WIDTH } from "./config";
@@ -373,8 +378,7 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
   background: BG_CODE,    // #2d2d2d
   borderRadius: 12,
   padding: "20px 32px",   // 작은 블록: "14px 20px"
-  fontFamily: monoFont,
-  fontFeatureSettings: MONO_NO_LIGA,  // 필수!
+  ...monoStyle,           // fontFamily + fontFeatureSettings 한번에 적용
   fontSize: 24~30,        // 콘텐츠 크기에 따라 조절
 }
 ```
@@ -518,7 +522,8 @@ pnpm render 001-Java-Basic/KOR/{id}
 
 - [ ] CSS `transition` / `animation` 사용 → `spring` / `interpolate` 사용
 - [ ] `100dvw` 사용 → `useVideoConfig().width` 사용
-- [ ] `fontFamily: monoFont`에 `fontFeatureSettings: MONO_NO_LIGA` 누락
+- [ ] `fontFamily: monoFont`에 `fontFeatureSettings: MONO_NO_LIGA` 누락 → `...monoStyle` 사용 권장
+- [ ] content.ts에서 `as const` 사용 → `satisfies EpisodeContent` 사용
 - [ ] 자막에 코드 포함 (`int`, `score += 10` 등)
 - [ ] 하드코딩 타이밍 오프셋 (`durationInFrames / 2 + 30` 등)
 - [ ] 조건부 렌더링으로 요소 등장 (`{show && <div>}`) → opacity 사용

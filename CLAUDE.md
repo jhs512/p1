@@ -35,6 +35,11 @@
 
 - `MONO_NO_LIGA`는 `src/utils/scene.tsx`에서 import한다 — 각 파일에 직접 정의하지 않는다.
 - 모든 `fontFamily: monoFont` 사용처에 `fontFeatureSettings: MONO_NO_LIGA` 를 함께 쓴다.
+- **간편 패턴**: `monoStyle` 객체를 스프레드하면 두 속성을 한번에 적용할 수 있다.
+  ```tsx
+  import { monoStyle } from "../../utils/scene";
+  <div style={{ ...monoStyle, fontSize: 24 }}>코드</div>
+  ```
 
 ### 5. 중간 작업마다 커밋/푸시한다
 
@@ -152,18 +157,24 @@ src/
   Root.tsx                      — 모든 컴포지션 자동 등록 (require.context) + Folder 그룹핑
   utils/
     narration.ts                — toDisplayText / toTTSText (인라인 발음 문법 파싱)
-    scene.tsx                   — 공유 상수·훅·컴포넌트 (모든 씬 파일이 import)
+    scene.tsx                   — 공유 상수·훅·컴포넌트 (monoStyle, FONT, useFade, Subtitle 등)
+    srt.ts                      — SRT_DATA 생성 유틸 (addSrtScene, computeFromValues)
+  types/
+    episode.ts                  — EpisodeContent 타입 (content.ts 파일용)
   compositions/
-    001-Java-Basic/
-      001-JavaVariables.tsx     — 001 영상 컴포지션
-      001-audio.ts              — AUTO-GENERATED: durationInFrames, narrationSplits, speechStartFrame 등
-      002-JavaDataTypes.tsx     — 002 영상 컴포지션
-      002-audio.ts              — AUTO-GENERATED
+    001-Java-Basic/KOR/
+      {id}-1-{Name}.tsx         — 메인 컴포지션 (씬 + VIDEO_CONFIG + compositionMeta)
+      {id}-2-content.ts         — 나레이션/콘텐츠 데이터
+      {id}-3-audio.gen.ts       — AUTO-GENERATED (pnpm sync)
+      {id}-4-sub.gen.ts         — AUTO-GENERATED (SRT 자막)
+      colors.ts                 — 시리즈 공유 색상 상수
+      config.ts                 — 시리즈 설정 (FPS, WIDTH, HEIGHT, PRONUNCIATION)
 scripts/
   sync.ts                       — TTS 생성 + audio config 자동 업데이트 (단일 에피소드)
   sync-all.ts                   — 전체 에피소드 일괄 sync
   render.ts                     — 프로그래매틱 렌더링 (pnpm render)
   watch.ts                      — 파일 변경 감시 → 자동 sync
+  new.ts                        — 새 에피소드 스캐폴딩
 public/                         — 생성된 mp3 파일
 out/                            — 렌더링 출력
 ```
@@ -281,20 +292,22 @@ pnpm render 001-Java-Basic/002
 
 ```ts
 import {
-  // 씬 간 크로스페이드 프레임 (= 20)
-  CHARS_PER_SEC,
-  // JetBrains Mono 리가처 비활성화
-  CROSS,
-  // 폰트 패밀리 문자열 (폰트 로딩도 scene.tsx 가 처리)
-  MONO_NO_LIGA,
-  // 씬 fadeIn/fadeOut opacity 훅
-  Subtitle,
-  // 하단 자막 컴포넌트
-  monoFont,
-  uiFont,
-  // 타이핑 속도 초당 글자 (= 10)
-  useFade,
+  CHARS_PER_SEC,    // 타이핑 속도 초당 글자 (= 10)
+  CROSS,            // 씬 간 크로스페이드 프레임 (= 20)
+  ContentArea,      // 자막 영역 제외 컨테이너
+  FONT,             // 글로벌 폰트 스케일 { label, heading, title, display }
+  MONO_NO_LIGA,     // JetBrains Mono 리가처 비활성화
+  Subtitle,         // 하단 자막 컴포넌트
+  monoFont,         // 모노스페이스 폰트 패밀리
+  monoStyle,        // { fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA }
+  uiFont,           // UI 폰트 패밀리
+  useFade,          // 씬 fadeIn/fadeOut opacity 훅
 } from "../../utils/scene";
+```
+
+SRT_DATA 생성 시:
+```ts
+import { SrtEntry, addSrtScene, computeFromValues } from "../../utils/srt";
 ```
 
 - 폰트 import (`loadJetBrains`, `loadNotoSans`)와 `delayRender`/`continueRender`는 씬 파일에 쓰지 않는다.
