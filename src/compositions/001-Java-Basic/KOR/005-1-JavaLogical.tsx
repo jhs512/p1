@@ -483,12 +483,34 @@ const AndScene: React.FC = () => {
             </div>
           )}
 
+          {/* 식 레이블: x && y → false */}
+          {frame >= s && (
+            <div
+              style={{
+                position: "absolute",
+                top: "40%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                fontSize: 34,
+                color: "#aaaaaa",
+              }}
+            >
+              <span style={{ color: "#d4d4d4" }}>x </span>
+              <span style={{ color: C_LOG }}>&amp;&amp;</span>
+              <span style={{ color: "#d4d4d4" }}> y</span>
+              <span style={{ color: "#555" }}> → </span>
+              <span style={{ color: C_FALSE }}>false</span>
+            </div>
+          )}
+
           {/* 케이스 1: true && false → false */}
           {frame >= s && (
             <div
               style={{
                 position: "absolute",
-                top: "44%",
+                top: "54%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
@@ -509,7 +531,7 @@ const AndScene: React.FC = () => {
             <div
               style={{
                 position: "absolute",
-                top: "64%",
+                top: "72%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
@@ -736,16 +758,61 @@ const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d, { out: false });
+  const s = cfg.speechStartFrame;
+  const split0 = cfg.narrationSplits[0] ?? Infinity;
+
+  // 1문장: 타이틀 등장
+  const titleAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  const titleScale = interpolate(titleAppear, [0, 1], [0.8, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  // 2문장: 타이틀 위로 + 카드 등장
+  const titleSlide = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 14, stiffness: 140 },
+    durationInFrames: 20,
+  });
+  const titleTop = interpolate(titleSlide, [0, 1], [40, 18], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+
+          {/* 타이틀: 논리 연산자 정리 */}
           <div
             style={{
               position: "absolute",
-              top: "50%",
+              top: `${titleTop}%`,
+              left: "50%",
+              transform: `translate(-50%, -50%) scale(${titleScale})`,
+              fontFamily: uiFont,
+              fontSize: 64,
+              fontWeight: 900,
+              color: C_LOG,
+              opacity: titleAppear,
+              textShadow: `0 0 40px ${C_LOG}44`,
+              whiteSpace: "nowrap",
+            }}
+          >
+            논리 연산자 정리
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: "55%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
