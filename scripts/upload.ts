@@ -60,7 +60,7 @@ async function ensurePlaylist(
     part: ["snippet", "status"],
     requestBody: {
       snippet: { title, description },
-      status: { privacyStatus: "public" },
+      status: { privacyStatus: "private" },
     },
   });
   const id = created.data.id;

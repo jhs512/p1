@@ -84,7 +84,7 @@ export function useFade(d: number, { out = true }: { out?: boolean } = {}) {
 
 // ── 상수: 하단 여백 / 자막 영역 ────────────────────────────────
 /** 영상 하단 빈 여백 (px) */
-export const BOTTOM_MARGIN = 300;
+export const BOTTOM_MARGIN = 350;
 /** 자막(bottom) + 자막 높이(~65px). ContentArea의 하단 여백으로 사용. */
 export const SUBTITLE_DEAD_ZONE = BOTTOM_MARGIN + 75;
 
@@ -144,7 +144,7 @@ export const Subtitle: React.FC<{
     transform: "translateX(-50%)",
     textAlign: "center",
     fontFamily: uiFont,
-    fontSize: 36,
+    fontSize: 42,
     color: "#ffffff",
     background: "rgba(0,0,0,0.55)",
     borderRadius: 6,
