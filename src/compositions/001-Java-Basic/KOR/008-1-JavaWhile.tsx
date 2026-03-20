@@ -41,13 +41,13 @@ const C_INT = "#4e9cd5"; // int 키워드
 const C_DIM = "rgba(255,255,255,0.22)";
 
 // ── WhileScene 타이핑 애니메이션 완료 프레임 ─────────────────────
-// CODE_LINES 전체 글자(77자) + 줄바꿈(4자) = 81자, 10자/초, 30fps
+// CODE_LINES 전체 글자(77자) + 줄바꿈(4자) = 81자, 10자/초, 60fps
 // durationInFrames = max(오디오, 타이핑완료 + CROSS + SCENE_TAIL_FRAMES)
 const WHILE_TYPING_CHARS = 81; // FULL_CODE.length
 const WHILE_CHARS_PER_SEC_CONST = 10;
 const WHILE_TYPING_END =
   AUDIO_CONFIG.whileScene.speechStartFrame +
-  Math.ceil((WHILE_TYPING_CHARS / WHILE_CHARS_PER_SEC_CONST) * 30);
+  Math.ceil((WHILE_TYPING_CHARS / WHILE_CHARS_PER_SEC_CONST) * 60);
 const WHILE_SCENE_DURATION = Math.max(
   AUDIO_CONFIG.whileScene.durationInFrames,
   WHILE_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
@@ -55,7 +55,7 @@ const WHILE_SCENE_DURATION = Math.max(
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   overview: {
     audio: "while-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -103,7 +103,7 @@ export const VIDEO_CONFIG = {
 // ── 스텁 씬 컴포넌트 — 다음 태스크에서 완전히 구현 ───────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -196,25 +196,25 @@ const OverviewScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const leftAppear = spring({
-    frame: frame - s - 10,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
-  });
-  const rightAppear = spring({
     frame: frame - s - 20,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
+  });
+  const rightAppear = spring({
+    frame: frame - s - 40,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
   });
   const whileAppear = spring({
     frame: frame - AUDIO_CONFIG.overview.wordTiming["while"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   const C_LOOP_NODE = "#4ec9b0";
@@ -395,7 +395,7 @@ const IntroScene: React.FC = () => {
     frame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 28,
+    durationInFrames: 56,
   });
   const sc = interpolate(blockAppear, [0, 1], [0.85, 1], {
     extrapolateLeft: "clamp",
@@ -533,7 +533,7 @@ const WhileScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const sc = interpolate(blockAppear, [0, 1], [0.92, 1], {
     extrapolateLeft: "clamp",
@@ -660,7 +660,7 @@ const ExecutionScene: React.FC = () => {
     frame: frame - stepStartFrame,
     fps,
     config: { damping: 14, stiffness: 180 },
-    durationInFrames: 18,
+    durationInFrames: 36,
   });
 
   // condPass=false(count=6)일 때만 조건 줄 강조
@@ -683,7 +683,7 @@ const ExecutionScene: React.FC = () => {
     3: AUDIO_CONFIG.executionScene.wordTiming["마찬가지입니다"][0],
     4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
   };
-  const OUTPUT_DELAY = 10; // 조건 하이라이트 후 약간 딜레이
+  const OUTPUT_DELAY = 20; // 조건 하이라이트 후 약간 딜레이
   const showOutput =
     step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
   const condHLStart = step.condPass
@@ -691,7 +691,7 @@ const ExecutionScene: React.FC = () => {
     : Infinity;
   const condHL = interpolate(
     frame - condHLStart,
-    [0, 6, 22, 38],
+    [0, 12, 44, 76],
     [0, 1, 1, 0],
     {
       extrapolateLeft: "clamp",
@@ -923,7 +923,7 @@ const ExecutionScene: React.FC = () => {
                         (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
                       const highlight =
                         isNew && showOutput
-                          ? interpolate(frame - execFrame, [0, 30], [1, 0], {
+                          ? interpolate(frame - execFrame, [0, 60], [1, 0], {
                               extrapolateLeft: "clamp",
                               extrapolateRight: "clamp",
                             })
@@ -975,19 +975,19 @@ const InfiniteScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const warnAppear = spring({
     frame: frame - MUHANROOP_FRAME,
     fps,
     config: { damping: 10, stiffness: 160 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const infAppear = spring({
-    frame: frame - MUHANROOP_FRAME - 10,
+    frame: frame - MUHANROOP_FRAME - 20,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   // 펄싱 — interpolate 패턴 (CSS animation 금지)
@@ -1130,7 +1130,7 @@ const SummaryScene: React.FC = () => {
     frame,
     fps,
     config: { damping: 13, stiffness: 130 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const codeSc = interpolate(codeAppear, [0, 1], [0.85, 1], {
     extrapolateLeft: "clamp",
@@ -1200,10 +1200,10 @@ const SummaryScene: React.FC = () => {
             {/* 요약 카드 */}
             {SUMMARY_ROWS.map((row, i) => {
               const appear = spring({
-                frame: frame - (i + 1) * 14,
+                frame: frame - (i + 1) * 28,
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.85, 1], {
                 extrapolateLeft: "clamp",

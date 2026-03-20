@@ -39,7 +39,7 @@ const C_BOOL = "#d4834e"; // boolean 키워드
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   intro: {
     audio: "lgc-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
@@ -122,17 +122,17 @@ const EvalRow: React.FC<{
     frame: frame - startFrame,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
   const sc = interpolate(appear, [0, 1], [0.8, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   const resultApp = spring({
-    frame: frame - startFrame - 15,
+    frame: frame - startFrame - 30,
     fps,
     config: { damping: 11, stiffness: 120 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const resultSc = interpolate(resultApp, [0, 1], [0.7, 1], {
     extrapolateLeft: "clamp",
@@ -182,7 +182,7 @@ const EvalRow: React.FC<{
       )}
 
       {/* 화살표 + 결과 */}
-      {frame >= startFrame + 15 && (
+      {frame >= startFrame + 30 && (
         <>
           <span
             style={{
@@ -205,7 +205,7 @@ const EvalRow: React.FC<{
 // ── 씬: ThumbnailScene ────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -323,7 +323,7 @@ const IntroScene: React.FC = () => {
     frame: frame - intro.speechStartFrame,
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const titleScale = interpolate(titleAppear, [0, 1], [0.8, 1], {
     extrapolateLeft: "clamp",
@@ -336,7 +336,7 @@ const IntroScene: React.FC = () => {
     frame: frame - split0,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const titleTop = interpolate(titleSlide, [0, 1], [40, 22], {
     extrapolateLeft: "clamp",
@@ -386,7 +386,7 @@ const IntroScene: React.FC = () => {
                 frame: frame - AUDIO_CONFIG.intro.wordStartFrames[1][i],
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 30,
+                durationInFrames: 60,
               });
               const sc = interpolate(appear, [0, 1], [0.3, 1], {
                 extrapolateLeft: "clamp",
@@ -781,7 +781,7 @@ const SummaryScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const titleScale = interpolate(titleAppear, [0, 1], [0.8, 1], {
     extrapolateLeft: "clamp",
@@ -792,7 +792,7 @@ const SummaryScene: React.FC = () => {
     frame: frame - split0,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const titleTop = interpolate(titleSlide, [0, 1], [40, 18], {
     extrapolateLeft: "clamp",
@@ -849,7 +849,7 @@ const SummaryScene: React.FC = () => {
                 frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.85, 1], {
                 extrapolateLeft: "clamp",

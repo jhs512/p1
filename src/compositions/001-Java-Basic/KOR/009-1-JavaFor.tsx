@@ -45,7 +45,7 @@ const FOR_SCENE_DURATION = AUDIO_CONFIG.forScene.durationInFrames;
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   overview: {
     audio: "for-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -86,7 +86,7 @@ export const VIDEO_CONFIG = {
 // ── ThumbnailScene ────────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -178,25 +178,25 @@ const OverviewScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const leftAppear = spring({
-    frame: frame - s - 10,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
-  });
-  const rightAppear = spring({
     frame: frame - s - 20,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
+  });
+  const rightAppear = spring({
+    frame: frame - s - 40,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
   });
   const forAppear = spring({
     frame: frame - AUDIO_CONFIG.overview.wordTiming["문을"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   const nodeStyle = (
@@ -399,7 +399,7 @@ const IntroScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 28,
+    durationInFrames: 56,
   });
   const sc = interpolate(blockAppear, [0, 1], [0.85, 1], {
     extrapolateLeft: "clamp",
@@ -412,7 +412,7 @@ const IntroScene: React.FC = () => {
     frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   return (
@@ -545,7 +545,7 @@ const ForScene: React.FC = () => {
   const opacity = useFade(d);
 
   const cfg_spring = { damping: 14, stiffness: 160 };
-  const dur = 22;
+  const dur = 44;
 
   // 등장 순서: 초기식 → 조건식 → 블록(body) → 증감식
   const initAppear = spring({
@@ -765,7 +765,7 @@ const ExecutionScene: React.FC = () => {
     frame: frame - stepStartFrame,
     fps,
     config: { damping: 14, stiffness: 180 },
-    durationInFrames: 18,
+    durationInFrames: 36,
   });
 
   const activeLineIsCondition = !step.condPass;
@@ -783,7 +783,7 @@ const ExecutionScene: React.FC = () => {
     : Infinity;
   const condHL = interpolate(
     frame - condHLStart,
-    [0, 6, 22, 38],
+    [0, 12, 44, 76],
     [0, 1, 1, 0],
     {
       extrapolateLeft: "clamp",
@@ -799,7 +799,7 @@ const ExecutionScene: React.FC = () => {
     3: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][2],
     4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
   };
-  const OUTPUT_DELAY = 10;
+  const OUTPUT_DELAY = 20;
   const showOutput =
     step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
 
@@ -808,7 +808,7 @@ const ExecutionScene: React.FC = () => {
     frame: frame - stepStartFrame,
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 16,
+    durationInFrames: 32,
   });
   const labelSc = interpolate(labelSpring, [0, 1], [0.75, 1], {
     extrapolateLeft: "clamp",
@@ -1039,7 +1039,7 @@ const ExecutionScene: React.FC = () => {
                       (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
                     const highlight =
                       isNew && showOutput
-                        ? interpolate(frame - execFrame, [0, 30], [1, 0], {
+                        ? interpolate(frame - execFrame, [0, 60], [1, 0], {
                             extrapolateLeft: "clamp",
                             extrapolateRight: "clamp",
                           })
@@ -1095,7 +1095,7 @@ const SummaryScene: React.FC = () => {
     frame,
     fps,
     config: { damping: 13, stiffness: 130 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const codeSc = interpolate(codeAppear, [0, 1], [0.85, 1], {
     extrapolateLeft: "clamp",
@@ -1166,7 +1166,7 @@ const SummaryScene: React.FC = () => {
                 frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.85, 1], {
                 extrapolateLeft: "clamp",

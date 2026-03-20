@@ -42,7 +42,7 @@ const C_FALSE = "#f47c7c";
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   overview: {
     audio: "if-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -95,7 +95,7 @@ const CodeBlock: React.FC<{
     frame: frame - startFrame,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const sc = interpolate(appear, [0, 1], [0.92, 1], {
     extrapolateLeft: "clamp",
@@ -229,25 +229,25 @@ const OverviewScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const leftAppear = spring({
-    frame: frame - s - 10,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
-  });
-  const rightAppear = spring({
     frame: frame - s - 20,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
+  });
+  const rightAppear = spring({
+    frame: frame - s - 40,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
   });
   const ifAppear = spring({
     frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   const C_COND = "#c586c0"; // 조건문 색
@@ -417,7 +417,7 @@ const OverviewScene: React.FC = () => {
 // ── 씬: ThumbnailScene ────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -510,13 +510,13 @@ const IntroScene: React.FC = () => {
     frame: frame - 0,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 28,
+    durationInFrames: 56,
   });
   const elseAppear = spring({
-    frame: frame - 12,
+    frame: frame - 24,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 28,
+    durationInFrames: 56,
   });
 
   const keyword = (text: string, appear: number) => {
@@ -769,12 +769,12 @@ const SummaryScene: React.FC = () => {
               const triggerFrame =
                 AUDIO_CONFIG.summaryScene.wordStartFrames[0][
                   kwWordIndices[i]
-                ] ?? i * 12;
+                ] ?? i * 24;
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.85, 1], {
                 extrapolateLeft: "clamp",
@@ -824,10 +824,10 @@ const SummaryScene: React.FC = () => {
             {/* 코드 미리보기 */}
             {(() => {
               const appear = spring({
-                frame: frame - 24,
+                frame: frame - 48,
                 fps,
                 config: { damping: 13, stiffness: 130 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.85, 1], {
                 extrapolateLeft: "clamp",

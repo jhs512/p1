@@ -46,7 +46,7 @@ import { HEIGHT, WIDTH } from "./config";
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   painScene: {
     audio: "fn-pain.mp3",
     durationInFrames: AUDIO_CONFIG.painScene.durationInFrames,
@@ -226,7 +226,7 @@ const TypingCodeLine: React.FC<{
 // 배지 = 선언 void greet() / 사용 greet();
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -329,8 +329,8 @@ function getReplaceWord(progress: number): { text: string; blank: boolean } {
   return { text: "철수", blank: false };
 }
 
-const REPLACE_DUR = 30; // 교체 애니메이션 프레임 수
-const REPLACE_GAP = 20; // 줄 간격 프레임 수
+const REPLACE_DUR = 60; // 교체 애니메이션 프레임 수
+const REPLACE_GAP = 40; // 줄 간격 프레임 수
 
 // println 줄: 타이핑 후 민준→공백→철수 교체 + 하이라이트 사각형
 const PainPrintlnLine: React.FC<{
@@ -354,7 +354,7 @@ const PainPrintlnLine: React.FC<{
           frame: frame - replaceStart,
           fps,
           config: { damping: 14, stiffness: 120 },
-          durationInFrames: 12,
+          durationInFrames: 24,
         })
       : 0;
 
@@ -499,13 +499,13 @@ const ConceptScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const descAppear = spring({
     frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
   return (
@@ -598,7 +598,7 @@ const DeclarationScene: React.FC = () => {
     frame: frame - nameWordFrame,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 16,
+    durationInFrames: 32,
   });
 
   return (
@@ -728,14 +728,14 @@ const SummaryScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   // 2문장 시작 시 타이틀 퇴장
   const titleExit = spring({
     frame: frame - split,
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 18,
+    durationInFrames: 36,
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 
@@ -745,7 +745,7 @@ const SummaryScene: React.FC = () => {
     frame: frame - declareWordFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   // "호출은" 발화(frame 141) → 카드1 등장
   const callWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][3]; // "호출은"
@@ -753,7 +753,7 @@ const SummaryScene: React.FC = () => {
     frame: frame - callWordFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const cardAppears = [card0Appear, card1Appear];
 
@@ -878,26 +878,26 @@ const ComparisonScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const arrowAppear = spring({
     frame: frame - (s + Math.round((split - s) / 2)),
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const afterAppear = spring({
     frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   // 하이라이트 사각형은 after 등장 후 살짝 뒤에
   const highlightAppear = spring({
-    frame: frame - (split + 12),
+    frame: frame - (split + 24),
     fps,
     config: { damping: 14, stiffness: 100 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
 
   const codeBoxStyle: React.CSSProperties = {
@@ -1103,28 +1103,28 @@ const RealExampleScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   // 2문장: 밑줄 애니메이션 (반복 지점 강조)
   const underlineAppear = spring({
-    frame: frame - (split1 + 15),
+    frame: frame - (split1 + 30),
     fps,
     config: { damping: 14, stiffness: 100 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   // 3→4문장 사이: 화살표 등장
   const arrowAppear = spring({
     frame: frame - (split2 + Math.round((split3 - split2) * 0.7)),
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   // 4문장: "함수로 만들면" → 개선 코드 등장
   const afterAppear = spring({
     frame: frame - split3,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
   const codeBoxStyle: React.CSSProperties = {
@@ -1423,27 +1423,27 @@ const OutroScene: React.FC = () => {
     frame: frame - returnFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const voidAppear = spring({
     frame: frame - voidFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
-  // 밑줄 애니메이션 — 발화 시점 + 8프레임 후 시작
+  // 밑줄 애니메이션 — 발화 시점 + 16프레임 후 시작
   const returnUnderline = spring({
-    frame: frame - returnFrame - 8,
+    frame: frame - returnFrame - 16,
     fps,
     config: { damping: 14, stiffness: 100 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
   const voidUnderline = spring({
-    frame: frame - voidFrame - 8,
+    frame: frame - voidFrame - 16,
     fps,
     config: { damping: 14, stiffness: 100 },
-    durationInFrames: 20,
+    durationInFrames: 40,
   });
 
   const keywordStyle = (appear: number): React.CSSProperties => ({

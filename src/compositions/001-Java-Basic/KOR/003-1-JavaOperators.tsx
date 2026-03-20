@@ -52,7 +52,7 @@ const C_REM = C_TEAL; // 나머지(%) 강조
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   intro: {
     audio: "op-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
@@ -210,7 +210,7 @@ const CodeLines: React.FC<{
 // ── 씬: ThumbnailScene ────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -317,10 +317,10 @@ const IntroScene: React.FC = () => {
           >
             {INTRO_OPS.map((op, i) => {
               const appear = spring({
-                frame: frame - i * 6,
+                frame: frame - i * 12,
                 fps,
                 config: { damping: 14, stiffness: 140 },
-                durationInFrames: 30,
+                durationInFrames: 60,
               });
               const sc = interpolate(appear, [0, 1], [0.3, 1], {
                 extrapolateLeft: "clamp",
@@ -462,7 +462,7 @@ const RemScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 30,
+    durationInFrames: 60,
   });
 
   // split0: 몫/나머지 강조 등장
@@ -470,7 +470,7 @@ const RemScene: React.FC = () => {
     frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 25,
+    durationInFrames: 50,
   });
 
   // split1: 활용 예시 등장
@@ -478,7 +478,7 @@ const RemScene: React.FC = () => {
     frame: frame - split1,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 25,
+    durationInFrames: 50,
   });
 
   return (

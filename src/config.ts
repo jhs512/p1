@@ -3,16 +3,16 @@
 
 // ── 타이밍 ───────────────────────────────────────────────────
 /** 렌더링 프레임레이트 */
-export const FPS = 30;
+export const FPS = 60;
 
 /** 오디오 종료 후 씬이 유지되는 여유 프레임 */
-export const SCENE_TAIL_FRAMES = 5;
+export const SCENE_TAIL_FRAMES = 10;
 
 /** 씬 간 크로스페이드 프레임 수 */
 export const CROSS = 0;
 
 /** 썸네일 → 첫 씬 전용 크로스페이드 프레임 수 */
-export const THUMB_CROSS = 25;
+export const THUMB_CROSS = 50;
 
 /** 타이핑 이펙트 — 초당 글자 수 */
 export const CHARS_PER_SEC = 10;

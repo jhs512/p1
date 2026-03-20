@@ -42,7 +42,7 @@ import {
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
-const BEAT_CROSS = 12; // 연산자 비트 간 크로스페이드
+const BEAT_CROSS = 24; // 연산자 비트 간 크로스페이드
 
 // ── 비트 데이터 ───────────────────────────────────────────────
 const BEATS = [
@@ -56,7 +56,7 @@ const BEATS = [
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   intro: {
     audio: "cmp-intro.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
@@ -147,19 +147,19 @@ const BeatCard: React.FC<{
     frame,
     fps,
     config: { damping: 11, stiffness: 130 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
   const exprScale = interpolate(exprSpring, [0, 1], [0.75, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  // 결과 배지 — 20프레임 후 위에서 내려옴
+  // 결과 배지 — 40프레임 후 위에서 내려옴
   const resultSpring = spring({
-    frame: frame - 20,
+    frame: frame - 40,
     fps,
     config: { damping: 10, stiffness: 110 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
   const resultY = interpolate(resultSpring, [0, 1], [-40, 0], {
     extrapolateLeft: "clamp",
@@ -207,7 +207,7 @@ const BeatCard: React.FC<{
       </div>
 
       {/* 결과 배지 */}
-      {frame >= 20 && (
+      {frame >= 40 && (
         <div
           style={{
             position: "absolute",
@@ -242,7 +242,7 @@ const BeatCard: React.FC<{
 // ── 씬: ThumbnailScene ────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -392,7 +392,7 @@ const IntroScene: React.FC = () => {
                     frame: frame - startFrame,
                     fps,
                     config: { damping: 13, stiffness: 145 },
-                    durationInFrames: 30,
+                    durationInFrames: 60,
                   });
                   const sc = interpolate(appear, [0, 1], [0.3, 1], {
                     extrapolateLeft: "clamp",
@@ -457,7 +457,7 @@ const CompareScene: React.FC = () => {
   const beatStarts = [s, ...splits];
 
   // 헤더 등장
-  const headerOpacity = interpolate(frame, [s, s + 20], [0, 1], {
+  const headerOpacity = interpolate(frame, [s, s + 40], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -564,10 +564,10 @@ const SummaryScene: React.FC = () => {
           >
             {BEATS.map((beat, i) => {
               const appear = spring({
-                frame: frame - i * 9,
+                frame: frame - i * 18,
                 fps,
                 config: { damping: 13, stiffness: 140 },
-                durationInFrames: 26,
+                durationInFrames: 52,
               });
               const sc = interpolate(appear, [0, 1], [0.82, 1], {
                 extrapolateLeft: "clamp",

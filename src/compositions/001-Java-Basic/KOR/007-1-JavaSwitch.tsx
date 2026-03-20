@@ -120,7 +120,7 @@ const ARROW_CHAR_STARTS: number[] = (() => {
 // SyntaxScene duration 헌법 계산
 const SYNTAX_TYPING_END =
   AUDIO_CONFIG.syntaxScene.speechStartFrame +
-  Math.ceil((SYNTAX_CODE_CHARS / SYNTAX_CHARS_PER_SEC) * 30);
+  Math.ceil((SYNTAX_CODE_CHARS / SYNTAX_CHARS_PER_SEC) * 60);
 const SYNTAX_SCENE_DURATION = Math.max(
   AUDIO_CONFIG.syntaxScene.durationInFrames,
   SYNTAX_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
@@ -128,7 +128,7 @@ const SYNTAX_SCENE_DURATION = Math.max(
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
-  thumbnail: { durationInFrames: 30 },
+  thumbnail: { durationInFrames: 60 },
   overview: {
     audio: "switch-overview.mp3",
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
@@ -189,7 +189,7 @@ const totalDuration = _from;
 // ── ThumbnailScene ────────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -281,32 +281,32 @@ const OverviewScene: React.FC = () => {
     frame: frame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const leftAppear = spring({
-    frame: frame - 10,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
-  });
-  const rightAppear = spring({
     frame: frame - 20,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 24,
+    durationInFrames: 48,
+  });
+  const rightAppear = spring({
+    frame: frame - 40,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
   });
   const ifAppear = spring({
-    frame: frame - 28,
+    frame: frame - 56,
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
   // switch 노드: if 직후 등장 (frame 0부터 트리 완성)
   const switchAppear = spring({
     frame: frame - AUDIO_CONFIG.overview.wordTiming["switch"][0],
     fps,
     config: { damping: 12, stiffness: 160 },
-    durationInFrames: 22,
+    durationInFrames: 44,
   });
 
   const C_COND = C_CASE;
@@ -555,13 +555,13 @@ const IntroScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const rightAppear = spring({
     frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
   const cardBase: React.CSSProperties = {
@@ -716,7 +716,7 @@ const SyntaxScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const sc = interpolate(blockAppear, [0, 1], [0.92, 1], {
     extrapolateLeft: "clamp",
@@ -727,7 +727,7 @@ const SyntaxScene: React.FC = () => {
     const glowFrame = s + Math.ceil((charStart / SYNTAX_CHARS_PER_SEC) * fps);
     return interpolate(
       frame,
-      [glowFrame, glowFrame + 6, glowFrame + 18],
+      [glowFrame, glowFrame + 12, glowFrame + 36],
       [0, 1, 0],
       { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
     );
@@ -832,16 +832,16 @@ const MultiCaseScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const p2Appear = spring({
     frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
 
-  const strGlow = interpolate(frame, [s + 10, s + 30], [0, 1], {
+  const strGlow = interpolate(frame, [s + 20, s + 60], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -1063,25 +1063,25 @@ const SummaryScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 13, stiffness: 130 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const card1Appear = spring({
     frame: frame - split0,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const card2Appear = spring({
     frame: frame - split1,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
   const card3Appear = spring({
     frame: frame - split2,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 26,
+    durationInFrames: 52,
   });
 
   const cardSprings = [card1Appear, card2Appear, card3Appear];

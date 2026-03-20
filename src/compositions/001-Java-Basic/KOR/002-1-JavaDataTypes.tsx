@@ -46,7 +46,7 @@ import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const typingDone = (chars: number, speechStart: number) =>
-  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 60);
 
 const TYPE_COLORS: Record<string, string> = {
   int: C_TYPE,
@@ -58,7 +58,7 @@ const TYPE_COLORS: Record<string, string> = {
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
   thumbnail: {
-    durationInFrames: 30,
+    durationInFrames: 60,
   },
   intro: {
     audio: "dt-intro.mp3",
@@ -224,7 +224,7 @@ const TypeBox: React.FC<{
   label?: string;
   startFrame?: number;
   dropStartFrame?: number;
-}> = ({ color, value, label, startFrame = 0, dropStartFrame = 30 }) => {
+}> = ({ color, value, label, startFrame = 0, dropStartFrame = 60 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -233,7 +233,7 @@ const TypeBox: React.FC<{
     frame: boxE,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 35,
+    durationInFrames: 70,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
     extrapolateLeft: "clamp",
@@ -241,19 +241,19 @@ const TypeBox: React.FC<{
   });
 
   const dropE = frame - dropStartFrame;
-  const DROP_FRAMES = 30;
+  const DROP_FRAMES = 60;
   const dropY = interpolate(dropE, [0, DROP_FRAMES], [-140, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.quad),
   });
-  const dropO = interpolate(dropE, [0, 4], [0, 1], {
+  const dropO = interpolate(dropE, [0, 8], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   const dropGlow = interpolate(
     dropE,
-    [DROP_FRAMES - 2, DROP_FRAMES + 2, DROP_FRAMES + 14],
+    [DROP_FRAMES - 4, DROP_FRAMES + 4, DROP_FRAMES + 28],
     [0, 1, 0.2],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
@@ -329,7 +329,7 @@ const TypeBox: React.FC<{
 const BooleanToggleAnim: React.FC<{
   startFrame?: number;
   dropStartFrame?: number;
-}> = ({ startFrame = 0, dropStartFrame = 30 }) => {
+}> = ({ startFrame = 0, dropStartFrame = 60 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const COLOR = TYPE_COLORS.boolean; // "#d4834e"
@@ -339,21 +339,21 @@ const BooleanToggleAnim: React.FC<{
     frame: boxE,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 35,
+    durationInFrames: 70,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const PERIOD = 45;
+  const PERIOD = 90;
   const elapsed = Math.max(0, frame - dropStartFrame);
   const cycleFrame = elapsed % (PERIOD * 2);
   const showTrue = cycleFrame < PERIOD;
   const toggleColor = showTrue ? C_TEAL : "#f44747";
   const displayValue = showTrue ? "true" : "false";
 
-  const valueOpacity = interpolate(frame - dropStartFrame, [0, 8], [0, 1], {
+  const valueOpacity = interpolate(frame - dropStartFrame, [0, 16], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -415,7 +415,7 @@ const BooleanToggleAnim: React.FC<{
 // ── 씬: ThumbnailScene ───────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -501,13 +501,13 @@ const IntroScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const titleExit = spring({
     frame: frame - split1,
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 18,
+    durationInFrames: 36,
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 
@@ -584,7 +584,7 @@ const IntroScene: React.FC = () => {
                 frame: frame - triggerFrame,
                 fps,
                 config: { damping: 14, stiffness: 140 },
-                durationInFrames: 35,
+                durationInFrames: 70,
               });
               const boxScale = interpolate(appear, [0, 1], [0.2, 1], {
                 extrapolateLeft: "clamp",
@@ -651,13 +651,13 @@ const ValueVsVarScene: React.FC = () => {
     frame: frame - s,
     fps,
     config: { damping: 14, stiffness: 120 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const msgExit = spring({
     frame: frame - split0,
     fps,
     config: { damping: 14, stiffness: 200 },
-    durationInFrames: 18,
+    durationInFrames: 36,
   });
   const msgOpacity = msgAppear * (1 - msgExit);
 
@@ -670,7 +670,7 @@ const ValueVsVarScene: React.FC = () => {
     frame: frame - valueWordFrame,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 30,
+    durationInFrames: 60,
   });
   const valueScale = interpolate(valueAppear, [0, 1], [0.5, 1], {
     extrapolateLeft: "clamp",
@@ -680,7 +680,7 @@ const ValueVsVarScene: React.FC = () => {
     frame: frame - varWordFrame,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 30,
+    durationInFrames: 60,
   });
   const varScale = interpolate(varAppear, [0, 1], [0.5, 1], {
     extrapolateLeft: "clamp",
@@ -688,7 +688,7 @@ const ValueVsVarScene: React.FC = () => {
   });
   const arrowOp = interpolate(
     frame,
-    [varWordFrame, varWordFrame + 15],
+    [varWordFrame, varWordFrame + 30],
     [0, 1],
     {
       extrapolateLeft: "clamp",

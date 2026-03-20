@@ -47,7 +47,7 @@ export interface CodeLine {
 }
 
 /** 음성 길이(초) → 장면 프레임 수 (꼬리 여유 포함). 나중을 위해 유지. */
-export const f = (secs: number) => Math.ceil(secs * 30) + SCENE_TAIL_FRAMES;
+export const f = (secs: number) => Math.ceil(secs * 60) + SCENE_TAIL_FRAMES;
 
 /** 코드 라인 — 한 곳에서만 정의 */
 const ALL_CODE = ["int age;", "age = 25;", "System.out.println(age);"];
@@ -59,7 +59,7 @@ const codeUpTo = (n: number): CodeLine[] =>
 // durationInFrames / narrationSplits 는 AUDIO_CONFIG (0001-audio.ts) 에서 자동 관리됩니다.
 export const VIDEO_CONFIG = {
   thumbnail: {
-    durationInFrames: 30,
+    durationInFrames: 60,
   },
 
   intro: {
@@ -221,7 +221,7 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
   startFrame,
 }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [startFrame, startFrame + 15], [0, 1], {
+  const opacity = interpolate(frame, [startFrame, startFrame + 30], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -262,10 +262,10 @@ const BoxMetaphorAnim: React.FC = () => {
 
   // 1) 상자 + 라벨 동시 등장
   const boxAppear = spring({
-    frame: frame - 15,
+    frame: frame - 30,
     fps,
     config: { damping: 10, stiffness: 90 },
-    durationInFrames: 45,
+    durationInFrames: 90,
   });
   const boxScale = interpolate(boxAppear, [0, 1], [0.2, 1], {
     extrapolateLeft: "clamp",
@@ -278,7 +278,7 @@ const BoxMetaphorAnim: React.FC = () => {
     frame: frame - NAME_TAG_START,
     fps,
     config: { damping: 12, stiffness: 180 },
-    durationInFrames: 25,
+    durationInFrames: 50,
   });
   const nameTagScale = interpolate(nameTag, [0, 1], [0.5, 1], {
     extrapolateLeft: "clamp",
@@ -287,7 +287,7 @@ const BoxMetaphorAnim: React.FC = () => {
 
   // 4) 값(25) 낙하 — 단일 엘리먼트, Y만 이동하고 opacity 유지 (두 애니메이션 분리 → 깜빡임 제거)
   const dropE = frame - DROP_START;
-  const DROP_FRAMES = 30;
+  const DROP_FRAMES = 60;
   // Y: -160(박스 위) → 0(중앙) easeOut
   const dropY = interpolate(dropE, [0, DROP_FRAMES], [-160, 0], {
     extrapolateLeft: "clamp",
@@ -295,14 +295,14 @@ const BoxMetaphorAnim: React.FC = () => {
     easing: Easing.out(Easing.quad),
   });
   // opacity: 처음 4프레임에만 0→1, 이후 계속 1 (절대 0으로 돌아가지 않음)
-  const dropO = interpolate(dropE, [0, 4], [0, 1], {
+  const dropO = interpolate(dropE, [0, 8], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   // 착지 글로우
   const dropGlow = interpolate(
     dropE,
-    [DROP_FRAMES - 2, DROP_FRAMES + 2, DROP_FRAMES + 14],
+    [DROP_FRAMES - 4, DROP_FRAMES + 4, DROP_FRAMES + 28],
     [0, 1, 0.2],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
@@ -313,10 +313,10 @@ const BoxMetaphorAnim: React.FC = () => {
     frame: extE,
     fps,
     config: { damping: 200 },
-    durationInFrames: 30,
+    durationInFrames: 60,
   });
   // 꺼내진 값 + 화살표: 박스 오른쪽에서 fade-in
-  const extractO = interpolate(extE, [0, 12], [0, 1], {
+  const extractO = interpolate(extE, [0, 24], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -487,7 +487,7 @@ const IntroScene: React.FC = () => {
 // ── 씬 컴포넌트 ───────────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [30 - THUMB_CROSS, 30], [1, 0], {
+  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -559,9 +559,9 @@ const ThumbnailScene: React.FC = () => {
   );
 };
 
-const QUIZ_THINKING_FRAMES = 150; // 퀴즈 대기 시간 (5초)
+const QUIZ_THINKING_FRAMES = 300; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
-  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 30);
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 60);
 
 const {
   thumbnail,
@@ -595,7 +595,7 @@ const CombinedVariableBox: React.FC<{
     frame: elapsed,
     fps,
     config: { damping: 14, stiffness: 140 },
-    durationInFrames: 35,
+    durationInFrames: 70,
   });
   const translateY = interpolate(appear, [0, 1], [40, 0], {
     extrapolateLeft: "clamp",
@@ -607,7 +607,7 @@ const CombinedVariableBox: React.FC<{
     frame: fillElapsed,
     fps,
     config: { damping: 10, stiffness: 120 },
-    durationInFrames: 40,
+    durationInFrames: 80,
   });
   const valueY = interpolate(dropProgress, [0, 1], [-110, 8], {
     extrapolateLeft: "clamp",
@@ -808,13 +808,13 @@ const InterpretScene: React.FC = () => {
     frame: frame - split0,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
   const ann2 = spring({
     frame: frame - split1,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
@@ -999,7 +999,7 @@ const QuizScene: React.FC = () => {
       })
     : 0;
   const secondsLeft = isCountdown
-    ? Math.ceil((QUIZ_THINKING_FRAMES - cdFrame) / 30)
+    ? Math.ceil((QUIZ_THINKING_FRAMES - cdFrame) / 60)
     : 0;
 
   // 정답 공개 애니메이션
@@ -1007,7 +1007,7 @@ const QuizScene: React.FC = () => {
     frame: frame - REVEAL_START,
     fps,
     config: { damping: 13, stiffness: 140 },
-    durationInFrames: 24,
+    durationInFrames: 48,
   });
 
   const C_SPACE = "#e5c07b"; // 공간: amber
@@ -1026,7 +1026,7 @@ const QuizScene: React.FC = () => {
     frame: frame - REVEAL_SPLIT2,
     fps,
     config: { damping: 12, stiffness: 120 },
-    durationInFrames: 30,
+    durationInFrames: 60,
   });
 
   // age 스팬: 질문=왼쪽 펄싱, 공개 후=역할별 색
