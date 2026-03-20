@@ -21,6 +21,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -239,92 +240,108 @@ const BeatCard: React.FC<{
 };
 
 // ── 씬: ThumbnailScene ────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: "#0d0d1a",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 28,
-    }}
-  >
-    <div
-      style={{
-        position: "absolute",
-        width: 860,
-        height: 860,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 26,
-        fontWeight: 700,
-        color: C_TEAL,
-        letterSpacing: 10,
-        opacity: 0.8,
-      }}
-    >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 108,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#fff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: C_TEAL }}>비교 연산자</span>
-    </div>
-    {/* 예시: 10 == 3 → false */}
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 20,
-        marginTop: 8,
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-      }}
-    >
-      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>10</span>
-      <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>==</span>
-      <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>3</span>
-      <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
-      <span style={{ fontSize: 56, fontWeight: 900, color: C_PAIN }}>
-        false
-      </span>
-    </div>
-    {/* 6개 나열 */}
-    <div
-      style={{
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 30,
-        color: C_PURPLE,
-        opacity: 0.5,
-        letterSpacing: 6,
-        whiteSpace: "pre",
-      }}
-    >
-      {"==  !=  >  <  >=  <="}
-    </div>
-  </AbsoluteFill>
-);
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill style={{ opacity: fadeOut }}>
+      <AbsoluteFill
+        style={{
+          background: "#0d0d1a",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 28,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            width: 860,
+            height: 860,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 26,
+            fontWeight: 700,
+            color: C_TEAL,
+            letterSpacing: 10,
+            opacity: 0.8,
+          }}
+        >
+          JAVA
+        </div>
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 108,
+            fontWeight: 900,
+            lineHeight: 1,
+            textAlign: "center",
+            color: "#fff",
+            textShadow:
+              "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+          }}
+        >
+          Java
+          <br />
+          <span style={{ color: C_TEAL }}>비교 연산자</span>
+        </div>
+        {/* 예시: 10 == 3 → false */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            marginTop: 8,
+            fontFamily: monoFont,
+            fontFeatureSettings: MONO_NO_LIGA,
+          }}
+        >
+          <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>
+            10
+          </span>
+          <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>
+            ==
+          </span>
+          <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>
+            3
+          </span>
+          <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
+          <span style={{ fontSize: 56, fontWeight: 900, color: C_PAIN }}>
+            false
+          </span>
+        </div>
+        {/* 6개 나열 */}
+        <div
+          style={{
+            fontFamily: monoFont,
+            fontFeatureSettings: MONO_NO_LIGA,
+            fontSize: 30,
+            color: C_PURPLE,
+            opacity: 0.5,
+            letterSpacing: 6,
+            whiteSpace: "pre",
+          }}
+        >
+          {"==  !=  >  <  >=  <="}
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const INTRO_OPS = ["==", "!=", ">", "<", ">=", "<="];
@@ -340,7 +357,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
-          <SceneTitle title="비교 연산자란?" />
+          <SceneTitle title="1. 비교 연산자란?" />
           <div
             style={{
               position: "absolute",
@@ -450,7 +467,7 @@ const CompareScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="비교 연산자 실행" />
+          <SceneTitle title="2. 비교 연산자 실행" />
 
           {/* 상단 고정 헤더 */}
           {frame >= s && (
@@ -513,7 +530,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="비교 연산자 정리" />
+          <SceneTitle title="3. 비교 연산자 정리" />
 
           {/* 헤더 */}
           <div
@@ -629,7 +646,8 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
+  _from += s.durationInFrames - overlap;
   return f;
 });
 const totalDuration = _from;

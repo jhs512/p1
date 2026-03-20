@@ -22,6 +22,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -223,82 +224,91 @@ const TypingCodeLine: React.FC<{
 // ── 씬: ThumbnailScene — 006 스타일 통일 ─────────────────────
 // 색상 통일: "Java" = C_FUNC(노란색), "함수" = 흰색, JAVA 라벨 = 흰색(저채도)
 // 배지 = 선언 void greet() / 사용 greet();
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: BG_THUMB,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 28,
-    }}
-  >
-    {/* 배경 글로우 원 */}
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [10, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 860,
-        height: 860,
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${C_TEAL}1e 0%, transparent 70%)`,
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    {/* JAVA 라벨 */}
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 26,
-        fontWeight: 700,
-        color: C_TEAL,
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: BG_THUMB,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 28,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    {/* 메인 타이틀: Java(흰색) + 함수(teal) — 다른 에피소드와 통일 */}
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 108,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#ffffff",
-        textShadow: `0 0 60px ${C_TEAL}99, 0 0 120px ${C_TEAL}44`,
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: C_TEAL }}>함수</span>
-    </div>
-    {/* 배지 2개: 함수 선언 / 함수 사용 */}
-    <div style={{ display: "flex", gap: 20, marginTop: 8 }}>
-      {["함수 선언", "함수 사용"].map((label) => (
-        <div
-          key={label}
-          style={{
-            fontFamily: uiFont,
-            fontSize: 44,
-            fontWeight: 900,
-            color: C_TEAL,
-            background: `${C_TEAL}18`,
-            border: `2px solid ${C_TEAL}55`,
-            borderRadius: 18,
-            padding: "18px 44px",
-            textAlign: "center",
-          }}
-        >
-          {label}
-        </div>
-      ))}
-    </div>
-  </AbsoluteFill>
-);
+      {/* 배경 글로우 원 */}
+      <div
+        style={{
+          position: "absolute",
+          width: 860,
+          height: 860,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${C_TEAL}1e 0%, transparent 70%)`,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      {/* JAVA 라벨 */}
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 26,
+          fontWeight: 700,
+          color: C_TEAL,
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      {/* 메인 타이틀: Java(흰색) + 함수(teal) — 다른 에피소드와 통일 */}
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 108,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#ffffff",
+          textShadow: `0 0 60px ${C_TEAL}99, 0 0 120px ${C_TEAL}44`,
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: C_TEAL }}>함수</span>
+      </div>
+      {/* 배지 2개: 함수 선언 / 함수 사용 */}
+      <div style={{ display: "flex", gap: 20, marginTop: 8 }}>
+        {["함수 선언", "함수 사용"].map((label) => (
+          <div
+            key={label}
+            style={{
+              fontFamily: uiFont,
+              fontSize: 44,
+              fontWeight: 900,
+              color: C_TEAL,
+              background: `${C_TEAL}18`,
+              border: `2px solid ${C_TEAL}55`,
+              borderRadius: 18,
+              padding: "18px 44px",
+              textAlign: "center",
+            }}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬: PainScene ─────────────────────────────────────────────
 const PAIN_LINES = [
@@ -425,7 +435,7 @@ const PainScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="반복의 고통" />
+          <SceneTitle title="1. 반복의 고통" />
           <div
             style={{
               position: "absolute",
@@ -503,7 +513,7 @@ const ConceptScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="함수란?" />
+          <SceneTitle title="2. 함수란?" />
           <div
             style={{
               position: "absolute",
@@ -596,7 +606,7 @@ const DeclarationScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="함수 선언" />
+          <SceneTitle title="3. 함수 선언" />
           <div
             style={{
               position: "absolute",
@@ -664,7 +674,7 @@ const CallScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="함수 호출" />
+          <SceneTitle title="4. 함수 호출" />
           <div
             style={{
               position: "absolute",
@@ -752,7 +762,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="함수 정리" />
+          <SceneTitle title="5. 함수 정리" />
           <div
             style={{
               position: "absolute",
@@ -957,7 +967,7 @@ const ComparisonScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="Before / After" />
+          <SceneTitle title="6. Before / After" />
           <div
             style={{
               position: "absolute",
@@ -1266,7 +1276,7 @@ const RealExampleScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="실전 예시" />
+          <SceneTitle title="7. 실전 예시" />
           <div
             style={{
               position: "absolute",
@@ -1452,7 +1462,7 @@ const OutroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="다음 시간에" />
+          <SceneTitle title="8. 다음 시간에" />
 
           <div
             style={{
@@ -1538,7 +1548,9 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  _from +=
+    s.durationInFrames -
+    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
   return f;
 });
 const totalDuration = _from;

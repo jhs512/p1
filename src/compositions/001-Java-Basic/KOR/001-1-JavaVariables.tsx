@@ -29,11 +29,12 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
+import { SrtEntry, addSrtScene } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { BG, BG_CODE, BG_THUMB, C_NUMBER, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -469,7 +470,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
-          <SceneTitle title="변수란?" />
+          <SceneTitle title="1. 변수란?" />
           <BoxMetaphorAnim />
         </ContentArea>
       </AbsoluteFill>
@@ -484,71 +485,79 @@ const IntroScene: React.FC = () => {
 };
 
 // ── 씬 컴포넌트 ───────────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: BG_THUMB,
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 24,
-    }}
-  >
-    {/* 글로우 원형 배경 */}
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 900,
-        height: 900,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 28,
-        fontWeight: 700,
-        color: C_TEAL,
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: BG_THUMB,
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 24,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 160,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#ffffff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: C_TEAL }}>변수</span>
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 32,
-        color: C_TEAL,
-        letterSpacing: 4,
-        opacity: 0.7,
-      }}
-    >
-      선언 · 초기화 · 출력
-    </div>
-  </AbsoluteFill>
-);
+      {/* 글로우 원형 배경 */}
+      <div
+        style={{
+          position: "absolute",
+          width: 900,
+          height: 900,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 28,
+          fontWeight: 700,
+          color: C_TEAL,
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 160,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#ffffff",
+          textShadow:
+            "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: C_TEAL }}>변수</span>
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 32,
+          color: C_TEAL,
+          letterSpacing: 4,
+          opacity: 0.7,
+        }}
+      >
+        선언 · 초기화 · 출력
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 const QUIZ_THINKING_FRAMES = 150; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
@@ -729,10 +738,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
 
           {/* 제목: 씬 전환 시 교체 */}
           <Sequence durationInFrames={SPLIT}>
-            <SceneTitle title={declaration.title} />
+            <SceneTitle title={`2. ${declaration.title}`} />
           </Sequence>
           <Sequence from={SPLIT}>
-            <SceneTitle title={initialization.title} />
+            <SceneTitle title={`3. ${initialization.title}`} />
           </Sequence>
 
           {/* 코드: 선언 코드 → 초기화 코드 (int age;는 isNew:false로 이미 표시됨) */}
@@ -849,7 +858,7 @@ const InterpretScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="변수의 해석" />
+          <SceneTitle title="4. 변수의 해석" />
 
           {frame >= s && (
             <div
@@ -1076,7 +1085,7 @@ const QuizScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <SceneTitle title="해석 퀴즈" />
+          <SceneTitle title="5. 해석 퀴즈" />
           {/* 오디오: 문제 */}
           <Sequence durationInFrames={qDur}>
             <Audio src={staticFile(qCfg.audio)} />
@@ -1321,7 +1330,7 @@ const PrintScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(print.audio)} />
-          <SceneTitle title={print.title} />
+          <SceneTitle title={`6. ${print.title}`} />
           <CodeBox lines={print.code} startFrame={s} />
           <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />
         </ContentArea>
@@ -1348,7 +1357,9 @@ const mergedSceneList = [
 let _from = 0;
 const fromValues = mergedSceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < mergedSceneList.length - 1 ? CROSS : 0);
+  const overlap =
+    i === 0 ? THUMB_CROSS : i < mergedSceneList.length - 1 ? CROSS : 0;
+  _from += s.durationInFrames - overlap;
   return f;
 });
 const totalDuration = _from;
@@ -1366,7 +1377,14 @@ export const SRT_DATA: SrtEntry[] = (() => {
     QUIZ_TOTAL_DURATION,
     print.durationInFrames,
   ];
-  const froms = computeFromValues(sceneDurations);
+  const froms: number[] = [];
+  let _srtFrom = 0;
+  for (let i = 0; i < sceneDurations.length; i++) {
+    froms.push(_srtFrom);
+    const overlap =
+      i === 0 ? THUMB_CROSS : i < sceneDurations.length - 1 ? CROSS : 0;
+    _srtFrom += sceneDurations[i] - overlap;
+  }
 
   // froms[0] = thumbnail → 나레이션 없음
   // froms[1] = intro

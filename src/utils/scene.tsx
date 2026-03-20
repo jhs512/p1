@@ -43,7 +43,7 @@ export const monoStyle = {
   fontFeatureSettings: MONO_NO_LIGA,
 } as const;
 
-export { CROSS, CHARS_PER_SEC } from "../config";
+export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
 
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**

@@ -20,6 +20,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -207,71 +208,79 @@ const CodeLines: React.FC<{
 };
 
 // ── 씬: ThumbnailScene ────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: BG_THUMB,
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 24,
-    }}
-  >
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 900,
-        height: 900,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 28,
-        fontWeight: 700,
-        color: C_TEAL,
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: BG_THUMB,
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 24,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 120,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#ffffff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: C_TEAL }}>산술 연산자</span>
-    </div>
-    <div
-      style={{
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 44,
-        color: C_TEAL,
-        letterSpacing: 12,
-        opacity: 0.7,
-      }}
-    >
-      + &nbsp; - &nbsp; * &nbsp; / &nbsp; %
-    </div>
-  </AbsoluteFill>
-);
+      <div
+        style={{
+          position: "absolute",
+          width: 900,
+          height: 900,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 28,
+          fontWeight: 700,
+          color: C_TEAL,
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 120,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#ffffff",
+          textShadow:
+            "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: C_TEAL }}>산술 연산자</span>
+      </div>
+      <div
+        style={{
+          fontFamily: monoFont,
+          fontFeatureSettings: MONO_NO_LIGA,
+          fontSize: 44,
+          color: C_TEAL,
+          letterSpacing: 12,
+          opacity: 0.7,
+        }}
+      >
+        + &nbsp; - &nbsp; * &nbsp; / &nbsp; %
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const INTRO_OPS = ["+", "-", "*", "/", "%"];
@@ -295,7 +304,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
-          <SceneTitle title="산술 연산자란?" />
+          <SceneTitle title="1. 산술 연산자란?" />
           <div
             style={{
               position: "absolute",
@@ -376,7 +385,7 @@ const AddSubScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="덧셈 · 뺄셈" />
+          <SceneTitle title="2. 덧셈 · 뺄셈" />
           {frame >= s && (
             <CodeLines
               lines={[
@@ -412,7 +421,7 @@ const MulDivScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="곱셈 · 나눗셈" />
+          <SceneTitle title="3. 곱셈 · 나눗셈" />
           {frame >= s && (
             <CodeLines
               lines={[
@@ -477,7 +486,7 @@ const RemScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="나머지 연산" />
+          <SceneTitle title="4. 나머지 연산" />
 
           {/* 메인: 11 % 3 == 2 */}
           <div
@@ -690,7 +699,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="산술 연산자 정리" />
+          <SceneTitle title="5. 산술 연산자 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
               <div
@@ -751,7 +760,9 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  _from +=
+    s.durationInFrames -
+    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
   return f;
 });
 const totalDuration = _from;

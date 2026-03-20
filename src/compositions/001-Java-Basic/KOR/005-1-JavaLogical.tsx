@@ -21,6 +21,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -202,103 +203,112 @@ const EvalRow: React.FC<{
 };
 
 // ── 씬: ThumbnailScene ────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: "#0d0d1a",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 28,
-    }}
-  >
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [10, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 860,
-        height: 860,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 26,
-        fontWeight: 700,
-        color: "#4ec9b0",
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: "#0d0d1a",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 28,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 108,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#fff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: "#4ec9b0" }}>논리 연산자</span>
-    </div>
-    {/* 세 연산자 */}
-    <div
-      style={{
-        display: "flex",
-        gap: 32,
-        marginTop: 12,
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-      }}
-    >
-      {[
-        ["&&", "AND"],
-        ["||", "OR"],
-        ["!", "NOT"],
-      ].map(([op, label]) => (
-        <div
-          key={op}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 8,
-            background: "#4ec9b018",
-            border: "2px solid #4ec9b055",
-            borderRadius: 20,
-            padding: "22px 36px",
-          }}
-        >
-          <span style={{ fontSize: 56, fontWeight: 900, color: "#4ec9b0" }}>
-            {op}
-          </span>
-          <span
+      <div
+        style={{
+          position: "absolute",
+          width: 860,
+          height: 860,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 26,
+          fontWeight: 700,
+          color: "#4ec9b0",
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 108,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#fff",
+          textShadow:
+            "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: "#4ec9b0" }}>논리 연산자</span>
+      </div>
+      {/* 세 연산자 */}
+      <div
+        style={{
+          display: "flex",
+          gap: 32,
+          marginTop: 12,
+          fontFamily: monoFont,
+          fontFeatureSettings: MONO_NO_LIGA,
+        }}
+      >
+        {[
+          ["&&", "AND"],
+          ["||", "OR"],
+          ["!", "NOT"],
+        ].map(([op, label]) => (
+          <div
+            key={op}
             style={{
-              fontFamily: uiFont,
-              fontSize: 22,
-              color: C_LOG,
-              opacity: 0.7,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+              background: "#4ec9b018",
+              border: "2px solid #4ec9b055",
+              borderRadius: 20,
+              padding: "22px 36px",
             }}
           >
-            {label}
-          </span>
-        </div>
-      ))}
-    </div>
-  </AbsoluteFill>
-);
+            <span style={{ fontSize: 56, fontWeight: 900, color: "#4ec9b0" }}>
+              {op}
+            </span>
+            <span
+              style={{
+                fontFamily: uiFont,
+                fontSize: 22,
+                color: C_LOG,
+                opacity: 0.7,
+              }}
+            >
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const INTRO_OPS = ["&&", "||", "!"];
@@ -338,7 +348,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
-          <SceneTitle title="논리 연산자란?" />
+          <SceneTitle title="1. 논리 연산자란?" />
 
           {/* 핵심 키워드 타이틀 */}
           <div
@@ -452,7 +462,7 @@ const AndScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="AND (&&)" />
+          <SceneTitle title="2. AND (&&)" />
 
           {/* 헤더 */}
           {frame >= s && (
@@ -574,7 +584,7 @@ const OrScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="OR (||)" />
+          <SceneTitle title="3. OR (||)" />
 
           {/* 헤더: 변수 선언 (두 줄) */}
           {frame >= s && (
@@ -696,7 +706,7 @@ const NotScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="NOT (!)" />
+          <SceneTitle title="4. NOT (!)" />
 
           {/* !true → false */}
           {frame >= s && (
@@ -794,7 +804,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="논리 연산자 정리" />
+          <SceneTitle title="5. 논리 연산자 정리" />
 
           {/* 타이틀: 논리 연산자 정리 */}
           <div
@@ -923,7 +933,9 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  _from +=
+    s.durationInFrames -
+    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
   return f;
 });
 const totalDuration = _from;

@@ -23,6 +23,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -412,70 +413,79 @@ const BooleanToggleAnim: React.FC<{
 };
 
 // ── 씬: ThumbnailScene ───────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: BG_THUMB,
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 24,
-    }}
-  >
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [30 - 20, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 900,
-        height: 900,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 28,
-        fontWeight: 700,
-        color: C_TEAL,
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: BG_THUMB,
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 24,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 140,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#ffffff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: C_TEAL }}>자료형</span>
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 32,
-        color: C_TEAL,
-        letterSpacing: 4,
-        opacity: 0.7,
-      }}
-    >
-      int · double · String · boolean
-    </div>
-  </AbsoluteFill>
-);
+      <div
+        style={{
+          position: "absolute",
+          width: 900,
+          height: 900,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 28,
+          fontWeight: 700,
+          color: C_TEAL,
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 140,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#ffffff",
+          textShadow:
+            "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: C_TEAL }}>자료형</span>
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 32,
+          color: C_TEAL,
+          letterSpacing: 4,
+          opacity: 0.7,
+        }}
+      >
+        int · double · String · boolean
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const IntroScene: React.FC = () => {
@@ -513,7 +523,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
-          <SceneTitle title="자료형이란?" />
+          <SceneTitle title="1. 자료형이란?" />
           {/* 1문장: 자료 == 데이터 타이틀 */}
           <div
             style={{
@@ -691,7 +701,7 @@ const ValueVsVarScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(valueVsVar.audio)} />
-          <SceneTitle title="값 vs 변수" />
+          <SceneTitle title="2. 값 vs 변수" />
 
           {/* 1문장: 핵심 메시지 */}
           <div
@@ -910,21 +920,21 @@ const TYPE_SCENE_DATA = {
     value: "25",
     color: TYPE_COLORS.int,
     label: "int",
-    title: "int — 정수형",
+    title: "3. int — 정수형",
   },
   doubleScene: {
     code: "double height = 175.5;",
     value: "175.5",
     color: TYPE_COLORS.double,
     label: "double",
-    title: "double — 실수형",
+    title: "4. double — 실수형",
   },
   stringScene: {
     code: 'String name = "Java";',
     value: '"Java"',
     color: TYPE_COLORS.String,
     label: "String",
-    title: "String — 문자열",
+    title: "5. String — 문자열",
   },
 } as const;
 
@@ -996,7 +1006,7 @@ const BooleanScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(booleanScene.audio)} />
-          <SceneTitle title="boolean — 논리형" />
+          <SceneTitle title="6. boolean — 논리형" />
           <div
             style={{
               position: "absolute",
@@ -1048,7 +1058,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(summaryScene.audio)} />
-          <SceneTitle title="자료형 정리" />
+          <SceneTitle title="7. 자료형 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
               <CodeBox
@@ -1088,7 +1098,8 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
+  _from += s.durationInFrames - overlap;
   return f;
 });
 const totalDuration = _from;

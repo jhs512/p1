@@ -21,6 +21,7 @@ import {
   MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
+  THUMB_CROSS,
   monoFont,
   uiFont,
   useFade,
@@ -83,75 +84,83 @@ export const VIDEO_CONFIG = {
 };
 
 // ── ThumbnailScene ────────────────────────────────────────────
-const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: "#050510",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 28,
-    }}
-  >
-    <div
+const ThumbnailScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fadeOut = interpolate(frame, [10, 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill
       style={{
-        position: "absolute",
-        width: 860,
-        height: 860,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    />
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 26,
-        fontWeight: 700,
-        color: "#4ec9b0",
-        letterSpacing: 10,
-        opacity: 0.8,
+        background: "#050510",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        gap: 28,
+        opacity: fadeOut,
       }}
     >
-      JAVA
-    </div>
-    <div
-      style={{
-        fontFamily: uiFont,
-        fontSize: 108,
-        fontWeight: 900,
-        lineHeight: 1,
-        textAlign: "center",
-        color: "#fff",
-        textShadow:
-          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-      }}
-    >
-      Java
-      <br />
-      <span style={{ color: "#4ec9b0" }}>반복문</span>
-    </div>
-    <div
-      style={{
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
-        fontSize: 64,
-        fontWeight: 900,
-        color: "#4ec9b0",
-        background: "#4ec9b018",
-        border: "2px solid #4ec9b055",
-        borderRadius: 18,
-        padding: "18px 56px",
-        marginTop: 8,
-      }}
-    >
-      for
-    </div>
-  </AbsoluteFill>
-);
+      <div
+        style={{
+          position: "absolute",
+          width: 860,
+          height: 860,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 26,
+          fontWeight: 700,
+          color: "#4ec9b0",
+          letterSpacing: 10,
+          opacity: 0.8,
+        }}
+      >
+        JAVA
+      </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 108,
+          fontWeight: 900,
+          lineHeight: 1,
+          textAlign: "center",
+          color: "#fff",
+          textShadow:
+            "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+        }}
+      >
+        Java
+        <br />
+        <span style={{ color: "#4ec9b0" }}>반복문</span>
+      </div>
+      <div
+        style={{
+          fontFamily: monoFont,
+          fontFeatureSettings: MONO_NO_LIGA,
+          fontSize: 64,
+          fontWeight: 900,
+          color: "#4ec9b0",
+          background: "#4ec9b018",
+          border: "2px solid #4ec9b055",
+          borderRadius: 18,
+          padding: "18px 56px",
+          marginTop: 8,
+        }}
+      >
+        for
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── OverviewScene ─────────────────────────────────────────────
 const OverviewScene: React.FC = () => {
@@ -218,7 +227,7 @@ const OverviewScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-          <SceneTitle title="반복문 개요" />
+          <SceneTitle title="1. 반복문 개요" />
           <Audio src={staticFile(cfg.audio)} />
 
           {frame >= s && (
@@ -410,7 +419,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-          <SceneTitle title="for 문이란?" />
+          <SceneTitle title="2. for 문이란?" />
           <Audio src={staticFile(cfg.audio)} />
           <div
             style={{
@@ -571,7 +580,7 @@ const ForScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-          <SceneTitle title="for 문법" />
+          <SceneTitle title="3. for 문법" />
           <Audio src={staticFile(cfg.audio)} />
           {frame >= s && (
             <div
@@ -810,7 +819,7 @@ const ExecutionScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-          <SceneTitle title="for 실행 흐름" />
+          <SceneTitle title="4. for 실행 흐름" />
           <Audio src={staticFile(cfg.audio)} />
 
           {frame >= s && (
@@ -1097,7 +1106,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
-          <SceneTitle title="for 정리" />
+          <SceneTitle title="5. for 정리" />
           <Audio src={staticFile(cfg.audio)} />
 
           <div
@@ -1228,7 +1237,9 @@ const sceneList = [
 let _from = 0;
 const fromValues = sceneList.map((s, i) => {
   const f = _from;
-  _from += s.durationInFrames - (i < sceneList.length - 1 ? CROSS : 0);
+  _from +=
+    s.durationInFrames -
+    (i < sceneList.length - 1 ? (i === 0 ? THUMB_CROSS : CROSS) : 0);
   return f;
 });
 const totalDuration = _from;
