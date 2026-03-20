@@ -347,10 +347,10 @@ const IntroScene: React.FC = () => {
               alignItems: "center",
             }}
           >
-            {[INTRO_OPS.slice(0, 3), INTRO_OPS.slice(3)].map((row, ri) => (
+            {[INTRO_OPS.slice(0, 2), INTRO_OPS.slice(2, 4), INTRO_OPS.slice(4)].map((row, ri) => (
               <div key={ri} style={{ display: "flex", gap: 20 }}>
                 {row.map((op, i) => {
-                  const idx = ri * 3 + i;
+                  const idx = ri * 2 + i;
                   const startFrame = Math.round(
                     interpolate(idx, [0, 5], [AUDIO_CONFIG.intro.wordTiming["비교"][0], AUDIO_CONFIG.intro.wordTiming["반환합니다"][0]]),
                   );
