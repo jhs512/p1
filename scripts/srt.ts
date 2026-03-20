@@ -49,7 +49,10 @@ function episodesOf(seriesDir: string) {
   const langDirs = entries
     .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
     .map((e) => e.name);
-  const scanDirs = langDirs.length > 0 ? langDirs.map((l) => path.join(seriesPath, l)) : [seriesPath];
+  const scanDirs =
+    langDirs.length > 0
+      ? langDirs.map((l) => path.join(seriesPath, l))
+      : [seriesPath];
 
   return scanDirs
     .flatMap((dir) =>

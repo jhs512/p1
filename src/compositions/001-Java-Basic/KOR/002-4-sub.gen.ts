@@ -3,10 +3,10 @@
  * scripts/srt.ts 가 이 파일을 import해서 .srt 파일 생성
  * Remotion 의존성 없음
  */
-import { AUDIO_CONFIG } from "./002-3-audio.gen";
-import { toDisplayText } from "../../../utils/narration";
-import { FPS } from "./config";
 import { CROSS } from "../../../config";
+import { toDisplayText } from "../../../utils/narration";
+import { AUDIO_CONFIG } from "./002-3-audio.gen";
+import { FPS } from "./config";
 
 export const fps = FPS;
 
@@ -66,7 +66,8 @@ for (let i = 0; i < sceneDurations.length; i++) {
   _f += sceneDurations[i] - (i < sceneDurations.length - 1 ? CROSS : 0);
 }
 
-const entries: Array<{ startFrame: number; endFrame: number; text: string }> = [];
+const entries: Array<{ startFrame: number; endFrame: number; text: string }> =
+  [];
 
 function addScene(
   offset: number,
@@ -91,26 +92,61 @@ function addScene(
   });
 }
 
-addScene(froms[1], narrations.intro, AUDIO_CONFIG.intro.speechStartFrame,
-  AUDIO_CONFIG.intro.narrationSplits, AUDIO_CONFIG.intro.sentenceEndFrames,
-  AUDIO_CONFIG.intro.durationInFrames);
-addScene(froms[2], narrations.valueVsVar, AUDIO_CONFIG.valueVsVar.speechStartFrame,
-  AUDIO_CONFIG.valueVsVar.narrationSplits, AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
-  AUDIO_CONFIG.valueVsVar.durationInFrames);
-addScene(froms[3], narrations.intScene, AUDIO_CONFIG.intScene.speechStartFrame,
-  AUDIO_CONFIG.intScene.narrationSplits, AUDIO_CONFIG.intScene.sentenceEndFrames,
-  AUDIO_CONFIG.intScene.durationInFrames);
-addScene(froms[4], narrations.doubleScene, AUDIO_CONFIG.doubleScene.speechStartFrame,
-  AUDIO_CONFIG.doubleScene.narrationSplits, AUDIO_CONFIG.doubleScene.sentenceEndFrames,
-  AUDIO_CONFIG.doubleScene.durationInFrames);
-addScene(froms[5], narrations.stringScene, AUDIO_CONFIG.stringScene.speechStartFrame,
-  AUDIO_CONFIG.stringScene.narrationSplits, AUDIO_CONFIG.stringScene.sentenceEndFrames,
-  AUDIO_CONFIG.stringScene.durationInFrames);
-addScene(froms[6], narrations.booleanScene, AUDIO_CONFIG.booleanScene.speechStartFrame,
-  AUDIO_CONFIG.booleanScene.narrationSplits, AUDIO_CONFIG.booleanScene.sentenceEndFrames,
-  AUDIO_CONFIG.booleanScene.durationInFrames);
-addScene(froms[7], narrations.summaryScene, AUDIO_CONFIG.summaryScene.speechStartFrame,
-  AUDIO_CONFIG.summaryScene.narrationSplits, AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-  AUDIO_CONFIG.summaryScene.durationInFrames);
+addScene(
+  froms[1],
+  narrations.intro,
+  AUDIO_CONFIG.intro.speechStartFrame,
+  AUDIO_CONFIG.intro.narrationSplits,
+  AUDIO_CONFIG.intro.sentenceEndFrames,
+  AUDIO_CONFIG.intro.durationInFrames,
+);
+addScene(
+  froms[2],
+  narrations.valueVsVar,
+  AUDIO_CONFIG.valueVsVar.speechStartFrame,
+  AUDIO_CONFIG.valueVsVar.narrationSplits,
+  AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
+  AUDIO_CONFIG.valueVsVar.durationInFrames,
+);
+addScene(
+  froms[3],
+  narrations.intScene,
+  AUDIO_CONFIG.intScene.speechStartFrame,
+  AUDIO_CONFIG.intScene.narrationSplits,
+  AUDIO_CONFIG.intScene.sentenceEndFrames,
+  AUDIO_CONFIG.intScene.durationInFrames,
+);
+addScene(
+  froms[4],
+  narrations.doubleScene,
+  AUDIO_CONFIG.doubleScene.speechStartFrame,
+  AUDIO_CONFIG.doubleScene.narrationSplits,
+  AUDIO_CONFIG.doubleScene.sentenceEndFrames,
+  AUDIO_CONFIG.doubleScene.durationInFrames,
+);
+addScene(
+  froms[5],
+  narrations.stringScene,
+  AUDIO_CONFIG.stringScene.speechStartFrame,
+  AUDIO_CONFIG.stringScene.narrationSplits,
+  AUDIO_CONFIG.stringScene.sentenceEndFrames,
+  AUDIO_CONFIG.stringScene.durationInFrames,
+);
+addScene(
+  froms[6],
+  narrations.booleanScene,
+  AUDIO_CONFIG.booleanScene.speechStartFrame,
+  AUDIO_CONFIG.booleanScene.narrationSplits,
+  AUDIO_CONFIG.booleanScene.sentenceEndFrames,
+  AUDIO_CONFIG.booleanScene.durationInFrames,
+);
+addScene(
+  froms[7],
+  narrations.summaryScene,
+  AUDIO_CONFIG.summaryScene.speechStartFrame,
+  AUDIO_CONFIG.summaryScene.narrationSplits,
+  AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+  AUDIO_CONFIG.summaryScene.durationInFrames,
+);
 
 export const SRT_DATA = entries;

@@ -1,9 +1,9 @@
 // scripts/youtube-auth.ts
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { google } from "googleapis";
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import path from "path";
-import open from "open";
 import http from "http";
+import open from "open";
+import path from "path";
 
 const TOKEN_PATH = path.resolve("token.json");
 const CLIENT_PATH = path.resolve("client.json");
@@ -24,13 +24,20 @@ export async function getYouTubeClient() {
   const clientJson = JSON.parse(readFileSync(CLIENT_PATH, "utf-8"));
   const { client_id, client_secret, redirect_uris } = clientJson.web;
 
-  const oauth2 = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  const oauth2 = new google.auth.OAuth2(
+    client_id,
+    client_secret,
+    redirect_uris[0],
+  );
 
   oauth2.on("tokens", (tokens) => {
     const existing = existsSync(TOKEN_PATH)
       ? JSON.parse(readFileSync(TOKEN_PATH, "utf-8"))
       : {};
-    writeFileSync(TOKEN_PATH, JSON.stringify({ ...existing, ...tokens }, null, 2));
+    writeFileSync(
+      TOKEN_PATH,
+      JSON.stringify({ ...existing, ...tokens }, null, 2),
+    );
   });
 
   if (existsSync(TOKEN_PATH)) {

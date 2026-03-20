@@ -36,9 +36,11 @@
 - `MONO_NO_LIGA`는 `src/utils/scene.tsx`에서 import한다 — 각 파일에 직접 정의하지 않는다.
 - 모든 `fontFamily: monoFont` 사용처에 `fontFeatureSettings: MONO_NO_LIGA` 를 함께 쓴다.
 - **간편 패턴**: `monoStyle` 객체를 스프레드하면 두 속성을 한번에 적용할 수 있다.
+
   ```tsx
   import { monoStyle } from "../../utils/scene";
-  <div style={{ ...monoStyle, fontSize: 24 }}>코드</div>
+
+  <div style={{ ...monoStyle, fontSize: 24 }}>코드</div>;
   ```
 
 ### 5. 중간 작업마다 커밋/푸시한다
@@ -83,10 +85,12 @@ const sceneDuration = Math.max(
 
 ```tsx
 // ❌ 금지 — 등장 시 컨테이너 높이가 늘어나 레이아웃이 밀림
-{phase2 && <div style={{ height: 100 }}>키워드</div>}
+{
+  phase2 && <div style={{ height: 100 }}>키워드</div>;
+}
 
 // ✅ 올바름 — 항상 공간 확보, opacity로만 표시/숨김
-<div style={{ opacity: phase2 ? appear : 0 }}>키워드</div>
+<div style={{ opacity: phase2 ? appear : 0 }}>키워드</div>;
 ```
 
 - **공간을 차지하는 모든 애니메이션 등장 요소에 적용 — 헌법.**
@@ -94,6 +98,7 @@ const sceneDuration = Math.max(
 - spring 값이 이미 0에서 시작하면 `phase2 ? appear : 0` 대신 `appear`만 써도 된다 — spring이 `frame - split` 기준이면 phase 이전엔 자동으로 0.
 
 트리 노드 패턴 (006-JavaIf OverviewScene 실제 사례):
+
 ```tsx
 // ❌ 금지 — if 노드 등장 시 조건문 컬럼 높이가 늘어나 전체 트리가 위로 밀림
 {phase2 && (
@@ -132,16 +137,19 @@ const sceneDuration = Math.max(
 
 ```tsx
 // 예: IntroScene에서 "논리 연산자" 나레이션 시
-<div style={{
-  position: "absolute",
-  top: "45%", left: "50%",
-  transform: "translate(-50%, -50%)",
-  fontFamily: uiFont,
-  fontSize: FONT.display,
-  fontWeight: 900,
-  color: C_TEAL,
-  opacity: titleAppear,
-}}>
+<div
+  style={{
+    position: "absolute",
+    top: "45%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    fontFamily: uiFont,
+    fontSize: FONT.display,
+    fontWeight: 900,
+    color: C_TEAL,
+    opacity: titleAppear,
+  }}
+>
   논리 연산자
 </div>
 ```
@@ -292,20 +300,30 @@ pnpm render 001-Java-Basic/002
 
 ```ts
 import {
-  CHARS_PER_SEC,    // 타이핑 속도 초당 글자 (= 10)
-  CROSS,            // 씬 간 크로스페이드 프레임 (= 20)
-  ContentArea,      // 자막 영역 제외 컨테이너
-  FONT,             // 글로벌 폰트 스케일 { label, heading, title, display }
-  MONO_NO_LIGA,     // JetBrains Mono 리가처 비활성화
-  Subtitle,         // 하단 자막 컴포넌트
-  monoFont,         // 모노스페이스 폰트 패밀리
-  monoStyle,        // { fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA }
-  uiFont,           // UI 폰트 패밀리
-  useFade,          // 씬 fadeIn/fadeOut opacity 훅
+  CHARS_PER_SEC,
+  // 타이핑 속도 초당 글자 (= 10)
+  CROSS,
+  // 씬 간 크로스페이드 프레임 (= 20)
+  ContentArea,
+  // 자막 영역 제외 컨테이너
+  FONT,
+  // 글로벌 폰트 스케일 { label, heading, title, display }
+  MONO_NO_LIGA,
+  // JetBrains Mono 리가처 비활성화
+  Subtitle,
+  // 하단 자막 컴포넌트
+  monoFont,
+  // 모노스페이스 폰트 패밀리
+  monoStyle,
+  // { fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA }
+  uiFont,
+  // UI 폰트 패밀리
+  useFade, // 씬 fadeIn/fadeOut opacity 훅
 } from "../../utils/scene";
 ```
 
 SRT_DATA 생성 시:
+
 ```ts
 import { SrtEntry, addSrtScene, computeFromValues } from "../../utils/srt";
 ```

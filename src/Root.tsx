@@ -43,7 +43,11 @@ const entries = ctx
     const filename = segments[segments.length - 1];
     const epMatch = filename.match(/^(\d+)-\d+-/);
     const epMatchLegacy = filename.match(/^(\d+)-/);
-    const epNum = epMatch ? epMatch[1] : (epMatchLegacy ? epMatchLegacy[1] : filename); // "001"
+    const epNum = epMatch
+      ? epMatch[1]
+      : epMatchLegacy
+        ? epMatchLegacy[1]
+        : filename; // "001"
     const dirPrefix = seriesFolder.match(/^(\d+)/)?.[1] ?? seriesFolder; // "001"
     // 언어 폴더가 있으면 "001-KOR-001" 형태 (Remotion ID는 슬래시 불가).
     // 언어 폴더가 없으면 기존 방식(001-001)으로 fallback.
@@ -77,7 +81,9 @@ const byFolder = entries.reduce<Record<string, Record<string, Entry[]>>>(
   {},
 );
 
-const CompItem: React.FC<{ entry: Entry }> = ({ entry: { mod, ep, totalFrames } }) => (
+const CompItem: React.FC<{ entry: Entry }> = ({
+  entry: { mod, ep, totalFrames },
+}) => (
   <Composition
     key={ep}
     id={ep}
@@ -99,7 +105,9 @@ export const RemotionRoot: React.FC = () => (
             items.map((e) => <CompItem key={e.ep} entry={e} />)
           ) : (
             <Folder key={lang} name={lang}>
-              {items.map((e) => <CompItem key={e.ep} entry={e} />)}
+              {items.map((e) => (
+                <CompItem key={e.ep} entry={e} />
+              ))}
             </Folder>
           ),
         )}

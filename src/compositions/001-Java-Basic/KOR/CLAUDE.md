@@ -45,14 +45,11 @@
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n배열",           // 줄바꿈으로 2줄
-    badge: "배열",                 // 키워드 뱃지 (없으면 생략)
+    title: "Java\n배열", // 줄바꿈으로 2줄
+    badge: "배열", // 키워드 뱃지 (없으면 생략)
   },
   intro: {
-    narration: [
-      "첫 번째 문장.",
-      "두 번째 문장.",
-    ],
+    narration: ["첫 번째 문장.", "두 번째 문장."],
   },
   // ... 각 씬별 narration
 } satisfies EpisodeContent;
@@ -81,26 +78,54 @@ export const CONTENT = {
 ### 4-1. import 블록
 
 ```tsx
-import React from "react";
 import {
-  AbsoluteFill, Audio, Sequence,
-  interpolate, spring,
-  staticFile, useCurrentFrame, useVideoConfig,
+  AbsoluteFill,
+  Audio,
+  Sequence,
+  interpolate,
+  spring,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
+
+import React from "react";
+
 import {
-  CHARS_PER_SEC, CROSS, FONT, MONO_NO_LIGA,
-  ContentArea, Subtitle,
-  monoFont, monoStyle, uiFont, useFade,
+  CHARS_PER_SEC,
+  CROSS,
+  ContentArea,
+  FONT,
+  MONO_NO_LIGA,
+  Subtitle,
+  monoFont,
+  monoStyle,
+  uiFont,
+  useFade,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
-import { AUDIO_CONFIG } from "./{id}-3-audio.gen";
-import { CONTENT } from "./{id}-2-content";
-import { FPS, HEIGHT, WIDTH } from "./config";
 import {
-  BG, BG_CODE, BG_THUMB, C_TEAL, C_KEYWORD, C_TYPE,
-  C_STRING, C_NUMBER, C_FUNC, C_VAR, C_COMMENT,
-  C_PURPLE, C_AMBER, C_OPERATOR, C_PAIN, C_DIM, TEXT,
+  BG,
+  BG_CODE,
+  BG_THUMB,
+  C_AMBER,
+  C_COMMENT,
+  C_DIM,
+  C_FUNC,
+  C_KEYWORD,
+  C_NUMBER,
+  C_OPERATOR,
+  C_PAIN,
+  C_PURPLE,
+  C_STRING,
+  C_TEAL,
+  C_TYPE,
+  C_VAR,
+  TEXT,
 } from "./colors";
+import { FPS, HEIGHT, WIDTH } from "./config";
+import { CONTENT } from "./{id}-2-content";
+import { AUDIO_CONFIG } from "./{id}-3-audio.gen";
 ```
 
 ### 4-2. VIDEO_CONFIG
@@ -159,7 +184,10 @@ export const Component: React.FC = () => (
     <Sequence from={fromValues[0]} durationInFrames={30}>
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.intro.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.intro.durationInFrames}
+    >
       <IntroScene />
     </Sequence>
     {/* ... 나머지 씬들 */}
@@ -175,45 +203,74 @@ export const Component: React.FC = () => (
 
 ```tsx
 const ThumbnailScene: React.FC = () => (
-  <AbsoluteFill style={{
-    background: BG_THUMB,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-    gap: 28,
-  }}>
+  <AbsoluteFill
+    style={{
+      background: BG_THUMB,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "column",
+      gap: 28,
+    }}
+  >
     {/* 배경 글로우 */}
-    <div style={{
-      position: "absolute",
-      width: 860, height: 860,
-      borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
-      top: "50%", left: "50%",
-      transform: "translate(-50%, -50%)",
-    }} />
+    <div
+      style={{
+        position: "absolute",
+        width: 860,
+        height: 860,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(78,201,176,0.12) 0%, transparent 70%)",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    />
     {/* JAVA 라벨 */}
-    <div style={{
-      fontFamily: uiFont, fontSize: 26, fontWeight: 700,
-      color: C_TEAL, letterSpacing: 10, opacity: 0.8,
-    }}>
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 26,
+        fontWeight: 700,
+        color: C_TEAL,
+        letterSpacing: 10,
+        opacity: 0.8,
+      }}
+    >
       JAVA
     </div>
     {/* 타이틀 */}
-    <div style={{
-      fontFamily: uiFont, fontSize: 108, fontWeight: 900,
-      color: "#fff", textAlign: "center", lineHeight: 1,
-      textShadow: "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
-    }}>
-      Java<br />
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 108,
+        fontWeight: 900,
+        color: "#fff",
+        textAlign: "center",
+        lineHeight: 1,
+        textShadow:
+          "0 0 60px rgba(78,201,176,0.6), 0 0 120px rgba(78,201,176,0.3)",
+      }}
+    >
+      Java
+      <br />
       <span style={{ color: C_TEAL }}>{/* 에피소드 제목 */}</span>
     </div>
     {/* 키워드 뱃지 (선택) */}
-    <div style={{
-      fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-      fontSize: 64, fontWeight: 900, color: C_TEAL,
-      background: "#4ec9b018", border: "2px solid #4ec9b055",
-      borderRadius: 18, padding: "18px 56px", marginTop: 8,
-    }}>
+    <div
+      style={{
+        fontFamily: monoFont,
+        fontFeatureSettings: MONO_NO_LIGA,
+        fontSize: 64,
+        fontWeight: 900,
+        color: C_TEAL,
+        background: "#4ec9b018",
+        border: "2px solid #4ec9b055",
+        borderRadius: 18,
+        padding: "18px 56px",
+        marginTop: 8,
+      }}
+    >
       {/* 키워드 */}
     </div>
   </AbsoluteFill>
@@ -226,7 +283,7 @@ const ThumbnailScene: React.FC = () => (
 const SomeScene: React.FC = () => {
   const { someScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d);  // 마지막 씬이면 useFade(d, { out: false })
+  const opacity = useFade(d); // 마지막 씬이면 useFade(d, { out: false })
   const s = cfg.speechStartFrame;
   const splits = cfg.narrationSplits;
   const frame = useCurrentFrame();
@@ -254,6 +311,7 @@ const SomeScene: React.FC = () => {
 ```
 
 **핵심 규칙:**
+
 - `AbsoluteFill`에 **반드시** `background: BG` — 크로스페이드 시 뒤가 비침 방지.
 - `Subtitle`은 **반드시** `AbsoluteFill` 바깥 (opacity wrapper 밖) — 자막에 페이드 트랜지션이 걸리면 안 됨.
 - `ContentArea`로 자막 영역 제외한 공간에 콘텐츠 배치.
@@ -265,12 +323,27 @@ const SomeScene: React.FC = () => {
 
 ```tsx
 // 1문장: 타이틀 등장 + 2문장 시작 시 퇴장
-const titleAppear = spring({ frame: frame - s, fps, config: { damping: 14, stiffness: 120 }, durationInFrames: 24 });
-const titleExit = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
+const titleAppear = spring({
+  frame: frame - s,
+  fps,
+  config: { damping: 14, stiffness: 120 },
+  durationInFrames: 24,
+});
+const titleExit = spring({
+  frame: frame - split0,
+  fps,
+  config: { damping: 14, stiffness: 200 },
+  durationInFrames: 18,
+});
 const titleOpacity = titleAppear * (1 - titleExit);
 
 // 2문장: 키워드 카드 등장
-const cardAppear = spring({ frame: frame - split0, fps, config: { damping: 14, stiffness: 140 }, durationInFrames: 30 });
+const cardAppear = spring({
+  frame: frame - split0,
+  fps,
+  config: { damping: 14, stiffness: 140 },
+  durationInFrames: 30,
+});
 ```
 
 ### 5-4. ComparisonScene — Before/After 비교
@@ -313,13 +386,13 @@ const cardAppear = spring({ frame: frame - split0, fps, config: { damping: 14, s
 
 ### 6-1. Spring 설정 표준
 
-| 용도 | damping | stiffness | durationInFrames |
-|------|---------|-----------|------------------|
-| 일반 등장 | 12~14 | 130~140 | 24~30 |
-| 빠른 등장 | 14 | 200 | 18 |
-| 느슨한 등장 | 10~11 | 90~120 | 30~35 |
-| 결과 표시 | 11~13 | 120 | 20~22 |
-| 카드 등장 | 12~13 | 130~140 | 24~26 |
+| 용도        | damping | stiffness | durationInFrames |
+| ----------- | ------- | --------- | ---------------- |
+| 일반 등장   | 12~14   | 130~140   | 24~30            |
+| 빠른 등장   | 14      | 200       | 18               |
+| 느슨한 등장 | 10~11   | 90~120    | 30~35            |
+| 결과 표시   | 11~13   | 120       | 20~22            |
+| 카드 등장   | 12~13   | 130~140   | 24~26            |
 
 ### 6-2. Scale 보간 표준
 
@@ -337,7 +410,9 @@ const scale = interpolate(appear, [0, 1], [0.8, 1], {
 ### 6-3. 타이핑 애니메이션
 
 ```tsx
-const charsVisible = Math.floor((Math.max(0, frame - startFrame) / fps) * charsPerSec);
+const charsVisible = Math.floor(
+  (Math.max(0, frame - startFrame) / fps) * charsPerSec,
+);
 const visibleText = fullText.slice(0, charsVisible);
 ```
 
@@ -361,10 +436,12 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
 
 ```tsx
 // ❌ 금지 — 등장 시 레이아웃 변경
-{phase2 && <div>요소</div>}
+{
+  phase2 && <div>요소</div>;
+}
 
 // ✅ 올바름 — 항상 공간 확보
-<div style={{ opacity: appear }}>요소</div>
+<div style={{ opacity: appear }}>요소</div>;
 ```
 
 ---
@@ -391,10 +468,10 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
 ```ts
 import { FONT } from "../../../utils/scene";
 
-FONT.label   // 26px — 라벨, 뱃지, 코드 블록 위 설명 텍스트
-FONT.heading // 32px — 씬 소제목, 섹션 헤더
-FONT.title   // 44px — 큰 제목, 카드 텍스트
-FONT.display // 56px — 강조 텍스트, 핵심 키워드
+FONT.label; // 26px — 라벨, 뱃지, 코드 블록 위 설명 텍스트
+FONT.heading; // 32px — 씬 소제목, 섹션 헤더
+FONT.title; // 44px — 큰 제목, 카드 텍스트
+FONT.display; // 56px — 강조 텍스트, 핵심 키워드
 ```
 
 ### 7-3. 라벨 스타일
@@ -402,7 +479,7 @@ FONT.display // 56px — 강조 텍스트, 핵심 키워드
 ```tsx
 const labelStyle = (color: string): React.CSSProperties => ({
   fontFamily: uiFont,
-  fontSize: FONT.label,   // ← 하드코딩 금지, FONT.label 사용
+  fontSize: FONT.label, // ← 하드코딩 금지, FONT.label 사용
   fontWeight: 700,
   color,
   letterSpacing: 2,
@@ -413,22 +490,22 @@ const labelStyle = (color: string): React.CSSProperties => ({
 
 ### 7-4. 코드 구문 색상 (colors.ts 기준)
 
-| 요소 | 상수 | 색상 |
-|------|------|------|
-| 키워드 (void, for, if, else, while, switch, return) | `C_KEYWORD` | #569cd6 |
-| 자료형 (int, double, boolean, String) | `C_TYPE` | #4e9cd5 |
-| 문자열 리터럴 | `C_STRING` | #ce9178 |
-| 숫자 리터럴 | `C_NUMBER` | #b5cea8 |
-| 함수 이름 | `C_FUNC` | #dcdcaa |
-| 변수 이름 | `C_VAR` | #9cdcfe |
-| 주석 | `C_COMMENT` | #6a9955 |
-| 비교/조건 연산자 | `C_PURPLE` | #c586c0 |
-| 논리 연산자 | `C_AMBER` | #e5c07b |
-| 산술 연산자 | `C_OPERATOR` | #d4834e |
-| 강조 (teal 계열) | `C_TEAL` | #4ec9b0 |
-| 고통/경고 | `C_PAIN` | #f47c7c |
-| 흐릿한 텍스트 | `C_DIM` | rgba(255,255,255,0.22) |
-| 기본 텍스트 | `TEXT` | #d4d4d4 |
+| 요소                                                | 상수         | 색상                   |
+| --------------------------------------------------- | ------------ | ---------------------- |
+| 키워드 (void, for, if, else, while, switch, return) | `C_KEYWORD`  | #569cd6                |
+| 자료형 (int, double, boolean, String)               | `C_TYPE`     | #4e9cd5                |
+| 문자열 리터럴                                       | `C_STRING`   | #ce9178                |
+| 숫자 리터럴                                         | `C_NUMBER`   | #b5cea8                |
+| 함수 이름                                           | `C_FUNC`     | #dcdcaa                |
+| 변수 이름                                           | `C_VAR`      | #9cdcfe                |
+| 주석                                                | `C_COMMENT`  | #6a9955                |
+| 비교/조건 연산자                                    | `C_PURPLE`   | #c586c0                |
+| 논리 연산자                                         | `C_AMBER`    | #e5c07b                |
+| 산술 연산자                                         | `C_OPERATOR` | #d4834e                |
+| 강조 (teal 계열)                                    | `C_TEAL`     | #4ec9b0                |
+| 고통/경고                                           | `C_PAIN`     | #f47c7c                |
+| 흐릿한 텍스트                                       | `C_DIM`      | rgba(255,255,255,0.22) |
+| 기본 텍스트                                         | `TEXT`       | #d4d4d4                |
 
 ### 7-5. 코드 연산자 공백 규칙
 
@@ -472,11 +549,14 @@ const labelStyle = (color: string): React.CSSProperties => ({
 
 ```tsx
 // 오디오만으로 충분한 경우
-durationInFrames: AUDIO_CONFIG.someScene.durationInFrames
+durationInFrames: AUDIO_CONFIG.someScene.durationInFrames;
 
 // 타이핑 애니메이션이 오디오보다 긴 경우
 const TYPING_END = startFrame + Math.ceil((totalChars / charsPerSec) * fps);
-durationInFrames: calcDuration(AUDIO_CONFIG.someScene.durationInFrames, TYPING_END)
+durationInFrames: calcDuration(
+  AUDIO_CONFIG.someScene.durationInFrames,
+  TYPING_END,
+);
 ```
 
 - `calcDuration(audioDuration, animEndFrame)`: `Math.max(audio, anim + CROSS + SCENE_TAIL_FRAMES)`
@@ -489,14 +569,17 @@ durationInFrames: calcDuration(AUDIO_CONFIG.someScene.durationInFrames, TYPING_E
 ### 새 에피소드 추가
 
 **0단계: 스캐폴딩**
+
 ```bash
 pnpm new 001-Java-Basic/KOR/011 --title "JavaArray" --prefix arr
 ```
+
 - `011-1-JavaArray.tsx` + `011-2-content.ts` 스텁 자동 생성
 - `--prefix arr` → 오디오 파일명이 `arr-intro.mp3`, `arr-summary.mp3` 등으로 생성
 - 스텁에 ThumbnailScene, IntroScene, SummaryScene 골격 포함
 
 **이후 단계:**
+
 1. `{id}-2-content.ts` 수정 (나레이션 작성)
 2. `{id}-1-{Name}.tsx` 수정 (씬 컴포넌트 구현)
 3. `pnpm sync 001-Java-Basic/KOR/{id}` 실행 → audio.gen.ts 자동 생성
@@ -506,6 +589,7 @@ pnpm new 001-Java-Basic/KOR/011 --title "JavaArray" --prefix arr
 ### 나레이션 수정 시
 
 나레이션이나 인라인 발음이 바뀌면 **즉시** sync 실행:
+
 ```bash
 pnpm sync 001-Java-Basic/KOR/{id}
 ```
@@ -542,18 +626,18 @@ pnpm render 001-Java-Basic/KOR/{id}
 sync가 content의 씬 키를 기반으로 mp3 파일명을 생성한다.
 VIDEO_CONFIG의 `audio` 필드에 사용할 파일명 prefix를 정한다.
 
-| 에피소드 | prefix 예시 |
-|---------|------------|
-| 001-JavaVariables | `var-` |
-| 002-JavaDataTypes | `dt-` |
-| 003-JavaOperators | `op-` |
-| 004-JavaComparison | `cmp-` |
-| 005-JavaLogical | `log-` |
-| 006-JavaIf | `if-` |
-| 007-JavaSwitch | `sw-` |
-| 008-JavaWhile | `while-` |
-| 009-JavaFor | `for-` |
-| 010-JavaFunction | `fn-` |
+| 에피소드           | prefix 예시 |
+| ------------------ | ----------- |
+| 001-JavaVariables  | `var-`      |
+| 002-JavaDataTypes  | `dt-`       |
+| 003-JavaOperators  | `op-`       |
+| 004-JavaComparison | `cmp-`      |
+| 005-JavaLogical    | `log-`      |
+| 006-JavaIf         | `if-`       |
+| 007-JavaSwitch     | `sw-`       |
+| 008-JavaWhile      | `while-`    |
+| 009-JavaFor        | `for-`      |
+| 010-JavaFunction   | `fn-`       |
 
 새 에피소드도 2~4글자 약어로 prefix를 정한다. (예: `arr-` for Array)
 

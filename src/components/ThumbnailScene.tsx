@@ -1,6 +1,8 @@
 // src/components/ThumbnailScene.tsx
 import { AbsoluteFill } from "remotion";
+
 import React from "react";
+
 import { MONO_NO_LIGA, monoFont, uiFont } from "../utils/scene";
 
 interface ThumbnailSceneProps {

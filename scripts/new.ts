@@ -29,9 +29,7 @@ if (!arg) {
 
 function getFlag(name: string, fallback: string): string {
   const idx = process.argv.indexOf(`--${name}`);
-  return idx !== -1 && process.argv[idx + 1]
-    ? process.argv[idx + 1]
-    : fallback;
+  return idx !== -1 && process.argv[idx + 1] ? process.argv[idx + 1] : fallback;
 }
 
 const title = getFlag("title", "NewEpisode");

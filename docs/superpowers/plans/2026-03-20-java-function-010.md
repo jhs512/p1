@@ -12,30 +12,31 @@
 
 ## 파일 구조
 
-| 파일 | 역할 | 생성 방법 |
-|------|------|-----------|
-| `src/compositions/001-Java-Basic/KOR/010-2-content.ts` | 나레이션 텍스트 + 코드 상수 | 수동 작성 |
-| `src/compositions/001-Java-Basic/KOR/010-1-JavaFunction.tsx` | 씬 컴포넌트 + VIDEO_CONFIG + Component | 수동 작성 |
-| `src/compositions/001-Java-Basic/KOR/010-3-audio.gen.ts` | durationInFrames, speechStartFrame 등 | `pnpm sync`로 자동 생성 |
-| `public/fn-pain.mp3` 외 4개 | TTS 오디오 | `pnpm sync`로 자동 생성 |
+| 파일                                                         | 역할                                   | 생성 방법               |
+| ------------------------------------------------------------ | -------------------------------------- | ----------------------- |
+| `src/compositions/001-Java-Basic/KOR/010-2-content.ts`       | 나레이션 텍스트 + 코드 상수            | 수동 작성               |
+| `src/compositions/001-Java-Basic/KOR/010-1-JavaFunction.tsx` | 씬 컴포넌트 + VIDEO_CONFIG + Component | 수동 작성               |
+| `src/compositions/001-Java-Basic/KOR/010-3-audio.gen.ts`     | durationInFrames, speechStartFrame 등  | `pnpm sync`로 자동 생성 |
+| `public/fn-pain.mp3` 외 4개                                  | TTS 오디오                             | `pnpm sync`로 자동 생성 |
 
 ---
 
 ## 씬 요약
 
-| 씬 키 | mp3 파일 | 나레이션 문장 수 |
-|-------|----------|-----------------|
-| `painScene` | `fn-pain.mp3` | 2 |
-| `conceptScene` | `fn-concept.mp3` | 2 |
-| `declarationScene` | `fn-declare.mp3` | 2 |
-| `callScene` | `fn-call.mp3` | 2 |
-| `summaryScene` | `fn-summary.mp3` | 2 |
+| 씬 키              | mp3 파일         | 나레이션 문장 수 |
+| ------------------ | ---------------- | ---------------- |
+| `painScene`        | `fn-pain.mp3`    | 2                |
+| `conceptScene`     | `fn-concept.mp3` | 2                |
+| `declarationScene` | `fn-declare.mp3` | 2                |
+| `callScene`        | `fn-call.mp3`    | 2                |
+| `summaryScene`     | `fn-summary.mp3` | 2                |
 
 ---
 
 ## Task 1: content.ts 작성
 
 **Files:**
+
 - Create: `src/compositions/001-Java-Basic/KOR/010-2-content.ts`
 
 - [ ] **Step 1: 파일 생성**
@@ -96,6 +97,7 @@ Expected: 출력 없음 (오류 없음)
 ## Task 2: tsx 스켈레톤 작성 (sync 가능한 최소 구조)
 
 **Files:**
+
 - Create: `src/compositions/001-Java-Basic/KOR/010-1-JavaFunction.tsx`
 
 sync를 실행하려면 VIDEO_CONFIG에 각 씬의 `audio` 필드가 있어야 한다.
@@ -107,11 +109,61 @@ audio.gen.ts가 없으므로 먼저 stub을 만들어야 한다.
 // src/compositions/001-Java-Basic/KOR/010-3-audio.gen.ts
 // AUTO-GENERATED — pnpm sync 001-Java-Basic/010 으로 덮어씌워진다
 export const AUDIO_CONFIG = {
-  painScene:        { durationInFrames: 150, narrationSplits: [75] as readonly number[], sentenceEndFrames: [70] as readonly number[], speechStartFrame: 2, speechEndFrame: 140, wordStartFrames: [] as readonly (readonly number[])[], wordEndFrames: [] as readonly (readonly number[])[], wordStartMs: [] as readonly (readonly number[])[], wordTiming: {} as Record<string, readonly number[]> },
-  conceptScene:     { durationInFrames: 150, narrationSplits: [75] as readonly number[], sentenceEndFrames: [70] as readonly number[], speechStartFrame: 2, speechEndFrame: 140, wordStartFrames: [] as readonly (readonly number[])[], wordEndFrames: [] as readonly (readonly number[])[], wordStartMs: [] as readonly (readonly number[])[], wordTiming: {} as Record<string, readonly number[]> },
-  declarationScene: { durationInFrames: 150, narrationSplits: [75] as readonly number[], sentenceEndFrames: [70] as readonly number[], speechStartFrame: 2, speechEndFrame: 140, wordStartFrames: [] as readonly (readonly number[])[], wordEndFrames: [] as readonly (readonly number[])[], wordStartMs: [] as readonly (readonly number[])[], wordTiming: {} as Record<string, readonly number[]> },
-  callScene:        { durationInFrames: 150, narrationSplits: [75] as readonly number[], sentenceEndFrames: [70] as readonly number[], speechStartFrame: 2, speechEndFrame: 140, wordStartFrames: [] as readonly (readonly number[])[], wordEndFrames: [] as readonly (readonly number[])[], wordStartMs: [] as readonly (readonly number[])[], wordTiming: {} as Record<string, readonly number[]> },
-  summaryScene:     { durationInFrames: 150, narrationSplits: [75] as readonly number[], sentenceEndFrames: [70] as readonly number[], speechStartFrame: 2, speechEndFrame: 140, wordStartFrames: [] as readonly (readonly number[])[], wordEndFrames: [] as readonly (readonly number[])[], wordStartMs: [] as readonly (readonly number[])[], wordTiming: {} as Record<string, readonly number[]> },
+  painScene: {
+    durationInFrames: 150,
+    narrationSplits: [75] as readonly number[],
+    sentenceEndFrames: [70] as readonly number[],
+    speechStartFrame: 2,
+    speechEndFrame: 140,
+    wordStartFrames: [] as readonly (readonly number[])[],
+    wordEndFrames: [] as readonly (readonly number[])[],
+    wordStartMs: [] as readonly (readonly number[])[],
+    wordTiming: {} as Record<string, readonly number[]>,
+  },
+  conceptScene: {
+    durationInFrames: 150,
+    narrationSplits: [75] as readonly number[],
+    sentenceEndFrames: [70] as readonly number[],
+    speechStartFrame: 2,
+    speechEndFrame: 140,
+    wordStartFrames: [] as readonly (readonly number[])[],
+    wordEndFrames: [] as readonly (readonly number[])[],
+    wordStartMs: [] as readonly (readonly number[])[],
+    wordTiming: {} as Record<string, readonly number[]>,
+  },
+  declarationScene: {
+    durationInFrames: 150,
+    narrationSplits: [75] as readonly number[],
+    sentenceEndFrames: [70] as readonly number[],
+    speechStartFrame: 2,
+    speechEndFrame: 140,
+    wordStartFrames: [] as readonly (readonly number[])[],
+    wordEndFrames: [] as readonly (readonly number[])[],
+    wordStartMs: [] as readonly (readonly number[])[],
+    wordTiming: {} as Record<string, readonly number[]>,
+  },
+  callScene: {
+    durationInFrames: 150,
+    narrationSplits: [75] as readonly number[],
+    sentenceEndFrames: [70] as readonly number[],
+    speechStartFrame: 2,
+    speechEndFrame: 140,
+    wordStartFrames: [] as readonly (readonly number[])[],
+    wordEndFrames: [] as readonly (readonly number[])[],
+    wordStartMs: [] as readonly (readonly number[])[],
+    wordTiming: {} as Record<string, readonly number[]>,
+  },
+  summaryScene: {
+    durationInFrames: 150,
+    narrationSplits: [75] as readonly number[],
+    sentenceEndFrames: [70] as readonly number[],
+    speechStartFrame: 2,
+    speechEndFrame: 140,
+    wordStartFrames: [] as readonly (readonly number[])[],
+    wordEndFrames: [] as readonly (readonly number[])[],
+    wordStartMs: [] as readonly (readonly number[])[],
+    wordTiming: {} as Record<string, readonly number[]>,
+  },
 } as const;
 ```
 
@@ -779,6 +831,7 @@ pnpm sync 001-Java-Basic/010
 ```
 
 Expected:
+
 ```
 ✅ fn-pain.mp3 생성
 ✅ fn-concept.mp3 생성
@@ -821,6 +874,7 @@ grep -A5 "painScene" src/compositions/001-Java-Basic/KOR/010-3-audio.gen.ts
 - [ ] **Step 2: Remotion Studio에서 PainScene 프레임별 확인**
 
 `localhost:3000` → `001-KOR-010` → 타임라인에서 painScene 구간 탐색
+
 - `speechStartFrame` 에서 첫 줄 타이핑 시작 확인
 - `narrationSplits[0]` 에서 두 번째 문장 시작 확인
 - 빨간 밑줄이 `narrationSplits[0]` 타이밍에 등장하는지 확인
@@ -828,6 +882,7 @@ grep -A5 "painScene" src/compositions/001-Java-Basic/KOR/010-3-audio.gen.ts
 - [ ] **Step 3: 문제 있으면 PainScene lineStarts 수식 조정**
 
 타이핑이 너무 빠르거나 느리면 `PAIN_CPS` 값 조정:
+
 ```typescript
 const PAIN_CPS = 30; // 빠르게 → 느리게: 20~25로 낮춤
 ```
@@ -847,6 +902,7 @@ grep -A5 "declarationScene" src/compositions/001-Java-Basic/KOR/010-3-audio.gen.
 CLAUDE.md 규칙 #6: durationInFrames는 오디오 + 애니메이션 중 긴 쪽 기준.
 
 총 문자 수:
+
 ```
 "void greet(String name) {" = 26자
 '    System.out.println("안녕하세요, " + name + "님!");' = 52자
@@ -896,6 +952,7 @@ Expected: 출력 없음
 
 `localhost:3000` → `001-KOR-010` → 처음부터 끝까지 재생
 체크리스트:
+
 - [ ] thumbnail 30프레임
 - [ ] painScene: 코드 3줄 타이핑 → 자막 "인사 코드를..." → 빨간 밑줄 등장
 - [ ] conceptScene: "함수" 큰 글씨 등장 → 설명 텍스트
