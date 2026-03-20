@@ -893,12 +893,23 @@ const ExecutionScene: React.FC = () => {
                   <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                     {(step.output as readonly string[]).map((n, i) => {
                       const isNew = i === (step.output as readonly string[]).length - 1;
+                      const execFrame = EXEC_FRAMES[stepIdx] ?? Infinity;
+                      const highlight = isNew && showOutput
+                        ? interpolate(frame - execFrame, [0, 30], [1, 0], {
+                            extrapolateLeft: "clamp",
+                            extrapolateRight: "clamp",
+                          })
+                        : 0;
                       return (
                         <span
                           key={i}
                           style={{
-                            color: C_NUM,
+                            color: isNew && highlight > 0 ? C_TEAL : C_NUM,
                             opacity: isNew && !showOutput ? 0 : 1,
+                            textShadow: highlight > 0
+                              ? `0 0 ${highlight * 12}px ${C_TEAL}aa`
+                              : "none",
+                            fontWeight: highlight > 0 ? 900 : 400,
                           }}
                         >
                           {n}
