@@ -315,19 +315,19 @@ const OverviewScene: React.FC = () => {
                       flexShrink: 0,
                     }}
                   />
-                  <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                     {/* while — 흐릿하게 */}
                     <div
                       style={{
                         fontFamily: monoFont,
                         fontFeatureSettings: MONO_NO_LIGA,
-                        fontSize: 44,
+                        fontSize: 34,
                         fontWeight: 900,
                         color: C_FOR,
                         background: `${C_FOR}18`,
                         border: `2px solid ${C_FOR}55`,
-                        borderRadius: 16,
-                        padding: "12px 32px",
+                        borderRadius: 14,
+                        padding: "10px 22px",
                         opacity: (phase2 ? forAppear : 0) * 0.38,
                         transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
                         whiteSpace: "nowrap" as const,
@@ -340,13 +340,13 @@ const OverviewScene: React.FC = () => {
                       style={{
                         fontFamily: monoFont,
                         fontFeatureSettings: MONO_NO_LIGA,
-                        fontSize: 52,
+                        fontSize: 44,
                         fontWeight: 900,
                         color: C_FOR,
                         background: `${C_FOR}18`,
                         border: `2px solid ${C_FOR}55`,
-                        borderRadius: 18,
-                        padding: "14px 44px",
+                        borderRadius: 16,
+                        padding: "12px 32px",
                         opacity: phase2 ? forAppear : 0,
                         transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
                         boxShadow: `0 0 32px ${C_FOR}33`,
