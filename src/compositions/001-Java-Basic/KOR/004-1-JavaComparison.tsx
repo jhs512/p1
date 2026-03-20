@@ -19,15 +19,14 @@ import {
   ColorizedCode,
   ContentArea,
   FONT,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
-  monoFont,
+  monoStyle,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
+import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./004-2-content";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import {
@@ -157,8 +156,7 @@ const BeatCard: React.FC<{
           display: "flex",
           alignItems: "center",
           gap: 32,
-          fontFamily: monoFont,
-          fontFeatureSettings: MONO_NO_LIGA,
+          ...monoStyle,
         }}
       >
         <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>
@@ -196,8 +194,7 @@ const BeatCard: React.FC<{
         >
           <span
             style={{
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 72,
               fontWeight: 900,
               color: resultColor,
@@ -279,8 +276,7 @@ const ThumbnailScene: React.FC = () => {
             alignItems: "center",
             gap: 20,
             marginTop: 8,
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
+            ...monoStyle,
           }}
         >
           <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>
@@ -300,8 +296,7 @@ const ThumbnailScene: React.FC = () => {
         {/* 6개 나열 */}
         <div
           style={{
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
+            ...monoStyle,
             fontSize: 30,
             color: C_PURPLE,
             opacity: 0.5,
@@ -390,8 +385,7 @@ const IntroScene: React.FC = () => {
                     >
                       <span
                         style={{
-                          fontFamily: monoFont,
-                          fontFeatureSettings: MONO_NO_LIGA,
+                          ...monoStyle,
                           fontSize: 52,
                           fontWeight: 700,
                           color: C_PURPLE,
@@ -450,8 +444,7 @@ const CompareScene: React.FC = () => {
                 top: "26%",
                 left: "50%",
                 transform: "translateX(-50%)",
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 28,
                 opacity: headerOpacity * 0.55,
                 color: TEXT,
@@ -512,8 +505,7 @@ const SummaryScene: React.FC = () => {
               top: "22%",
               left: "50%",
               transform: "translateX(-50%)",
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: FONT.heading,
               color: TEXT,
               opacity: 0.6,
@@ -564,8 +556,7 @@ const SummaryScene: React.FC = () => {
                 >
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       fontSize: 36,
                       fontWeight: 700,
                       minWidth: 200,
@@ -583,8 +574,7 @@ const SummaryScene: React.FC = () => {
                   <span style={{ color: "#666", fontSize: 28 }}>→</span>
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       color: resColor,
                       fontSize: 34,
                       fontWeight: 700,
@@ -626,45 +616,36 @@ const totalDuration =
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
-  const entries: SrtEntry[] = [];
   const froms = computeFromValues(sceneDurations, {
     cross: CROSS,
     firstOverlap: THUMB_CROSS,
   });
-
-  // [0]=thumbnail: 나레이션 없음
-  // [1]=intro
-  addSrtScene(
-    entries,
-    froms[1],
-    VIDEO_CONFIG.intro.narration,
-    AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits,
-    AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames,
-  );
-  // [2]=compareScene
-  addSrtScene(
-    entries,
-    froms[2],
-    VIDEO_CONFIG.compareScene.narration,
-    AUDIO_CONFIG.compareScene.speechStartFrame,
-    AUDIO_CONFIG.compareScene.narrationSplits,
-    AUDIO_CONFIG.compareScene.sentenceEndFrames,
-    VIDEO_CONFIG.compareScene.durationInFrames,
-  );
-  // [3]=summaryScene
-  addSrtScene(
-    entries,
-    froms[3],
-    VIDEO_CONFIG.summaryScene.narration,
-    AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits,
-    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames,
-  );
-
-  return entries;
+  return buildSrtData([
+    {
+      offset: froms[1],
+      narration: VIDEO_CONFIG.intro.narration,
+      speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intro.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.intro.durationInFrames,
+    },
+    {
+      offset: froms[2],
+      narration: VIDEO_CONFIG.compareScene.narration,
+      speechStartFrame: AUDIO_CONFIG.compareScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.compareScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.compareScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.compareScene.durationInFrames,
+    },
+    {
+      offset: froms[3],
+      narration: VIDEO_CONFIG.summaryScene.narration,
+      speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+    },
+  ]);
 })();
 
 // ── Composition 메타 ──────────────────────────────────────────

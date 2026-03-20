@@ -18,18 +18,16 @@ import {
   CROSS,
   ContentArea,
   FONT,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
   calcTypingEndFrame,
   computeLineVisibility,
-  monoFont,
   monoStyle,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
+import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./008-2-content";
 import { AUDIO_CONFIG } from "./008-3-audio.gen";
 import { BG } from "./colors";
@@ -170,8 +168,7 @@ const ThumbnailScene: React.FC = () => {
       {/* while 키워드 */}
       <div
         style={{
-          fontFamily: monoFont,
-          fontFeatureSettings: MONO_NO_LIGA,
+          ...monoStyle,
           fontSize: 64,
           fontWeight: 900,
           color: "#4ec9b0",
@@ -360,8 +357,7 @@ const OverviewScene: React.FC = () => {
                   />
                   <div
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       fontSize: 52,
                       fontWeight: 900,
                       color: C_WHILE,
@@ -431,8 +427,7 @@ const IntroScene: React.FC = () => {
             {/* while (조건) { 실행코드 } — 단일 컨테이너 */}
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 background: "#252525",
                 borderRadius: 16,
                 padding: "28px 52px",
@@ -726,8 +721,7 @@ const ExecutionScene: React.FC = () => {
               {/* 상단: 코드 패널 */}
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 28,
                   lineHeight: 2.0,
                   background: "#252525",
@@ -836,8 +830,7 @@ const ExecutionScene: React.FC = () => {
                 >
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       color: "#d4d4d4",
                       fontSize: 28,
                     }}
@@ -846,8 +839,7 @@ const ExecutionScene: React.FC = () => {
                   </span>
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       color: step.condPass ? C_TEAL : C_RED,
                       fontSize: 52,
                       fontWeight: 900,
@@ -873,8 +865,7 @@ const ExecutionScene: React.FC = () => {
                 >
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       color: C_COND,
                       fontSize: 24,
                     }}
@@ -902,8 +893,7 @@ const ExecutionScene: React.FC = () => {
                     background: "#252525",
                     borderRadius: 14,
                     padding: "16px 28px",
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 26,
                     opacity: stepIdx > 0 || showOutput ? 1 : 0,
                   }}
@@ -1028,8 +1018,7 @@ const InfiniteScene: React.FC = () => {
               {/* 코드 블록 — 펄싱 빨간 테두리 */}
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 32,
                   lineHeight: 1.95,
                   background: "#252525",
@@ -1294,75 +1283,60 @@ const totalDuration =
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
-  const entries: SrtEntry[] = [];
   const froms = computeFromValues(sceneDurations, {
     cross: CROSS,
     firstOverlap: THUMB_CROSS,
   });
-
-  // [0]=thumbnail: 나레이션 없음
-  // [1]=overview
-  addSrtScene(
-    entries,
-    froms[1],
-    VIDEO_CONFIG.overview.narration,
-    AUDIO_CONFIG.overview.speechStartFrame,
-    AUDIO_CONFIG.overview.narrationSplits,
-    AUDIO_CONFIG.overview.sentenceEndFrames,
-    VIDEO_CONFIG.overview.durationInFrames,
-  );
-  // [2]=intro
-  addSrtScene(
-    entries,
-    froms[2],
-    VIDEO_CONFIG.intro.narration,
-    AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits,
-    AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames,
-  );
-  // [3]=whileScene (WHILE_SCENE_DURATION 사용)
-  addSrtScene(
-    entries,
-    froms[3],
-    VIDEO_CONFIG.whileScene.narration,
-    AUDIO_CONFIG.whileScene.speechStartFrame,
-    AUDIO_CONFIG.whileScene.narrationSplits,
-    AUDIO_CONFIG.whileScene.sentenceEndFrames,
-    WHILE_SCENE_DURATION,
-  );
-  // [4]=executionScene
-  addSrtScene(
-    entries,
-    froms[4],
-    VIDEO_CONFIG.executionScene.narration,
-    AUDIO_CONFIG.executionScene.speechStartFrame,
-    AUDIO_CONFIG.executionScene.narrationSplits,
-    AUDIO_CONFIG.executionScene.sentenceEndFrames,
-    VIDEO_CONFIG.executionScene.durationInFrames,
-  );
-  // [5]=infiniteScene
-  addSrtScene(
-    entries,
-    froms[5],
-    VIDEO_CONFIG.infiniteScene.narration,
-    AUDIO_CONFIG.infiniteScene.speechStartFrame,
-    AUDIO_CONFIG.infiniteScene.narrationSplits,
-    AUDIO_CONFIG.infiniteScene.sentenceEndFrames,
-    VIDEO_CONFIG.infiniteScene.durationInFrames,
-  );
-  // [6]=summaryScene
-  addSrtScene(
-    entries,
-    froms[6],
-    VIDEO_CONFIG.summaryScene.narration,
-    AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits,
-    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames,
-  );
-
-  return entries;
+  return buildSrtData([
+    {
+      offset: froms[1],
+      narration: VIDEO_CONFIG.overview.narration,
+      speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.overview.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.overview.durationInFrames,
+    },
+    {
+      offset: froms[2],
+      narration: VIDEO_CONFIG.intro.narration,
+      speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intro.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.intro.durationInFrames,
+    },
+    {
+      offset: froms[3],
+      narration: VIDEO_CONFIG.whileScene.narration,
+      speechStartFrame: AUDIO_CONFIG.whileScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.whileScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.whileScene.sentenceEndFrames,
+      sceneDuration: WHILE_SCENE_DURATION,
+    },
+    {
+      offset: froms[4],
+      narration: VIDEO_CONFIG.executionScene.narration,
+      speechStartFrame: AUDIO_CONFIG.executionScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.executionScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.executionScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.executionScene.durationInFrames,
+    },
+    {
+      offset: froms[5],
+      narration: VIDEO_CONFIG.infiniteScene.narration,
+      speechStartFrame: AUDIO_CONFIG.infiniteScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.infiniteScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.infiniteScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.infiniteScene.durationInFrames,
+    },
+    {
+      offset: froms[6],
+      narration: VIDEO_CONFIG.summaryScene.narration,
+      speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+    },
+  ]);
 })();
 
 // ── Composition 메타 ──────────────────────────────────────────

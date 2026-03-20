@@ -19,11 +19,10 @@ import {
   CROSS,
   ContentArea,
   FONT,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
-  monoFont,
+  monoStyle,
   uiFont,
   useFade,
   useTypingEffect,
@@ -431,8 +430,7 @@ const PainScene: React.FC = () => {
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 760,
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 32,
             }}
           >
@@ -514,8 +512,7 @@ const ConceptScene: React.FC = () => {
           >
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 96,
                 fontWeight: 900,
                 color: C_FUNC,
@@ -602,8 +599,7 @@ const DeclarationScene: React.FC = () => {
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 760,
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 32,
             }}
           >
@@ -670,8 +666,7 @@ const CallScene: React.FC = () => {
               borderRadius: 12,
               padding: "40px 56px",
               minWidth: 400,
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 40,
             }}
           >
@@ -887,8 +882,7 @@ const ComparisonScene: React.FC = () => {
     background: BG_CODE,
     borderRadius: 12,
     padding: "20px 32px",
-    fontFamily: monoFont,
-    fontFeatureSettings: MONO_NO_LIGA,
+    ...monoStyle,
     fontSize: 24,
     position: "relative",
   };
@@ -1114,8 +1108,7 @@ const RealExampleScene: React.FC = () => {
     background: BG_CODE,
     borderRadius: 12,
     padding: "14px 20px",
-    fontFamily: monoFont,
-    fontFeatureSettings: MONO_NO_LIGA,
+    ...monoStyle,
     fontSize: 18,
   };
 
@@ -1430,8 +1423,7 @@ const OutroScene: React.FC = () => {
   });
 
   const keywordStyle = (appear: number): React.CSSProperties => ({
-    fontFamily: monoFont,
-    fontFeatureSettings: MONO_NO_LIGA,
+    ...monoStyle,
     fontSize: 52,
     fontWeight: 900,
     color: C_KEYWORD,

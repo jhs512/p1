@@ -21,17 +21,15 @@ import {
   ColorizedCode,
   ContentArea,
   FONT,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
-  monoFont,
   monoStyle,
   uiFont,
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
+import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./002-2-content";
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
 import {
@@ -266,8 +264,7 @@ const TypeBox: React.FC<{
               left: "50%",
               top: "50%",
               transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 64,
               fontWeight: 700,
               color: TEXT,
@@ -355,8 +352,7 @@ const BooleanToggleAnim: React.FC<{
       >
         <span
           style={{
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
+            ...monoStyle,
             fontSize: 56,
             fontWeight: 700,
             color: toggleColor,
@@ -509,8 +505,7 @@ const IntroScene: React.FC = () => {
                 fontSize: 48,
                 fontWeight: 700,
                 color: TEXT,
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 margin: "0 16px",
               }}
             >
@@ -564,8 +559,7 @@ const IntroScene: React.FC = () => {
                 >
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       fontSize: 38,
                       fontWeight: 700,
                       color,
@@ -750,8 +744,7 @@ const ValueVsVarScene: React.FC = () => {
               >
                 <span
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 80,
                     fontWeight: 700,
                     color: COLOR,
@@ -822,8 +815,7 @@ const ValueVsVarScene: React.FC = () => {
                     background: COLOR,
                     borderRadius: 6,
                     padding: "4px 16px",
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: FONT.label,
                     fontWeight: 700,
                     color: BG,
@@ -834,8 +826,7 @@ const ValueVsVarScene: React.FC = () => {
                 {/* 변수명 */}
                 <div
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 28,
                     color: "#888",
                   }}
@@ -1059,86 +1050,68 @@ const totalDuration =
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
-  const entries: SrtEntry[] = [];
-
   const froms = computeFromValues(sceneDurations, {
     cross: CROSS,
     firstOverlap: THUMB_CROSS,
   });
-
-  // [0]=thumbnail: 나레이션 없음
-  // [1]=intro
-  addSrtScene(
-    entries,
-    froms[1],
-    VIDEO_CONFIG.intro.narration,
-    AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits,
-    AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames,
-  );
-  // [2]=valueVsVar
-  addSrtScene(
-    entries,
-    froms[2],
-    VIDEO_CONFIG.valueVsVar.narration,
-    AUDIO_CONFIG.valueVsVar.speechStartFrame,
-    AUDIO_CONFIG.valueVsVar.narrationSplits,
-    AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
-    VIDEO_CONFIG.valueVsVar.durationInFrames,
-  );
-  // [3]=intScene
-  addSrtScene(
-    entries,
-    froms[3],
-    VIDEO_CONFIG.intScene.narration,
-    AUDIO_CONFIG.intScene.speechStartFrame,
-    AUDIO_CONFIG.intScene.narrationSplits,
-    AUDIO_CONFIG.intScene.sentenceEndFrames,
-    VIDEO_CONFIG.intScene.durationInFrames,
-  );
-  // [4]=doubleScene
-  addSrtScene(
-    entries,
-    froms[4],
-    VIDEO_CONFIG.doubleScene.narration,
-    AUDIO_CONFIG.doubleScene.speechStartFrame,
-    AUDIO_CONFIG.doubleScene.narrationSplits,
-    AUDIO_CONFIG.doubleScene.sentenceEndFrames,
-    VIDEO_CONFIG.doubleScene.durationInFrames,
-  );
-  // [5]=stringScene
-  addSrtScene(
-    entries,
-    froms[5],
-    VIDEO_CONFIG.stringScene.narration,
-    AUDIO_CONFIG.stringScene.speechStartFrame,
-    AUDIO_CONFIG.stringScene.narrationSplits,
-    AUDIO_CONFIG.stringScene.sentenceEndFrames,
-    VIDEO_CONFIG.stringScene.durationInFrames,
-  );
-  // [6]=booleanScene
-  addSrtScene(
-    entries,
-    froms[6],
-    VIDEO_CONFIG.booleanScene.narration,
-    AUDIO_CONFIG.booleanScene.speechStartFrame,
-    AUDIO_CONFIG.booleanScene.narrationSplits,
-    AUDIO_CONFIG.booleanScene.sentenceEndFrames,
-    VIDEO_CONFIG.booleanScene.durationInFrames,
-  );
-  // [7]=summaryScene
-  addSrtScene(
-    entries,
-    froms[7],
-    VIDEO_CONFIG.summaryScene.narration,
-    AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits,
-    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames,
-  );
-
-  return entries;
+  return buildSrtData([
+    {
+      offset: froms[1],
+      narration: VIDEO_CONFIG.intro.narration,
+      speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intro.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.intro.durationInFrames,
+    },
+    {
+      offset: froms[2],
+      narration: VIDEO_CONFIG.valueVsVar.narration,
+      speechStartFrame: AUDIO_CONFIG.valueVsVar.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.valueVsVar.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.valueVsVar.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.valueVsVar.durationInFrames,
+    },
+    {
+      offset: froms[3],
+      narration: VIDEO_CONFIG.intScene.narration,
+      speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.intScene.durationInFrames,
+    },
+    {
+      offset: froms[4],
+      narration: VIDEO_CONFIG.doubleScene.narration,
+      speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.doubleScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.doubleScene.durationInFrames,
+    },
+    {
+      offset: froms[5],
+      narration: VIDEO_CONFIG.stringScene.narration,
+      speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.stringScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.stringScene.durationInFrames,
+    },
+    {
+      offset: froms[6],
+      narration: VIDEO_CONFIG.booleanScene.narration,
+      speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.booleanScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.booleanScene.durationInFrames,
+    },
+    {
+      offset: froms[7],
+      narration: VIDEO_CONFIG.summaryScene.narration,
+      speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+    },
+  ]);
 })();
 
 // ── Composition 메타 ──────────────────────────────────────────

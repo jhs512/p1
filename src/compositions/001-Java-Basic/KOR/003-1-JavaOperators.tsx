@@ -18,16 +18,15 @@ import {
   CROSS,
   ColorizedCode,
   ContentArea,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
-  monoFont,
+  monoStyle,
   uiFont,
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
+import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./003-2-content";
 import { AUDIO_CONFIG } from "./003-3-audio.gen";
 import {
@@ -141,8 +140,7 @@ const CodeLines: React.FC<{
         borderRadius: 14,
         padding: "36px 56px",
         minWidth: 820,
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
+        ...monoStyle,
         fontSize: 32,
         lineHeight: 1.9,
       }}
@@ -230,8 +228,7 @@ const ThumbnailScene: React.FC = () => {
       </div>
       <div
         style={{
-          fontFamily: monoFont,
-          fontFeatureSettings: MONO_NO_LIGA,
+          ...monoStyle,
           fontSize: 44,
           color: C_TEAL,
           letterSpacing: 12,
@@ -308,8 +305,7 @@ const IntroScene: React.FC = () => {
                 >
                   <span
                     style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
+                      ...monoStyle,
                       fontSize: 72,
                       fontWeight: 700,
                       color: C_OP,
@@ -461,8 +457,7 @@ const RemScene: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: 20,
-              fontFamily: monoFont,
-              fontFeatureSettings: MONO_NO_LIGA,
+              ...monoStyle,
               fontSize: 80,
               fontWeight: 900,
             }}
@@ -507,8 +502,7 @@ const RemScene: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 64,
                     fontWeight: 900,
                     color: C_NUM,
@@ -518,8 +512,7 @@ const RemScene: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 22,
                     color: "#555",
                   }}
@@ -544,8 +537,7 @@ const RemScene: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 64,
                     fontWeight: 900,
                     color: C_REM,
@@ -555,8 +547,7 @@ const RemScene: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontFamily: monoFont,
-                    fontFeatureSettings: MONO_NO_LIGA,
+                    ...monoStyle,
                     fontSize: 22,
                     color: C_REM,
                     opacity: 0.6,
@@ -579,8 +570,7 @@ const RemScene: React.FC = () => {
                 opacity: usageAppear,
                 display: "flex",
                 gap: 20,
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 28,
                 background: BG_CODE,
                 borderRadius: 12,
@@ -674,8 +664,7 @@ const SummaryScene: React.FC = () => {
                   borderRadius: 12,
                   padding: "36px 56px",
                   minWidth: 820,
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 30,
                   lineHeight: 1.85,
                 }}
@@ -729,66 +718,52 @@ const totalDuration =
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
-  const entries: SrtEntry[] = [];
-
   const froms = computeFromValues(sceneDurations, {
     cross: CROSS,
     firstOverlap: THUMB_CROSS,
   });
-
-  // [0]=thumbnail: 나레이션 없음
-  // [1]=intro
-  addSrtScene(
-    entries,
-    froms[1],
-    VIDEO_CONFIG.intro.narration,
-    AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits,
-    AUDIO_CONFIG.intro.sentenceEndFrames,
-    VIDEO_CONFIG.intro.durationInFrames,
-  );
-  // [2]=addSubScene
-  addSrtScene(
-    entries,
-    froms[2],
-    VIDEO_CONFIG.addSubScene.narration,
-    AUDIO_CONFIG.addSubScene.speechStartFrame,
-    AUDIO_CONFIG.addSubScene.narrationSplits,
-    AUDIO_CONFIG.addSubScene.sentenceEndFrames,
-    VIDEO_CONFIG.addSubScene.durationInFrames,
-  );
-  // [3]=mulDivScene
-  addSrtScene(
-    entries,
-    froms[3],
-    VIDEO_CONFIG.mulDivScene.narration,
-    AUDIO_CONFIG.mulDivScene.speechStartFrame,
-    AUDIO_CONFIG.mulDivScene.narrationSplits,
-    AUDIO_CONFIG.mulDivScene.sentenceEndFrames,
-    VIDEO_CONFIG.mulDivScene.durationInFrames,
-  );
-  // [4]=remScene
-  addSrtScene(
-    entries,
-    froms[4],
-    VIDEO_CONFIG.remScene.narration,
-    AUDIO_CONFIG.remScene.speechStartFrame,
-    AUDIO_CONFIG.remScene.narrationSplits,
-    AUDIO_CONFIG.remScene.sentenceEndFrames,
-    VIDEO_CONFIG.remScene.durationInFrames,
-  );
-  // [5]=summaryScene
-  addSrtScene(
-    entries,
-    froms[5],
-    VIDEO_CONFIG.summaryScene.narration,
-    AUDIO_CONFIG.summaryScene.speechStartFrame,
-    AUDIO_CONFIG.summaryScene.narrationSplits,
-    AUDIO_CONFIG.summaryScene.sentenceEndFrames,
-    VIDEO_CONFIG.summaryScene.durationInFrames,
-  );
-
-  return entries;
+  return buildSrtData([
+    {
+      offset: froms[1],
+      narration: VIDEO_CONFIG.intro.narration,
+      speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intro.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.intro.durationInFrames,
+    },
+    {
+      offset: froms[2],
+      narration: VIDEO_CONFIG.addSubScene.narration,
+      speechStartFrame: AUDIO_CONFIG.addSubScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.addSubScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.addSubScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.addSubScene.durationInFrames,
+    },
+    {
+      offset: froms[3],
+      narration: VIDEO_CONFIG.mulDivScene.narration,
+      speechStartFrame: AUDIO_CONFIG.mulDivScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.mulDivScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.mulDivScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.mulDivScene.durationInFrames,
+    },
+    {
+      offset: froms[4],
+      narration: VIDEO_CONFIG.remScene.narration,
+      speechStartFrame: AUDIO_CONFIG.remScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.remScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.remScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.remScene.durationInFrames,
+    },
+    {
+      offset: froms[5],
+      narration: VIDEO_CONFIG.summaryScene.narration,
+      speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+      sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+    },
+  ]);
 })();
 
 // ── Composition 메타 ──────────────────────────────────────────

@@ -27,17 +27,15 @@ import {
   ColorizedCode,
   ContentArea,
   FONT,
-  MONO_NO_LIGA,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
-  monoFont,
   monoStyle,
   uiFont,
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { SrtEntry, addSrtScene } from "../../../utils/srt";
+import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { BG, BG_CODE, BG_THUMB, C_NUMBER, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -352,8 +350,7 @@ const BoxMetaphorAnim: React.FC = () => {
                 left: "50%",
                 top: "50%",
                 transform: `translateX(-50%) translateY(calc(-50% + ${dropY}px))`,
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 90,
                 color: C_NUMBER,
                 fontWeight: 700,
@@ -396,8 +393,7 @@ const BoxMetaphorAnim: React.FC = () => {
               {/* 꺼낸 값 */}
               <span
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 80,
                   color: C_NUMBER,
                   fontWeight: 700,
@@ -417,8 +413,7 @@ const BoxMetaphorAnim: React.FC = () => {
         style={{
           transform: `scale(${nameTagScale})`,
           opacity: nameTag,
-          fontFamily: monoFont,
-          fontFeatureSettings: MONO_NO_LIGA,
+          ...monoStyle,
           fontSize: 38,
         }}
       >
@@ -642,8 +637,7 @@ const CombinedVariableBox: React.FC<{
         <span
           style={{
             position: "absolute",
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
+            ...monoStyle,
             fontSize: 44,
             color: C_NUMBER,
             opacity: insideOpacity,
@@ -658,8 +652,7 @@ const CombinedVariableBox: React.FC<{
             top: valueY,
             left: "50%",
             transform: "translateX(-50%)",
-            fontFamily: monoFont,
-            fontFeatureSettings: MONO_NO_LIGA,
+            ...monoStyle,
             fontSize: 44,
             color: C_NUMBER,
             opacity: fallingOpacity,
@@ -836,8 +829,7 @@ const InterpretScene: React.FC = () => {
                 top: "46%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 34,
                 lineHeight: 2.1,
                 background: "#252525",
@@ -911,8 +903,7 @@ const InterpretScene: React.FC = () => {
                     {badge("← 값", C_VAL, ann2)}
                     <span
                       style={{
-                        fontFamily: monoFont,
-                        fontFeatureSettings: MONO_NO_LIGA,
+                        ...monoStyle,
                         fontSize: 26,
                         color: C_NUMBER,
                         background: BG_CODE,
@@ -1121,8 +1112,7 @@ const QuizScene: React.FC = () => {
             {/* Line 1: int age = 4; */}
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 38,
                 color: TEXT,
                 opacity: 0.5,
@@ -1139,8 +1129,7 @@ const QuizScene: React.FC = () => {
             {/* Line 2: age = age + 2; — 코드 + 어노테이션 */}
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 38,
                 color: TEXT,
                 display: "flex",
@@ -1234,8 +1223,7 @@ const QuizScene: React.FC = () => {
             >
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 120,
                   fontWeight: 700,
                   color: "#f5c842",
@@ -1336,8 +1324,6 @@ const totalDuration = _from;
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
-  const entries: SrtEntry[] = [];
-
   const sceneDurations = [
     thumbnail.durationInFrames,
     intro.durationInFrames,
@@ -1346,98 +1332,75 @@ export const SRT_DATA: SrtEntry[] = (() => {
     QUIZ_TOTAL_DURATION,
     print.durationInFrames,
   ];
-  const froms: number[] = [];
-  let _srtFrom = 0;
-  for (let i = 0; i < sceneDurations.length; i++) {
-    froms.push(_srtFrom);
-    const overlap =
-      i === 0 ? THUMB_CROSS : i < sceneDurations.length - 1 ? CROSS : 0;
-    _srtFrom += sceneDurations[i] - overlap;
-  }
-
-  // froms[0] = thumbnail → 나레이션 없음
-  // froms[1] = intro
-  addSrtScene(
-    entries,
-    froms[1],
-    intro.narration,
-    AUDIO_CONFIG.intro.speechStartFrame,
-    AUDIO_CONFIG.intro.narrationSplits,
-    AUDIO_CONFIG.intro.sentenceEndFrames,
-    intro.durationInFrames,
-  );
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // froms[2] = CombinedDeclarationInitScene (declaration + initialization)
   // declaration: offset = froms[2], initialization: offset = froms[2] + SPLIT - SCENE_TAIL_FRAMES
   // (initialization 오디오가 SPLIT-SCENE_TAIL_FRAMES 에서 시작)
   const SPLIT = declaration.durationInFrames;
-  addSrtScene(
-    entries,
-    froms[2],
-    declaration.narration,
-    AUDIO_CONFIG.declaration.speechStartFrame,
-    AUDIO_CONFIG.declaration.narrationSplits,
-    AUDIO_CONFIG.declaration.sentenceEndFrames,
-    SPLIT,
-  );
-  // initialization 자막은 SPLIT - SCENE_TAIL_FRAMES 오프셋에서 시작
-  addSrtScene(
-    entries,
-    froms[2] + SPLIT - SCENE_TAIL_FRAMES,
-    initialization.narration,
-    AUDIO_CONFIG.initialization.speechStartFrame,
-    AUDIO_CONFIG.initialization.narrationSplits,
-    AUDIO_CONFIG.initialization.sentenceEndFrames,
-    initialization.durationInFrames,
-  );
-
-  // froms[3] = InterpretScene
-  addSrtScene(
-    entries,
-    froms[3],
-    interpret.narration,
-    AUDIO_CONFIG.interpret.speechStartFrame,
-    AUDIO_CONFIG.interpret.narrationSplits,
-    AUDIO_CONFIG.interpret.sentenceEndFrames,
-    interpret.durationInFrames,
-  );
-
-  // froms[4] = QuizScene (interpretQuiz + 150 + interpretReveal)
   const qDur = interpretQuiz.durationInFrames;
   const REVEAL_START = qDur + QUIZ_THINKING_FRAMES;
-  // interpretQuiz 자막
-  addSrtScene(
-    entries,
-    froms[4],
-    interpretQuiz.narration,
-    AUDIO_CONFIG.interpretQuiz.speechStartFrame,
-    AUDIO_CONFIG.interpretQuiz.narrationSplits,
-    AUDIO_CONFIG.interpretQuiz.sentenceEndFrames,
-    qDur,
-  );
-  // interpretReveal 자막 (REVEAL_START 이후)
-  addSrtScene(
-    entries,
-    froms[4] + REVEAL_START,
-    interpretReveal.narration,
-    AUDIO_CONFIG.interpretReveal.speechStartFrame,
-    AUDIO_CONFIG.interpretReveal.narrationSplits,
-    AUDIO_CONFIG.interpretReveal.sentenceEndFrames,
-    interpretReveal.durationInFrames,
-  );
-
-  // froms[5] = PrintScene
-  addSrtScene(
-    entries,
-    froms[5],
-    print.narration,
-    AUDIO_CONFIG.print.speechStartFrame,
-    AUDIO_CONFIG.print.narrationSplits,
-    AUDIO_CONFIG.print.sentenceEndFrames,
-    print.durationInFrames,
-  );
-
-  return entries;
+  return buildSrtData([
+    {
+      offset: froms[1],
+      narration: intro.narration,
+      speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.intro.sentenceEndFrames,
+      sceneDuration: intro.durationInFrames,
+    },
+    {
+      offset: froms[2],
+      narration: declaration.narration,
+      speechStartFrame: AUDIO_CONFIG.declaration.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.declaration.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.declaration.sentenceEndFrames,
+      sceneDuration: SPLIT,
+    },
+    {
+      offset: froms[2] + SPLIT - SCENE_TAIL_FRAMES,
+      narration: initialization.narration,
+      speechStartFrame: AUDIO_CONFIG.initialization.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.initialization.sentenceEndFrames,
+      sceneDuration: initialization.durationInFrames,
+    },
+    {
+      offset: froms[3],
+      narration: interpret.narration,
+      speechStartFrame: AUDIO_CONFIG.interpret.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.interpret.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.interpret.sentenceEndFrames,
+      sceneDuration: interpret.durationInFrames,
+    },
+    {
+      offset: froms[4],
+      narration: interpretQuiz.narration,
+      speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.interpretQuiz.sentenceEndFrames,
+      sceneDuration: qDur,
+    },
+    {
+      offset: froms[4] + REVEAL_START,
+      narration: interpretReveal.narration,
+      speechStartFrame: AUDIO_CONFIG.interpretReveal.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.interpretReveal.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.interpretReveal.sentenceEndFrames,
+      sceneDuration: interpretReveal.durationInFrames,
+    },
+    {
+      offset: froms[5],
+      narration: print.narration,
+      speechStartFrame: AUDIO_CONFIG.print.speechStartFrame,
+      narrationSplits: AUDIO_CONFIG.print.narrationSplits,
+      sentenceEndFrames: AUDIO_CONFIG.print.sentenceEndFrames,
+      sceneDuration: print.durationInFrames,
+    },
+  ]);
 })();
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─

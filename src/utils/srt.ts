@@ -10,6 +10,15 @@ export type SrtEntry = {
   text: string;
 };
 
+export type SrtSceneConfig = {
+  offset: number;
+  narration: string[];
+  speechStartFrame: number;
+  narrationSplits: readonly number[];
+  sentenceEndFrames: readonly number[];
+  sceneDuration: number;
+};
+
 /**
  * 씬 하나의 나레이션을 SRT 엔트리로 변환하여 entries 배열에 추가한다.
  */
@@ -35,6 +44,22 @@ export function addSrtScene(
       });
     }
   });
+}
+
+export function buildSrtData(scenes: readonly SrtSceneConfig[]): SrtEntry[] {
+  const entries: SrtEntry[] = [];
+  scenes.forEach((scene) => {
+    addSrtScene(
+      entries,
+      scene.offset,
+      scene.narration,
+      scene.speechStartFrame,
+      scene.narrationSplits,
+      scene.sentenceEndFrames,
+      scene.sceneDuration,
+    );
+  });
+  return entries;
 }
 
 /**
