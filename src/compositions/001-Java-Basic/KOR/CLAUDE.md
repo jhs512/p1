@@ -444,6 +444,32 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
 <div style={{ opacity: appear }}>요소</div>;
 ```
 
+### 6-6. 퇴장 spring의 오버슈트를 반드시 차단한다
+
+`(1 - exitSpring)` 패턴은 spring이 1.0을 넘어가면 음수가 되어 사라진 요소가 다시 나타난다.
+퇴장 opacity 계산 시 반드시 `Math.max(0, ...)` 로 감싼다.
+
+```tsx
+// ❌ 금지 — spring 오버슈트 시 음수 opacity → 재출현
+const titleOpacity = titleAppear * (1 - titleExit);
+
+// ✅ 올바름 — 음수 차단으로 완전 퇴장 보장
+const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
+```
+
+### 6-7. 퇴장 애니메이션은 다음 요소 등장 전에 완료한다
+
+퇴장 spring이 `split` 시점에 시작되면 다음 요소와 겹친다.
+퇴장은 `split` 보다 충분히 앞서 시작하고, duration도 짧게 잡는다.
+
+```tsx
+// ❌ 금지 — split과 동시에 퇴장 시작 → 겹침
+const exit = spring({ frame: frame - split, durationInFrames: 36 });
+
+// ✅ 올바름 — split 20프레임 전에 퇴장 시작
+const exit = spring({ frame: frame - (split - 20), durationInFrames: 24 });
+```
+
 ---
 
 ## 7. 비주얼 스타일 규칙
@@ -618,6 +644,8 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] 라벨/뱃지 fontSize 하드코딩 → `FONT.label` 사용
 - [ ] 정리/요약 씬에서 기존 코드 줄 비활성화(opacity 낮춤) → 전체 동일 opacity 유지
 - [ ] 씬에 자막만 있고 화면이 비어 있음 → 핵심 키워드를 중앙에 크게 표시
+- [ ] `(1 - exitSpring)` 패턴에 `Math.max(0, ...)` 누락 → 오버슈트 재출현 방지
+- [ ] 퇴장 spring이 `split` 시점에 시작 → `split - 20` 으로 앞당겨야 함
 
 ---
 
