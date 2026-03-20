@@ -129,43 +129,27 @@ const sceneDuration = Math.max(
 - 상세 설명 씬에서 포커싱 목적으로 이전 줄을 흐리게 하는 것은 허용.
 - **정리/요약 씬에서만 금지 — 헌법.**
 
-### 10. 퇴장 spring의 오버슈트를 반드시 차단한다
+### 10. 퇴장에는 spring을 쓰지 않는다 — interpolate를 쓴다
 
-`(1 - exitSpring)` 패턴은 spring이 1.0을 넘어가면 음수가 되어 사라진 요소가 다시 나타난다.
-퇴장 opacity를 계산할 때 반드시 `Math.max(0, ...)` 로 감싼다.
+spring은 오버슈트(1.0 초과 후 진동)가 발생하므로 `(1 - spring)` 패턴이 음수 또는 재양수가 되어
+사라진 요소가 깜빡이며 다시 나타난다. **퇴장은 반드시 `interpolate`로 선형 보간한다.**
 
 ```tsx
-// ❌ 금지 — spring 오버슈트 시 음수 opacity → 재출현
+// ❌ 금지 — spring 오버슈트 → 퇴장 후 깜빡이며 재출현
+const titleExit = spring({ frame: frame - split, fps, ... });
 const titleOpacity = titleAppear * (1 - titleExit);
 
-// ✅ 올바름 — 음수 차단으로 완전 퇴장 보장
-const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
+// ✅ 올바름 — interpolate는 오버슈트 없이 깔끔하게 0으로
+const titleExit = interpolate(frame, [split - 20, split], [0, 1], {
+  extrapolateLeft: "clamp",
+  extrapolateRight: "clamp",
+});
+const titleOpacity = titleAppear * (1 - titleExit);
 ```
 
-- **퇴장 spring에 `(1 - spring)` 을 쓸 때 항상 적용 — 헌법.**
-
-### 11. 퇴장 애니메이션은 다음 요소 등장 전에 완료한다
-
-퇴장 spring이 `split` 시점에 시작되면 다음 요소와 겹친다.
-퇴장은 `split` 보다 충분히 앞서 시작하고, duration도 짧게 잡는다.
-
-```tsx
-// ❌ 금지 — split과 동시에 퇴장 시작 → 겹침
-const titleExit = spring({
-  frame: frame - split,
-  ...
-  durationInFrames: 36,
-});
-
-// ✅ 올바름 — split 20프레임 전에 퇴장 시작
-const titleExit = spring({
-  frame: frame - (split - 20),
-  ...
-  durationInFrames: 24,
-});
-```
-
-- **퇴장과 등장이 같은 프레임에 겹치면 안 된다 — 헌법.**
+- **퇴장에 spring 절대 금지, interpolate만 사용 — 헌법.**
+- split 20프레임 전에 시작하여 split 도달 시 완전히 사라지게 한다.
+- **퇴장과 다음 요소 등장이 같은 프레임에 겹치면 안 된다 — 헌법.**
 
 ### 12. 빈 화면을 만들지 않는다
 

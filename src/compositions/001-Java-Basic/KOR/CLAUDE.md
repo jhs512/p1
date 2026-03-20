@@ -444,31 +444,26 @@ const appear = spring({ frame: frame - triggerFrame, fps, ... });
 <div style={{ opacity: appear }}>요소</div>;
 ```
 
-### 6-6. 퇴장 spring의 오버슈트를 반드시 차단한다
+### 6-6. 퇴장에는 spring을 쓰지 않는다 — interpolate를 쓴다
 
-`(1 - exitSpring)` 패턴은 spring이 1.0을 넘어가면 음수가 되어 사라진 요소가 다시 나타난다.
-퇴장 opacity 계산 시 반드시 `Math.max(0, ...)` 로 감싼다.
-
-```tsx
-// ❌ 금지 — spring 오버슈트 시 음수 opacity → 재출현
-const titleOpacity = titleAppear * (1 - titleExit);
-
-// ✅ 올바름 — 음수 차단으로 완전 퇴장 보장
-const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
-```
-
-### 6-7. 퇴장 애니메이션은 다음 요소 등장 전에 완료한다
-
-퇴장 spring이 `split` 시점에 시작되면 다음 요소와 겹친다.
-퇴장은 `split` 보다 충분히 앞서 시작하고, duration도 짧게 잡는다.
+spring은 오버슈트(1.0 초과 후 진동)가 발생하므로 `(1 - spring)` 패턴이 음수 또는 재양수가 되어
+사라진 요소가 깜빡이며 다시 나타난다. **퇴장은 반드시 `interpolate`로 선형 보간한다.**
 
 ```tsx
-// ❌ 금지 — split과 동시에 퇴장 시작 → 겹침
-const exit = spring({ frame: frame - split, durationInFrames: 36 });
+// ❌ 금지 — spring 오버슈트 → 퇴장 후 깜빡이며 재출현
+const exit = spring({ frame: frame - split, fps, ... });
+const opacity = appear * (1 - exit);
 
-// ✅ 올바름 — split 20프레임 전에 퇴장 시작
-const exit = spring({ frame: frame - (split - 20), durationInFrames: 24 });
+// ✅ 올바름 — interpolate는 오버슈트 없이 깔끔하게 0으로
+const exit = interpolate(frame, [split - 20, split], [0, 1], {
+  extrapolateLeft: "clamp",
+  extrapolateRight: "clamp",
+});
+const opacity = appear * (1 - exit);
 ```
+
+- split 20프레임 전에 시작하여 split 도달 시 완전히 사라지게 한다.
+- **퇴장과 다음 요소 등장이 같은 프레임에 겹치면 안 된다.**
 
 ---
 
@@ -644,8 +639,8 @@ pnpm render 001-Java-Basic/KOR/{id}
 - [ ] 라벨/뱃지 fontSize 하드코딩 → `FONT.label` 사용
 - [ ] 정리/요약 씬에서 기존 코드 줄 비활성화(opacity 낮춤) → 전체 동일 opacity 유지
 - [ ] 씬에 자막만 있고 화면이 비어 있음 → 핵심 키워드를 중앙에 크게 표시
-- [ ] `(1 - exitSpring)` 패턴에 `Math.max(0, ...)` 누락 → 오버슈트 재출현 방지
-- [ ] 퇴장 spring이 `split` 시점에 시작 → `split - 20` 으로 앞당겨야 함
+- [ ] 퇴장에 `spring` 사용 → `interpolate`로 교체 (오버슈트 재출현 방지)
+- [ ] 퇴장이 `split` 시점에 시작 → `[split - 20, split]` 으로 앞당겨야 함
 
 ---
 

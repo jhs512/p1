@@ -503,13 +503,11 @@ const IntroScene: React.FC = () => {
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 48,
   });
-  const titleExit = spring({
-    frame: frame - (split1 - 20),
-    fps,
-    config: { damping: 14, stiffness: 200 },
-    durationInFrames: 24,
+  const titleExit = interpolate(frame, [split1 - 20, split1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
-  const titleOpacity = titleAppear * Math.max(0, 1 - titleExit);
+  const titleOpacity = titleAppear * (1 - titleExit);
 
   const boxes = [
     { label: "int", color: TYPE_COLORS.int },
@@ -653,13 +651,11 @@ const ValueVsVarScene: React.FC = () => {
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 48,
   });
-  const msgExit = spring({
-    frame: frame - (split0 - 20),
-    fps,
-    config: { damping: 14, stiffness: 200 },
-    durationInFrames: 24,
+  const msgExit = interpolate(frame, [split0 - 20, split0], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
-  const msgOpacity = msgAppear * Math.max(0, 1 - msgExit);
+  const msgOpacity = msgAppear * (1 - msgExit);
 
   // "int형 값" → 문장 2 첫 단어, "int형 변수" → 문장 3 첫 단어
   const valueWordFrame =
