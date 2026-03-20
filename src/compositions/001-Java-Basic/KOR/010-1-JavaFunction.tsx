@@ -29,7 +29,9 @@ import {
   BG_THUMB,
   C_FUNC,
   C_KEYWORD,
+  C_NUMBER,
   C_PAIN,
+  C_PURPLE,
   C_STRING,
   C_TEAL,
   TEXT,
@@ -825,7 +827,7 @@ const ComparisonScene: React.FC = () => {
               <div style={labelStyle(C_PAIN)}>고통스러운 코드</div>
               <div style={codeBoxStyle}>
                 {BEFORE_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
                     <CodeLine text={line} />
                   </div>
                 ))}
@@ -852,7 +854,7 @@ const ComparisonScene: React.FC = () => {
               <div style={labelStyle(C_FUNC)}>개선된 코드</div>
               <div style={codeBoxStyle}>
                 {AFTER_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
                     {line ? <CodeLine text={line} /> : "\u00A0"}
                   </div>
                 ))}
@@ -875,13 +877,24 @@ const ComparisonScene: React.FC = () => {
 
 // ── 씬: RealExampleScene — 할인 가격 하드코딩 → 함수로 해결 ────
 const REAL_PAIN_LINES = [
-  "System.out.println(50000 * 0.1);",
-  "System.out.println(30000 * 0.1);",
-  "System.out.println(80000 * 0.1);",
+  "if (price > 30000) {",
+  "    price = (int)(price * 0.9);",
+  "}",
+  "",
+  "if (price2 > 30000) {",
+  "    price2 = (int)(price2 * 0.9);",
+  "}",
+  "",
+  "if (price3 > 30000) {",
+  "    price3 = (int)(price3 * 0.9);",
+  "}",
 ];
 const REAL_CLEAN_LINES = [
   "int discount(int price) {",
-  "    return (int)(price * 0.1);",
+  "    if (price > 30000) {",
+  "        return (int)(price * 0.9);",
+  "    }",
+  "    return price;",
   "}",
   "",
   "discount(50000);",
@@ -924,15 +937,15 @@ const RealExampleScene: React.FC = () => {
   const codeBoxStyle: React.CSSProperties = {
     background: BG_CODE,
     borderRadius: 12,
-    padding: "20px 32px",
+    padding: "16px 28px",
     fontFamily: monoFont,
     fontFeatureSettings: MONO_NO_LIGA,
-    fontSize: 22,
+    fontSize: 19,
   };
 
   const labelStyle = (color: string): React.CSSProperties => ({
     fontFamily: uiFont,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 700,
     color,
     letterSpacing: 2,
@@ -942,14 +955,16 @@ const RealExampleScene: React.FC = () => {
 
   // 코드 컬러링 — 할인 계산 예시
   const colorCode = (text: string) => {
-    const parts = text.split(/(0\.\d+|\d+|"[^"]*"|\*|return|double|int|void)/g);
+    const parts = text.split(/(0\.\d+|\d+|"[^"]*"|\*|>|return|if|double|int|void)/g);
     return parts.map((p, i) => {
+      if (p === "if")
+        return <span key={i} style={{ color: C_PURPLE }}>{p}</span>;
       if (["double", "int", "void"].includes(p))
         return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
       if (p === "return")
         return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
       if (/^[\d.]+$/.test(p))
-        return <span key={i} style={{ color: "#b5cea8" }}>{p}</span>;
+        return <span key={i} style={{ color: C_NUMBER }}>{p}</span>;
       if (/^"/.test(p))
         return <span key={i} style={{ color: C_STRING }}>{p}</span>;
       if (p.includes("discount"))
@@ -981,16 +996,16 @@ const RealExampleScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 24,
+              gap: 16,
               width: 900,
             }}
           >
             {/* 고통스러운 코드 — 위 */}
             <div style={{ opacity: beforeAppear, width: "100%" }}>
-              <div style={labelStyle(C_PAIN)}>매번 하드코딩</div>
+              <div style={labelStyle(C_PAIN)}>매번 같은 조건을 반복</div>
               <div style={codeBoxStyle}>
                 {REAL_PAIN_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
                     {colorCode(line)}
                   </div>
                 ))}
@@ -1000,7 +1015,7 @@ const RealExampleScene: React.FC = () => {
             <div
               style={{
                 fontFamily: uiFont,
-                fontSize: 48,
+                fontSize: 36,
                 color: C_TEAL,
                 opacity: arrowAppear,
                 transform: `translateY(${interpolate(arrowAppear, [0, 1], [10, 0], {
@@ -1016,7 +1031,7 @@ const RealExampleScene: React.FC = () => {
               <div style={labelStyle(C_FUNC)}>함수로 해결</div>
               <div style={codeBoxStyle}>
                 {REAL_CLEAN_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
+                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
                     {line ? colorCode(line) : "\u00A0"}
                   </div>
                 ))}
