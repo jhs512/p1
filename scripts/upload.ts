@@ -151,11 +151,12 @@ async function updateVideoMeta(
     description: string;
     tags: string[];
     categoryId: string;
+    privacyStatus: PrivacyStatus;
     language: string;
   },
 ): Promise<void> {
   await yt.videos.update({
-    part: ["snippet"],
+    part: ["snippet", "status"],
     requestBody: {
       id: videoId,
       snippet: {
@@ -166,9 +167,12 @@ async function updateVideoMeta(
         defaultLanguage: meta.language,
         defaultAudioLanguage: meta.language,
       },
+      status: {
+        privacyStatus: meta.privacyStatus,
+      },
     },
   });
-  console.log(`   ✅  메타데이터 업데이트 완료: https://youtu.be/${videoId}`);
+  console.log(`   ✅  메타데이터 업데이트 완료 (${meta.privacyStatus}): https://youtu.be/${videoId}`);
 }
 
 /** 재생목록에 영상 추가 */
