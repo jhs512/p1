@@ -397,14 +397,15 @@ const ConceptScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const contentStart = Math.max(s, CROSS);
   const titleAppear = spring({
-    frame: frame - s,
+    frame: frame - contentStart,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const descAppear = spring({
-    frame: frame - split,
+    frame: frame - Math.max(split, CROSS),
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -482,10 +483,18 @@ const DeclarationScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
+  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const codeAppear = spring({
+    frame: frame - CROSS,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 16,
+  });
+
   const lineStarts: number[] = [];
-  let cumFrame = s;
+  let cumFrame = Math.max(s, CROSS);
   for (const line of DECLARE_LINES) {
     lineStarts.push(cumFrame);
     cumFrame += Math.ceil((line.length / DECLARE_CPS) * fps);
@@ -509,6 +518,7 @@ const DeclarationScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 32,
+              opacity: codeAppear,
             }}
           >
             {DECLARE_LINES.map((line, i) => (
@@ -537,10 +547,20 @@ const CallScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
+  const codeAppear = spring({
+    frame: frame - CROSS,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 16,
+  });
+
+  const contentStart = Math.max(s, CROSS);
   const lineStarts = CALL_LINES.map((_, i) => {
-    const lineDuration = (split - s) / CALL_LINES.length;
-    return Math.round(s + i * lineDuration);
+    const lineDuration = (split - contentStart) / CALL_LINES.length;
+    return Math.round(contentStart + i * lineDuration);
   });
 
   return (
@@ -561,6 +581,7 @@ const CallScene: React.FC = () => {
               fontFamily: monoFont,
               fontFeatureSettings: MONO_NO_LIGA,
               fontSize: 40,
+              opacity: codeAppear,
             }}
           >
             {CALL_LINES.map((line, i) => (
@@ -590,14 +611,15 @@ const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const contentStart = Math.max(s, CROSS);
   const card0Appear = spring({
-    frame: frame - s,
+    frame: frame - contentStart,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const card1Appear = spring({
-    frame: frame - (cfg.narrationSplits[0] ?? s + 30),
+    frame: frame - Math.max(cfg.narrationSplits[0] ?? s + 30, CROSS),
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -683,14 +705,15 @@ const ComparisonScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const contentStart = Math.max(s, CROSS);
   const beforeAppear = spring({
-    frame: frame - s,
+    frame: frame - contentStart,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
   const arrowAppear = spring({
-    frame: frame - (s + Math.round((split - s) / 2)),
+    frame: frame - (contentStart + Math.round((split - contentStart) / 2)),
     fps,
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 20,
