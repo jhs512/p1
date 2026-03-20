@@ -754,7 +754,8 @@ const ExecutionScene: React.FC = () => {
     3: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][2],
     4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
   };
-  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity);
+  const OUTPUT_DELAY = 10;
+  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
 
   // 레이블 spring — 단계 전환마다 튀어오름
   const labelSpring = spring({
@@ -984,8 +985,8 @@ const ExecutionScene: React.FC = () => {
                 </div>
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                   {(step.output as readonly string[]).map((n, i) => {
-                    const isNew = i === (step.output as readonly string[]).length - 1;
-                    const execFrame = EXEC_FRAMES[stepIdx] ?? Infinity;
+                    const isNew = step.condPass && i === (step.output as readonly string[]).length - 1;
+                    const execFrame = (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
                     const highlight = isNew && showOutput
                       ? interpolate(frame - execFrame, [0, 30], [1, 0], {
                           extrapolateLeft: "clamp",
