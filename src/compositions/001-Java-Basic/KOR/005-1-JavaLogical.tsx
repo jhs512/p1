@@ -14,19 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./005-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./005-2-content";
+import { AUDIO_CONFIG } from "./005-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -306,7 +307,7 @@ const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
-  const opacity = useFade(intro.durationInFrames);
+  const opacity = useFade(intro.durationInFrames, { in: true });
 
   const titleAppear = spring({
     frame: frame - intro.speechStartFrame,
@@ -337,6 +338,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="논리 연산자란?" />
 
           {/* 핵심 키워드 타이틀 */}
           <div
@@ -450,6 +452,7 @@ const AndScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="AND (&&)" />
 
           {/* 헤더 */}
           {frame >= s && (
@@ -571,6 +574,7 @@ const OrScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="OR (||)" />
 
           {/* 헤더: 변수 선언 (두 줄) */}
           {frame >= s && (
@@ -692,6 +696,7 @@ const NotScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="NOT (!)" />
 
           {/* !true → false */}
           {frame >= s && (
@@ -789,6 +794,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="논리 연산자 정리" />
 
           {/* 타이틀: 논리 연산자 정리 */}
           <div

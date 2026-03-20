@@ -14,19 +14,19 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./003-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./003-2-content";
-import { HEIGHT, WIDTH } from "./config";
+import { AUDIO_CONFIG } from "./003-3-audio.gen";
 import {
   BG,
   BG_CODE,
@@ -39,6 +39,7 @@ import {
   C_TYPE,
   TEXT,
 } from "./colors";
+import { HEIGHT, WIDTH } from "./config";
 
 // 씬 내부에서 사용하는 색상 별칭
 const C_INT = C_NUMBER; // 숫자 리터럴
@@ -98,7 +99,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const commentPart = commentIdx >= 0 ? text.slice(commentIdx) : "";
 
   const parts = codePart.split(
-    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|[+\-*\/%=]|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
+    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|[+\-*/%=]|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
   );
 
   const TYPE_COLORS: Record<string, string> = {
@@ -279,7 +280,7 @@ const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
-  const opacity = useFade(intro.durationInFrames);
+  const opacity = useFade(intro.durationInFrames, { in: true });
 
   // 두 번째 문장(더하기, 빼기, 곱하기, 나누기, 나머지)의 앞 5단어 발화 프레임
   // TODO: wordTiming 미지원 — 동적 인덱스 (slice(0,5) 후 reduce로 순회)
@@ -294,6 +295,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="산술 연산자란?" />
           <div
             style={{
               position: "absolute",
@@ -374,6 +376,7 @@ const AddSubScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="덧셈 · 뺄셈" />
           {frame >= s && (
             <CodeLines
               lines={[
@@ -409,6 +412,7 @@ const MulDivScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="곱셈 · 나눗셈" />
           {frame >= s && (
             <CodeLines
               lines={[
@@ -473,6 +477,7 @@ const RemScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="나머지 연산" />
 
           {/* 메인: 11 % 3 == 2 */}
           <div
@@ -685,6 +690,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="산술 연산자 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
               <div

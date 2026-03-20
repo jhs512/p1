@@ -21,30 +21,23 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./001-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
+import { AUDIO_CONFIG } from "./001-3-audio.gen";
+import { BG, BG_CODE, BG_THUMB, C_NUMBER, C_TEAL, C_VAR, TEXT } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
-import {
-  BG,
-  BG_CODE,
-  BG_THUMB,
-  C_NUMBER,
-  C_TEAL,
-  C_VAR,
-  TEXT,
-} from "./colors";
 
 // ── 타입 ─────────────────────────────────────────────────────
 export interface CodeLine {
@@ -145,26 +138,6 @@ function useTypingEffect(
   };
 }
 
-// ── 컴포넌트: SceneTitle ──────────────────────────────────────
-const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div
-    style={{
-      position: "absolute",
-      top: 160,
-      left: 0,
-      right: 0,
-      textAlign: "center",
-      fontFamily: uiFont,
-      fontSize: 42,
-      fontWeight: 700,
-      color: "#ffffff",
-      letterSpacing: 1,
-    }}
-  >
-    {title}
-  </div>
-);
-
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const parts = text.split(/(\bint\b|\bString\b|\bboolean\b|\b\d+\b)/g);
@@ -190,9 +163,7 @@ const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
 };
 
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
-  <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>
-    {text}
-  </div>
+  <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>{text}</div>
 );
 
 const TypingLine: React.FC<{
@@ -492,12 +463,13 @@ const BoxMetaphorAnim: React.FC = () => {
 // ── 씬: IntroScene ────────────────────────────────────────────
 const IntroScene: React.FC = () => {
   const { intro } = VIDEO_CONFIG;
-  const opacity = useFade(intro.durationInFrames);
+  const opacity = useFade(intro.durationInFrames, { in: true });
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="변수란?" />
           <BoxMetaphorAnim />
         </ContentArea>
       </AbsoluteFill>
@@ -877,6 +849,7 @@ const InterpretScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="변수의 해석" />
 
           {frame >= s && (
             <div
@@ -1038,7 +1011,8 @@ const QuizScene: React.FC = () => {
   const showPulse = !isReveal && frame >= AGE_WORD_FRAME;
 
   // "우측의 age는 값으로 해석해야 합니다" 발화 시 우측 age glow
-  const REVEAL_SPLIT2 = REVEAL_START + AUDIO_CONFIG.interpretReveal.narrationSplits[1];
+  const REVEAL_SPLIT2 =
+    REVEAL_START + AUDIO_CONFIG.interpretReveal.narrationSplits[1];
   const valueGlow = spring({
     frame: frame - REVEAL_SPLIT2,
     fps,
@@ -1102,6 +1076,7 @@ const QuizScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
+          <SceneTitle title="해석 퀴즈" />
           {/* 오디오: 문제 */}
           <Sequence durationInFrames={qDur}>
             <Audio src={staticFile(qCfg.audio)} />

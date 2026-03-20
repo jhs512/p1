@@ -112,7 +112,7 @@ describe("loadMergedConfig — 4단계 cascade", () => {
       LANG_DIR,
       "ep001",
       path.join(FIXTURES, "root.config.ts"),
-      COURSE_DIR,  // 강좌 config를 포함하지 않는 범위
+      COURSE_DIR, // 강좌 config를 포함하지 않는 범위
     );
     expect(result.VOICE).toBe("kor-voice");
     expect(result.FPS).toBe(30);

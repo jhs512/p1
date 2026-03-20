@@ -6,10 +6,10 @@
 export const FPS = 30;
 
 /** 오디오 종료 후 씬이 유지되는 여유 프레임 */
-export const SCENE_TAIL_FRAMES = 15;
+export const SCENE_TAIL_FRAMES = 5;
 
 /** 씬 간 크로스페이드 프레임 수 */
-export const CROSS = 20;
+export const CROSS = 0;
 
 /** 타이핑 이펙트 — 초당 글자 수 */
 export const CHARS_PER_SEC = 10;

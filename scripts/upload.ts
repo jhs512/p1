@@ -5,9 +5,18 @@
  */
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
-import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
-import path from "path";
+
+import {
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "fs";
 import type { youtube_v3 } from "googleapis";
+import path from "path";
 
 import { getYouTubeClient } from "./youtube-auth";
 
@@ -16,7 +25,9 @@ const OUT_DIR = "out";
 const arg = process.argv[2];
 
 if (!arg || !arg.includes("/")) {
-  console.error("Usage: pnpm upload <series>/<lang> 또는 <series>/<lang>/<episode>");
+  console.error(
+    "Usage: pnpm upload <series>/<lang> 또는 <series>/<lang>/<episode>",
+  );
   process.exit(1);
 }
 
@@ -66,7 +77,9 @@ async function ensurePlaylist(
   const id = created.data.id;
   if (!id) throw new Error("재생목록 생성 실패: API 응답에 id 없음");
   console.log(`📋  재생목록 생성: "${title}" (${id})`);
-  console.log(`⚠️  YouTube Studio에서 이 재생목록을 '공식 시리즈'로 설정해주세요.`);
+  console.log(
+    `⚠️  YouTube Studio에서 이 재생목록을 '공식 시리즈'로 설정해주세요.`,
+  );
   return id;
 }
 
@@ -172,7 +185,9 @@ async function updateVideoMeta(
       },
     },
   });
-  console.log(`   ✅  메타데이터 업데이트 완료 (${meta.privacyStatus}): https://youtu.be/${videoId}`);
+  console.log(
+    `   ✅  메타데이터 업데이트 완료 (${meta.privacyStatus}): https://youtu.be/${videoId}`,
+  );
 }
 
 /** 재생목록에 영상 추가 */
@@ -224,11 +239,18 @@ async function addToPlaylist(
   }
 
   // 4. video-ids.json 로드 (playlistId + 에피소드 → videoId 매핑)
-  const videoIdsPath = path.resolve(SRC_DIR, seriesDir, langDir, "video-ids.json");
-  const videoIdsData: { playlistId?: string | null; episodes: Record<string, string> } =
-    existsSync(videoIdsPath)
-      ? JSON.parse(readFileSync(videoIdsPath, "utf-8"))
-      : { episodes: {} };
+  const videoIdsPath = path.resolve(
+    SRC_DIR,
+    seriesDir,
+    langDir,
+    "video-ids.json",
+  );
+  const videoIdsData: {
+    playlistId?: string | null;
+    episodes: Record<string, string>;
+  } = existsSync(videoIdsPath)
+    ? JSON.parse(readFileSync(videoIdsPath, "utf-8"))
+    : { episodes: {} };
   const videoIds = videoIdsData.episodes;
 
   // 5. YouTube 인증
@@ -268,7 +290,8 @@ async function addToPlaylist(
 
   // 8. 에피소드별 처리
   for (const ep of targets) {
-    const epConfig = YOUTUBE_CONFIG.episodes[ep as keyof typeof YOUTUBE_CONFIG.episodes];
+    const epConfig =
+      YOUTUBE_CONFIG.episodes[ep as keyof typeof YOUTUBE_CONFIG.episodes];
     const title = epConfig.title;
 
     const existingVideoId = videoIds[ep];
@@ -289,9 +312,12 @@ async function addToPlaylist(
       const meta = {
         title,
         description: (ep_.description as string) ?? "",
-        tags: Array.isArray(ep_.tags) ? (ep_.tags as string[]) : [...defaults.tags],
+        tags: Array.isArray(ep_.tags)
+          ? (ep_.tags as string[])
+          : [...defaults.tags],
         categoryId: (ep_.categoryId as string) ?? defaults.categoryId,
-        privacyStatus: ((ep_.privacyStatus as PrivacyStatus) ?? defaults.privacyStatus),
+        privacyStatus:
+          (ep_.privacyStatus as PrivacyStatus) ?? defaults.privacyStatus,
         language: defaults.language,
       };
 
@@ -341,8 +367,10 @@ async function addToPlaylist(
       // 썸네일 설정 (채널 미인증 시 실패 가능 — 경고만 출력)
       try {
         await uploadThumbnail(yt, videoId, thumbPath);
-      } catch (e: any) {
-        console.warn(`   ⚠️  썸네일 설정 실패 (채널 인증 필요?): ${e.message}`);
+      } catch (e: unknown) {
+        console.warn(
+          `   ⚠️  썸네일 설정 실패 (채널 인증 필요?): ${e instanceof Error ? e.message : e}`,
+        );
       }
 
       // 자막 업로드 (SRT 파일 있을 때만)
@@ -355,8 +383,10 @@ async function addToPlaylist(
       writeFileSync(videoIdsPath, JSON.stringify(videoIdsData, null, 2) + "\n");
 
       uploaded++;
-    } catch (err: any) {
-      console.error(`\n❌  "${title}" ${isUpdate ? "업데이트" : "업로드"} 실패: ${err.message ?? err}`);
+    } catch (err: unknown) {
+      console.error(
+        `\n❌  "${title}" ${isUpdate ? "업데이트" : "업로드"} 실패: ${err instanceof Error ? err.message : err}`,
+      );
       failed.push(ep);
     }
   }

@@ -14,19 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./006-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./006-2-content";
+import { AUDIO_CONFIG } from "./006-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -218,7 +219,7 @@ const OverviewScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
   const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
-  const opacity = useFade(d);
+  const opacity = useFade(d, { in: true });
 
   const phase2 = frame >= split0;
 
@@ -281,6 +282,7 @@ const OverviewScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="제어문 개요" />
 
           {frame >= s && (
             <div
@@ -539,6 +541,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="if 문이란?" />
           {/* 조건 다이어그램 미리보기 */}
           <div
             style={{
@@ -638,6 +641,7 @@ const IfScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="if 문 실행" />
 
           {frame >= s && (
             <div
@@ -685,6 +689,7 @@ const IfElseScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="if-else 문" />
 
           {frame >= s && (
             <div
@@ -733,6 +738,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="조건문 정리" />
 
           <div
             style={{

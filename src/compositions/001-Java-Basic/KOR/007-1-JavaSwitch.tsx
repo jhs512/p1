@@ -14,19 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./007-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./007-2-content";
+import { AUDIO_CONFIG } from "./007-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -263,7 +264,7 @@ const OverviewScene: React.FC = () => {
   const { overview: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
-  const opacity = useFade(d);
+  const opacity = useFade(d, { in: true });
 
   // frame 0부터 순차 등장 (speechStartFrame 기준 아님)
   const rootAppear = spring({
@@ -327,6 +328,7 @@ const OverviewScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="switch 문 개요" />
           {/* 항상 보임 — frame 0부터 트리 등장 */}
           <div
             style={{
@@ -572,6 +574,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="switch 문이란?" />
           <div
             style={{
               position: "absolute",
@@ -727,6 +730,7 @@ const SyntaxScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="switch 문법" />
           {frame >= s && (
             <div
               style={{
@@ -846,6 +850,7 @@ const MultiCaseScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="다중 case" />
           <div
             style={{
               position: "absolute",
@@ -971,7 +976,9 @@ const MultiCaseScene: React.FC = () => {
                   >
                     반환값
                   </span>
-                  <span style={{ color: C_ARROW, fontSize: FONT.label }}>→</span>
+                  <span style={{ color: C_ARROW, fontSize: FONT.label }}>
+                    →
+                  </span>
                   <span
                     style={{
                       fontFamily: monoFont,
@@ -984,7 +991,11 @@ const MultiCaseScene: React.FC = () => {
                     msg
                   </span>
                   <span
-                    style={{ fontFamily: uiFont, color: "#888", fontSize: FONT.label }}
+                    style={{
+                      fontFamily: uiFont,
+                      color: "#888",
+                      fontSize: FONT.label,
+                    }}
                   >
                     변수에 저장
                   </span>
@@ -1076,6 +1087,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="switch 정리" />
           <div
             style={{
               position: "absolute",

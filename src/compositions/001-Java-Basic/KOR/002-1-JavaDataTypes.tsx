@@ -15,21 +15,21 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CHARS_PER_SEC,
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./002-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./002-2-content";
-import { HEIGHT, WIDTH } from "./config";
+import { AUDIO_CONFIG } from "./002-3-audio.gen";
 import {
   BG,
   BG_CODE,
@@ -41,6 +41,7 @@ import {
   C_TYPE,
   TEXT,
 } from "./colors";
+import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const typingDone = (chars: number, speechStart: number) =>
@@ -481,7 +482,7 @@ const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
-  const opacity = useFade(intro.durationInFrames);
+  const opacity = useFade(intro.durationInFrames, { in: true });
   const s = intro.speechStartFrame;
   const split1 = intro.narrationSplits[0]; // 2문장 시작 (frame 106)
 
@@ -512,16 +513,22 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="자료형이란?" />
           {/* 1문장: 자료 == 데이터 타이틀 */}
           <div
             style={{
               position: "absolute",
               top: "50%",
               left: "50%",
-              transform: `translate(-50%, -50%) scale(${interpolate(titleAppear, [0, 1], [0.85, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              })})`,
+              transform: `translate(-50%, -50%) scale(${interpolate(
+                titleAppear,
+                [0, 1],
+                [0.85, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                },
+              )})`,
               opacity: titleOpacity,
               textAlign: "center",
               fontFamily: uiFont,
@@ -531,11 +538,16 @@ const IntroScene: React.FC = () => {
             <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
               자료
             </span>
-            <span style={{
-              fontSize: 48, fontWeight: 700, color: TEXT,
-              fontFamily: monoFont, fontFeatureSettings: MONO_NO_LIGA,
-              margin: "0 16px",
-            }}>
+            <span
+              style={{
+                fontSize: 48,
+                fontWeight: 700,
+                color: TEXT,
+                fontFamily: monoFont,
+                fontFeatureSettings: MONO_NO_LIGA,
+                margin: "0 16px",
+              }}
+            >
               ==
             </span>
             <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
@@ -679,6 +691,7 @@ const ValueVsVarScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(valueVsVar.audio)} />
+          <SceneTitle title="값 vs 변수" />
 
           {/* 1문장: 핵심 메시지 */}
           <div
@@ -686,10 +699,15 @@ const ValueVsVarScene: React.FC = () => {
               position: "absolute",
               top: "50%",
               left: "50%",
-              transform: `translate(-50%, -50%) scale(${interpolate(msgAppear, [0, 1], [0.85, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              })})`,
+              transform: `translate(-50%, -50%) scale(${interpolate(
+                msgAppear,
+                [0, 1],
+                [0.85, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                },
+              )})`,
               opacity: msgOpacity,
               fontFamily: uiFont,
               fontSize: 46,
@@ -892,18 +910,21 @@ const TYPE_SCENE_DATA = {
     value: "25",
     color: TYPE_COLORS.int,
     label: "int",
+    title: "int — 정수형",
   },
   doubleScene: {
     code: "double height = 175.5;",
     value: "175.5",
     color: TYPE_COLORS.double,
     label: "double",
+    title: "double — 실수형",
   },
   stringScene: {
     code: 'String name = "Java";',
     value: '"Java"',
     color: TYPE_COLORS.String,
     label: "String",
+    title: "String — 문자열",
   },
 } as const;
 
@@ -919,7 +940,7 @@ const TypeScene: React.FC<{
 }> = ({ sceneKey, config }) => {
   const d = config.durationInFrames;
   const s = config.speechStartFrame;
-  const { code, value, color, label } = TYPE_SCENE_DATA[sceneKey];
+  const { code, value, color, label, title } = TYPE_SCENE_DATA[sceneKey];
 
   const opacity = useFade(d);
   // TypeBox는 두 번째 문장 시작(narrationSplits[0]) 또는 타이핑 완료 시점에 드롭
@@ -930,6 +951,7 @@ const TypeScene: React.FC<{
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(config.audio)} />
+          <SceneTitle title={title} />
           <div
             style={{
               position: "absolute",
@@ -974,6 +996,7 @@ const BooleanScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(booleanScene.audio)} />
+          <SceneTitle title="boolean — 논리형" />
           <div
             style={{
               position: "absolute",
@@ -1025,6 +1048,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(summaryScene.audio)} />
+          <SceneTitle title="자료형 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
               <CodeBox

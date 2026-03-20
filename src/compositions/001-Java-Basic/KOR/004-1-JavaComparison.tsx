@@ -14,20 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./004-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./004-2-content";
-import { HEIGHT, WIDTH } from "./config";
+import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import {
   BG,
   C_NUMBER,
@@ -38,6 +38,7 @@ import {
   C_VAR,
   TEXT,
 } from "./colors";
+import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const BEAT_CROSS = 12; // 연산자 비트 간 크로스페이드
@@ -81,7 +82,7 @@ export const VIDEO_CONFIG = {
 // ── 컴포넌트: ColorizedCode (헤더용) ─────────────────────────
 const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
   const parts = text.split(
-    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|==|!=|>=|<=|[+\-*\/%><]|=|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
+    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|==|!=|>=|<=|[+\-*/%><]|=|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
   );
   const KEYWORDS = ["int", "double", "String", "boolean"];
   const OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "="];
@@ -186,7 +187,9 @@ const BeatCard: React.FC<{
           fontFeatureSettings: MONO_NO_LIGA,
         }}
       >
-        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>10</span>
+        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>
+          10
+        </span>
         <span
           style={{
             color: C_PURPLE,
@@ -197,7 +200,9 @@ const BeatCard: React.FC<{
         >
           {op}
         </span>
-        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>3</span>
+        <span style={{ color: C_NUMBER, fontSize: 92, fontWeight: 700 }}>
+          3
+        </span>
       </div>
 
       {/* 결과 배지 */}
@@ -297,9 +302,7 @@ const ThumbnailScene: React.FC = () => (
       }}
     >
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>10</span>
-      <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>
-        ==
-      </span>
+      <span style={{ fontSize: 64, fontWeight: 900, color: C_TEAL }}>==</span>
       <span style={{ fontSize: 56, fontWeight: 700, color: C_NUMBER }}>3</span>
       <span style={{ fontSize: 44, color: "#444", marginLeft: 4 }}>→</span>
       <span style={{ fontSize: 56, fontWeight: 900, color: C_PAIN }}>
@@ -330,13 +333,14 @@ const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
-  const opacity = useFade(intro.durationInFrames);
+  const opacity = useFade(intro.durationInFrames, { in: true });
 
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
+          <SceneTitle title="비교 연산자란?" />
           <div
             style={{
               position: "absolute",
@@ -349,12 +353,23 @@ const IntroScene: React.FC = () => {
               alignItems: "center",
             }}
           >
-            {[INTRO_OPS.slice(0, 2), INTRO_OPS.slice(2, 4), INTRO_OPS.slice(4)].map((row, ri) => (
+            {[
+              INTRO_OPS.slice(0, 2),
+              INTRO_OPS.slice(2, 4),
+              INTRO_OPS.slice(4),
+            ].map((row, ri) => (
               <div key={ri} style={{ display: "flex", gap: 20 }}>
                 {row.map((op, i) => {
                   const idx = ri * 2 + i;
                   const startFrame = Math.round(
-                    interpolate(idx, [0, 5], [AUDIO_CONFIG.intro.wordTiming["비교"][0], AUDIO_CONFIG.intro.wordTiming["반환합니다"][0]]),
+                    interpolate(
+                      idx,
+                      [0, 5],
+                      [
+                        AUDIO_CONFIG.intro.wordTiming["비교"][0],
+                        AUDIO_CONFIG.intro.wordTiming["반환합니다"][0],
+                      ],
+                    ),
                   );
                   const appear = spring({
                     frame: frame - startFrame,
@@ -435,6 +450,7 @@ const CompareScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="비교 연산자 실행" />
 
           {/* 상단 고정 헤더 */}
           {frame >= s && (
@@ -497,6 +513,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="비교 연산자 정리" />
 
           {/* 헤더 */}
           <div

@@ -14,19 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./009-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./009-2-content";
+import { AUDIO_CONFIG } from "./009-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -160,7 +161,7 @@ const OverviewScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
   const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
-  const opacity = useFade(d);
+  const opacity = useFade(d, { in: true });
 
   const phase2 = frame >= split0;
 
@@ -217,6 +218,7 @@ const OverviewScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
+          <SceneTitle title="반복문 개요" />
           <Audio src={staticFile(cfg.audio)} />
 
           {frame >= s && (
@@ -315,7 +317,9 @@ const OverviewScene: React.FC = () => {
                       flexShrink: 0,
                     }}
                   />
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div
+                    style={{ display: "flex", gap: 12, alignItems: "center" }}
+                  >
                     {/* while — 흐릿하게 */}
                     <div
                       style={{
@@ -406,6 +410,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
+          <SceneTitle title="for 문이란?" />
           <Audio src={staticFile(cfg.audio)} />
           <div
             style={{
@@ -566,6 +571,7 @@ const ForScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
+          <SceneTitle title="for 문법" />
           <Audio src={staticFile(cfg.audio)} />
           {frame >= s && (
             <div
@@ -761,13 +767,20 @@ const ExecutionScene: React.FC = () => {
     1: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0], // 151
     2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][1], // 228
     3: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][2], // 305
-    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],     // 387
+    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0], // 387
   };
-  const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
-  const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const condHLStart = step.condPass
+    ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity)
+    : Infinity;
+  const condHL = interpolate(
+    frame - condHLStart,
+    [0, 6, 22, 38],
+    [0, 1, 1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   // 출력 로그 — "실행" 발화 시점 이후에만 표시
   const EXEC_FRAMES: Record<number, number> = {
@@ -778,7 +791,8 @@ const ExecutionScene: React.FC = () => {
     4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
   };
   const OUTPUT_DELAY = 10;
-  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
+  const showOutput =
+    step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
 
   // 레이블 spring — 단계 전환마다 튀어오름
   const labelSpring = spring({
@@ -796,6 +810,7 @@ const ExecutionScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
+          <SceneTitle title="for 실행 흐름" />
           <Audio src={staticFile(cfg.audio)} />
 
           {frame >= s && (
@@ -1008,23 +1023,28 @@ const ExecutionScene: React.FC = () => {
                 </div>
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                   {(step.output as readonly string[]).map((n, i) => {
-                    const isNew = step.condPass && i === (step.output as readonly string[]).length - 1;
-                    const execFrame = (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
-                    const highlight = isNew && showOutput
-                      ? interpolate(frame - execFrame, [0, 30], [1, 0], {
-                          extrapolateLeft: "clamp",
-                          extrapolateRight: "clamp",
-                        })
-                      : 0;
+                    const isNew =
+                      step.condPass &&
+                      i === (step.output as readonly string[]).length - 1;
+                    const execFrame =
+                      (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
+                    const highlight =
+                      isNew && showOutput
+                        ? interpolate(frame - execFrame, [0, 30], [1, 0], {
+                            extrapolateLeft: "clamp",
+                            extrapolateRight: "clamp",
+                          })
+                        : 0;
                     return (
                       <span
                         key={i}
                         style={{
                           color: isNew && highlight > 0 ? C_FOR : C_NUM,
                           opacity: isNew && !showOutput ? 0 : 1,
-                          textShadow: highlight > 0
-                            ? `0 0 ${highlight * 12}px ${C_FOR}aa`
-                            : "none",
+                          textShadow:
+                            highlight > 0
+                              ? `0 0 ${highlight * 12}px ${C_FOR}aa`
+                              : "none",
                           fontWeight: highlight > 0 ? 900 : 400,
                         }}
                       >
@@ -1077,6 +1097,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
+          <SceneTitle title="for 정리" />
           <Audio src={staticFile(cfg.audio)} />
 
           <div

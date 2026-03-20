@@ -8,8 +8,11 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
 import { Audio } from "@remotion/media";
+
 import React from "react";
+
 import { FPS } from "../../../config";
 import {
   CHARS_PER_SEC,
@@ -17,13 +20,14 @@ import {
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import { CONTENT } from "./010-2-content";
+import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
   BG,
   BG_CODE,
@@ -127,9 +131,17 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
     <>
       {parts.map((part, i) => {
         if (["void", "return", "if", "else"].includes(part))
-          return <span key={i} style={{ color: C_KEYWORD }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: C_KEYWORD }}>
+              {part}
+            </span>
+          );
         if (/^"/.test(part))
-          return <span key={i} style={{ color: C_STRING }}>{part}</span>;
+          return (
+            <span key={i} style={{ color: C_STRING }}>
+              {part}
+            </span>
+          );
         if (part.includes("greet"))
           return (
             <span key={i}>
@@ -146,6 +158,51 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
         return <span key={i}>{part}</span>;
       })}
     </>
+  );
+};
+
+// ── 컴포넌트: TypingGreetLine (첫 줄 전용 — greet 밑줄) ────────
+const TypingGreetLine: React.FC<{
+  text: string;
+  startFrame: number;
+  cps: number;
+  underlineAppear: number;
+}> = ({ text, startFrame, cps, underlineAppear }) => {
+  const { visibleText } = useTypingEffect(text, startFrame, cps);
+  const parts = visibleText.split("greet");
+  return (
+    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
+      <span style={{ color: C_KEYWORD }}>
+        {parts[0]?.startsWith("void") ? "void" : ""}
+      </span>
+      {parts[0]?.replace("void", "")}
+      {parts.length > 1 && (
+        <span
+          style={{
+            color: C_FUNC,
+            position: "relative",
+            display: "inline",
+          }}
+        >
+          greet
+          <span
+            style={{
+              position: "absolute",
+              bottom: -2,
+              left: 0,
+              right: 0,
+              height: 3,
+              background: C_PAIN,
+              borderRadius: 2,
+              opacity: underlineAppear,
+              transform: `scaleX(${underlineAppear})`,
+              transformOrigin: "left",
+            }}
+          />
+        </span>
+      )}
+      {parts[1] ?? ""}
+    </div>
   );
 };
 
@@ -254,16 +311,16 @@ const PAIN_LINES = [
 const PAIN_CPS = 28;
 
 // "민준" → 공백 → "철수" 교체 애니메이션
-// phase 0→0.5: 민준 → "　　" (공백), 0.5→1: "　　" → 철수
+// phase 0→0.5: 민준 → 공백, 0.5→1: 공백 → 철수
 function getReplaceWord(progress: number): { text: string; blank: boolean } {
   if (progress <= 0) return { text: "민준", blank: false };
   if (progress >= 1) return { text: "철수", blank: false };
-  if (progress < 0.5) return { text: "　　", blank: true };  // 전각 공백 2자 (폭 유지)
+  if (progress < 0.5) return { text: "　　", blank: true }; // 전각 공백 2자 (폭 유지)
   return { text: "철수", blank: false };
 }
 
-const REPLACE_DUR = 30;  // 교체 애니메이션 프레임 수
-const REPLACE_GAP = 20;  // 줄 간격 프레임 수
+const REPLACE_DUR = 30; // 교체 애니메이션 프레임 수
+const REPLACE_GAP = 20; // 줄 간격 프레임 수
 
 // println 줄: 타이핑 후 민준→공백→철수 교체 + 하이라이트 사각형
 const PainPrintlnLine: React.FC<{
@@ -281,9 +338,15 @@ const PainPrintlnLine: React.FC<{
   const { text: word, blank } = getReplaceWord(progress);
 
   // 하이라이트 사각형: 교체 진행 중일 때 표시
-  const highlightOpacity = progress > 0 && progress < 1
-    ? spring({ frame: frame - replaceStart, fps, config: { damping: 14, stiffness: 120 }, durationInFrames: 12 })
-    : 0;
+  const highlightOpacity =
+    progress > 0 && progress < 1
+      ? spring({
+          frame: frame - replaceStart,
+          fps,
+          config: { damping: 14, stiffness: 120 },
+          durationInFrames: 12,
+        })
+      : 0;
 
   if (frame < replaceStart) {
     return (
@@ -295,25 +358,36 @@ const PainPrintlnLine: React.FC<{
     );
   }
   return (
-    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre", position: "relative" }}>
+    <div
+      style={{
+        lineHeight: "1.9",
+        color: TEXT,
+        whiteSpace: "pre",
+        position: "relative",
+      }}
+    >
       <span>System.out.println(</span>
       <span style={{ color: C_STRING }}>"안녕 </span>
-      <span style={{
-        color: blank ? "transparent" : C_STRING,
-        position: "relative",
-        display: "inline-block",
-      }}>
+      <span
+        style={{
+          color: blank ? "transparent" : C_STRING,
+          position: "relative",
+          display: "inline-block",
+        }}
+      >
         {word}
         {/* 하이라이트 사각형 */}
-        <span style={{
-          position: "absolute",
-          inset: "-2px -4px",
-          border: `2px solid ${C_PAIN}`,
-          borderRadius: 4,
-          background: `${C_PAIN}18`,
-          opacity: highlightOpacity,
-          pointerEvents: "none",
-        }} />
+        <span
+          style={{
+            position: "absolute",
+            inset: "-2px -4px",
+            border: `2px solid ${C_PAIN}`,
+            borderRadius: 4,
+            background: `${C_PAIN}18`,
+            opacity: highlightOpacity,
+            pointerEvents: "none",
+          }}
+        />
       </span>
       <span style={{ color: C_STRING }}>"</span>
       <span>);</span>
@@ -324,7 +398,7 @@ const PainPrintlnLine: React.FC<{
 const PainScene: React.FC = () => {
   const { painScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d);
+  const opacity = useFade(d, { in: true });
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
   const { fps } = useVideoConfig();
@@ -351,6 +425,7 @@ const PainScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="반복의 고통" />
           <div
             style={{
               position: "absolute",
@@ -369,7 +444,12 @@ const PainScene: React.FC = () => {
             {PAIN_LINES.map((line, i) => {
               if (line.startsWith("//")) {
                 return (
-                  <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={PAIN_CPS} />
+                  <TypingCodeLine
+                    key={i}
+                    text={line}
+                    startFrame={lineStarts[i]}
+                    cps={PAIN_CPS}
+                  />
                 );
               }
               // println 줄: 교체 애니메이션
@@ -423,6 +503,7 @@ const ConceptScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="함수란?" />
           <div
             style={{
               position: "absolute",
@@ -462,7 +543,8 @@ const ConceptScene: React.FC = () => {
               }}
             >
               코드 묶음에{" "}
-              <span style={{ color: C_FUNC, fontWeight: 700 }}>이름</span>을 붙인 것
+              <span style={{ color: C_FUNC, fontWeight: 700 }}>이름</span>을
+              붙인 것
             </div>
           </div>
         </ContentArea>
@@ -514,6 +596,7 @@ const DeclarationScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="함수 선언" />
           <div
             style={{
               position: "absolute",
@@ -529,46 +612,24 @@ const DeclarationScene: React.FC = () => {
               fontSize: 32,
             }}
           >
-            {DECLARE_LINES.map((line, i) => {
-              // 첫 줄: void greet() { — greet에 밑줄
-              if (i === 0) {
-                const { visibleText } = useTypingEffect(line, lineStarts[i], DECLARE_CPS);
-                const parts = visibleText.split("greet");
-                return (
-                  <div key={i} style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-                    <span style={{ color: C_KEYWORD }}>
-                      {parts[0]?.startsWith("void") ? "void" : ""}
-                    </span>
-                    {parts[0]?.replace("void", "")}
-                    {parts.length > 1 && (
-                      <span style={{
-                        color: C_FUNC,
-                        position: "relative",
-                        display: "inline",
-                      }}>
-                        greet
-                        <span style={{
-                          position: "absolute",
-                          bottom: -2,
-                          left: 0,
-                          right: 0,
-                          height: 3,
-                          background: C_PAIN,
-                          borderRadius: 2,
-                          opacity: underlineAppear,
-                          transform: `scaleX(${underlineAppear})`,
-                          transformOrigin: "left",
-                        }} />
-                      </span>
-                    )}
-                    {parts[1] ?? ""}
-                  </div>
-                );
-              }
-              return (
-                <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={DECLARE_CPS} />
-              );
-            })}
+            {DECLARE_LINES.map((line, i) =>
+              i === 0 ? (
+                <TypingGreetLine
+                  key={i}
+                  text={line}
+                  startFrame={lineStarts[i]}
+                  cps={DECLARE_CPS}
+                  underlineAppear={underlineAppear}
+                />
+              ) : (
+                <TypingCodeLine
+                  key={i}
+                  text={line}
+                  startFrame={lineStarts[i]}
+                  cps={DECLARE_CPS}
+                />
+              ),
+            )}
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -603,6 +664,7 @@ const CallScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="함수 호출" />
           <div
             style={{
               position: "absolute",
@@ -619,7 +681,12 @@ const CallScene: React.FC = () => {
             }}
           >
             {CALL_LINES.map((line, i) => (
-              <TypingCodeLine key={i} text={line} startFrame={lineStarts[i]} cps={CALL_CPS} />
+              <TypingCodeLine
+                key={i}
+                text={line}
+                startFrame={lineStarts[i]}
+                cps={CALL_CPS}
+              />
             ))}
           </div>
         </ContentArea>
@@ -685,6 +752,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="함수 정리" />
           <div
             style={{
               position: "absolute",
@@ -706,10 +774,15 @@ const SummaryScene: React.FC = () => {
                 color: C_TEAL,
                 textAlign: "center",
                 opacity: titleOpacity,
-                transform: `scale(${interpolate(titleAppear, [0, 1], [0.85, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })})`,
+                transform: `scale(${interpolate(
+                  titleAppear,
+                  [0, 1],
+                  [0.85, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
                 position: "absolute",
                 top: "50%",
                 left: "50%",
@@ -736,10 +809,15 @@ const SummaryScene: React.FC = () => {
                     padding: "32px 48px",
                     textAlign: "center",
                     opacity: cardAppears[i],
-                    transform: `scale(${interpolate(cardAppears[i], [0, 1], [0.8, 1], {
-                      extrapolateLeft: "clamp",
-                      extrapolateRight: "clamp",
-                    })})`,
+                    transform: `scale(${interpolate(
+                      cardAppears[i],
+                      [0, 1],
+                      [0.8, 1],
+                      {
+                        extrapolateLeft: "clamp",
+                        extrapolateRight: "clamp",
+                      },
+                    )})`,
                   }}
                 >
                   {card}
@@ -775,7 +853,7 @@ const AFTER_LINES = [
 const BEFORE_HIGHLIGHT = [0, 2, 4]; // println 3줄
 // 함수 선언 블록 + 간결한 호출부
 const AFTER_HIGHLIGHT_DECLARE = [0, 1, 2]; // void greet() { ... }
-const AFTER_HIGHLIGHT_CALL = [4, 5, 6];    // greet(); x3
+const AFTER_HIGHLIGHT_CALL = [4, 5, 6]; // greet(); x3
 
 const ComparisonScene: React.FC = () => {
   const { comparisonScene: cfg } = VIDEO_CONFIG;
@@ -879,6 +957,7 @@ const ComparisonScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="Before / After" />
           <div
             style={{
               position: "absolute",
@@ -897,11 +976,22 @@ const ComparisonScene: React.FC = () => {
               <div style={labelStyle(C_PAIN)}>고통스러운 코드</div>
               <div style={codeBoxStyle}>
                 {BEFORE_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                  <div
+                    key={i}
+                    style={{
+                      lineHeight: "1.7",
+                      color: TEXT,
+                      whiteSpace: "pre",
+                    }}
+                  >
                     <CodeLine text={line} />
                   </div>
                 ))}
-                <HighlightRect lineIndices={BEFORE_HIGHLIGHT} color={C_PAIN} appear={highlightAppear} />
+                <HighlightRect
+                  lineIndices={BEFORE_HIGHLIGHT}
+                  color={C_PAIN}
+                  appear={highlightAppear}
+                />
               </div>
             </div>
             {/* 화살표 ▼ */}
@@ -911,10 +1001,15 @@ const ComparisonScene: React.FC = () => {
                 fontSize: 48,
                 color: C_TEAL,
                 opacity: arrowAppear,
-                transform: `translateY(${interpolate(arrowAppear, [0, 1], [10, 0], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })}px)`,
+                transform: `translateY(${interpolate(
+                  arrowAppear,
+                  [0, 1],
+                  [10, 0],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )}px)`,
               }}
             >
               ▼
@@ -924,12 +1019,27 @@ const ComparisonScene: React.FC = () => {
               <div style={labelStyle(C_FUNC)}>개선된 코드</div>
               <div style={codeBoxStyle}>
                 {AFTER_LINES.map((line, i) => (
-                  <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                  <div
+                    key={i}
+                    style={{
+                      lineHeight: "1.7",
+                      color: TEXT,
+                      whiteSpace: "pre",
+                    }}
+                  >
                     {line ? <CodeLine text={line} /> : "\u00A0"}
                   </div>
                 ))}
-                <HighlightRect lineIndices={AFTER_HIGHLIGHT_DECLARE} color={C_FUNC} appear={highlightAppear} />
-                <HighlightRect lineIndices={AFTER_HIGHLIGHT_CALL} color={C_TEAL} appear={highlightAppear} />
+                <HighlightRect
+                  lineIndices={AFTER_HIGHLIGHT_DECLARE}
+                  color={C_FUNC}
+                  appear={highlightAppear}
+                />
+                <HighlightRect
+                  lineIndices={AFTER_HIGHLIGHT_CALL}
+                  color={C_TEAL}
+                  appear={highlightAppear}
+                />
               </div>
             </div>
           </div>
@@ -1027,26 +1137,50 @@ const RealExampleScene: React.FC = () => {
   });
 
   // 코드 컬러링 — 할인 계산 예시
-  const colorCode = (text: string, underline = false) => {
-    const parts = text.split(/(0\.\d+|\d+|"[^"]*"|\*|>|return|if|double|int|void)/g);
+  const colorCode = (text: string) => {
+    const parts = text.split(
+      /(0\.\d+|\d+|"[^"]*"|\*|>|return|if|double|int|void)/g,
+    );
     return parts.map((p, i) => {
       if (p === "if")
-        return <span key={i} style={{ color: C_PURPLE }}>{p}</span>;
+        return (
+          <span key={i} style={{ color: C_PURPLE }}>
+            {p}
+          </span>
+        );
       if (["double", "int", "void"].includes(p))
-        return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
+        return (
+          <span key={i} style={{ color: C_KEYWORD }}>
+            {p}
+          </span>
+        );
       if (p === "return")
-        return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
+        return (
+          <span key={i} style={{ color: C_KEYWORD }}>
+            {p}
+          </span>
+        );
       if (/^[\d.]+$/.test(p))
-        return <span key={i} style={{ color: C_NUMBER }}>{p}</span>;
+        return (
+          <span key={i} style={{ color: C_NUMBER }}>
+            {p}
+          </span>
+        );
       if (/^"/.test(p))
-        return <span key={i} style={{ color: C_STRING }}>{p}</span>;
+        return (
+          <span key={i} style={{ color: C_STRING }}>
+            {p}
+          </span>
+        );
       if (p.includes("discount"))
         return (
           <span key={i}>
             {p.split("discount").map((seg, j, arr) => (
               <React.Fragment key={j}>
                 {seg}
-                {j < arr.length - 1 && <span style={{ color: C_FUNC }}>discount</span>}
+                {j < arr.length - 1 && (
+                  <span style={{ color: C_FUNC }}>discount</span>
+                )}
               </React.Fragment>
             ))}
           </span>
@@ -1067,11 +1201,18 @@ const RealExampleScene: React.FC = () => {
         return (
           <span key={i} style={{ position: "relative", display: "inline" }}>
             {colorCode("> 30000")}
-            <span style={{
-              position: "absolute", bottom: -2, left: 0, right: 0,
-              height: 2, background: C_PAIN,
-              transform: `scaleX(${ul})`, transformOrigin: "left",
-            }} />
+            <span
+              style={{
+                position: "absolute",
+                bottom: -2,
+                left: 0,
+                right: 0,
+                height: 2,
+                background: C_PAIN,
+                transform: `scaleX(${ul})`,
+                transformOrigin: "left",
+              }}
+            />
           </span>
         );
       }
@@ -1079,11 +1220,18 @@ const RealExampleScene: React.FC = () => {
         return (
           <span key={i} style={{ position: "relative", display: "inline" }}>
             {colorCode("* 0.9")}
-            <span style={{
-              position: "absolute", bottom: -2, left: 0, right: 0,
-              height: 2, background: C_PAIN,
-              transform: `scaleX(${ul})`, transformOrigin: "left",
-            }} />
+            <span
+              style={{
+                position: "absolute",
+                bottom: -2,
+                left: 0,
+                right: 0,
+                height: 2,
+                background: C_PAIN,
+                transform: `scaleX(${ul})`,
+                transformOrigin: "left",
+              }}
+            />
           </span>
         );
       }
@@ -1092,13 +1240,19 @@ const RealExampleScene: React.FC = () => {
   };
 
   // 고통 카드 렌더러
-  const PainCard: React.FC<{ lines: string[]; label: string }> = ({ lines, label }) => (
+  const PainCard: React.FC<{ lines: string[]; label: string }> = ({
+    lines,
+    label,
+  }) => (
     <div style={{ flex: 1 }}>
       <div style={labelStyle(C_PAIN)}>{label}</div>
       <div style={codeBoxStyle}>
         {lines.map((line, i) => (
-          <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
-            {(line.includes("30000") || line.includes("0.9"))
+          <div
+            key={i}
+            style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}
+          >
+            {line.includes("30000") || line.includes("0.9")
               ? painLineWithUnderline(line, underlineAppear)
               : colorCode(line)}
           </div>
@@ -1112,6 +1266,7 @@ const RealExampleScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="실전 예시" />
           <div
             style={{
               position: "absolute",
@@ -1126,14 +1281,19 @@ const RealExampleScene: React.FC = () => {
             }}
           >
             {/* 상단: 고통 카드 2개 위아래 */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              width: "100%",
-              opacity: beforeAppear,
-            }}>
-              <PainCard lines={REAL_PAIN_CARD1} label="장바구니 관련 소스코드" />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                width: "100%",
+                opacity: beforeAppear,
+              }}
+            >
+              <PainCard
+                lines={REAL_PAIN_CARD1}
+                label="장바구니 관련 소스코드"
+              />
               <PainCard lines={REAL_PAIN_CARD2} label="결제 관련 소스코드" />
             </div>
             {/* 화살표 ▼ */}
@@ -1143,28 +1303,42 @@ const RealExampleScene: React.FC = () => {
                 fontSize: 36,
                 color: C_TEAL,
                 opacity: arrowAppear,
-                transform: `translateY(${interpolate(arrowAppear, [0, 1], [10, 0], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })}px)`,
+                transform: `translateY(${interpolate(
+                  arrowAppear,
+                  [0, 1],
+                  [10, 0],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )}px)`,
               }}
             >
               ▼
             </div>
             {/* 하단: 3개 카드 — 함수 선언 + 장바구니 호출 + 결제 호출 */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              width: "100%",
-              opacity: afterAppear,
-            }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                width: "100%",
+                opacity: afterAppear,
+              }}
+            >
               {/* 함수 선언 */}
               <div>
                 <div style={labelStyle(C_FUNC)}>함수 선언</div>
                 <div style={codeBoxStyle}>
                   {REAL_CLEAN_FUNC.map((line, i) => (
-                    <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                    <div
+                      key={i}
+                      style={{
+                        lineHeight: "1.7",
+                        color: TEXT,
+                        whiteSpace: "pre",
+                      }}
+                    >
                       {colorCode(line)}
                     </div>
                   ))}
@@ -1176,7 +1350,14 @@ const RealExampleScene: React.FC = () => {
                   <div style={labelStyle(C_TEAL)}>장바구니</div>
                   <div style={codeBoxStyle}>
                     {REAL_CLEAN_CART.map((line, i) => (
-                      <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                      <div
+                        key={i}
+                        style={{
+                          lineHeight: "1.7",
+                          color: TEXT,
+                          whiteSpace: "pre",
+                        }}
+                      >
                         {colorCode(line)}
                       </div>
                     ))}
@@ -1186,7 +1367,14 @@ const RealExampleScene: React.FC = () => {
                   <div style={labelStyle(C_TEAL)}>결제</div>
                   <div style={codeBoxStyle}>
                     {REAL_CLEAN_PAY.map((line, i) => (
-                      <div key={i} style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}>
+                      <div
+                        key={i}
+                        style={{
+                          lineHeight: "1.7",
+                          color: TEXT,
+                          whiteSpace: "pre",
+                        }}
+                      >
                         {colorCode(line)}
                       </div>
                     ))}
@@ -1248,7 +1436,7 @@ const OutroScene: React.FC = () => {
     durationInFrames: 20,
   });
 
-  const keywordStyle = (appear: number, underline: number): React.CSSProperties => ({
+  const keywordStyle = (appear: number): React.CSSProperties => ({
     fontFamily: monoFont,
     fontFeatureSettings: MONO_NO_LIGA,
     fontSize: 52,
@@ -1264,6 +1452,7 @@ const OutroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="다음 시간에" />
 
           <div
             style={{
@@ -1277,7 +1466,7 @@ const OutroScene: React.FC = () => {
             }}
           >
             {/* return */}
-            <div style={keywordStyle(returnAppear, returnUnderline)}>
+            <div style={keywordStyle(returnAppear)}>
               return
               <div
                 style={{
@@ -1306,7 +1495,7 @@ const OutroScene: React.FC = () => {
             </span>
 
             {/* void */}
-            <div style={keywordStyle(voidAppear, voidUnderline)}>
+            <div style={keywordStyle(voidAppear)}>
               void
               <div
                 style={{
@@ -1365,31 +1554,58 @@ export const compositionMeta = {
 // ── Root Component ────────────────────────────────────────────
 const JavaFunction: React.FC = () => (
   <AbsoluteFill style={{ background: BG }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.painScene.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.painScene.durationInFrames}
+    >
       <PainScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.conceptScene.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={VIDEO_CONFIG.conceptScene.durationInFrames}
+    >
       <ConceptScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.declarationScene.durationInFrames}>
+    <Sequence
+      from={fromValues[3]}
+      durationInFrames={VIDEO_CONFIG.declarationScene.durationInFrames}
+    >
       <DeclarationScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.callScene.durationInFrames}>
+    <Sequence
+      from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.callScene.durationInFrames}
+    >
       <CallScene />
     </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence
+      from={fromValues[5]}
+      durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
+    >
       <SummaryScene />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}>
+    <Sequence
+      from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}
+    >
       <ComparisonScene />
     </Sequence>
-    <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.realExampleScene.durationInFrames}>
+    <Sequence
+      from={fromValues[7]}
+      durationInFrames={VIDEO_CONFIG.realExampleScene.durationInFrames}
+    >
       <RealExampleScene />
     </Sequence>
-    <Sequence from={fromValues[8]} durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}>
+    <Sequence
+      from={fromValues[8]}
+      durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}
+    >
       <OutroScene />
     </Sequence>
   </AbsoluteFill>

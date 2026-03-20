@@ -29,7 +29,6 @@ export function loadTsExports(filePath: string): Record<string, unknown> {
   });
   const code = result.outputFiles[0].text;
   const mod = { exports: {} as Record<string, unknown> };
-  // eslint-disable-next-line no-new-func
   new Function("module", "exports", "require", code)(mod, mod.exports, require);
   return mod.exports as Record<string, unknown>;
 }

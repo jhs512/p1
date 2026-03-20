@@ -62,23 +62,35 @@ export const FONT = {
 } as const;
 
 // ── 훅: useFade ───────────────────────────────────────────────
+/** fadeIn/fadeOut에 사용할 프레임 수 (CROSS=0이어도 강제 fade 시 사용) */
+const FADE_FRAMES = 20;
+
 /**
  * 씬 경계 크로스페이드 opacity 값을 반환한다.
  * @param d 씬의 durationInFrames
- * @param out false → fadeOut 없이 fadeIn만 (마지막 씬에 사용)
+ * @param opts.out false → fadeOut 없이 (마지막 씬)
+ * @param opts.in true → CROSS=0이어도 강제 fadeIn (썸네일 직후 첫 씬)
  */
-export function useFade(d: number, { out = true }: { out?: boolean } = {}) {
+export function useFade(
+  d: number,
+  { out = true, in: forceIn = false }: { out?: boolean; in?: boolean } = {},
+) {
   const frame = useCurrentFrame();
-  const fadeIn = interpolate(frame, [0, CROSS], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const fadeOut = out
-    ? interpolate(frame, [d - CROSS, d], [1, 0], {
+  const doFadeIn = CROSS > 0 || forceIn;
+  const fadeLen = CROSS > 0 ? CROSS : FADE_FRAMES;
+  const fadeIn = doFadeIn
+    ? interpolate(frame, [0, fadeLen], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       })
     : 1;
+  const fadeOut =
+    out && CROSS > 0
+      ? interpolate(frame, [d - CROSS, d], [1, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        })
+      : 1;
   return fadeIn * fadeOut;
 }
 
@@ -113,6 +125,27 @@ export const ContentArea: React.FC<{ children: React.ReactNode }> = ({
     </div>
   );
 };
+
+// ── 컴포넌트: SceneTitle ───────────────────────────────────────
+/** 씬 상단 제목 (예: "1. 변수 선언 (Declaration)") */
+export const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
+  <div
+    style={{
+      position: "absolute",
+      top: 60,
+      left: 0,
+      right: 0,
+      textAlign: "center",
+      fontFamily: uiFont,
+      fontSize: 42,
+      fontWeight: 700,
+      color: "#ffffff",
+      letterSpacing: 1,
+    }}
+  >
+    {title}
+  </div>
+);
 
 // ── 컴포넌트: Subtitle ────────────────────────────────────────
 /**
@@ -212,7 +245,10 @@ export const Subtitle: React.FC<{
 export function calcDuration(
   audioDurationInFrames: number,
   animEndFrame: number,
-  { cross = CROSS, tail = SCENE_TAIL_FRAMES }: { cross?: number; tail?: number } = {},
+  {
+    cross = CROSS,
+    tail = SCENE_TAIL_FRAMES,
+  }: { cross?: number; tail?: number } = {},
 ): number {
   return Math.max(audioDurationInFrames, animEndFrame + cross + tail);
 }

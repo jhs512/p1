@@ -14,19 +14,20 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
-import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import {
   CROSS,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
+  SceneTitle,
   Subtitle,
   monoFont,
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { AUDIO_CONFIG } from "./008-3-audio.gen";
+import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./008-2-content";
+import { AUDIO_CONFIG } from "./008-3-audio.gen";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -178,7 +179,7 @@ const OverviewScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
   const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
-  const opacity = useFade(d);
+  const opacity = useFade(d, { in: true });
 
   const phase2 = frame >= split0;
 
@@ -242,6 +243,7 @@ const OverviewScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="반복문 개요" />
 
           {frame >= s && (
             <div
@@ -396,6 +398,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="while 문이란?" />
           <div
             style={{
               position: "absolute",
@@ -533,6 +536,7 @@ const WhileScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="while 문법" />
           {frame >= s && (
             <div
               style={{
@@ -562,7 +566,8 @@ const WhileScene: React.FC = () => {
                   const isCountPlusPlus =
                     lineIdx === 3 &&
                     frame >=
-                      (AUDIO_CONFIG.whileScene.wordTiming["조건을"][1] ?? split0);
+                      (AUDIO_CONFIG.whileScene.wordTiming["조건을"][1] ??
+                        split0);
                   let rem = showChars;
                   return (
                     <div key={lineIdx} style={{ lineHeight: 1.95 }}>
@@ -658,7 +663,7 @@ const ExecutionScene: React.FC = () => {
     1: AUDIO_CONFIG.executionScene.wordTiming["참이므로"][1], // 186
     2: AUDIO_CONFIG.executionScene.wordTiming["참입니다"][0], // 304
     3: AUDIO_CONFIG.executionScene.wordTiming["마찬가지입니다"][0], // 370
-    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0],          // 467
+    4: AUDIO_CONFIG.executionScene.wordTiming["참인"][0], // 467
   };
 
   // 출력 로그 — "실행" 발화 시점 이후에만 표시
@@ -670,18 +675,27 @@ const ExecutionScene: React.FC = () => {
     4: AUDIO_CONFIG.executionScene.wordTiming["실행입니다"][0],
   };
   const OUTPUT_DELAY = 10; // 조건 하이라이트 후 약간 딜레이
-  const showOutput = step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
-  const condHLStart = step.condPass ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity) : Infinity;
-  const condHL = interpolate(frame - condHLStart, [0, 6, 22, 38], [0, 1, 1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const showOutput =
+    step.condPass && frame >= (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
+  const condHLStart = step.condPass
+    ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity)
+    : Infinity;
+  const condHL = interpolate(
+    frame - condHLStart,
+    [0, 6, 22, 38],
+    [0, 1, 1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="while 실행 흐름" />
 
           {frame >= s && (
             <div
@@ -893,23 +907,28 @@ const ExecutionScene: React.FC = () => {
                   </div>
                   <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                     {(step.output as readonly string[]).map((n, i) => {
-                      const isNew = step.condPass && i === (step.output as readonly string[]).length - 1;
-                      const execFrame = (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
-                      const highlight = isNew && showOutput
-                        ? interpolate(frame - execFrame, [0, 30], [1, 0], {
-                            extrapolateLeft: "clamp",
-                            extrapolateRight: "clamp",
-                          })
-                        : 0;
+                      const isNew =
+                        step.condPass &&
+                        i === (step.output as readonly string[]).length - 1;
+                      const execFrame =
+                        (EXEC_FRAMES[stepIdx] ?? Infinity) + OUTPUT_DELAY;
+                      const highlight =
+                        isNew && showOutput
+                          ? interpolate(frame - execFrame, [0, 30], [1, 0], {
+                              extrapolateLeft: "clamp",
+                              extrapolateRight: "clamp",
+                            })
+                          : 0;
                       return (
                         <span
                           key={i}
                           style={{
                             color: isNew && highlight > 0 ? C_TEAL : C_NUM,
                             opacity: isNew && !showOutput ? 0 : 1,
-                            textShadow: highlight > 0
-                              ? `0 0 ${highlight * 12}px ${C_TEAL}aa`
-                              : "none",
+                            textShadow:
+                              highlight > 0
+                                ? `0 0 ${highlight * 12}px ${C_TEAL}aa`
+                                : "none",
                             fontWeight: highlight > 0 ? 900 : 400,
                           }}
                         >
@@ -980,6 +999,7 @@ const InfiniteScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="무한 루프" />
 
           {frame >= s && (
             <div
@@ -1113,6 +1133,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="while 정리" />
 
           <div
             style={{

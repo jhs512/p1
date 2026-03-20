@@ -193,7 +193,8 @@ function toTTSText(text: string, pronMap: Record<string, string> = {}): string {
     t = t.replace(new RegExp(escapeRegex(key), "g"), pronMap[key]);
   }
   // Step 3: inline placeholder 복원
-  t = t.replace(/\x01(\d+)\x01/g, (_m, i) => inlines[parseInt(i)]);
+  // eslint-disable-next-line no-control-regex
+  t = t.replace(/\x01(\d+)\x01/g, (_m, i: string) => inlines[parseInt(i)]);
   // Step 4: \n → 공백 (TTS 쉼 방지), 연속 공백 정규화
   t = t.replace(/\n/g, " ").replace(/  +/g, " ");
   return t;
@@ -317,8 +318,11 @@ function writeAudioConfig(config: Record<string, SceneAudioData>): void {
 const hashes = loadHashes();
 let changed = false;
 
-const audioConfigFile = path.join(COMPOSITION_DIR, filePrefix + "-3-audio.gen.ts");
-let existingAudioConfig: Record<string, SceneAudioData> = {};
+const audioConfigFile = path.join(
+  COMPOSITION_DIR,
+  filePrefix + "-3-audio.gen.ts",
+);
+const existingAudioConfig: Record<string, SceneAudioData> = {};
 if (existsSync(audioConfigFile)) {
   try {
     const raw = readFileSync(audioConfigFile, "utf-8");
