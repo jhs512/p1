@@ -545,7 +545,7 @@ const ForScene: React.FC = () => {
     durationInFrames: dur,
   });
   const condAppear = spring({
-    frame: frame - AUDIO_CONFIG.forScene.wordTiming["확인합니다"][0],
+    frame: frame - AUDIO_CONFIG.forScene.wordTiming["조건식을"][0],
     fps,
     config: cfg_spring,
     durationInFrames: dur,
