@@ -91,6 +91,13 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.realExampleScene.narration as unknown as string[],
     narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
   },
+  outroScene: {
+    audio: "fn-outro.mp3",
+    durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
+    narration: CONTENT.outroScene.narration as unknown as string[],
+    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+  },
 } as const;
 
 // ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
@@ -963,7 +970,7 @@ const REAL_CLEAN_PAY = ["discount(80000);"];
 const RealExampleScene: React.FC = () => {
   const { realExampleScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
-  const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
+  const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split1 = cfg.narrationSplits[0]; // 2번째 문장 시작
   const split2 = cfg.narrationSplits[1]; // 3번째 문장 시작
@@ -1200,6 +1207,132 @@ const RealExampleScene: React.FC = () => {
   );
 };
 
+// ── OutroScene — return/void 예고 ────────────────────────────
+const OutroScene: React.FC = () => {
+  const { outroScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
+  const s = cfg.speechStartFrame;
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // "return" 발화 시점 → frame 2
+  const returnFrame = AUDIO_CONFIG.outroScene.wordStartFrames[0][0];
+  // "void는" 발화 시점 → frame 18
+  const voidFrame = AUDIO_CONFIG.outroScene.wordStartFrames[0][2];
+
+  const returnAppear = spring({
+    frame: frame - returnFrame,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+  const voidAppear = spring({
+    frame: frame - voidFrame,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+
+  // 밑줄 애니메이션 — 발화 시점 + 8프레임 후 시작
+  const returnUnderline = spring({
+    frame: frame - returnFrame - 8,
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 20,
+  });
+  const voidUnderline = spring({
+    frame: frame - voidFrame - 8,
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 20,
+  });
+
+  const keywordStyle = (appear: number, underline: number): React.CSSProperties => ({
+    fontFamily: monoFont,
+    fontFeatureSettings: MONO_NO_LIGA,
+    fontSize: 52,
+    fontWeight: 900,
+    color: C_KEYWORD,
+    opacity: appear,
+    display: "inline-block",
+    position: "relative" as const,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+
+          <div
+            style={{
+              position: "absolute",
+              top: "42%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              gap: 28,
+              alignItems: "center",
+            }}
+          >
+            {/* return */}
+            <div style={keywordStyle(returnAppear, returnUnderline)}>
+              return
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: -6,
+                  left: 0,
+                  height: 3,
+                  background: C_TEAL,
+                  borderRadius: 2,
+                  width: `${returnUnderline * 100}%`,
+                }}
+              />
+            </div>
+
+            {/* 과 */}
+            <span
+              style={{
+                fontFamily: uiFont,
+                fontSize: 36,
+                fontWeight: 700,
+                color: TEXT,
+                opacity: returnAppear,
+              }}
+            >
+              과
+            </span>
+
+            {/* void */}
+            <div style={keywordStyle(voidAppear, voidUnderline)}>
+              void
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: -6,
+                  left: 0,
+                  height: 3,
+                  background: C_TEAL,
+                  borderRadius: 2,
+                  width: `${voidUnderline * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.outroScene.wordStartFrames}
+      />
+    </>
+  );
+};
+
 // ── 씬 목록 + fromValues 계산 ─────────────────────────────────
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
@@ -1210,6 +1343,7 @@ const sceneList = [
   VIDEO_CONFIG.summaryScene,
   VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.realExampleScene,
+  VIDEO_CONFIG.outroScene,
 ];
 
 let _from = 0;
@@ -1254,6 +1388,9 @@ const JavaFunction: React.FC = () => (
     </Sequence>
     <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.realExampleScene.durationInFrames}>
       <RealExampleScene />
+    </Sequence>
+    <Sequence from={fromValues[8]} durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}>
+      <OutroScene />
     </Sequence>
   </AbsoluteFill>
 );

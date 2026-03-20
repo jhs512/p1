@@ -50,4 +50,9 @@ export const CONTENT = {
       "함수로 만들면 이름 하나로 깔끔하게 해결됩니다.",
     ],
   },
+  outroScene: {
+    narration: [
+      "[return(발음:리턴)] 과 [void(발음:보이드)]는 추후 다루겠습니다.",
+    ],
+  },
 } as const;
