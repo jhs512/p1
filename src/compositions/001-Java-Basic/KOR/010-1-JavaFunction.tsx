@@ -638,7 +638,23 @@ const SummaryScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // "선언은" 발화 → 카드0 등장
+  // 1문장: 요약 타이틀 등장
+  const titleAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 24,
+  });
+  // 2문장 시작 시 타이틀 퇴장
+  const titleExit = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const titleOpacity = titleAppear * (1 - titleExit);
+
+  // "선언은" 발화(frame 106) → 카드0 등장
   const declareWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][0]; // "선언은"
   const card0Appear = spring({
     frame: frame - declareWordFrame,
@@ -673,7 +689,30 @@ const SummaryScene: React.FC = () => {
               gap: 48,
             }}
           >
-            {/* 카드 2장 */}
+            {/* 1문장: 요약 타이틀 */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 52,
+                fontWeight: 700,
+                color: C_TEAL,
+                textAlign: "center",
+                opacity: titleOpacity,
+                transform: `scale(${interpolate(titleAppear, [0, 1], [0.85, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })})`,
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: -30,
+                marginLeft: -200,
+                width: 400,
+              }}
+            >
+              함수 = 이름 붙인{"\n"}코드 묶음
+            </div>
+            {/* 2문장: 카드 2장 */}
             <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
               {SUMMARY_CARDS.map((card, i) => (
                 <div
