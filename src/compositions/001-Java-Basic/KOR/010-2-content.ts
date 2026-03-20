@@ -26,7 +26,7 @@ export const CONTENT = {
   callScene: {
     narration: [
       "함수를 사용하려면 이름으로 호출합니다.",
-      "이름 하나로 여러 번 호출할 수 있습니다.",
+      "선언 한 번으로 여러 번 호출할 수 있습니다.",
     ],
   },
   summaryScene: {
