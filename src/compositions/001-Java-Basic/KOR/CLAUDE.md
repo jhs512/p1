@@ -465,8 +465,17 @@ durationInFrames: calcDuration(AUDIO_CONFIG.someScene.durationInFrames, TYPING_E
 
 ### 새 에피소드 추가
 
-1. `{id}-2-content.ts` 작성 (나레이션 먼저)
-2. `{id}-1-{Name}.tsx` 작성 (VIDEO_CONFIG + 씬 컴포넌트)
+**0단계: 스캐폴딩**
+```bash
+pnpm new 001-Java-Basic/KOR/011 --title "JavaArray" --prefix arr
+```
+- `011-1-JavaArray.tsx` + `011-2-content.ts` 스텁 자동 생성
+- `--prefix arr` → 오디오 파일명이 `arr-intro.mp3`, `arr-summary.mp3` 등으로 생성
+- 스텁에 ThumbnailScene, IntroScene, SummaryScene 골격 포함
+
+**이후 단계:**
+1. `{id}-2-content.ts` 수정 (나레이션 작성)
+2. `{id}-1-{Name}.tsx` 수정 (씬 컴포넌트 구현)
 3. `pnpm sync 001-Java-Basic/KOR/{id}` 실행 → audio.gen.ts 자동 생성
 4. Remotion Studio에서 확인: `pnpm dev` → `localhost:3000`
 5. 씬 단위로 커밋 + 푸시
