@@ -32,8 +32,11 @@ import {
   BG_CODE,
   BG_THUMB,
   C_COMMENT,
+  C_DIM,
   C_FUNC,
   C_KEYWORD,
+  C_NUMBER,
+  C_PAIN,
   C_STRING,
   C_TEAL,
   C_TYPE,
@@ -81,34 +84,93 @@ export const VIDEO_CONFIG = {
   },
 } as const;
 
-const FUNCTION_LINES = [
-  { left: "void", color: C_KEYWORD },
-  { left: " greet", color: C_FUNC },
-  { left: "(", color: TEXT },
-  { left: "String", color: C_TYPE },
-  { left: " name", color: C_VAR },
-  { left: ")", color: TEXT },
-  { left: " {", color: TEXT },
-] as const;
-
-const CALL_VALUES = [
-  { label: '"민준"', result: '"민준님 안녕하세요"' },
-  { label: '"서연"', result: '"서연님 안녕하세요"' },
-] as const;
-
 const CODE_THEME = {
   keywordColors: {
     void: C_KEYWORD,
-    String: C_TYPE,
-    greet: C_FUNC,
+    int: C_TYPE,
+    introduce: C_FUNC,
+    System: C_FUNC,
+    out: C_FUNC,
     println: C_FUNC,
-    name: C_VAR,
+    age: C_VAR,
+    _age: C_VAR,
+    arg: C_VAR,
+    arg0: C_VAR,
+    arg1: C_VAR,
+    argFirst: C_VAR,
+    argSecond: C_VAR,
   },
-  operators: ["(", ")", "{", "}", ";", "+"],
+  operators: ["(", ")", "{", "}", "+", ";", ":", "."],
   operatorColor: TEXT,
+  numberColor: C_NUMBER,
   stringColor: C_STRING,
   commentColor: C_COMMENT,
 } as const;
+
+const CODE_STEPS = {
+  direct: ["void introduce() {", '  System.out.println("나이 : " + 11);', "}"],
+  localAge: [
+    "void introduce() {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + age);',
+    "}",
+  ],
+  twoUnused: [
+    "void introduce(int arg0, int arg1) {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + age);',
+    "}",
+  ],
+  useFirst: [
+    "void introduce(int arg0, int arg1) {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + (age + arg0));',
+    "}",
+  ],
+  useTwo: [
+    "void introduce(int arg0, int arg1) {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + (age + arg0 + arg1));',
+    "}",
+  ],
+  renameReadable: [
+    "void introduce(int argFirst, int argSecond) {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + (age + argFirst + argSecond));',
+    "}",
+  ],
+  singleArg: [
+    "void introduce(int arg) {",
+    "  int age = 11;",
+    '  System.out.println("나이 : " + (age + arg));',
+    "}",
+  ],
+  conflict: [
+    "void introduce(int age) {",
+    "  int _age = 11;",
+    '  System.out.println("나이 : " + (_age + age));',
+    "}",
+  ],
+  tempFix: [
+    "void introduce(int age) {",
+    "  int _age = 11;",
+    '  System.out.println("나이 : " + age);',
+    "}",
+  ],
+  final: [
+    "void introduce(int age) {",
+    '  System.out.println("나이 : " + age);',
+    "}",
+  ],
+} as const;
+
+const CALL_EXAMPLES = [
+  { text: "introduce(3, 2)", status: "개수 맞음", ok: true },
+  { text: "introduce(3)", status: "하나 부족함", ok: false },
+  { text: "introduce(3, 2, 1)", status: "하나 많음", ok: false },
+] as const;
+
+const SUMMARY_CARDS = CONTENT.summaryScene.cards as string[];
 
 const ThumbnailScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -124,7 +186,7 @@ const ThumbnailScene: React.FC = () => {
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
-        gap: 28,
+        gap: 26,
         opacity: fadeOut,
       }}
     >
@@ -134,7 +196,7 @@ const ThumbnailScene: React.FC = () => {
           width: 860,
           height: 860,
           borderRadius: "50%",
-          background: `radial-gradient(circle, ${C_TEAL}1f 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${C_TEAL}20 0%, transparent 70%)`,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
@@ -143,11 +205,10 @@ const ThumbnailScene: React.FC = () => {
       <div
         style={{
           fontFamily: uiFont,
-          fontSize: 26,
+          fontSize: 24,
           fontWeight: 700,
+          letterSpacing: 12,
           color: C_TEAL,
-          letterSpacing: 10,
-          opacity: 0.8,
         }}
       >
         JAVA
@@ -155,12 +216,12 @@ const ThumbnailScene: React.FC = () => {
       <div
         style={{
           fontFamily: uiFont,
-          fontSize: 108,
+          fontSize: 104,
           fontWeight: 900,
           color: "#ffffff",
+          lineHeight: 1.02,
           textAlign: "center",
-          lineHeight: 1,
-          textShadow: `0 0 60px ${C_TEAL}66, 0 0 120px ${C_TEAL}22`,
+          textShadow: `0 0 60px ${C_TEAL}55`,
         }}
       >
         Java
@@ -169,15 +230,25 @@ const ThumbnailScene: React.FC = () => {
       </div>
       <div
         style={{
+          fontFamily: uiFont,
+          fontSize: 30,
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.72)",
+        }}
+      >
+        코드를 조금씩 바꾸며 이해하기
+      </div>
+      <div
+        style={{
           ...monoStyle,
-          fontSize: 62,
-          fontWeight: 900,
+          fontSize: 30,
+          fontWeight: 800,
           color: C_TEAL,
           background: `${C_TEAL}18`,
           border: `2px solid ${C_TEAL}55`,
-          borderRadius: 18,
-          padding: "18px 56px",
-          marginTop: 8,
+          borderRadius: 999,
+          padding: "12px 30px",
+          marginTop: 6,
         }}
       >
         {CONTENT.thumbnail.badge}
@@ -186,26 +257,123 @@ const ThumbnailScene: React.FC = () => {
   );
 };
 
+const CodeCard: React.FC<{
+  stepLabel: string;
+  title: string;
+  note: string;
+  code: readonly string[];
+  accent: string;
+  appear: number;
+  warning?: boolean;
+}> = ({ stepLabel, title, note, code, accent, appear, warning = false }) => {
+  return (
+    <div
+      style={{
+        width: "100%",
+        background: BG_CODE,
+        borderRadius: 22,
+        padding: "24px 28px",
+        border: `2px solid ${warning ? `${C_PAIN}55` : `${accent}44`}`,
+        opacity: appear,
+        transform: `translateY(${interpolate(appear, [0, 1], [20, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        })}px)`,
+        boxShadow: warning
+          ? `0 12px 40px ${C_PAIN}18`
+          : `0 12px 40px rgba(0,0,0,0.28)`,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 16,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontFamily: uiFont,
+              fontSize: 22,
+              fontWeight: 800,
+              color: accent,
+              marginBottom: 6,
+            }}
+          >
+            {stepLabel}
+          </div>
+          <div
+            style={{
+              fontFamily: uiFont,
+              fontSize: 30,
+              fontWeight: 900,
+              color: "#ffffff",
+            }}
+          >
+            {title}
+          </div>
+        </div>
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 22,
+            fontWeight: 700,
+            color: warning ? C_PAIN : "rgba(255,255,255,0.7)",
+            textAlign: "right",
+            maxWidth: 320,
+            lineHeight: 1.4,
+          }}
+        >
+          {note}
+        </div>
+      </div>
+
+      <div
+        style={{
+          ...monoStyle,
+          fontSize: 24,
+          lineHeight: 1.8,
+          color: TEXT,
+        }}
+      >
+        {code.map((line, i) => (
+          <div key={`${stepLabel}-${i}`}>
+            <ColorizedCode text={line} theme={CODE_THEME} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ConceptScene: React.FC = () => {
   const { conceptScene: cfg } = VIDEO_CONFIG;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
-  const s = cfg.speechStartFrame;
-  const [split0 = Infinity, split1 = split0] =
+  const [split0 = Infinity, split1 = Infinity] =
     cfg.narrationSplits as readonly number[];
 
-  const fixedCardAppear = spring({
-    frame: frame - s,
+  const appear0 = spring({
+    frame: frame - cfg.speechStartFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 42,
+    durationInFrames: 34,
   });
-  const parameterCardAppear = spring({
+  const appear1 = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
+  });
+  const appear2 = spring({
     frame: frame - split1,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 42,
+    durationInFrames: 34,
   });
 
   return (
@@ -213,164 +381,50 @@ const ConceptScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="1. 왜 매개변수가 필요할까?" />
+          <SceneTitle title="1. 고정값에서 출발" />
           <div
             style={{
               position: "absolute",
-              top: "46%",
+              top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
+              width: 940,
               display: "flex",
               flexDirection: "column",
-              gap: 26,
-              width: 940,
+              gap: 18,
             }}
           >
-            {[
-              {
-                title: "버튼이 하나뿐인 자판기",
-                code: [
-                  "void greet() {",
-                  '  println("민준님 안녕하세요");',
-                  "}",
-                ],
-                note: "누를 때마다 같은 음료만 나오는 것처럼 결과가 고정됨",
-                color: C_COMMENT,
-                appear: fixedCardAppear,
-              },
-              {
-                title: "주문 칸이 있는 자판기",
-                code: [
-                  "void greet(String name) {",
-                  '  println(name + "님 안녕하세요");',
-                  "}",
-                ],
-                note: "원하는 값을 넣으면 그 값에 맞춰 결과가 달라짐",
-                color: C_TEAL,
-                appear: parameterCardAppear,
-              },
-            ].map((card, index) => (
-              <div
-                key={card.title}
-                style={{
-                  width: "100%",
-                  background: BG_CODE,
-                  borderRadius: 20,
-                  padding: "28px 30px",
-                  border: `2px solid ${card.color}44`,
-                  opacity: card.appear,
-                  transform: `translateY(${interpolate(card.appear, [0, 1], [index === 0 ? 18 : 28, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 28,
-                    fontWeight: 800,
-                    color: card.color,
-                    marginBottom: 18,
-                  }}
-                >
-                  {card.title}
-                </div>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1.15fr 0.85fr",
-                    gap: 28,
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 25,
-                      lineHeight: 1.9,
-                      color: TEXT,
-                      whiteSpace: "pre",
-                    }}
-                  >
-                    {card.code.map((line) => (
-                      <div key={line}>
-                        <ColorizedCode text={line} theme={CODE_THEME} />
-                      </div>
-                    ))}
-                  </div>
-                  <div
-                    style={{
-                      background:
-                        index === 0
-                          ? "rgba(255,255,255,0.05)"
-                          : `${C_TEAL}14`,
-                      border:
-                        index === 0
-                          ? "1px solid rgba(255,255,255,0.08)"
-                          : `1px solid ${C_TEAL}40`,
-                      borderRadius: 18,
-                      padding: "20px 22px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontFamily: uiFont,
-                        fontSize: 22,
-                        fontWeight: 700,
-                        color: "rgba(255,255,255,0.72)",
-                        marginBottom: 10,
-                      }}
-                    >
-                      중학생 비유
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: uiFont,
-                        fontSize: 26,
-                        fontWeight: 800,
-                        color: "#ffffff",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {card.note}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                opacity: spring({
-                  frame: frame - split0,
-                  fps,
-                  config: { damping: 12, stiffness: 140 },
-                  durationInFrames: 30,
-                }),
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 28,
-                  fontWeight: 800,
-                  color: C_TEAL,
-                  background: `${C_TEAL}16`,
-                  border: `2px solid ${C_TEAL}40`,
-                  borderRadius: 999,
-                  padding: "12px 24px",
-                }}
-              >
-                매개변수 = 원하는 값을 고르는 주문 칸
-              </div>
-            </div>
+            <CodeCard
+              stepLabel="1단계"
+              title="숫자를 직접 적는다"
+              note="함수 안에서 결과가 이미 고정됨"
+              code={CODE_STEPS.direct}
+              accent={C_COMMENT}
+              appear={appear0}
+            />
+            <CodeCard
+              stepLabel="2단계"
+              title="지역변수로 한 번 뺀다"
+              note="보기는 좋아졌지만 값은 아직 안쪽에서만 정해짐"
+              code={CODE_STEPS.localAge}
+              accent={C_TEAL}
+              appear={appear1}
+            />
+            <CodeCard
+              stepLabel="3단계"
+              title="받을 자리를 먼저 만든다"
+              note="매개변수는 선언만 해 두고 아직 안 써도 됨"
+              code={CODE_STEPS.twoUnused}
+              accent={C_VAR}
+              appear={appear2}
+            />
           </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
+        speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.conceptScene.wordStartFrames}
       />
     </>
@@ -382,18 +436,25 @@ const DeclarationScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
-  const s = cfg.speechStartFrame;
-  const split0 = cfg.narrationSplits[0] ?? Infinity;
-  const blockAppear = spring({
-    frame: frame - s,
+  const [split0 = Infinity, split1 = Infinity] =
+    cfg.narrationSplits as readonly number[];
+
+  const appear0 = spring({
+    frame: frame - cfg.speechStartFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 48,
+    durationInFrames: 34,
   });
-  const paramHighlight = spring({
+  const appear1 = spring({
     frame: frame - split0,
     fps,
-    config: { damping: 12, stiffness: 150 },
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
+  });
+  const appear2 = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
     durationInFrames: 34,
   });
 
@@ -402,92 +463,101 @@ const DeclarationScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="2. 매개변수 선언 위치" />
+          <SceneTitle title="2. 받은 값을 계산에 넣기" />
           <div
             style={{
               position: "absolute",
               top: "46%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 900,
-              opacity: blockAppear,
+              width: 940,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 22,
+            }}
+          >
+            <CodeCard
+              stepLabel="4단계"
+              title="첫 번째 값만 더한다"
+              note="매개변수를 쓰기 시작하면 결과가 달라질 수 있음"
+              code={CODE_STEPS.useFirst}
+              accent={C_VAR}
+              appear={appear0}
+            />
+            <CodeCard
+              stepLabel="5단계"
+              title="두 번째 값까지 더한다"
+              note="받은 두 값이 순서대로 계산에 들어감"
+              code={CODE_STEPS.useTwo}
+              accent={C_TEAL}
+              appear={appear1}
+            />
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "77%",
+              transform: "translateX(-50%)",
+              width: 940,
+              background: "rgba(255,255,255,0.04)",
+              border: `2px solid ${C_TEAL}30`,
+              borderRadius: 20,
+              padding: "18px 22px",
+              opacity: appear2,
             }}
           >
             <div
               style={{
-                background: BG_CODE,
-                borderRadius: 22,
-                padding: "34px 42px",
-                boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
+                fontFamily: uiFont,
+                fontSize: 24,
+                fontWeight: 800,
+                color: C_TEAL,
+                marginBottom: 14,
               }}
             >
-              <div
-                style={{
-                  ...monoStyle,
-                  fontSize: 34,
-                  lineHeight: 2,
-                  whiteSpace: "pre",
-                }}
-              >
-                <div>
-                  {FUNCTION_LINES.map((part, idx) => {
-                    const isParam = part.left === " name";
-                    return (
-                      <span
-                        key={idx}
-                        style={{
-                          color: part.color,
-                          background: isParam
-                            ? `rgba(156,220,254,${paramHighlight * 0.22})`
-                            : "transparent",
-                          borderRadius: isParam ? 8 : undefined,
-                          padding: isParam ? "2px 6px" : undefined,
-                          boxShadow:
-                            isParam && paramHighlight > 0.01
-                              ? `0 0 ${paramHighlight * 18}px rgba(156,220,254,0.35)`
-                              : "none",
-                        }}
-                      >
-                        {part.left}
-                      </span>
-                    );
-                  })}
-                </div>
-                <div style={{ paddingLeft: 42 }}>
-                  <span style={{ color: C_FUNC }}>println</span>
-                  <span style={{ color: TEXT }}>(</span>
-                  <span style={{ color: C_VAR }}>name</span>
-                  <span style={{ color: TEXT }}> + </span>
-                  <span style={{ color: C_STRING }}>"님 안녕하세요"</span>
-                  <span style={{ color: TEXT }}>);</span>
-                </div>
-                <div style={{ color: TEXT }}>{"}"}</div>
-              </div>
+              호출할 때 개수 맞추기
             </div>
-
             <div
               style={{
-                marginTop: 22,
-                display: "flex",
-                justifyContent: "center",
-                opacity: paramHighlight,
-                transform: `translateY(${interpolate(paramHighlight, [0, 1], [16, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 14,
               }}
             >
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 28,
-                  fontWeight: 800,
-                  color: C_VAR,
-                  background: "rgba(156,220,254,0.12)",
-                  border: "2px solid rgba(156,220,254,0.38)",
-                  borderRadius: 14,
-                  padding: "10px 22px",
-                }}
-              >
-                name = 함수가 받을 값의 이름표
-              </div>
+              {CALL_EXAMPLES.map((item) => (
+                <div
+                  key={item.text}
+                  style={{
+                    background: BG_CODE,
+                    borderRadius: 16,
+                    padding: "16px 18px",
+                    border: `2px solid ${item.ok ? `${C_TEAL}44` : `${C_PAIN}44`}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      ...monoStyle,
+                      fontSize: 24,
+                      color: TEXT,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <ColorizedCode text={item.text} theme={CODE_THEME} />
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: item.ok ? C_TEAL : C_PAIN,
+                    }}
+                  >
+                    {item.status}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </ContentArea>
@@ -495,7 +565,7 @@ const DeclarationScene: React.FC = () => {
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
+        speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.declarationScene.wordStartFrames}
       />
     </>
@@ -507,18 +577,25 @@ const CallScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
-  const s = cfg.speechStartFrame;
-  const split0 = cfg.narrationSplits[0] ?? Infinity;
-  const call1Appear = spring({
-    frame: frame - s,
+  const [split0 = Infinity, split1 = Infinity] =
+    cfg.narrationSplits as readonly number[];
+
+  const appear0 = spring({
+    frame: frame - cfg.speechStartFrame,
     fps,
-    config: { damping: 12, stiffness: 150 },
+    config: { damping: 12, stiffness: 130 },
     durationInFrames: 34,
   });
-  const call2Appear = spring({
+  const appear1 = spring({
     frame: frame - split0,
     fps,
-    config: { damping: 12, stiffness: 150 },
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
+  });
+  const appear2 = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
     durationInFrames: 34,
   });
 
@@ -527,128 +604,79 @@ const CallScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="3. 호출할 때 값을 넣는다" />
+          <SceneTitle title="3. 이름과 개수 정리" />
           <div
             style={{
               position: "absolute",
               top: "46%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 920,
-              display: "flex",
-              flexDirection: "column",
-              gap: 24,
-              alignItems: "center",
+              width: 940,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 22,
             }}
           >
-            <div
-              style={{
-                ...monoStyle,
-                fontSize: 34,
-                background: BG_CODE,
-                borderRadius: 20,
-                padding: "28px 34px",
-                width: "100%",
-              }}
-            >
-              {CALL_VALUES.map((call, i) => {
-                const appear = i === 0 ? call1Appear : call2Appear;
-                return (
-                  <div
-                    key={call.label}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      opacity: appear,
-                      transform: `translateY(${interpolate(appear, [0, 1], [14, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-                      marginBottom: i === 0 ? 16 : 0,
-                    }}
-                  >
-                    <div>
-                      <span style={{ color: C_FUNC }}>greet</span>
-                      <span style={{ color: TEXT }}>(</span>
-                      <span style={{ color: C_STRING }}>{call.label}</span>
-                      <span style={{ color: TEXT }}>);</span>
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: uiFont,
-                        fontSize: 24,
-                        fontWeight: 700,
-                        color: C_TEAL,
-                      }}
-                    >
-                      실제 값 전달
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <CodeCard
+              stepLabel="6단계"
+              title="읽기 좋은 이름으로 바꾼다"
+              note="arg0, arg1 대신 뜻이 보이는 이름으로 바꿔도 됨"
+              code={CODE_STEPS.renameReadable}
+              accent={C_TEAL}
+              appear={appear0}
+            />
+            <CodeCard
+              stepLabel="7단계"
+              title="필요한 자리만 남긴다"
+              note="값이 하나만 필요하면 매개변수도 하나면 충분함"
+              code={CODE_STEPS.singleArg}
+              accent={C_VAR}
+              appear={appear1}
+            />
+          </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: 34,
-                alignItems: "center",
-              }}
-            >
-              {CALL_VALUES.map((call, i) => {
-                const appear = i === 0 ? call1Appear : call2Appear;
-                return (
-                  <React.Fragment key={call.label}>
-                    <div
-                      style={{
-                        fontFamily: uiFont,
-                        fontSize: 28,
-                        fontWeight: 800,
-                        color: C_STRING,
-                        background: `${C_STRING}18`,
-                        border: `2px solid ${C_STRING}55`,
-                        borderRadius: 16,
-                        padding: "14px 26px",
-                        opacity: appear,
-                      }}
-                    >
-                      {call.label}
-                    </div>
-                    {i === 0 ? (
-                      <div
-                        style={{
-                          fontSize: 40,
-                          color: "rgba(255,255,255,0.35)",
-                        }}
-                      >
-                        →
-                      </div>
-                    ) : null}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 32,
-                fontWeight: 800,
-                color: C_VAR,
-                background: "rgba(156,220,254,0.12)",
-                border: "2px solid rgba(156,220,254,0.38)",
-                borderRadius: 16,
-                padding: "16px 30px",
-                opacity: Math.max(call1Appear, call2Appear),
-              }}
-            >
-              매개변수 자리에 값이 들어감
-            </div>
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "77%",
+              transform: "translateX(-50%)",
+              width: 940,
+              display: "flex",
+              gap: 18,
+              opacity: appear2,
+            }}
+          >
+            {[
+              "이름은 설명용이라 읽기 좋게 바꿔도 된다",
+              "필요한 개수만 선언하면 된다",
+              "기능은 이름보다 실제로 쓰는 값이 결정한다",
+            ].map((item) => (
+              <div
+                key={item}
+                style={{
+                  flex: 1,
+                  background: BG_CODE,
+                  borderRadius: 16,
+                  padding: "18px 20px",
+                  border: `2px solid ${C_TEAL}33`,
+                  fontFamily: uiFont,
+                  fontSize: 24,
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  lineHeight: 1.5,
+                }}
+              >
+                {item}
+              </div>
+            ))}
           </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
+        speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
       />
     </>
@@ -660,20 +688,26 @@ const ResultScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames);
-  const s = cfg.speechStartFrame;
-  const split0 = cfg.narrationSplits[0] ?? Infinity;
+  const [split0 = Infinity, split1 = Infinity] =
+    cfg.narrationSplits as readonly number[];
 
-  const firstAppear = spring({
-    frame: frame - s,
+  const appear0 = spring({
+    frame: frame - cfg.speechStartFrame,
     fps,
-    config: { damping: 12, stiffness: 150 },
-    durationInFrames: 36,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
   });
-  const secondAppear = spring({
+  const appear1 = spring({
     frame: frame - split0,
     fps,
-    config: { damping: 12, stiffness: 150 },
-    durationInFrames: 36,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
+  });
+  const appear2 = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 34,
   });
 
   return (
@@ -681,125 +715,66 @@ const ResultScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="4. 값이 바뀌면 결과도 바뀐다" />
+          <SceneTitle title="4. 이름 충돌을 피하기" />
           <div
             style={{
               position: "absolute",
-              top: "46%",
+              top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 930,
+              width: 940,
               display: "flex",
               flexDirection: "column",
-              gap: 26,
+              gap: 18,
             }}
           >
-            {CALL_VALUES.map((call, i) => {
-              const appear = i === 0 ? firstAppear : secondAppear;
-              return (
-                <div
-                  key={call.label}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "250px 110px 1fr",
-                    alignItems: "center",
-                    gap: 22,
-                    opacity: appear,
-                    transform: `translateY(${interpolate(appear, [0, 1], [18, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-                  }}
-                >
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 28,
-                      color: C_FUNC,
-                      background: BG_CODE,
-                      borderRadius: 16,
-                      padding: "18px 22px",
-                    }}
-                  >
-                    greet({call.label});
-                  </div>
-                  <div
-                    style={{
-                      textAlign: "center",
-                      fontSize: 42,
-                      color: "rgba(255,255,255,0.28)",
-                    }}
-                  >
-                    →
-                  </div>
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 28,
-                      color: C_STRING,
-                      background: `${C_TEAL}12`,
-                      border: `2px solid ${C_TEAL}38`,
-                      borderRadius: 16,
-                      padding: "18px 22px",
-                    }}
-                  >
-                    println({call.result});
-                  </div>
-                </div>
-              );
-            })}
-
-            <div
-              style={{
-                marginTop: 4,
-                display: "flex",
-                justifyContent: "center",
-                opacity: secondAppear,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 28,
-                  fontWeight: 800,
-                  color: C_TEAL,
-                  background: `${C_TEAL}18`,
-                  border: `2px solid ${C_TEAL}55`,
-                  borderRadius: 14,
-                  padding: "12px 22px",
-                }}
-              >
-                같은 함수, 다른 값, 다른 결과
-              </div>
-            </div>
+            <CodeCard
+              stepLabel="8단계"
+              title="겹치는 이름은 피한다"
+              note="같은 범위에서 같은 이름을 둘 다 쓰면 헷갈리고 충돌이 남"
+              code={CODE_STEPS.conflict}
+              accent={C_PAIN}
+              appear={appear0}
+              warning
+            />
+            <CodeCard
+              stepLabel="9단계"
+              title="안쪽 이름을 잠깐 바꾼다"
+              note="지역변수 이름을 바꾸면 충돌은 사라지지만 조금 어색함"
+              code={CODE_STEPS.tempFix}
+              accent={C_COMMENT}
+              appear={appear1}
+            />
+            <CodeCard
+              stepLabel="10단계"
+              title="필요한 이름만 남긴다"
+              note="마지막에는 매개변수만 바로 쓰는 형태가 가장 깔끔함"
+              code={CODE_STEPS.final}
+              accent={C_TEAL}
+              appear={appear2}
+            />
           </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
+        speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.resultScene.wordStartFrames}
       />
     </>
   );
 };
 
-const SUMMARY_CARDS = CONTENT.summaryScene.cards as string[];
-
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const opacity = useFade(cfg.durationInFrames, { out: false });
-  const s = cfg.speechStartFrame;
+  const [split0 = Infinity, split1 = Infinity] =
+    cfg.narrationSplits as readonly number[];
 
-  const cardFrames = [
-    AUDIO_CONFIG.summaryScene.wordTiming["매개변수는"]?.[0] ?? s,
-    AUDIO_CONFIG.summaryScene.wordTiming["호출할"]?.[0] ??
-      cfg.narrationSplits[0] ??
-      s,
-    AUDIO_CONFIG.summaryScene.wordTiming["같은"]?.[0] ??
-      cfg.narrationSplits[0] ??
-      s + 24,
-  ];
+  const triggerFrames = [cfg.speechStartFrame, split0, split1, split1 + 24];
 
   return (
     <>
@@ -810,54 +785,55 @@ const SummaryScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "46%",
+              top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 920,
-              display: "flex",
-              flexDirection: "column",
+              width: 940,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
               gap: 18,
             }}
           >
             {SUMMARY_CARDS.map((card, i) => {
               const appear = spring({
-                frame: frame - cardFrames[i],
+                frame: frame - triggerFrames[i],
                 fps,
                 config: { damping: 12, stiffness: 140 },
-                durationInFrames: 36,
+                durationInFrames: 30,
               });
               return (
                 <div
                   key={card}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 20,
-                    background: "#2a2a2a",
-                    border: `2px solid ${C_TEAL}44`,
+                    background: BG_CODE,
                     borderRadius: 18,
-                    padding: "20px 28px",
+                    padding: "20px 24px",
+                    border: `2px solid ${C_TEAL}3a`,
                     opacity: appear,
-                    transform: `scale(${interpolate(appear, [0, 1], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                    transform: `scale(${interpolate(appear, [0, 1], [0.92, 1], {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    })})`,
                   }}
                 >
                   <div
                     style={{
                       fontFamily: uiFont,
-                      fontSize: 28,
-                      fontWeight: 900,
-                      color: C_TEAL,
-                      minWidth: 40,
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: C_DIM,
+                      marginBottom: 10,
                     }}
                   >
-                    {i + 1}
+                    핵심 {i + 1}
                   </div>
                   <div
                     style={{
                       fontFamily: uiFont,
                       fontSize: 30,
-                      fontWeight: 800,
+                      fontWeight: 900,
                       color: "#ffffff",
+                      lineHeight: 1.4,
                     }}
                   >
                     {card}
@@ -865,43 +841,51 @@ const SummaryScene: React.FC = () => {
                 </div>
               );
             })}
+          </div>
 
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "75%",
+              transform: "translateX(-50%)",
+              width: 940,
+              background: "rgba(78,201,176,0.08)",
+              border: `2px solid ${C_TEAL}44`,
+              borderRadius: 22,
+              padding: "24px 28px",
+              opacity: spring({
+                frame: frame - (split1 + 30),
+                fps,
+                config: { damping: 12, stiffness: 140 },
+                durationInFrames: 34,
+              }),
+            }}
+          >
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 24,
+                fontWeight: 800,
+                color: C_TEAL,
+                marginBottom: 12,
+              }}
+            >
+              최종 코드 모습
+            </div>
             <div
               style={{
                 ...monoStyle,
-                marginTop: 8,
-                fontSize: 28,
-                lineHeight: 1.9,
-                background: BG_CODE,
-                borderRadius: 18,
-                padding: "24px 30px",
-                opacity: spring({
-                  frame:
-                    frame -
-                    (AUDIO_CONFIG.summaryScene.wordTiming["다양하게"]?.[0] ??
-                      cfg.narrationSplits[0] ??
-                      s),
-                  fps,
-                  config: { damping: 12, stiffness: 140 },
-                  durationInFrames: 36,
-                }),
+                fontSize: 26,
+                lineHeight: 1.85,
+                color: TEXT,
               }}
             >
-              <div>
-                <span style={{ color: C_KEYWORD }}>void</span>
-                <span style={{ color: C_FUNC }}> greet</span>
-                <span style={{ color: TEXT }}>(</span>
-                <span style={{ color: C_TYPE }}>String</span>
-                <span style={{ color: C_VAR }}> name</span>
-                <span style={{ color: TEXT }}>) {"{"}</span>
-              </div>
-              <div style={{ paddingLeft: 36 }}>
-                <span style={{ color: C_FUNC }}>println</span>
-                <span style={{ color: TEXT }}>(</span>
-                <span style={{ color: C_VAR }}>name</span>
-                <span style={{ color: TEXT }}>);</span>
-              </div>
-              <div style={{ color: TEXT }}>{"}"}</div>
+              {CODE_STEPS.final.map((line, i) => (
+                <div key={`final-${i}`}>
+                  <ColorizedCode text={line} theme={CODE_THEME} />
+                </div>
+              ))}
             </div>
           </div>
         </ContentArea>
@@ -909,7 +893,7 @@ const SummaryScene: React.FC = () => {
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
+        speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
       />
     </>
