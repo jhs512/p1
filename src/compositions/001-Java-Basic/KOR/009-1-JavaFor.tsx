@@ -703,19 +703,36 @@ const ForScene: React.FC = () => {
               >
                 <div
                   style={{
-                    fontFamily: uiFont,
-                    fontSize: 24,
-                    fontWeight: 700,
                     color: C_INC,
                     background: `${C_INC}18`,
                     border: `2px solid ${C_INC}55`,
                     borderRadius: 12,
-                    padding: "8px 20px",
+                    padding: "10px 20px",
                     opacity: incAppear,
                     transform: slideY(incAppear),
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
                   }}
                 >
-                  i를 1 증가
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: 24,
+                      fontWeight: 700,
+                    }}
+                  >
+                    i++ = i = i + 1
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 22,
+                      fontWeight: 700,
+                    }}
+                  >
+                    i를 1 증가
+                  </span>
                 </div>
               </div>
             </div>
