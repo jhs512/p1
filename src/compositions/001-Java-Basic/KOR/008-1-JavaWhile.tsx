@@ -539,6 +539,15 @@ const WhileScene: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const incrementExplainAppear = spring({
+    frame:
+      frame - (AUDIO_CONFIG.whileScene.wordTiming["증가시켜"]?.[0] ?? split0),
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 40,
+  });
+  const slideY = (a: number) =>
+    `translateY(${interpolate(a, [0, 1], [10, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`;
 
   return (
     <>
@@ -606,6 +615,48 @@ const WhileScene: React.FC = () => {
                     </div>
                   );
                 })}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 18,
+                }}
+              >
+                <div
+                  style={{
+                    color: C_TEAL,
+                    background: `${C_TEAL}18`,
+                    border: `2px solid ${C_TEAL}55`,
+                    borderRadius: 12,
+                    padding: "10px 20px",
+                    opacity: incrementExplainAppear,
+                    transform: slideY(incrementExplainAppear),
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: 24,
+                      fontWeight: 700,
+                    }}
+                  >
+                    count++ = count = count + 1
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 22,
+                      fontWeight: 700,
+                    }}
+                  >
+                    count를 1 증가
+                  </span>
+                </div>
               </div>
             </div>
           )}
