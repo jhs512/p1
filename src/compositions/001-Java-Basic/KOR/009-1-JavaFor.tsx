@@ -960,7 +960,7 @@ const ExecutionScene: React.FC = () => {
                 </div>
               </div>
 
-              {/* 출력 로그 — "실행" 발화 이후에만 표시 */}
+              {/* 출력 로그 — 이전 출력은 유지, 현재 숫자는 "실행" 발화 시 추가 */}
               <div
                 style={{
                   background: "#252525",
@@ -969,7 +969,7 @@ const ExecutionScene: React.FC = () => {
                   fontFamily: monoFont,
                   fontFeatureSettings: MONO_NO_LIGA,
                   fontSize: 26,
-                  opacity: showOutput ? 1 : 0,
+                  opacity: stepIdx > 0 || showOutput ? 1 : 0,
                 }}
               >
                 <div
@@ -983,11 +983,20 @@ const ExecutionScene: React.FC = () => {
                   출력
                 </div>
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                  {(step.output as readonly string[]).map((n, i) => (
-                    <span key={i} style={{ color: C_NUM }}>
-                      {n}
-                    </span>
-                  ))}
+                  {(step.output as readonly string[]).map((n, i) => {
+                    const isNew = i === (step.output as readonly string[]).length - 1;
+                    return (
+                      <span
+                        key={i}
+                        style={{
+                          color: C_NUM,
+                          opacity: isNew && !showOutput ? 0 : 1,
+                        }}
+                      >
+                        {n}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
