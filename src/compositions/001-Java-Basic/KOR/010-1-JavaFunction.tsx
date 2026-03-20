@@ -236,34 +236,37 @@ const PAIN_LINES = [
 ];
 const PAIN_CPS = 28;
 
-// "민준" → "철수" 글자 단위 교체 progress(0→1)
-function getReplaceWord(progress: number): string {
-  if (progress <= 0) return "민준";
-  if (progress >= 1) return "철수";
-  if (progress < 0.5) {
-    const left = Math.max(0, 2 - Math.floor(progress * 4));
-    return "민준".slice(0, left);
-  }
-  const added = Math.min(2, Math.ceil((progress - 0.5) * 4));
-  return "철수".slice(0, added);
+// "민준" → 공백 → "철수" 교체 애니메이션
+// phase 0→0.5: 민준 → "　　" (공백), 0.5→1: "　　" → 철수
+function getReplaceWord(progress: number): { text: string; blank: boolean } {
+  if (progress <= 0) return { text: "민준", blank: false };
+  if (progress >= 1) return { text: "철수", blank: false };
+  if (progress < 0.5) return { text: "　　", blank: true };  // 전각 공백 2자 (폭 유지)
+  return { text: "철수", blank: false };
 }
 
-const REPLACE_DUR = 24;  // 교체 애니메이션 프레임 수
+const REPLACE_DUR = 30;  // 교체 애니메이션 프레임 수
 const REPLACE_GAP = 20;  // 줄 간격 프레임 수
 
-// println 줄: 타이핑 후 민준→철수 교체 애니메이션
+// println 줄: 타이핑 후 민준→공백→철수 교체 + 하이라이트 사각형
 const PainPrintlnLine: React.FC<{
   startFrame: number;
   replaceStart: number;
 }> = ({ startFrame, replaceStart }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const progress = interpolate(
     frame,
     [replaceStart, replaceStart + REPLACE_DUR],
     [0, 1],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
-  const word = getReplaceWord(progress);
+  const { text: word, blank } = getReplaceWord(progress);
+
+  // 하이라이트 사각형: 교체 진행 중일 때 표시
+  const highlightOpacity = progress > 0 && progress < 1
+    ? spring({ frame: frame - replaceStart, fps, config: { damping: 14, stiffness: 120 }, durationInFrames: 12 })
+    : 0;
 
   if (frame < replaceStart) {
     return (
@@ -275,9 +278,27 @@ const PainPrintlnLine: React.FC<{
     );
   }
   return (
-    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
+    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre", position: "relative" }}>
       <span>System.out.println(</span>
-      <span style={{ color: C_STRING }}>"안녕 {word}"</span>
+      <span style={{ color: C_STRING }}>"안녕 </span>
+      <span style={{
+        color: blank ? "transparent" : C_STRING,
+        position: "relative",
+        display: "inline-block",
+      }}>
+        {word}
+        {/* 하이라이트 사각형 */}
+        <span style={{
+          position: "absolute",
+          inset: "-2px -4px",
+          border: `2px solid ${C_PAIN}`,
+          borderRadius: 4,
+          background: `${C_PAIN}18`,
+          opacity: highlightOpacity,
+          pointerEvents: "none",
+        }} />
+      </span>
+      <span style={{ color: C_STRING }}>"</span>
       <span>);</span>
     </div>
   );
