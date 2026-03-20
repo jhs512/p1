@@ -873,20 +873,20 @@ const ComparisonScene: React.FC = () => {
   );
 };
 
-// ── 씬: RealExampleScene — 수식 반복 → 함수로 해결 ────────────
+// ── 씬: RealExampleScene — 할인 가격 하드코딩 → 함수로 해결 ────
 const REAL_PAIN_LINES = [
-  "System.out.println(3.14 * 5 * 5);",
-  "System.out.println(3.14 * 10 * 10);",
-  "System.out.println(3.14 * 7 * 7);",
+  "System.out.println(50000 * 0.1);",
+  "System.out.println(30000 * 0.1);",
+  "System.out.println(80000 * 0.1);",
 ];
 const REAL_CLEAN_LINES = [
-  "double area(int r) {",
-  "    return 3.14 * r * r;",
+  "int discount(int price) {",
+  "    return (int)(price * 0.1);",
   "}",
   "",
-  "area(5);",
-  "area(10);",
-  "area(7);",
+  "discount(50000);",
+  "discount(30000);",
+  "discount(80000);",
 ];
 
 const RealExampleScene: React.FC = () => {
@@ -894,24 +894,28 @@ const RealExampleScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
+  const split1 = cfg.narrationSplits[0]; // 2번째 문장 시작
+  const split2 = cfg.narrationSplits[1]; // 3번째 문장 시작
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // 1문장: "실감나는 예시" → 고통 코드 등장
   const beforeAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
   });
+  // 2문장: "할인 가격을 구할 때마다" → 화살표 등장
   const arrowAppear = spring({
-    frame: frame - (s + Math.round((split - s) / 2)),
+    frame: frame - (split1 + Math.round((split2 - split1) / 2)),
     fps,
     config: { damping: 14, stiffness: 120 },
     durationInFrames: 20,
   });
+  // 3문장: "함수로 만들면" → 개선 코드 등장
   const afterAppear = spring({
-    frame: frame - split,
+    frame: frame - split2,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 24,
@@ -936,10 +940,9 @@ const RealExampleScene: React.FC = () => {
     opacity: 0.85,
   });
 
-  // 수식 부분 컬러링 (3.14 * r * r 패턴)
-  const colorFormula = (text: string) => {
-    // 숫자 리터럴 + 연산자 하이라이팅
-    const parts = text.split(/(3\.14|\d+|"[^"]*"|\*|return|double|int|void)/g);
+  // 코드 컬러링 — 할인 계산 예시
+  const colorCode = (text: string) => {
+    const parts = text.split(/(0\.\d+|\d+|"[^"]*"|\*|return|double|int|void)/g);
     return parts.map((p, i) => {
       if (["double", "int", "void"].includes(p))
         return <span key={i} style={{ color: C_KEYWORD }}>{p}</span>;
@@ -949,13 +952,13 @@ const RealExampleScene: React.FC = () => {
         return <span key={i} style={{ color: "#b5cea8" }}>{p}</span>;
       if (/^"/.test(p))
         return <span key={i} style={{ color: C_STRING }}>{p}</span>;
-      if (p.includes("area"))
+      if (p.includes("discount"))
         return (
           <span key={i}>
-            {p.split("area").map((seg, j, arr) => (
+            {p.split("discount").map((seg, j, arr) => (
               <React.Fragment key={j}>
                 {seg}
-                {j < arr.length - 1 && <span style={{ color: C_FUNC }}>area</span>}
+                {j < arr.length - 1 && <span style={{ color: C_FUNC }}>discount</span>}
               </React.Fragment>
             ))}
           </span>
@@ -984,11 +987,11 @@ const RealExampleScene: React.FC = () => {
           >
             {/* 고통스러운 코드 — 위 */}
             <div style={{ opacity: beforeAppear, width: "100%" }}>
-              <div style={labelStyle(C_PAIN)}>같은 수식 반복</div>
+              <div style={labelStyle(C_PAIN)}>매번 하드코딩</div>
               <div style={codeBoxStyle}>
                 {REAL_PAIN_LINES.map((line, i) => (
                   <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
-                    {colorFormula(line)}
+                    {colorCode(line)}
                   </div>
                 ))}
               </div>
@@ -1014,7 +1017,7 @@ const RealExampleScene: React.FC = () => {
               <div style={codeBoxStyle}>
                 {REAL_CLEAN_LINES.map((line, i) => (
                   <div key={i} style={{ lineHeight: "1.8", color: TEXT, whiteSpace: "pre" }}>
-                    {line ? colorFormula(line) : "\u00A0"}
+                    {line ? colorCode(line) : "\u00A0"}
                   </div>
                 ))}
               </div>
