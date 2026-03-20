@@ -29,6 +29,7 @@ import {
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./006-2-content";
 import { AUDIO_CONFIG } from "./006-3-audio.gen";
+import { BG } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -280,7 +281,7 @@ const OverviewScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. 제어문 개요" />
@@ -505,15 +506,21 @@ const IntroScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames);
+  const ifTriggerFrame =
+    AUDIO_CONFIG.intro.wordTiming["참일"]?.[0] ?? intro.speechStartFrame;
+  const elseTriggerFrame =
+    AUDIO_CONFIG.intro.wordTiming["else를"]?.[0] ??
+    intro.narrationSplits[0] ??
+    intro.speechStartFrame;
 
   const ifAppear = spring({
-    frame: frame - 0,
+    frame: frame - ifTriggerFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 56,
   });
   const elseAppear = spring({
-    frame: frame - 24,
+    frame: frame - elseTriggerFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 56,
@@ -548,7 +555,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <SceneTitle title="2. if 문이란?" />
@@ -648,7 +655,7 @@ const IfScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="3. if 문 실행" />
@@ -696,7 +703,7 @@ const IfElseScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="4. if-else 문" />
@@ -745,7 +752,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="5. 조건문 정리" />
@@ -763,13 +770,12 @@ const SummaryScene: React.FC = () => {
             }}
           >
             {SUMMARY_ROWS.map((row, i) => {
-              // if(idx 0→frame 2), else(idx 4→frame 50) 발화 시점 기준
-              // TODO: wordTiming 미지원 — 동적 인덱스
-              const kwWordIndices = [0, 4] as const;
               const triggerFrame =
-                AUDIO_CONFIG.summaryScene.wordStartFrames[0][
-                  kwWordIndices[i]
-                ] ?? i * 24;
+                i === 0
+                  ? (AUDIO_CONFIG.summaryScene.wordTiming["if는"]?.[0] ??
+                    cfg.speechStartFrame)
+                  : (AUDIO_CONFIG.summaryScene.wordTiming["else는"]?.[0] ??
+                    cfg.speechStartFrame);
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,
@@ -823,8 +829,12 @@ const SummaryScene: React.FC = () => {
 
             {/* 코드 미리보기 */}
             {(() => {
+              const codePreviewTrigger =
+                AUDIO_CONFIG.summaryScene.wordTiming["코드를"]?.[0] ??
+                cfg.narrationSplits[0] ??
+                cfg.speechStartFrame;
               const appear = spring({
-                frame: frame - 48,
+                frame: frame - codePreviewTrigger,
                 fps,
                 config: { damping: 13, stiffness: 130 },
                 durationInFrames: 52,
@@ -900,21 +910,22 @@ const sceneList = [
   VIDEO_CONFIG.ifElseScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
-  _from += s.durationInFrames - overlap;
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=overview
@@ -981,7 +992,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaIf: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

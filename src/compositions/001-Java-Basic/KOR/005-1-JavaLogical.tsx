@@ -29,6 +29,7 @@ import {
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./005-2-content";
 import { AUDIO_CONFIG } from "./005-3-audio.gen";
+import { BG } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -345,7 +346,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(intro.audio)} />
           <SceneTitle title="1. 논리 연산자란?" />
@@ -459,7 +460,7 @@ const AndScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="2. AND (&&)" />
@@ -581,7 +582,7 @@ const OrScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="3. OR (||)" />
@@ -703,7 +704,7 @@ const NotScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="4. NOT (!)" />
@@ -801,7 +802,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="5. 논리 연산자 정리" />
@@ -929,22 +930,22 @@ const sceneList = [
   VIDEO_CONFIG.notScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  _from +=
-    s.durationInFrames -
-    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro
@@ -1011,7 +1012,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaLogical: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

@@ -14,7 +14,7 @@ import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 
 import React from "react";
 
-import { CROSS, SCENE_TAIL_FRAMES } from "../config";
+import { CHARS_PER_SEC, CROSS, SCENE_TAIL_FRAMES } from "../config";
 import { toDisplayText } from "./narration";
 
 // ── 폰트 ─────────────────────────────────────────────────────
@@ -44,6 +44,15 @@ export const monoStyle = {
 } as const;
 
 export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
+
+export type CodeTheme = {
+  keywordColors?: Record<string, string>;
+  operators?: readonly string[];
+  operatorColor?: string;
+  numberColor?: string;
+  stringColor?: string;
+  commentColor?: string;
+};
 
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**
@@ -92,6 +101,119 @@ export function useFade(
         })
       : 1;
   return fadeIn * fadeOut;
+}
+
+export function useTypingEffect(
+  text: string,
+  startFrame: number,
+  charsPerSecond = CHARS_PER_SEC,
+): { visibleText: string; isDone: boolean } {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const charsVisible = Math.floor(
+    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
+  );
+  return {
+    visibleText: text.slice(0, charsVisible),
+    isDone: charsVisible >= text.length,
+  };
+}
+
+export function calcTypingEndFrame(
+  chars: number,
+  startFrame: number,
+  fps: number,
+  charsPerSecond = CHARS_PER_SEC,
+): number {
+  return startFrame + Math.ceil((chars / charsPerSecond) * fps);
+}
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function ColorizedCode({
+  text,
+  theme,
+}: {
+  text: string;
+  theme: CodeTheme;
+}) {
+  const commentIdx = theme.commentColor === undefined ? -1 : text.indexOf("//");
+  const codePart = commentIdx >= 0 ? text.slice(0, commentIdx) : text;
+  const commentPart = commentIdx >= 0 ? text.slice(commentIdx) : "";
+
+  const keywords = Object.keys(theme.keywordColors ?? {});
+  const operators = [...(theme.operators ?? [])].sort(
+    (a, b) => b.length - a.length,
+  );
+  const tokenPatterns = [
+    ...keywords.map((keyword) => `\\b${escapeRegExp(keyword)}\\b`),
+    ...operators.map(escapeRegExp),
+    theme.stringColor ? '"[^"]*"' : null,
+    theme.numberColor ? "\\b\\d+(?:\\.\\d+)?\\b" : null,
+  ].filter((pattern): pattern is string => Boolean(pattern));
+
+  if (tokenPatterns.length === 0) {
+    return <>{text}</>;
+  }
+
+  const parts = codePart.split(new RegExp(`(${tokenPatterns.join("|")})`, "g"));
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (!part) return null;
+        const keywordColor = theme.keywordColors?.[part];
+        if (keywordColor) {
+          return (
+            <span key={i} style={{ color: keywordColor }}>
+              {part}
+            </span>
+          );
+        }
+        if (theme.operatorColor && operators.includes(part)) {
+          return (
+            <span key={i} style={{ color: theme.operatorColor }}>
+              {part}
+            </span>
+          );
+        }
+        if (theme.stringColor && /^"/.test(part)) {
+          return (
+            <span key={i} style={{ color: theme.stringColor }}>
+              {part}
+            </span>
+          );
+        }
+        if (theme.numberColor && /^\d/.test(part)) {
+          return (
+            <span key={i} style={{ color: theme.numberColor }}>
+              {part}
+            </span>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+      {commentPart ? (
+        <span style={{ color: theme.commentColor }}>{commentPart}</span>
+      ) : null}
+    </>
+  );
+}
+
+export function computeLineVisibility<T>(
+  lines: readonly T[],
+  visibleChars: number,
+  getLineLength: (line: T) => number,
+): number[] {
+  let remaining = Math.floor(visibleChars);
+  return lines.map((line) => {
+    const lineLength = getLineLength(line);
+    const show = Math.min(lineLength, remaining);
+    remaining = Math.max(0, remaining - lineLength);
+    return show;
+  });
 }
 
 // ── 상수: 하단 여백 / 자막 영역 ────────────────────────────────

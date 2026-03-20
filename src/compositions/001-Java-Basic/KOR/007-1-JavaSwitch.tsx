@@ -22,13 +22,17 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  calcTypingEndFrame,
+  computeLineVisibility,
   monoFont,
+  monoStyle,
   uiFont,
   useFade,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./007-2-content";
 import { AUDIO_CONFIG } from "./007-3-audio.gen";
+import { BG } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -118,9 +122,12 @@ const ARROW_CHAR_STARTS: number[] = (() => {
 })();
 
 // SyntaxScene duration 헌법 계산
-const SYNTAX_TYPING_END =
-  AUDIO_CONFIG.syntaxScene.speechStartFrame +
-  Math.ceil((SYNTAX_CODE_CHARS / SYNTAX_CHARS_PER_SEC) * 60);
+const SYNTAX_TYPING_END = calcTypingEndFrame(
+  SYNTAX_CODE_CHARS,
+  AUDIO_CONFIG.syntaxScene.speechStartFrame,
+  FPS,
+  SYNTAX_CHARS_PER_SEC,
+);
 const SYNTAX_SCENE_DURATION = Math.max(
   AUDIO_CONFIG.syntaxScene.durationInFrames,
   SYNTAX_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
@@ -176,15 +183,13 @@ const sceneList = [
   { durationInFrames: VIDEO_CONFIG.multiCaseScene.durationInFrames },
   { durationInFrames: VIDEO_CONFIG.summaryScene.durationInFrames },
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
-  _from += s.durationInFrames - overlap;
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── ThumbnailScene ────────────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
@@ -335,7 +340,7 @@ const OverviewScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. switch 문 개요" />
@@ -581,7 +586,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="2. switch 문이란?" />
@@ -704,13 +709,11 @@ const SyntaxScene: React.FC = () => {
     Math.max(0, ((frame - s) / fps) * SYNTAX_CHARS_PER_SEC),
   );
 
-  let remaining = Math.floor(charsVisible);
-  const lineVisibility = SYNTAX_LINES.map((line) => {
-    const lineLen = line.parts.reduce((acc, p) => acc + p.text.length, 0);
-    const show = Math.min(lineLen, remaining);
-    remaining = Math.max(0, remaining - lineLen);
-    return show;
-  });
+  const lineVisibility = computeLineVisibility(
+    SYNTAX_LINES,
+    charsVisible,
+    (line) => line.parts.reduce((acc, p) => acc + p.text.length, 0),
+  );
 
   const blockAppear = spring({
     frame: frame - s,
@@ -737,7 +740,7 @@ const SyntaxScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="3. switch 문법" />
@@ -752,8 +755,7 @@ const SyntaxScene: React.FC = () => {
             >
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 25,
                   lineHeight: 1.95,
                   background: "#252525",
@@ -826,8 +828,6 @@ const MultiCaseScene: React.FC = () => {
   const [split0 = Math.floor(d / 2)] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d);
 
-  const phase2 = frame >= split0;
-
   const p1Appear = spring({
     frame: frame - s,
     fps,
@@ -857,7 +857,7 @@ const MultiCaseScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="4. 다중 case" />
@@ -877,8 +877,7 @@ const MultiCaseScene: React.FC = () => {
             {/* Phase 1: 케이스 묶기 강조 */}
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 34,
                 lineHeight: 2.0,
                 background: "#252525",
@@ -918,100 +917,93 @@ const MultiCaseScene: React.FC = () => {
             </div>
 
             {/* Phase 2: 값 반환 전체 표현식 — split0 기준 등장 */}
-            {phase2 && (
-              <div
-                style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
-                  fontSize: 28,
-                  lineHeight: 1.9,
-                  background: "#252525",
-                  borderRadius: 16,
-                  padding: "28px 48px",
-                  width: "100%",
-                  opacity: p2Appear,
-                  transform: `scale(${scP2})`,
-                  border: `2px solid ${C_RESULT}55`,
-                }}
-              >
-                <div>
-                  <span style={{ color: C_SWITCH }}>String</span>
-                  <span
-                    style={{
-                      color: C_RESULT,
-                      fontWeight: 900,
-                      textShadow: `0 0 12px ${C_RESULT}66`,
-                    }}
-                  >
-                    {" "}
-                    msg
-                  </span>
-                  <span style={{ color: "#d4d4d4" }}> = </span>
-                  <span style={{ color: C_SWITCH, fontWeight: 900 }}>
-                    switch
-                  </span>
-                  <span style={{ color: "#d4d4d4" }}> (day) {"{"}</span>
-                </div>
-                <div style={{ paddingLeft: 40 }}>
-                  <span style={{ color: C_CASE }}>case</span>
-                  <span style={{ color: C_STR }}> "SAT"</span>
-                  <span style={{ color: "#d4d4d4" }}>,</span>
-                  <span style={{ color: C_STR }}> "SUN"</span>
-                  <span style={{ color: C_ARROW }}> {"->"}</span>
-                  <span style={{ color: C_RESULT }}> "주말"</span>
-                  <span style={{ color: "#d4d4d4" }}>;</span>
-                </div>
-                <div style={{ paddingLeft: 40 }}>
-                  <span style={{ color: C_DIM }}>// ...</span>
-                </div>
-                <div>
-                  <span style={{ color: "#d4d4d4" }}>{"}"}</span>
-                  <span style={{ color: "#d4d4d4" }}>;</span>
-                </div>
-                <div
+            <div
+              style={{
+                ...monoStyle,
+                fontSize: 28,
+                lineHeight: 1.9,
+                background: "#252525",
+                borderRadius: 16,
+                padding: "28px 48px",
+                width: "100%",
+                opacity: p2Appear,
+                transform: `scale(${scP2})`,
+                border: `2px solid ${C_RESULT}55`,
+              }}
+            >
+              <div>
+                <span style={{ color: C_SWITCH }}>String</span>
+                <span
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginTop: 16,
-                    opacity: p2Appear,
+                    color: C_RESULT,
+                    fontWeight: 900,
+                    textShadow: `0 0 12px ${C_RESULT}66`,
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: uiFont,
-                      color: C_RESULT,
-                      fontSize: FONT.label,
-                    }}
-                  >
-                    반환값
-                  </span>
-                  <span style={{ color: C_ARROW, fontSize: FONT.label }}>
-                    →
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: monoFont,
-                      fontFeatureSettings: MONO_NO_LIGA,
-                      color: C_RESULT,
-                      fontSize: 22,
-                      fontWeight: 900,
-                    }}
-                  >
-                    msg
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: uiFont,
-                      color: "#888",
-                      fontSize: FONT.label,
-                    }}
-                  >
-                    변수에 저장
-                  </span>
-                </div>
+                  {" "}
+                  msg
+                </span>
+                <span style={{ color: "#d4d4d4" }}> = </span>
+                <span style={{ color: C_SWITCH, fontWeight: 900 }}>switch</span>
+                <span style={{ color: "#d4d4d4" }}> (day) {"{"}</span>
               </div>
-            )}
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_CASE }}>case</span>
+                <span style={{ color: C_STR }}> "SAT"</span>
+                <span style={{ color: "#d4d4d4" }}>,</span>
+                <span style={{ color: C_STR }}> "SUN"</span>
+                <span style={{ color: C_ARROW }}> {"->"}</span>
+                <span style={{ color: C_RESULT }}> "주말"</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div style={{ paddingLeft: 40 }}>
+                <span style={{ color: C_DIM }}>// ...</span>
+              </div>
+              <div>
+                <span style={{ color: "#d4d4d4" }}>{"}"}</span>
+                <span style={{ color: "#d4d4d4" }}>;</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginTop: 16,
+                  opacity: p2Appear,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: uiFont,
+                    color: C_RESULT,
+                    fontSize: FONT.label,
+                  }}
+                >
+                  반환값
+                </span>
+                <span style={{ color: C_ARROW, fontSize: FONT.label }}>→</span>
+                <span
+                  style={{
+                    fontFamily: monoFont,
+                    fontFeatureSettings: MONO_NO_LIGA,
+                    color: C_RESULT,
+                    fontSize: 22,
+                    fontWeight: 900,
+                  }}
+                >
+                  msg
+                </span>
+                <span
+                  style={{
+                    fontFamily: uiFont,
+                    color: "#888",
+                    fontSize: FONT.label,
+                  }}
+                >
+                  변수에 저장
+                </span>
+              </div>
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -1094,7 +1086,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="5. switch 정리" />
@@ -1187,7 +1179,10 @@ const SummaryScene: React.FC = () => {
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=overview
@@ -1255,7 +1250,7 @@ export const compositionMeta = {
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 // sceneList: [0]=thumbnail [1]=overview [2]=intro [3]=syntax [4]=multiCase [5]=summary
 export const JavaSwitch: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

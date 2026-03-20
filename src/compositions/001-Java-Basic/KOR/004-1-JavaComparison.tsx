@@ -16,6 +16,7 @@ import React from "react";
 import { FPS } from "../../../config";
 import {
   CROSS,
+  ColorizedCode,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
@@ -80,45 +81,17 @@ export const VIDEO_CONFIG = {
   },
 };
 
-// ── 컴포넌트: ColorizedCode (헤더용) ─────────────────────────
-const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
-  const parts = text.split(
-    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|==|!=|>=|<=|[+\-*/%><]|=|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
-  );
-  const KEYWORDS = ["int", "double", "String", "boolean"];
-  const OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "="];
-  const TYPE_COLORS: Record<string, string> = {
+const CODE_THEME = {
+  keywordColors: {
     int: C_TYPE,
     double: "#d4c04e",
     String: "#4ec970",
     boolean: "#d4834e",
-  };
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (KEYWORDS.includes(part))
-          return (
-            <span key={i} style={{ color: TYPE_COLORS[part] }}>
-              {part}
-            </span>
-          );
-        if (OPERATORS.includes(part))
-          return (
-            <span key={i} style={{ color: C_PURPLE }}>
-              {part}
-            </span>
-          );
-        if (/^\d/.test(part))
-          return (
-            <span key={i} style={{ color: C_NUMBER }}>
-              {part}
-            </span>
-          );
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-};
+  },
+  operators: ["==", "!=", ">=", "<=", ">", "<", "="],
+  operatorColor: C_PURPLE,
+  numberColor: C_NUMBER,
+} as const;
 
 // ── 컴포넌트: BeatCard (연산자 1개 평가 화면) ─────────────────
 const BeatCard: React.FC<{
@@ -484,7 +457,7 @@ const CompareScene: React.FC = () => {
                 color: TEXT,
               }}
             >
-              <ColorizedCode text="int a = 10, b = 3;" />
+              <ColorizedCode text="int a = 10, b = 3;" theme={CODE_THEME} />
             </div>
           )}
 
@@ -546,7 +519,7 @@ const SummaryScene: React.FC = () => {
               opacity: 0.6,
             }}
           >
-            <ColorizedCode text="int a = 10, b = 3;" />
+            <ColorizedCode text="int a = 10, b = 3;" theme={CODE_THEME} />
           </div>
 
           {/* 2×3 그리드 */}
@@ -642,21 +615,22 @@ const sceneList = [
   VIDEO_CONFIG.compareScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
-  _from += s.durationInFrames - overlap;
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro

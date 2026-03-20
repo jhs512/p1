@@ -24,6 +24,7 @@ import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import {
   CHARS_PER_SEC,
   CROSS,
+  ColorizedCode,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
@@ -31,8 +32,10 @@ import {
   Subtitle,
   THUMB_CROSS,
   monoFont,
+  monoStyle,
   uiFont,
   useFade,
+  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
@@ -47,7 +50,7 @@ export interface CodeLine {
 }
 
 /** 음성 길이(초) → 장면 프레임 수 (꼬리 여유 포함). 나중을 위해 유지. */
-export const f = (secs: number) => Math.ceil(secs * 60) + SCENE_TAIL_FRAMES;
+export const f = (secs: number) => Math.ceil(secs * FPS) + SCENE_TAIL_FRAMES;
 
 /** 코드 라인 — 한 곳에서만 정의 */
 const ALL_CODE = ["int age;", "age = 25;", "System.out.println(age);"];
@@ -122,46 +125,14 @@ export const VIDEO_CONFIG = {
   },
 };
 
-// ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
-function useTypingEffect(
-  text: string,
-  startFrame: number,
-  charsPerSecond = 10,
-): { visibleText: string; isDone: boolean } {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const charsVisible = Math.floor(
-    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
-  );
-  return {
-    visibleText: text.slice(0, charsVisible),
-    isDone: charsVisible >= text.length,
-  };
-}
-
-// ── 컴포넌트: CodeBox ─────────────────────────────────────────
-const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
-  const parts = text.split(/(\bint\b|\bString\b|\bboolean\b|\b\d+\b)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (/^(int|String|boolean)$/.test(part))
-          return (
-            <span key={i} style={{ color: C_TEAL }}>
-              {part}
-            </span>
-          );
-        if (/^\d+$/.test(part))
-          return (
-            <span key={i} style={{ color: C_NUMBER }}>
-              {part}
-            </span>
-          );
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-};
+const CODE_THEME = {
+  keywordColors: {
+    int: C_TEAL,
+    String: C_TEAL,
+    boolean: C_TEAL,
+  },
+  numberColor: C_NUMBER,
+} as const;
 
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>{text}</div>
@@ -175,7 +146,7 @@ const TypingLine: React.FC<{
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
     <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <ColorizedCode text={visibleText} />
+      <ColorizedCode text={visibleText} theme={CODE_THEME} />
     </div>
   );
 };
@@ -195,8 +166,7 @@ const CodeBox: React.FC<{
       borderRadius: 12,
       padding: "48px 64px",
       minWidth: 800,
-      fontFamily: monoFont,
-      fontFeatureSettings: MONO_NO_LIGA,
+      ...monoStyle,
       fontSize: 36,
     }}
   >
@@ -235,8 +205,7 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
         background: "#0a0a0a",
         borderRadius: 8,
         padding: "12px 32px",
-        fontFamily: monoFont,
-        fontFeatureSettings: MONO_NO_LIGA,
+        ...monoStyle,
         fontSize: 32,
         color: "#89d185",
         opacity,
@@ -561,7 +530,7 @@ const ThumbnailScene: React.FC = () => {
 
 const QUIZ_THINKING_FRAMES = 300; // 퀴즈 대기 시간 (5초)
 const typingDone = (chars: number, speechStart: number) =>
-  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 60);
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * FPS);
 
 const {
   thumbnail,

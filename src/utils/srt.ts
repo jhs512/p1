@@ -43,13 +43,22 @@ export function addSrtScene(
  */
 export function computeFromValues(
   sceneDurations: number[],
-  cross = CROSS,
+  {
+    cross = CROSS,
+    firstOverlap,
+  }: { cross?: number; firstOverlap?: number } = {},
 ): number[] {
   const froms: number[] = [];
   let f = 0;
   for (let i = 0; i < sceneDurations.length; i++) {
     froms.push(f);
-    f += sceneDurations[i] - (i < sceneDurations.length - 1 ? cross : 0);
+    const overlap =
+      i >= sceneDurations.length - 1
+        ? 0
+        : i === 0 && firstOverlap !== undefined
+          ? firstOverlap
+          : cross;
+    f += sceneDurations[i] - overlap;
   }
   return froms;
 }

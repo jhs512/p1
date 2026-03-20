@@ -26,7 +26,9 @@ import {
   monoFont,
   uiFont,
   useFade,
+  useTypingEffect,
 } from "../../../utils/scene";
+import { computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./010-2-content";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
@@ -104,23 +106,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
   },
 } as const;
-
-// ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
-function useTypingEffect(
-  text: string,
-  startFrame: number,
-  charsPerSecond = CHARS_PER_SEC,
-): { visibleText: string; isDone: boolean } {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const charsVisible = Math.floor(
-    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
-  );
-  return {
-    visibleText: text.slice(0, charsVisible),
-    isDone: charsVisible >= text.length,
-  };
-}
 
 // ── 컴포넌트: CodeLine ─────────────────────────────────────────
 const CodeLine: React.FC<{ text: string }> = ({ text }) => {
@@ -1457,7 +1442,7 @@ const OutroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="8. 다음 시간에" />
@@ -1542,16 +1527,13 @@ const sceneList = [
   VIDEO_CONFIG.realExampleScene,
   VIDEO_CONFIG.outroScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  _from +=
-    s.durationInFrames -
-    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

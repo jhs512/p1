@@ -16,6 +16,7 @@ import React from "react";
 import { FPS } from "../../../config";
 import {
   CROSS,
+  ColorizedCode,
   ContentArea,
   MONO_NO_LIGA,
   SceneTitle,
@@ -24,6 +25,7 @@ import {
   monoFont,
   uiFont,
   useFade,
+  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./003-2-content";
@@ -91,58 +93,20 @@ export const VIDEO_CONFIG = {
 };
 
 // ── 컴포넌트: ColorizedCode ───────────────────────────────────
-const KEYWORDS = ["int", "double", "String", "boolean"];
 const OPERATORS = ["==", "+", "-", "*", "/", "%", "="];
-
-const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
-  const commentIdx = text.indexOf("//");
-  const codePart = commentIdx >= 0 ? text.slice(0, commentIdx) : text;
-  const commentPart = commentIdx >= 0 ? text.slice(commentIdx) : "";
-
-  const parts = codePart.split(
-    /(\bint\b|\bdouble\b|\bString\b|\bboolean\b|[+\-*/%=]|\b\d+(?:\.\d+)?\b|"[^"]*")/g,
-  );
-
-  const TYPE_COLORS: Record<string, string> = {
+const CODE_THEME = {
+  keywordColors: {
     int: C_TYPE,
     double: "#d4c04e",
     String: "#4ec970",
     boolean: "#d4834e",
-  };
-
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (KEYWORDS.includes(part))
-          return (
-            <span key={i} style={{ color: TYPE_COLORS[part] }}>
-              {part}
-            </span>
-          );
-        if (OPERATORS.includes(part))
-          return (
-            <span key={i} style={{ color: C_OP }}>
-              {part}
-            </span>
-          );
-        if (/^\d/.test(part))
-          return (
-            <span key={i} style={{ color: C_NUM }}>
-              {part}
-            </span>
-          );
-        if (/^"/.test(part))
-          return (
-            <span key={i} style={{ color: C_STRING }}>
-              {part}
-            </span>
-          );
-        return <span key={i}>{part}</span>;
-      })}
-      {commentPart && <span style={{ color: C_COMMENT }}>{commentPart}</span>}
-    </>
-  );
-};
+  },
+  operators: OPERATORS,
+  operatorColor: C_OP,
+  numberColor: C_NUM,
+  stringColor: C_STRING,
+  commentColor: C_COMMENT,
+} as const;
 
 // ── 공통: TypingLine (SummaryScene과 공유) ───────────────────
 const TypingLine: React.FC<{
@@ -150,12 +114,10 @@ const TypingLine: React.FC<{
   startFrame: number;
   cps: number;
 }> = ({ text, startFrame, cps }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const visible = Math.floor((Math.max(0, frame - startFrame) / fps) * cps);
+  const { visibleText } = useTypingEffect(text, startFrame, cps);
   return (
     <div style={{ color: TEXT }}>
-      <ColorizedCode text={text.slice(0, visible)} />
+      <ColorizedCode text={visibleText} theme={CODE_THEME} />
     </div>
   );
 };
@@ -190,7 +152,7 @@ const CodeLines: React.FC<{
         if (!isLast) {
           return (
             <div key={i} style={{ color: TEXT, opacity: 0.55 }}>
-              <ColorizedCode text={l.text} />
+              <ColorizedCode text={l.text} theme={CODE_THEME} />
             </div>
           );
         }
@@ -721,7 +683,7 @@ const SummaryScene: React.FC = () => {
                 {SUMMARY_LINES.slice(0, i + 1).map((text, j) =>
                   j < i ? (
                     <div key={j} style={{ color: TEXT }}>
-                      <ColorizedCode text={text} />
+                      <ColorizedCode text={text} theme={CODE_THEME} />
                     </div>
                   ) : (
                     <TypingLine
@@ -756,24 +718,23 @@ const sceneList = [
   VIDEO_CONFIG.remScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  _from +=
-    s.durationInFrames -
-    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
 
-  const sceneDurations = sceneList.map((s) => s.durationInFrames);
-  const froms = computeFromValues(sceneDurations);
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro

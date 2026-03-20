@@ -22,13 +22,17 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  calcTypingEndFrame,
+  computeLineVisibility,
   monoFont,
+  monoStyle,
   uiFont,
   useFade,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./008-2-content";
 import { AUDIO_CONFIG } from "./008-3-audio.gen";
+import { BG } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -45,9 +49,12 @@ const C_DIM = "rgba(255,255,255,0.22)";
 // durationInFrames = max(오디오, 타이핑완료 + CROSS + SCENE_TAIL_FRAMES)
 const WHILE_TYPING_CHARS = 81; // FULL_CODE.length
 const WHILE_CHARS_PER_SEC_CONST = 10;
-const WHILE_TYPING_END =
-  AUDIO_CONFIG.whileScene.speechStartFrame +
-  Math.ceil((WHILE_TYPING_CHARS / WHILE_CHARS_PER_SEC_CONST) * 60);
+const WHILE_TYPING_END = calcTypingEndFrame(
+  WHILE_TYPING_CHARS,
+  AUDIO_CONFIG.whileScene.speechStartFrame,
+  FPS,
+  WHILE_CHARS_PER_SEC_CONST,
+);
 const WHILE_SCENE_DURATION = Math.max(
   AUDIO_CONFIG.whileScene.durationInFrames,
   WHILE_TYPING_END + CROSS + SCENE_TAIL_FRAMES,
@@ -249,7 +256,7 @@ const OverviewScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. 반복문 개요" />
@@ -404,7 +411,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="2. while 문이란?" />
@@ -521,13 +528,11 @@ const WhileScene: React.FC = () => {
     Math.max(0, ((frame - s) / fps) * WHILE_CHARS_PER_SEC_CONST),
   );
 
-  let remaining = Math.floor(charsVisible);
-  const lineVisibility = CODE_LINES.map((line) => {
-    const lineLen = line.parts.reduce((acc, p) => acc + p.text.length, 0);
-    const show = Math.min(lineLen, remaining);
-    remaining = Math.max(0, remaining - lineLen);
-    return show;
-  });
+  const lineVisibility = computeLineVisibility(
+    CODE_LINES,
+    charsVisible,
+    (line) => line.parts.reduce((acc, p) => acc + p.text.length, 0),
+  );
 
   const blockAppear = spring({
     frame: frame - s,
@@ -542,7 +547,7 @@ const WhileScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="3. while 문법" />
@@ -557,8 +562,7 @@ const WhileScene: React.FC = () => {
             >
               <div
                 style={{
-                  fontFamily: monoFont,
-                  fontFeatureSettings: MONO_NO_LIGA,
+                  ...monoStyle,
                   fontSize: 34,
                   lineHeight: 1.95,
                   background: "#252525",
@@ -701,7 +705,7 @@ const ExecutionScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="4. while 실행 흐름" />
@@ -1001,11 +1005,9 @@ const InfiniteScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
-  const phase2 = frame >= MUHANROOP_FRAME;
-
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="5. 무한 루프" />
@@ -1076,30 +1078,28 @@ const InfiniteScene: React.FC = () => {
               </div>
 
               {/* phase2: ⚠️ + ∞ 무한루프 */}
-              {phase2 && (
-                <div
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  opacity: warnAppear,
+                  transform: `scale(${interpolate(warnAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                }}
+              >
+                <span style={{ fontSize: 48 }}>⚠️</span>
+                <span
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    opacity: warnAppear,
-                    transform: `scale(${interpolate(warnAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                    fontFamily: uiFont,
+                    fontSize: 40,
+                    fontWeight: 900,
+                    color: C_RED,
+                    opacity: infAppear,
                   }}
                 >
-                  <span style={{ fontSize: 48 }}>⚠️</span>
-                  <span
-                    style={{
-                      fontFamily: uiFont,
-                      fontSize: 40,
-                      fontWeight: 900,
-                      color: C_RED,
-                      opacity: infAppear,
-                    }}
-                  >
-                    ∞ 무한루프
-                  </span>
-                </div>
-              )}
+                  ∞ 무한루프
+                </span>
+              </div>
             </div>
           )}
         </ContentArea>
@@ -1114,9 +1114,14 @@ const InfiniteScene: React.FC = () => {
   );
 };
 
-const SUMMARY_ROWS = [
-  { label: "조건 참", color: C_TEAL, desc: "블록 실행 후 조건 재확인" },
-  { label: "조건 거짓", color: C_RED, desc: "반복 종료" },
+const SUMMARY_CARDS = [
+  {
+    emoji: "🔁",
+    label: "조건 참",
+    color: C_TEAL,
+    desc: "블록 실행 후 조건 재확인",
+  },
+  { emoji: "⛔", label: "조건 거짓", color: C_RED, desc: "반복 종료" },
 ] as const;
 
 const SummaryScene: React.FC = () => {
@@ -1139,7 +1144,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="6. while 정리" />
@@ -1159,8 +1164,7 @@ const SummaryScene: React.FC = () => {
             {/* while 코드 정적 표시 */}
             <div
               style={{
-                fontFamily: monoFont,
-                fontFeatureSettings: MONO_NO_LIGA,
+                ...monoStyle,
                 fontSize: 28,
                 lineHeight: 1.9,
                 background: "#252525",
@@ -1198,9 +1202,16 @@ const SummaryScene: React.FC = () => {
             </div>
 
             {/* 요약 카드 */}
-            {SUMMARY_ROWS.map((row, i) => {
+            {SUMMARY_CARDS.map((card, i) => {
+              const triggerFrame =
+                i === 0
+                  ? (AUDIO_CONFIG.summaryScene.wordTiming["while은"]?.[0] ??
+                    cfg.speechStartFrame)
+                  : (AUDIO_CONFIG.summaryScene.wordTiming["거짓이"]?.[0] ??
+                    cfg.narrationSplits[0] ??
+                    cfg.speechStartFrame);
               const appear = spring({
-                frame: frame - (i + 1) * 28,
+                frame: frame - triggerFrame,
                 fps,
                 config: { damping: 13, stiffness: 140 },
                 durationInFrames: 52,
@@ -1217,23 +1228,24 @@ const SummaryScene: React.FC = () => {
                     alignItems: "center",
                     gap: 24,
                     background: "#2a2a2a",
-                    border: `2px solid ${row.color}55`,
+                    border: `2px solid ${card.color}55`,
                     borderRadius: 18,
                     padding: "22px 36px",
                     opacity: appear,
                     transform: `scale(${sc})`,
                   }}
                 >
+                  <span style={{ fontSize: 34 }}>{card.emoji}</span>
                   <span
                     style={{
                       fontFamily: uiFont,
                       fontSize: 30,
                       fontWeight: 900,
-                      color: row.color,
+                      color: card.color,
                       minWidth: 110,
                     }}
                   >
-                    {row.label}
+                    {card.label}
                   </span>
                   <span style={{ color: "#3a3a3a", fontSize: 26 }}>—</span>
                   <span
@@ -1243,7 +1255,7 @@ const SummaryScene: React.FC = () => {
                       color: "#d4d4d4",
                     }}
                   >
-                    {row.desc}
+                    {card.desc}
                   </span>
                 </div>
               );
@@ -1271,22 +1283,22 @@ const sceneList = [
   VIDEO_CONFIG.infiniteScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  _from +=
-    s.durationInFrames -
-    (i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0);
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=overview
@@ -1363,7 +1375,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaWhile: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}

@@ -18,6 +18,7 @@ import { FPS } from "../../../config";
 import {
   CHARS_PER_SEC,
   CROSS,
+  ColorizedCode,
   ContentArea,
   FONT,
   MONO_NO_LIGA,
@@ -25,8 +26,10 @@ import {
   Subtitle,
   THUMB_CROSS,
   monoFont,
+  monoStyle,
   uiFont,
   useFade,
+  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./002-2-content";
@@ -46,7 +49,7 @@ import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
 const typingDone = (chars: number, speechStart: number) =>
-  speechStart + Math.ceil((chars / CHARS_PER_SEC) * 60);
+  speechStart + Math.ceil((chars / CHARS_PER_SEC) * FPS);
 
 const TYPE_COLORS: Record<string, string> = {
   int: C_TYPE,
@@ -111,60 +114,16 @@ export const VIDEO_CONFIG = {
   },
 };
 
-// ── 컴포넌트: ColorizedCode ───────────────────────────────────
-// 타입 키워드마다 고유 색상 (int=파랑, double=노랑, String=초록, boolean=주황)
-const ColorizedCode: React.FC<{ text: string }> = ({ text }) => {
-  const parts = text.split(
-    /(\bdouble\b|\bint\b|\bString\b|\bboolean\b|"[^"]*"|\b\d+(?:\.\d+)?\b)/g,
-  );
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (TYPE_COLORS[part])
-          return (
-            <span key={i} style={{ color: TYPE_COLORS[part] }}>
-              {part}
-            </span>
-          );
-        if (/^"/.test(part))
-          return (
-            <span key={i} style={{ color: C_STRING }}>
-              {part}
-            </span>
-          );
-        if (/^\d/.test(part))
-          return (
-            <span key={i} style={{ color: C_NUMBER }}>
-              {part}
-            </span>
-          );
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-};
-
-// ── 훅: 타이핑 이펙트 ─────────────────────────────────────────
-function useTypingEffect(
-  text: string,
-  startFrame: number,
-  charsPerSecond = 10,
-): { visibleText: string; isDone: boolean } {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const charsVisible = Math.floor(
-    (Math.max(0, frame - startFrame) / fps) * charsPerSecond,
-  );
-  return {
-    visibleText: text.slice(0, charsVisible),
-    isDone: charsVisible >= text.length,
-  };
-}
+const CODE_THEME = {
+  keywordColors: TYPE_COLORS,
+  stringColor: C_STRING,
+  numberColor: C_NUMBER,
+} as const;
 
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   <div style={{ color: TEXT, lineHeight: "1.8" }}>
-    <ColorizedCode text={text} />
+    <ColorizedCode text={text} theme={CODE_THEME} />
   </div>
 );
 
@@ -176,7 +135,7 @@ const TypingLine: React.FC<{
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
     <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <ColorizedCode text={visibleText} />
+      <ColorizedCode text={visibleText} theme={CODE_THEME} />
     </div>
   );
 };
@@ -196,8 +155,7 @@ const CodeBox: React.FC<{
       borderRadius: 12,
       padding: "40px 56px",
       minWidth: 780,
-      fontFamily: monoFont,
-      fontFeatureSettings: MONO_NO_LIGA,
+      ...monoStyle,
       fontSize: 36,
     }}
   >
@@ -1090,23 +1048,23 @@ const sceneList = [
   VIDEO_CONFIG.booleanScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  const overlap = i === 0 ? THUMB_CROSS : i < sceneList.length - 1 ? CROSS : 0;
-  _from += s.durationInFrames - overlap;
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
 
-  const sceneDurations = sceneList.map((s) => s.durationInFrames);
-  const froms = computeFromValues(sceneDurations);
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=intro

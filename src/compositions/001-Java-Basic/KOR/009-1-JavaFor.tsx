@@ -29,6 +29,7 @@ import {
 import { SrtEntry, addSrtScene, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./009-2-content";
 import { AUDIO_CONFIG } from "./009-3-audio.gen";
+import { BG } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 색상 상수 ─────────────────────────────────────────────────
@@ -225,7 +226,7 @@ const OverviewScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="1. 반복문 개요" />
           <Audio src={staticFile(cfg.audio)} />
@@ -406,8 +407,6 @@ const IntroScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
-  // phase2: 조건 → 블록 반복 화살표
-  const phase2 = frame >= split0;
   const loopAppear = spring({
     frame: frame - split0,
     fps,
@@ -417,7 +416,7 @@ const IntroScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="2. for 문이란?" />
           <Audio src={staticFile(cfg.audio)} />
@@ -493,34 +492,32 @@ const IntroScene: React.FC = () => {
             </div>
 
             {/* phase2: "조건이 참인 동안 반복" 배지 */}
-            {phase2 && (
-              <div
+            <div
+              style={{
+                marginTop: 28,
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                background: `${C_FOR}14`,
+                border: `2px solid ${C_FOR}44`,
+                borderRadius: 14,
+                padding: "14px 28px",
+                opacity: loopAppear,
+                transform: `scale(${interpolate(loopAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              }}
+            >
+              <span style={{ fontSize: 28 }}>🔁</span>
+              <span
                 style={{
-                  marginTop: 28,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  background: `${C_FOR}14`,
-                  border: `2px solid ${C_FOR}44`,
-                  borderRadius: 14,
-                  padding: "14px 28px",
-                  opacity: loopAppear,
-                  transform: `scale(${interpolate(loopAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                  fontFamily: uiFont,
+                  fontSize: 28,
+                  color: C_FOR,
+                  fontWeight: 700,
                 }}
               >
-                <span style={{ fontSize: 28 }}>🔁</span>
-                <span
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 28,
-                    color: C_FOR,
-                    fontWeight: 700,
-                  }}
-                >
-                  조건이 참인 동안 반복
-                </span>
-              </div>
-            )}
+                조건이 참인 동안 반복
+              </span>
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -578,7 +575,7 @@ const ForScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="3. for 문법" />
           <Audio src={staticFile(cfg.audio)} />
@@ -817,7 +814,7 @@ const ExecutionScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="4. for 실행 흐름" />
           <Audio src={staticFile(cfg.audio)} />
@@ -1104,7 +1101,7 @@ const SummaryScene: React.FC = () => {
 
   return (
     <>
-      <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
+      <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="5. for 정리" />
           <Audio src={staticFile(cfg.audio)} />
@@ -1233,22 +1230,22 @@ const sceneList = [
   VIDEO_CONFIG.executionScene,
   VIDEO_CONFIG.summaryScene,
 ];
-
-let _from = 0;
-const fromValues = sceneList.map((s, i) => {
-  const f = _from;
-  _from +=
-    s.durationInFrames -
-    (i < sceneList.length - 1 ? (i === 0 ? THUMB_CROSS : CROSS) : 0);
-  return f;
+const sceneDurations = sceneList.map((s) => s.durationInFrames);
+const fromValues = computeFromValues(sceneDurations, {
+  cross: CROSS,
+  firstOverlap: THUMB_CROSS,
 });
-const totalDuration = _from;
+const totalDuration =
+  fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
 
 // ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
 /** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
 export const SRT_DATA: SrtEntry[] = (() => {
   const entries: SrtEntry[] = [];
-  const froms = computeFromValues(sceneList.map((s) => s.durationInFrames));
+  const froms = computeFromValues(sceneDurations, {
+    cross: CROSS,
+    firstOverlap: THUMB_CROSS,
+  });
 
   // [0]=thumbnail: 나레이션 없음
   // [1]=overview
@@ -1315,7 +1312,7 @@ export const compositionMeta = {
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────
 export const JavaFor: React.FC = () => (
-  <AbsoluteFill style={{ background: "#1e1e1e" }}>
+  <AbsoluteFill style={{ background: BG }}>
     <Sequence
       from={fromValues[0]}
       durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
