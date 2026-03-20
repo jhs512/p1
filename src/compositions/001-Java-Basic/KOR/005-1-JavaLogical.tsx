@@ -319,6 +319,19 @@ const IntroScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
+  // 카드 등장 시 타이틀이 위로 올라감
+  const split0 = intro.narrationSplits[0] ?? Infinity;
+  const titleSlide = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 14, stiffness: 140 },
+    durationInFrames: 20,
+  });
+  const titleTop = interpolate(titleSlide, [0, 1], [40, 22], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
     <>
       <AbsoluteFill style={{ background: "#1e1e1e", opacity }}>
@@ -329,11 +342,11 @@ const IntroScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "22%",
+              top: `${titleTop}%`,
               left: "50%",
               transform: `translate(-50%, -50%) scale(${titleScale})`,
               fontFamily: uiFont,
-              fontSize: FONT.display,
+              fontSize: 72,
               fontWeight: 900,
               color: "#4ec9b0",
               opacity: titleAppear,
