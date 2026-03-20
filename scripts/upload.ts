@@ -5,7 +5,7 @@
  */
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
-import { createReadStream, existsSync, mkdirSync, readdirSync, statSync } from "fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
 import path from "path";
 import type { youtube_v3 } from "googleapis";
 
@@ -29,34 +29,6 @@ const singleEpisode = parts[2] ?? null; // null이면 전체
 type PrivacyStatus = "private" | "public" | "unlisted";
 
 // ── 유틸 함수 ───────────────────────────────────────────────
-
-/** 재생목록에서 모든 영상 제목 조회 */
-async function getPlaylistVideos(
-  yt: youtube_v3.Youtube,
-  playlistId: string,
-): Promise<Map<string, string>> {
-  const map = new Map<string, string>(); // title → videoId
-  let pageToken: string | undefined;
-  try {
-    do {
-      const res = await yt.playlistItems.list({
-        part: ["snippet"],
-        playlistId,
-        maxResults: 50,
-        pageToken,
-      });
-      for (const item of res.data.items ?? []) {
-        const title = item.snippet?.title ?? "";
-        const videoId = item.snippet?.resourceId?.videoId ?? "";
-        if (title && videoId) map.set(title, videoId);
-      }
-      pageToken = res.data.nextPageToken ?? undefined;
-    } while (pageToken);
-  } catch {
-    // 새로 생성된 재생목록은 API 전파 지연으로 조회 실패할 수 있음
-  }
-  return map;
-}
 
 /** 재생목록 생성 또는 기존 ID 반환 */
 async function ensurePlaylist(
@@ -247,19 +219,43 @@ async function addToPlaylist(
     process.exit(1);
   }
 
-  // 4. YouTube 인증
+  // 4. video-ids.json 로드 (playlistId + 에피소드 → videoId 매핑)
+  const videoIdsPath = path.resolve(SRC_DIR, seriesDir, langDir, "video-ids.json");
+  const videoIdsData: { playlistId?: string | null; episodes: Record<string, string> } =
+    existsSync(videoIdsPath)
+      ? JSON.parse(readFileSync(videoIdsPath, "utf-8"))
+      : { episodes: {} };
+  const videoIds = videoIdsData.episodes;
+
+  // 5. YouTube 인증
   console.log(`\n🔐  YouTube 인증 중…`);
   const yt = await getYouTubeClient();
 
-  // 5. 재생목록 확보
-  const playlistId = await ensurePlaylist(
-    yt,
-    YOUTUBE_CONFIG.playlist.title,
-    YOUTUBE_CONFIG.playlist.description,
-  );
-
-  // 6. 기존 영상 목록 조회 (새 재생목록도 즉시 조회 가능)
-  const existingVideos = await getPlaylistVideos(yt, playlistId);
+  // 6. 재생목록 확보 (저장된 ID가 있으면 재사용)
+  let playlistId: string;
+  if (videoIdsData.playlistId) {
+    playlistId = videoIdsData.playlistId;
+    console.log(`📋  저장된 재생목록 ID 사용: ${playlistId}`);
+    // 재생목록 메타도 업데이트 (이름 변경 반영)
+    await yt.playlists.update({
+      part: ["snippet"],
+      requestBody: {
+        id: playlistId,
+        snippet: {
+          title: YOUTUBE_CONFIG.playlist.title,
+          description: YOUTUBE_CONFIG.playlist.description,
+        },
+      },
+    });
+  } else {
+    playlistId = await ensurePlaylist(
+      yt,
+      YOUTUBE_CONFIG.playlist.title,
+      YOUTUBE_CONFIG.playlist.description,
+    );
+    videoIdsData.playlistId = playlistId;
+    writeFileSync(videoIdsPath, JSON.stringify(videoIdsData, null, 2) + "\n");
+  }
 
   // 7. 썸네일용 Remotion 번들 (필요 시)
   let bundled: string | null = null;
@@ -271,7 +267,7 @@ async function addToPlaylist(
     const epConfig = YOUTUBE_CONFIG.episodes[ep as keyof typeof YOUTUBE_CONFIG.episodes];
     const title = epConfig.title;
 
-    const existingVideoId = existingVideos.get(title);
+    const existingVideoId = videoIds[ep];
     const isUpdate = !!existingVideoId;
 
     const mp4Path = path.join(OUT_DIR, seriesDir, `${ep}.mp4`);
@@ -349,6 +345,10 @@ async function addToPlaylist(
       if (existsSync(srtPath)) {
         await uploadCaption(yt, videoId, srtPath, meta.language);
       }
+
+      // videoId 저장
+      videoIdsData.episodes[ep] = videoId;
+      writeFileSync(videoIdsPath, JSON.stringify(videoIdsData, null, 2) + "\n");
 
       uploaded++;
     } catch (err: any) {
