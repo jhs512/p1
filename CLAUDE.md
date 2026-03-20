@@ -86,6 +86,22 @@ const sceneDuration = Math.max(
 
 - **공간을 차지하는 모든 애니메이션 등장 요소에 적용 — 헌법.**
 - `visibility: hidden`도 동일 효과지만 `opacity`가 페이드 인 애니메이션과 조합하기 쉬움.
+- spring 값이 이미 0에서 시작하면 `phase2 ? appear : 0` 대신 `appear`만 써도 된다 — spring이 `frame - split` 기준이면 phase 이전엔 자동으로 0.
+
+트리 노드 패턴 (006-JavaIf OverviewScene 실제 사례):
+```tsx
+// ❌ 금지 — if 노드 등장 시 조건문 컬럼 높이가 늘어나 전체 트리가 위로 밀림
+{phase2 && (
+  <>
+    <div style={{ height: 20 }} /> {/* 연결선 */}
+    <div>if</div>
+  </>
+)}
+
+// ✅ 올바름 — 항상 공간 확보, ifAppear(spring)이 0이면 보이지 않음
+<div style={{ height: 20, opacity: ifAppear }} /> {/* 연결선 */}
+<div style={{ opacity: ifAppear }}>if</div>
+```
 
 ---
 

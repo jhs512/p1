@@ -362,38 +362,34 @@ const OverviewScene: React.FC = () => {
                   }}
                 >
                   <div style={nodeStyle(C_COND, true, leftAppear)}>조건문</div>
-                  {/* phase 2: if 키워드 */}
-                  {phase2 && (
-                    <>
-                      <div
-                        style={{
-                          width: 2,
-                          height: 20,
-                          background: "rgba(255,255,255,0.18)",
-                          opacity: ifAppear,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <div
-                        style={{
-                          fontFamily: monoFont,
-                          fontFeatureSettings: MONO_NO_LIGA,
-                          fontSize: 52,
-                          fontWeight: 900,
-                          color: C_CTRL,
-                          background: `${C_CTRL}18`,
-                          border: `2px solid ${C_CTRL}55`,
-                          borderRadius: 18,
-                          padding: "14px 44px",
-                          opacity: ifAppear,
-                          transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                          boxShadow: `0 0 32px ${C_CTRL}33`,
-                        }}
-                      >
-                        if
-                      </div>
-                    </>
-                  )}
+                  {/* phase 2: if 키워드 — opacity로 제어해 레이아웃 밀림 방지 */}
+                  <div
+                    style={{
+                      width: 2,
+                      height: 20,
+                      background: "rgba(255,255,255,0.18)",
+                      opacity: ifAppear,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontFamily: monoFont,
+                      fontFeatureSettings: MONO_NO_LIGA,
+                      fontSize: 52,
+                      fontWeight: 900,
+                      color: C_CTRL,
+                      background: `${C_CTRL}18`,
+                      border: `2px solid ${C_CTRL}55`,
+                      borderRadius: 18,
+                      padding: "14px 44px",
+                      opacity: ifAppear,
+                      transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      boxShadow: `0 0 32px ${C_CTRL}33`,
+                    }}
+                  >
+                    if
+                  </div>
                 </div>
                 {/* 반복문 */}
                 <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>

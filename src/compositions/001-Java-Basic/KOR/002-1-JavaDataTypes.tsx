@@ -149,8 +149,8 @@ function useTypingEffect(
 
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
-  <div style={{ opacity: 0.5, color: "#d4d4d4", lineHeight: "1.8" }}>
-    {text}
+  <div style={{ color: "#d4d4d4", lineHeight: "1.8" }}>
+    <ColorizedCode text={text} />
   </div>
 );
 
