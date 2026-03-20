@@ -1,7 +1,6 @@
 // src/compositions/001-Java-Basic/KOR/011-1-JavaParameters.tsx
 import {
   AbsoluteFill,
-  interpolate,
   spring,
   staticFile,
   useCurrentFrame,
@@ -69,12 +68,10 @@ type Snapshot = {
   printLineIndex: number;
 };
 
-type Trace = {
-  call: number;
-  enter: number;
-  prep?: number;
-  print: number;
-  output: number;
+type StepStage = "call" | "enter" | "prep" | "print" | "output";
+type StepAction = {
+  snapshotIndex: number;
+  stage: StepStage;
 };
 
 const CODE_THEME = {
@@ -156,10 +153,10 @@ const CODE_STEPS = {
   ],
 } as const;
 
-const SNAPSHOTS: Snapshot[] = [
+const SNAPSHOTS: readonly Snapshot[] = [
   {
     title: "지역변수만 사용하는 시작 코드",
-    note: "아직은 함수 안에서 만든 값만 사용합니다.",
+    note: "함수 안에서 만든 값만 사용하는 출발점입니다.",
     callLine: "introduce();",
     code: CODE_STEPS.localAge,
     outputLine: "나이 : 11",
@@ -169,7 +166,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "값을 받을 자리 두 개 만들기",
-    note: "괄호 안에 받는 자리를 만들었지만 아직 출력에는 쓰지 않습니다.",
+    note: "받는 자리를 만들었지만 아직 출력에는 쓰지 않는 상태입니다.",
     callLine: "introduce(3, 2);",
     code: CODE_STEPS.twoUnused,
     outputLine: "나이 : 11",
@@ -179,7 +176,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "첫 번째 받은 값 사용",
-    note: "첫 번째 값이 계산에 들어가면서 결과가 달라집니다.",
+    note: "첫 번째 입력이 계산에 들어가며 결과가 바뀝니다.",
     callLine: "introduce(3, 2);",
     code: CODE_STEPS.useFirst,
     outputLine: "나이 : 14",
@@ -189,7 +186,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "두 번째 받은 값까지 사용",
-    note: "두 값을 모두 더하면 호출에서 보낸 두 입력이 반영됩니다.",
+    note: "두 입력을 모두 쓰는 단계입니다.",
     callLine: "introduce(3, 2);",
     code: CODE_STEPS.useTwo,
     outputLine: "나이 : 16",
@@ -199,7 +196,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "읽기 쉬운 이름으로 바꾸기",
-    note: "이름은 사람이 읽기 좋게 바꿔도 동작은 같습니다.",
+    note: "이름을 바꿔도 동작은 그대로입니다.",
     callLine: "introduce(3, 2);",
     code: CODE_STEPS.renameReadable,
     outputLine: "나이 : 16",
@@ -209,7 +206,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "필요한 자리만 남기기",
-    note: "정말 필요한 값이 하나라면 매개변수도 하나면 충분합니다.",
+    note: "하나만 필요하면 하나만 남기면 됩니다.",
     callLine: "introduce(5);",
     code: CODE_STEPS.singleArg,
     outputLine: "나이 : 16",
@@ -218,8 +215,8 @@ const SNAPSHOTS: Snapshot[] = [
     printLineIndex: 2,
   },
   {
-    title: "같은 이름 충돌 살펴보기",
-    note: "받은 값 이름과 안쪽 이름이 겹치면 읽는 흐름이 어색해집니다.",
+    title: "이름 충돌 보기",
+    note: "받은 값 이름과 안쪽 이름이 겹치면 읽기 어렵습니다.",
     callLine: "introduce(20);",
     code: CODE_STEPS.conflict,
     outputLine: "나이 : 31",
@@ -229,7 +226,7 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "안쪽 이름을 잠깐 바꾸기",
-    note: "충돌은 피했지만 아직은 조금 복잡한 상태입니다.",
+    note: "충돌은 피했지만 아직은 덜 단순합니다.",
     callLine: "introduce(20);",
     code: CODE_STEPS.tempFix,
     outputLine: "나이 : 20",
@@ -239,19 +236,54 @@ const SNAPSHOTS: Snapshot[] = [
   },
   {
     title: "받은 값을 바로 쓰는 최종 코드",
-    note: "가장 단순한 형태는 받은 값을 바로 출력에 쓰는 것입니다.",
+    note: "가장 단순한 매개변수 함수 형태입니다.",
     callLine: "introduce(20);",
     code: CODE_STEPS.final,
     outputLine: "나이 : 20",
     accent: C_TEAL,
     printLineIndex: 1,
   },
-];
-
-const SNAPSHOT_MAP = [
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8,
-  8, 8, 8,
 ] as const;
+
+const STEP_ACTIONS: readonly StepAction[] = [
+  { snapshotIndex: 0, stage: "enter" },
+  { snapshotIndex: 0, stage: "call" },
+  { snapshotIndex: 0, stage: "enter" },
+  { snapshotIndex: 0, stage: "prep" },
+  { snapshotIndex: 0, stage: "prep" },
+  { snapshotIndex: 0, stage: "print" },
+  { snapshotIndex: 0, stage: "output" },
+  { snapshotIndex: 1, stage: "enter" },
+  { snapshotIndex: 1, stage: "call" },
+  { snapshotIndex: 1, stage: "call" },
+  { snapshotIndex: 1, stage: "output" },
+  { snapshotIndex: 2, stage: "prep" },
+  { snapshotIndex: 2, stage: "print" },
+  { snapshotIndex: 2, stage: "output" },
+  { snapshotIndex: 3, stage: "prep" },
+  { snapshotIndex: 3, stage: "print" },
+  { snapshotIndex: 3, stage: "output" },
+  { snapshotIndex: 4, stage: "enter" },
+  { snapshotIndex: 4, stage: "print" },
+  { snapshotIndex: 5, stage: "enter" },
+  { snapshotIndex: 5, stage: "call" },
+  { snapshotIndex: 6, stage: "enter" },
+  { snapshotIndex: 7, stage: "enter" },
+  { snapshotIndex: 8, stage: "enter" },
+  { snapshotIndex: 8, stage: "print" },
+  { snapshotIndex: 8, stage: "output" },
+  { snapshotIndex: 8, stage: "output" },
+  { snapshotIndex: 8, stage: "output" },
+  { snapshotIndex: 8, stage: "output" },
+] as const;
+
+const STAGE_ORDER: readonly StepStage[] = [
+  "call",
+  "enter",
+  "prep",
+  "print",
+  "output",
+];
 
 const getActiveIndex = (frame: number, starts: readonly number[]) => {
   let active = 0;
@@ -261,40 +293,11 @@ const getActiveIndex = (frame: number, starts: readonly number[]) => {
   return active;
 };
 
-const buildTrace = (
-  words: readonly number[] | undefined,
-  fallback: number,
-  needsPrep: boolean,
-): Trace => {
-  const frames = words && words.length > 0 ? [...words] : [fallback];
-  const lastIndex = frames.length - 1;
-  const pick = (index: number) =>
-    frames[Math.min(index, lastIndex)] ?? fallback;
-
-  return {
-    call: pick(0),
-    enter: pick(Math.min(1, lastIndex)),
-    prep: needsPrep ? pick(Math.min(3, lastIndex)) : undefined,
-    print: pick(Math.min(needsPrep ? 5 : 3, lastIndex)),
-    output: pick(lastIndex),
-  };
-};
-
-const getLineStage = (frame: number, trace: Trace) => {
-  if (frame >= trace.output) return "output";
-  if (frame >= trace.print) return "print";
-  if (trace.prep !== undefined && frame >= trace.prep) return "prep";
-  if (frame >= trace.enter) return "enter";
-  return "call";
-};
-
 const getLineHighlight = (
-  frame: number,
-  trace: Trace,
+  stage: StepStage,
   snapshot: Snapshot,
   lineIndex: number,
 ) => {
-  const stage = getLineStage(frame, trace);
   if (stage === "enter" && lineIndex === 0) return true;
   if (stage === "prep" && lineIndex === snapshot.prepLineIndex) return true;
   if (
@@ -313,24 +316,11 @@ const MainScene: React.FC = () => {
   const opacity = useFade(cfg.durationInFrames, { out: false });
   const starts = [cfg.speechStartFrame, ...cfg.narrationSplits];
   const narrationIndex = getActiveIndex(frame, starts);
-  const snapshotIndex =
-    SNAPSHOT_MAP[Math.min(narrationIndex, SNAPSHOT_MAP.length - 1)] ?? 0;
-  const snapshot = SNAPSHOTS[snapshotIndex];
-  const trace = buildTrace(
-    AUDIO_CONFIG.mainScene.wordStartFrames[narrationIndex],
-    starts[narrationIndex] ?? cfg.speechStartFrame,
-    snapshot.prepLineIndex !== undefined,
-  );
-  const activeStage =
-    frame >= trace.output
-      ? 4
-      : frame >= trace.print
-        ? 3
-        : trace.prep !== undefined && frame >= trace.prep
-          ? 2
-          : frame >= trace.enter
-            ? 1
-            : 0;
+  const step =
+    STEP_ACTIONS[Math.min(narrationIndex, STEP_ACTIONS.length - 1)] ??
+    STEP_ACTIONS[0];
+  const snapshot = SNAPSHOTS[step.snapshotIndex];
+  const activeStage = STAGE_ORDER.indexOf(step.stage);
   const appear = spring({
     frame: frame - cfg.speechStartFrame,
     fps,
@@ -349,12 +339,7 @@ const MainScene: React.FC = () => {
               position: "absolute",
               top: "47%",
               left: "50%",
-              transform: `translate(-50%, -50%) translateY(${interpolate(
-                appear,
-                [0, 1],
-                [20, 0],
-                { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-              )}px)`,
+              transform: "translate(-50%, -50%)",
               width: 930,
               background: BG_CODE,
               borderRadius: 24,
@@ -383,7 +368,7 @@ const MainScene: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  한 장면에서 문장 순서대로 진행
+                  문장 하나당 한 번만 진행
                 </div>
                 <div
                   style={{
@@ -422,7 +407,7 @@ const MainScene: React.FC = () => {
                   whiteSpace: "nowrap",
                 }}
               >
-                단계 {snapshotIndex + 1}
+                단계 {step.snapshotIndex + 1}
               </div>
             </div>
 
@@ -475,7 +460,7 @@ const MainScene: React.FC = () => {
                   borderRadius: 18,
                   padding: "16px 18px",
                   border:
-                    activeStage === 0
+                    step.stage === "call"
                       ? `2px solid ${snapshot.accent}55`
                       : "2px solid rgba(255,255,255,0.08)",
                 }}
@@ -510,7 +495,10 @@ const MainScene: React.FC = () => {
                   borderRadius: 18,
                   padding: "18px 18px 16px",
                   border:
-                    activeStage >= 1
+                    step.stage === "enter" ||
+                    step.stage === "prep" ||
+                    step.stage === "print" ||
+                    step.stage === "output"
                       ? `2px solid ${snapshot.accent}22`
                       : "2px solid rgba(255,255,255,0.06)",
                 }}
@@ -536,8 +524,7 @@ const MainScene: React.FC = () => {
                 >
                   {snapshot.code.map((line, index) => {
                     const highlighted = getLineHighlight(
-                      frame,
-                      trace,
+                      step.stage,
                       snapshot,
                       index,
                     );
@@ -577,7 +564,7 @@ const MainScene: React.FC = () => {
                   borderRadius: 18,
                   padding: "16px 18px",
                   border:
-                    activeStage >= 3
+                    step.stage === "output"
                       ? `2px solid ${snapshot.accent}55`
                       : "2px solid rgba(255,255,255,0.08)",
                 }}
@@ -602,17 +589,9 @@ const MainScene: React.FC = () => {
                     borderRadius: 14,
                     minHeight: 64,
                     padding: "16px 18px",
-                    opacity: interpolate(
-                      frame,
-                      [trace.print, trace.output],
-                      [0, 1],
-                      {
-                        extrapolateLeft: "clamp",
-                        extrapolateRight: "clamp",
-                      },
-                    ),
+                    opacity: step.stage === "output" ? 1 : 0,
                     boxShadow:
-                      frame >= trace.output
+                      step.stage === "output"
                         ? `0 0 24px ${snapshot.accent}22`
                         : "none",
                     whiteSpace: "pre",
