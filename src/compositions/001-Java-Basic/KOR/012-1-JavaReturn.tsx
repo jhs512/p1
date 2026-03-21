@@ -44,6 +44,13 @@ import { HEIGHT, WIDTH } from "./config";
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
+  introScene: {
+    audio: "ret-intro.mp3",
+    durationInFrames: AUDIO_CONFIG.introScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.introScene.speechStartFrame,
+    narration: CONTENT.introScene.narration as string[],
+    narrationSplits: AUDIO_CONFIG.introScene.narrationSplits,
+  },
   painScene: {
     audio: "ret-pain.mp3",
     durationInFrames: AUDIO_CONFIG.painScene.durationInFrames,
@@ -158,6 +165,115 @@ const ThumbnailScene: React.FC = () => {
   );
 };
 
+// ── 씬: IntroScene — 함수 복습 + return 예고 ────────────────
+const IntroScene: React.FC = () => {
+  const { introScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const s = cfg.speechStartFrame;
+  const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // 1문장: "함수" 키워드 등장
+  const funcAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 36,
+  });
+
+  // 2문장 시작 시 "함수" 퇴장
+  const funcExit = interpolate(frame, [split - 20, split], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // 2문장: "return" 키워드 등장
+  const returnAppear = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
+  });
+
+  // return 밑줄
+  const returnUnderline = spring({
+    frame: frame - (split + 16),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 40,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="1. 지난 시간 복습" />
+          <div
+            style={{
+              position: "absolute",
+              top: "42%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 28,
+            }}
+          >
+            {/* 1문장: "함수" */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.display,
+                fontWeight: 900,
+                color: C_FUNC,
+                opacity: funcAppear * (1 - funcExit),
+              }}
+            >
+              함수
+            </div>
+
+            {/* 2문장: return 키워드 */}
+            <div
+              style={{
+                ...monoStyle,
+                fontSize: 64,
+                fontWeight: 900,
+                color: C_KEYWORD,
+                opacity: returnAppear,
+                position: "relative",
+                display: "inline-block",
+              }}
+            >
+              return
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: -6,
+                  left: 0,
+                  height: 3,
+                  background: C_TEAL,
+                  borderRadius: 2,
+                  width: `${returnUnderline * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.introScene.wordStartFrames}
+      />
+    </>
+  );
+};
+
 // ── 씬: PainScene — void 함수의 한계 ─────────────────────────
 const PAIN_CODE = [
   "void printSum(int a, int b) {",
@@ -194,7 +310,7 @@ const PainScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="1. 문제 상황" />
+          <SceneTitle title="2. 문제 상황" />
           <div
             style={{
               position: "absolute",
@@ -318,7 +434,7 @@ const ConceptScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="2. return이란?" />
+          <SceneTitle title="3. return이란?" />
           <div
             style={{
               position: "absolute",
@@ -465,7 +581,7 @@ const ReturnTypeScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="3. 리턴 타입" />
+          <SceneTitle title="4. 리턴 타입" />
           <div
             style={{
               position: "absolute",
@@ -625,7 +741,7 @@ const ReturnFlowScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="4. 실행 흐름" />
+          <SceneTitle title="5. 실행 흐름" />
           <div
             style={{
               position: "absolute",
@@ -746,7 +862,7 @@ const UseReturnScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="5. 값 활용" />
+          <SceneTitle title="6. 값 활용" />
           <div
             style={{
               position: "absolute",
@@ -866,7 +982,7 @@ const ComparisonScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="6. Before / After" />
+          <SceneTitle title="7. Before / After" />
           <div
             style={{
               position: "absolute",
@@ -1017,7 +1133,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="7. 정리" />
+          <SceneTitle title="8. 정리" />
           <div
             style={{
               position: "absolute",
@@ -1083,6 +1199,7 @@ const SummaryScene: React.FC = () => {
 // ── 씬 목록 + fromValues 계산 ─────────────────────────────────
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
+  VIDEO_CONFIG.introScene,
   VIDEO_CONFIG.painScene,
   VIDEO_CONFIG.conceptScene,
   VIDEO_CONFIG.returnTypeScene,
@@ -1118,42 +1235,48 @@ const JavaReturn: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.introScene.durationInFrames}
+    >
+      <IntroScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[2]}
       durationInFrames={VIDEO_CONFIG.painScene.durationInFrames}
     >
       <PainScene />
     </Sequence>
     <Sequence
-      from={fromValues[2]}
+      from={fromValues[3]}
       durationInFrames={VIDEO_CONFIG.conceptScene.durationInFrames}
     >
       <ConceptScene />
     </Sequence>
     <Sequence
-      from={fromValues[3]}
+      from={fromValues[4]}
       durationInFrames={VIDEO_CONFIG.returnTypeScene.durationInFrames}
     >
       <ReturnTypeScene />
     </Sequence>
     <Sequence
-      from={fromValues[4]}
+      from={fromValues[5]}
       durationInFrames={VIDEO_CONFIG.returnFlowScene.durationInFrames}
     >
       <ReturnFlowScene />
     </Sequence>
     <Sequence
-      from={fromValues[5]}
+      from={fromValues[6]}
       durationInFrames={VIDEO_CONFIG.useReturnScene.durationInFrames}
     >
       <UseReturnScene />
     </Sequence>
     <Sequence
-      from={fromValues[6]}
+      from={fromValues[7]}
       durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}
     >
       <ComparisonScene />
     </Sequence>
     <Sequence
-      from={fromValues[7]}
+      from={fromValues[8]}
       durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
     >
       <SummaryScene />

@@ -6,6 +6,12 @@ export const CONTENT = {
     seriesLabel: "JAVA",
     title: "Java\nreturn",
   },
+  introScene: {
+    narration: [
+      "지난 시간에 함수를 배웠습니다.",
+      "그런데 함수가 일만 하고, 결과를 돌려주지 않으면 불편한 경우가 있습니다.",
+    ],
+  },
   painScene: {
     narration: [
       "이 함수는 두 수의 합을 화면에 출력만 합니다.",
