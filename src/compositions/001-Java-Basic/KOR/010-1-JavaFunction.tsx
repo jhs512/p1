@@ -13,6 +13,7 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
+import { JavaLine } from "../../../utils/code";
 import { FPS } from "../../../config";
 import {
   CHARS_PER_SEC,
@@ -131,44 +132,9 @@ export const VIDEO_CONFIG = {
 } as const;
 
 // ── 컴포넌트: CodeLine ─────────────────────────────────────────
-const CodeLine: React.FC<{ text: string }> = ({ text }) => {
-  if (text.startsWith("//")) {
-    return <span style={{ color: "#6a9955" }}>{text}</span>; // C_COMMENT
-  }
-  const parts = text.split(/(void|return|if|else|String|int|"[^"]*")/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (["void", "return", "if", "else", "String", "int"].includes(part))
-          return (
-            <span key={i} style={{ color: C_KEYWORD }}>
-              {part}
-            </span>
-          );
-        if (/^"/.test(part))
-          return (
-            <span key={i} style={{ color: C_STRING }}>
-              {part}
-            </span>
-          );
-        if (part.includes("greet"))
-          return (
-            <span key={i}>
-              {part.split("greet").map((seg, j, arr) => (
-                <React.Fragment key={j}>
-                  {seg}
-                  {j < arr.length - 1 && (
-                    <span style={{ color: C_FUNC }}>greet</span>
-                  )}
-                </React.Fragment>
-              ))}
-            </span>
-          );
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-};
+const CodeLine: React.FC<{ text: string }> = ({ text }) => (
+  <JavaLine text={text} />
+);
 
 // ── 컴포넌트: TypingCodeLine ───────────────────────────────────
 const TypingCodeLine: React.FC<{

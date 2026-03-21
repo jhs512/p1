@@ -14,6 +14,7 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -34,10 +35,8 @@ import {
   BG,
   BG_CODE,
   BG_THUMB,
-  C_COMMENT,
   C_FUNC,
   C_KEYWORD,
-  C_NUMBER,
   C_PAIN,
   C_STRING,
   C_TEAL,
@@ -100,89 +99,10 @@ export const VIDEO_CONFIG = {
   },
 } as const;
 
-// ── CodeLine — Java 구문 하이라이팅 ─────────────────────────
-const colorFuncName = (text: string, name: string) => {
-  const segs = text.split(name);
-  return segs.map((seg, j, arr) => (
-    <React.Fragment key={j}>
-      {seg}
-      {j < arr.length - 1 && (
-        <span style={{ color: C_FUNC }}>{name}</span>
-      )}
-    </React.Fragment>
-  ));
-};
-
-const CodeLine: React.FC<{ text: string }> = ({ text }) => {
-  // 전체 주석 줄
-  const trimmed = text.trimStart();
-  if (trimmed.startsWith("//")) {
-    const indent = text.slice(0, text.length - trimmed.length);
-    return (
-      <>
-        {indent}
-        <span style={{ color: C_COMMENT }}>{trimmed}</span>
-      </>
-    );
-  }
-  // 인라인 주석 분리
-  const commentIdx = text.indexOf("//");
-  const codePart = commentIdx >= 0 ? text.slice(0, commentIdx) : text;
-  const commentPart = commentIdx >= 0 ? text.slice(commentIdx) : "";
-
-  // 코드 토큰화
-  const parts = codePart.split(
-    /(\bvoid\b|\breturn\b|\bif\b|\bint\b|\bString\b|"[^"]*"|\b\d+\b)/g,
-  );
-
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (!part) return null;
-        if (["void", "return", "if"].includes(part))
-          return (
-            <span key={i} style={{ color: C_KEYWORD }}>
-              {part}
-            </span>
-          );
-        if (["int", "String"].includes(part))
-          return (
-            <span key={i} style={{ color: C_TYPE }}>
-              {part}
-            </span>
-          );
-        if (/^"/.test(part))
-          return (
-            <span key={i} style={{ color: C_STRING }}>
-              {part}
-            </span>
-          );
-        if (/^\d+$/.test(part))
-          return (
-            <span key={i} style={{ color: C_NUMBER }}>
-              {part}
-            </span>
-          );
-        // 함수 이름 — 긴 이름 먼저 매칭
-        for (const fn of [
-          "greetCheolsu",
-          "greetYounghee",
-          "greet",
-          "add",
-          "println",
-        ]) {
-          if (part.includes(fn)) {
-            return <span key={i}>{colorFuncName(part, fn)}</span>;
-          }
-        }
-        return <span key={i}>{part}</span>;
-      })}
-      {commentPart && (
-        <span style={{ color: C_COMMENT }}>{commentPart}</span>
-      )}
-    </>
-  );
-};
+// ── CodeLine — shiki 기반 JavaLine 래퍼 ─────────────────────
+const CodeLine: React.FC<{ text: string }> = ({ text }) => (
+  <JavaLine text={text} />
+);
 
 // ── TypingCodeLine — 타이핑 애니메이션 래퍼 ──────────────────
 const TypingCodeLine: React.FC<{

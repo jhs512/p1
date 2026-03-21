@@ -206,3 +206,34 @@ export const JavaCode: React.FC<JavaCodeProps> = ({
 
   return <div style={containerStyle}>{rendered}</div>;
 };
+
+// ── 인라인 한 줄 토큰화 컴포넌트 ─────────────────────────────
+/**
+ * JavaLine — 한 줄 코드를 인라인 span으로 토큰화.
+ * CodeLine (수동 regex) 대체용. 블록 래퍼 없이 <span> 만 반환.
+ */
+export const JavaLine: React.FC<{
+  text: string;
+  tokenColors?: Record<string, string>;
+}> = ({ text, tokenColors }) => {
+  if (!text) return null;
+  let tokens = tokenize(text)[0] ?? [];
+  if (tokenColors) {
+    tokens = tokens.map((t) => {
+      const trimmed = t.text.trim();
+      if (trimmed && tokenColors[trimmed]) {
+        return { ...t, color: tokenColors[trimmed] };
+      }
+      return t;
+    });
+  }
+  return (
+    <>
+      {tokens.map((token, i) => (
+        <span key={i} style={{ color: token.color }}>
+          {token.text}
+        </span>
+      ))}
+    </>
+  );
+};
