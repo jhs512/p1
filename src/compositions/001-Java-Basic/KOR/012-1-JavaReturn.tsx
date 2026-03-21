@@ -1214,7 +1214,6 @@ const RealExampleScene: React.FC = () => {
   const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
   const s = cfg.speechStartFrame;
   const split1 = cfg.narrationSplits[0];
-  const split2 = cfg.narrationSplits[1];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -1232,22 +1231,6 @@ const RealExampleScene: React.FC = () => {
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
   });
-  // 3문장: return 강조
-  const returnHighlight = spring({
-    frame: frame - split2,
-    fps,
-    config: { damping: 14, stiffness: 100 },
-    durationInFrames: 40,
-  });
-  // return 하이라이트 소멸 (1회성 — 헌법 13조)
-  const returnHighlightOut = interpolate(
-    frame,
-    [split2 + 60, split2 + 85],
-    [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
-  const returnGlow = returnHighlight * (1 - returnHighlightOut);
-
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
@@ -1304,21 +1287,6 @@ const RealExampleScene: React.FC = () => {
                     <JavaLine text={line} />
                   </div>
                 ))}
-                {/* return 줄 하이라이트 (1회성) */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 4,
-                    right: 4,
-                    top: 20 + 3 * (24 * 1.7),
-                    height: 24 * 1.7,
-                    border: `2px solid ${C_KEYWORD}`,
-                    borderRadius: 6,
-                    background: `${C_KEYWORD}12`,
-                    opacity: returnGlow,
-                    pointerEvents: "none",
-                  }}
-                />
               </div>
             </div>
 
