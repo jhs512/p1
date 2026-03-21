@@ -45,15 +45,6 @@ export const monoStyle = {
 
 export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
 
-export type CodeTheme = {
-  keywordColors?: Record<string, string>;
-  operators?: readonly string[];
-  operatorColor?: string;
-  numberColor?: string;
-  stringColor?: string;
-  commentColor?: string;
-};
-
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**
  * 글로벌 폰트 사이즈 스케일.
@@ -128,79 +119,6 @@ export function calcTypingEndFrame(
   return startFrame + Math.ceil((chars / charsPerSecond) * fps);
 }
 
-function escapeRegExp(text: string) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-export function ColorizedCode({
-  text,
-  theme,
-}: {
-  text: string;
-  theme: CodeTheme;
-}) {
-  const commentIdx = theme.commentColor === undefined ? -1 : text.indexOf("//");
-  const codePart = commentIdx >= 0 ? text.slice(0, commentIdx) : text;
-  const commentPart = commentIdx >= 0 ? text.slice(commentIdx) : "";
-
-  const keywords = Object.keys(theme.keywordColors ?? {});
-  const operators = [...(theme.operators ?? [])].sort(
-    (a, b) => b.length - a.length,
-  );
-  const tokenPatterns = [
-    ...keywords.map((keyword) => `\\b${escapeRegExp(keyword)}\\b`),
-    ...operators.map(escapeRegExp),
-    theme.stringColor ? '"[^"]*"' : null,
-    theme.numberColor ? "\\b\\d+(?:\\.\\d+)?\\b" : null,
-  ].filter((pattern): pattern is string => Boolean(pattern));
-
-  if (tokenPatterns.length === 0) {
-    return <>{text}</>;
-  }
-
-  const parts = codePart.split(new RegExp(`(${tokenPatterns.join("|")})`, "g"));
-
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (!part) return null;
-        const keywordColor = theme.keywordColors?.[part];
-        if (keywordColor) {
-          return (
-            <span key={i} style={{ color: keywordColor }}>
-              {part}
-            </span>
-          );
-        }
-        if (theme.operatorColor && operators.includes(part)) {
-          return (
-            <span key={i} style={{ color: theme.operatorColor }}>
-              {part}
-            </span>
-          );
-        }
-        if (theme.stringColor && /^"/.test(part)) {
-          return (
-            <span key={i} style={{ color: theme.stringColor }}>
-              {part}
-            </span>
-          );
-        }
-        if (theme.numberColor && /^\d/.test(part)) {
-          return (
-            <span key={i} style={{ color: theme.numberColor }}>
-              {part}
-            </span>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-      {commentPart ? (
-        <span style={{ color: theme.commentColor }}>{commentPart}</span>
-      ) : null}
-    </>
-  );
-}
 
 export function computeLineVisibility<T>(
   lines: readonly T[],
