@@ -13,10 +13,10 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
+import { JavaLine } from "../../../utils/code";
 import { FPS } from "../../../config";
 import {
   CROSS,
-  ColorizedCode,
   ContentArea,
   SceneTitle,
   Subtitle,
@@ -33,12 +33,9 @@ import {
   BG,
   BG_CODE,
   BG_THUMB,
-  C_COMMENT,
   C_NUMBER,
   C_OPERATOR,
-  C_STRING,
   C_TEAL,
-  C_TYPE,
   TEXT,
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
@@ -91,22 +88,6 @@ export const VIDEO_CONFIG = {
   },
 };
 
-// ── 컴포넌트: ColorizedCode ───────────────────────────────────
-const OPERATORS = ["==", "+", "-", "*", "/", "%", "="];
-const CODE_THEME = {
-  keywordColors: {
-    int: C_TYPE,
-    double: "#d4c04e",
-    String: "#4ec970",
-    boolean: "#d4834e",
-  },
-  operators: OPERATORS,
-  operatorColor: C_OP,
-  numberColor: C_NUM,
-  stringColor: C_STRING,
-  commentColor: C_COMMENT,
-} as const;
-
 // ── 공통: TypingLine (SummaryScene과 공유) ───────────────────
 const TypingLine: React.FC<{
   text: string;
@@ -116,7 +97,7 @@ const TypingLine: React.FC<{
   const { visibleText } = useTypingEffect(text, startFrame, cps);
   return (
     <div style={{ color: TEXT }}>
-      <ColorizedCode text={visibleText} theme={CODE_THEME} />
+      <JavaLine text={visibleText} />
     </div>
   );
 };
@@ -150,7 +131,7 @@ const CodeLines: React.FC<{
         if (!isLast) {
           return (
             <div key={i} style={{ color: TEXT, opacity: 0.55 }}>
-              <ColorizedCode text={l.text} theme={CODE_THEME} />
+              <JavaLine text={l.text} />
             </div>
           );
         }
@@ -672,7 +653,7 @@ const SummaryScene: React.FC = () => {
                 {SUMMARY_LINES.slice(0, i + 1).map((text, j) =>
                   j < i ? (
                     <div key={j} style={{ color: TEXT }}>
-                      <ColorizedCode text={text} theme={CODE_THEME} />
+                      <JavaLine text={text} />
                     </div>
                   ) : (
                     <TypingLine

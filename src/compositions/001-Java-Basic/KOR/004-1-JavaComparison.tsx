@@ -14,9 +14,9 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CROSS,
-  ColorizedCode,
   ContentArea,
   FONT,
   SceneTitle,
@@ -35,7 +35,6 @@ import {
   C_PAIN,
   C_PURPLE,
   C_TEAL,
-  C_TYPE,
   C_VAR,
   TEXT,
 } from "./colors";
@@ -79,18 +78,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
-
-const CODE_THEME = {
-  keywordColors: {
-    int: C_TYPE,
-    double: "#d4c04e",
-    String: "#4ec970",
-    boolean: "#d4834e",
-  },
-  operators: ["==", "!=", ">=", "<=", ">", "<", "="],
-  operatorColor: C_PURPLE,
-  numberColor: C_NUMBER,
-} as const;
 
 // ── 컴포넌트: BeatCard (연산자 1개 평가 화면) ─────────────────
 const BeatCard: React.FC<{
@@ -448,7 +435,7 @@ const CompareScene: React.FC = () => {
                 color: TEXT,
               }}
             >
-              <ColorizedCode text="int a = 10, b = 3;" theme={CODE_THEME} />
+              <JavaLine text="int a = 10, b = 3;" />
             </div>
           )}
 
@@ -509,7 +496,7 @@ const SummaryScene: React.FC = () => {
               opacity: 0.6,
             }}
           >
-            <ColorizedCode text="int a = 10, b = 3;" theme={CODE_THEME} />
+            <JavaLine text="int a = 10, b = 3;" />
           </div>
 
           {/* 2×3 그리드 */}

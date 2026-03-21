@@ -15,10 +15,10 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
   CROSS,
-  ColorizedCode,
   ContentArea,
   FONT,
   SceneTitle,
@@ -36,9 +36,7 @@ import {
   BG,
   BG_CODE,
   BG_THUMB,
-  C_NUMBER,
   C_OPERATOR,
-  C_STRING,
   C_TEAL,
   C_TYPE,
   TEXT,
@@ -112,16 +110,10 @@ export const VIDEO_CONFIG = {
   },
 };
 
-const CODE_THEME = {
-  keywordColors: TYPE_COLORS,
-  stringColor: C_STRING,
-  numberColor: C_NUMBER,
-} as const;
-
 // ── 컴포넌트: CodeBox ─────────────────────────────────────────
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   <div style={{ color: TEXT, lineHeight: "1.8" }}>
-    <ColorizedCode text={text} theme={CODE_THEME} />
+    <JavaLine text={text} />
   </div>
 );
 
@@ -133,7 +125,7 @@ const TypingLine: React.FC<{
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
     <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <ColorizedCode text={visibleText} theme={CODE_THEME} />
+      <JavaLine text={visibleText} />
     </div>
   );
 };

@@ -20,11 +20,11 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
+import { JavaLine } from "../../../utils/code";
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import {
   CHARS_PER_SEC,
   CROSS,
-  ColorizedCode,
   ContentArea,
   FONT,
   SceneTitle,
@@ -123,15 +123,6 @@ export const VIDEO_CONFIG = {
   },
 };
 
-const CODE_THEME = {
-  keywordColors: {
-    int: C_TEAL,
-    String: C_TEAL,
-    boolean: C_TEAL,
-  },
-  numberColor: C_NUMBER,
-} as const;
-
 const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>{text}</div>
 );
@@ -144,7 +135,7 @@ const TypingLine: React.FC<{
   const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
   return (
     <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <ColorizedCode text={visibleText} theme={CODE_THEME} />
+      <JavaLine text={visibleText} />
     </div>
   );
 };
