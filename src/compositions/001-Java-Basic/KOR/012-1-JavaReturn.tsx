@@ -1171,6 +1171,7 @@ const SummaryScene: React.FC = () => {
                     borderRadius: 16,
                     padding: "32px 40px",
                     textAlign: "center",
+                    whiteSpace: "pre-line",
                     opacity: cardAppears[i],
                     transform: `scale(${interpolate(cardAppears[i], [0, 1], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
                   }}
@@ -1194,11 +1195,12 @@ const SummaryScene: React.FC = () => {
 
 // ── 씬: RealExampleScene — return 활용 실전 예시 ─────────────
 const DISCOUNT_FUNC = [
-  "int discount(int price) {  // 가격을 받아 할인 가격을 돌려주는 함수",
-  "    if (price > 30000) {  // 3만 원 초과이면",
-  "        return (int)(price * 0.9);  // 10% 할인 가격 리턴",
+  "// 할인 가격을 돌려주는 함수",
+  "int discount(int price) {",
+  "    if (price > 30000) {  // 3만 원 초과",
+  "        return (int)(price * 0.9);",
   "    }",
-  "    return price;  // 아니면 원래 가격 리턴",
+  "    return price;",
   "}",
 ];
 const DISCOUNT_USE = [
@@ -1308,7 +1310,7 @@ const RealExampleScene: React.FC = () => {
                     position: "absolute",
                     left: 4,
                     right: 4,
-                    top: 20 + 2 * (24 * 1.7),
+                    top: 20 + 3 * (24 * 1.7),
                     height: 24 * 1.7,
                     border: `2px solid ${C_KEYWORD}`,
                     borderRadius: 6,
@@ -1317,20 +1319,6 @@ const RealExampleScene: React.FC = () => {
                     pointerEvents: "none",
                   }}
                 />
-              </div>
-              {/* 함수 설명 */}
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: TEXT,
-                  opacity: funcAppear * 0.7,
-                  marginTop: 8,
-                  lineHeight: 1.5,
-                }}
-              >
-                일정 가격이 넘으면 할인율이 적용된 가격을 리턴하는 함수
               </div>
             </div>
 
