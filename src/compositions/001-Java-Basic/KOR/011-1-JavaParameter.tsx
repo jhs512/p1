@@ -620,25 +620,21 @@ const ParamScene: React.FC = () => {
                   />
                 ),
               )}
-              {/* 라벨: ← 매개변수 — 첫 줄 오른쪽 바깥에 배치 */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 40, // 첫 줄 높이에 맞춤 (padding-top과 동일)
-                  right: -24,
-                  transform: "translateX(100%)",
-                  opacity: labelAppear,
-                  fontFamily: uiFont,
-                  fontSize: FONT.label,
-                  fontWeight: 700,
-                  color: C_TEAL,
-                  letterSpacing: 2,
-                  whiteSpace: "nowrap",
-                  lineHeight: "1.9",
-                }}
-              >
-                ← 매개변수
-              </div>
+            </div>
+            {/* 라벨: ↑ 매개변수 — 코드 블록 아래, String name 위치에 맞춤 */}
+            <div
+              style={{
+                opacity: labelAppear,
+                fontFamily: uiFont,
+                fontSize: FONT.label,
+                fontWeight: 700,
+                color: C_TEAL,
+                marginTop: 16,
+                textAlign: "center",
+                letterSpacing: 2,
+              }}
+            >
+              ↑ 매개변수
             </div>
           </div>
         </ContentArea>
@@ -778,7 +774,9 @@ const MultiParamScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
+  const splits = cfg.narrationSplits;
+  const split0 = splits[0] ?? s + 80;
+  const split1 = splits[1] ?? split0 + 100;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -790,15 +788,29 @@ const MultiParamScene: React.FC = () => {
     cumFrame += Math.ceil((line.length / MULTI_CPS) * fps);
   }
 
-  // 호출부: split 시점에 타이핑 시작
-  const callStart = split;
+  // 호출부: split0 시점에 타이핑 시작
+  const callStart = split0;
 
-  // 매개변수 밑줄: split 시점에 등장
+  // 매개변수 밑줄: split0 시점에 등장
   const underlineAppear = spring({
-    frame: frame - split,
+    frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 32,
+  });
+
+  // 3문장: 매핑 화살표 등장 — split1 시점
+  const arrow1Appear = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+  const arrow2Appear = spring({
+    frame: frame - (split1 + 18),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
   });
 
   return (
@@ -810,44 +822,138 @@ const MultiParamScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "45%",
+              top: "42%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
-              padding: "40px 56px",
-              minWidth: 760,
-              ...monoStyle,
-              fontSize: 28,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0,
             }}
           >
-            {/* 함수 선언부 */}
-            {MULTI_DECLARE_LINES.map((line, i) =>
-              i === 0 ? (
-                <TypingMultiParamLine
-                  key={i}
-                  text={line}
-                  startFrame={declareStarts[i]}
-                  cps={MULTI_CPS}
-                  underlineAppear={underlineAppear}
-                />
-              ) : (
-                <TypingCodeLine
-                  key={i}
-                  text={line}
-                  startFrame={declareStarts[i]}
-                  cps={MULTI_CPS}
-                />
-              ),
-            )}
-            {/* 빈 줄 */}
-            <div style={{ lineHeight: "1.9" }}>{"\u00A0"}</div>
-            {/* 호출부 */}
-            <TypingCodeLine
-              text={MULTI_CALL_LINE}
-              startFrame={callStart}
-              cps={CALL_CPS}
-            />
+            {/* 코드 블록 */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "40px 56px",
+                minWidth: 760,
+                ...monoStyle,
+                fontSize: 28,
+              }}
+            >
+              {/* 함수 선언부 */}
+              {MULTI_DECLARE_LINES.map((line, i) =>
+                i === 0 ? (
+                  <TypingMultiParamLine
+                    key={i}
+                    text={line}
+                    startFrame={declareStarts[i]}
+                    cps={MULTI_CPS}
+                    underlineAppear={underlineAppear}
+                  />
+                ) : (
+                  <TypingCodeLine
+                    key={i}
+                    text={line}
+                    startFrame={declareStarts[i]}
+                    cps={MULTI_CPS}
+                  />
+                ),
+              )}
+              {/* 빈 줄 */}
+              <div style={{ lineHeight: "1.9" }}>{"\u00A0"}</div>
+              {/* 호출부 */}
+              <TypingCodeLine
+                text={MULTI_CALL_LINE}
+                startFrame={callStart}
+                cps={CALL_CPS}
+              />
+            </div>
+
+            {/* 매핑 다이어그램: 3문장 시점에 등장 */}
+            <div
+              style={{
+                marginTop: 36,
+                display: "flex",
+                gap: 64,
+                justifyContent: "center",
+              }}
+            >
+              {/* 첫 번째 인자 → 첫 번째 매개변수 */}
+              <div
+                style={{
+                  opacity: arrow1Appear,
+                  transform: `translateY(${interpolate(arrow1Appear, [0, 1], [12, 0], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  })}px)`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: C_STRING,
+                  }}
+                >
+                  3
+                </div>
+                <div style={{ fontSize: 28, color: C_TEAL }}>↓</div>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: C_TEAL,
+                  }}
+                >
+                  a
+                </div>
+              </div>
+
+              {/* 두 번째 인자 → 두 번째 매개변수 */}
+              <div
+                style={{
+                  opacity: arrow2Appear,
+                  transform: `translateY(${interpolate(arrow2Appear, [0, 1], [12, 0], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  })}px)`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: C_STRING,
+                  }}
+                >
+                  5
+                </div>
+                <div style={{ fontSize: 28, color: C_TEAL }}>↓</div>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: C_TEAL,
+                  }}
+                >
+                  b
+                </div>
+              </div>
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
