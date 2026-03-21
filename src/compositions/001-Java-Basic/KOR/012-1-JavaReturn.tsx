@@ -755,18 +755,13 @@ const UseReturnScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 1문장: sum(3,5) 밑줄 (1회성 — 헌법 13조)
-  const saveUlIn = spring({
+  // 1문장: sum(3,5) 밑줄 (영구 유지 — 밑줄은 예외)
+  const saveUl = spring({
     frame: frame - (s + 20),
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
   });
-  const saveUlOut = interpolate(frame, [s + 70, s + 95], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const saveUl = saveUlIn * (1 - saveUlOut);
 
   // 2문장: 바로 인자로 넘기기
   const directAppear = spring({
@@ -776,18 +771,13 @@ const UseReturnScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 2문장: sum(3,5)가 인자 위치에 있음 — 밑줄 (1회성)
-  const directUlIn = spring({
+  // 2문장: sum(3,5)가 인자 위치에 있음 — 밑줄 (영구 유지)
+  const directUl = spring({
     frame: frame - (split + 20),
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
   });
-  const directUlOut = interpolate(frame, [split + 70, split + 95], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const directUl = directUlIn * (1 - directUlOut);
 
   return (
     <>

@@ -176,6 +176,31 @@ const titleOpacity = titleAppear * (1 - titleExit);
 </div>
 ```
 
+### 13. 하이라이트(glow/boxShadow)는 영구 유지하지 않는다
+
+하이라이트 효과는 **반드시 둘 중 하나**를 택한다. 켜진 채 영구 유지는 금지.
+
+- **반복(펄싱)**: 강조 — `Math.sin(frame * speed)`로 on/off 반복
+- **1회성**: 약한 강조 — 등장 후 일정 시간 뒤 소멸 (등장: spring, 소멸: interpolate)
+
+```tsx
+// ❌ 금지 — 하이라이트가 켜진 후 영구 유지
+const glow = spring({ frame: frame - trigger, fps, ... });
+boxShadow: `0 0 ${glow * 18}px ${color}88`  // 한 번 켜지면 계속 켜짐
+
+// ✅ 1회성 — 등장 후 소멸
+const glowIn = spring({ frame: frame - trigger, fps, ... });
+const glowOut = interpolate(frame, [trigger + 50, trigger + 75], [0, 1],
+  { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+const glow = glowIn * (1 - glowOut);
+
+// ✅ 반복(펄싱) — 계속 깜빡이며 강조
+const glow = 0.4 + 0.6 * Math.abs(Math.sin(frame * 0.05));
+```
+
+- **하이라이트 영구 유지 절대 금지 — 헌법.**
+- **예외: 밑줄(underline/underline decoration)은 영구 유지 허용.** 밑줄은 한 번 등장하면 그대로 둔다. glow/boxShadow와 달리 밑줄은 시각적 부담이 적고, 사라지면 오히려 의미가 불명확해진다.
+
 ---
 
 ## 프로젝트 구조
