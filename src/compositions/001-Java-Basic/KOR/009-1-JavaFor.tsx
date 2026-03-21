@@ -219,6 +219,7 @@ const OverviewScene: React.FC = () => {
       opacity: appear,
       transform: `scale(${sc})`,
       textAlign: "center" as const,
+      whiteSpace: "nowrap" as const,
     };
   };
 
@@ -229,133 +230,91 @@ const OverviewScene: React.FC = () => {
           <SceneTitle title="1. 반복문 개요" />
           <Audio src={staticFile(cfg.audio)} />
 
-          {/* 트리 다이어그램 — absolute 배치로 연결선 정렬 */}
-          {/*
-            좌표계 (800 × 380):
-            제어문 중심: (400, 30)
-            조건문 중심: (200, 150)
-            반복문 중심: (600, 150)
-            while/for 중심: (600, 270)
-          */}
+          {/* 트리 다이어그램 */}
           <div
             style={{
               position: "absolute",
               top: "38%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 800,
-              height: 380,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               opacity: rootAppear,
             }}
           >
-            {/* 제어문 (중앙 상단) */}
-            <div
-              style={{
-                ...nodeStyle("#9cdcfe", true, rootAppear),
-                position: "absolute",
-                top: 0,
-                left: 400,
-                transform: "translateX(-50%)",
-              }}
-            >
-              제어문
-            </div>
+            {/* 제어문 루트 */}
+            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
 
-            {/* SVG 연결선 */}
-            <svg
-              width={800}
-              height={380}
-              style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
-            >
-              {/* 제어문 → 수평 분기 */}
-              <line x1={400} y1={62} x2={400} y2={90} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
-              <line x1={200} y1={90} x2={600} y2={90} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
-              {/* 조건문 내림선 */}
-              <line x1={200} y1={90} x2={200} y2={120} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
-              {/* 반복문 내림선 */}
-              <line x1={600} y1={90} x2={600} y2={120} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
-              {/* 반복문 → while/for 내림선 */}
-              <line
-                x1={600} y1={185} x2={600} y2={220}
-                stroke="rgba(255,255,255,0.25)" strokeWidth={2}
-                opacity={rightAppear}
-              />
-            </svg>
+            {/* 세로 줄기 */}
+            <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
 
-            {/* 조건문 (왼쪽) */}
-            <div
-              style={{
-                ...nodeStyle("#c586c0", false, leftAppear),
-                position: "absolute",
-                top: 120,
-                left: 200,
-                transform: "translateX(-50%)",
-              }}
-            >
-              조건문
-            </div>
+            {/* 가로 가지 */}
+            <div style={{ width: 480, height: 2, background: "rgba(255,255,255,0.25)" }} />
 
-            {/* 반복문 (오른쪽) */}
-            <div
-              style={{
-                ...nodeStyle(C_FOR, true, rightAppear),
-                position: "absolute",
-                top: 120,
-                left: 600,
-                transform: "translateX(-50%)",
-              }}
-            >
-              반복문
-            </div>
-
-            {/* while / for — 반복문 아래 */}
-            <div
-              style={{
-                position: "absolute",
-                top: 220,
-                left: 600,
-                transform: "translateX(-50%)",
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-              }}
-            >
-              {/* while — 이미 배운 내용이므로 처음부터 표시 */}
-              <div
-                style={{
-                  ...monoStyle,
-                  fontSize: 34,
-                  fontWeight: 900,
-                  color: C_FOR,
-                  background: `${C_FOR}18`,
-                  border: `2px solid ${C_FOR}33`,
-                  borderRadius: 14,
-                  padding: "10px 22px",
-                  opacity: rightAppear * 0.5,
-                  transform: `scale(${interpolate(rightAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                  whiteSpace: "nowrap" as const,
-                }}
-              >
-                while
+            {/* 조건문 / 반복문 행 */}
+            <div style={{ display: "flex", width: 480, justifyContent: "space-between" }}>
+              {/* 왼쪽: 내림선 + 조건문 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
+                <div style={nodeStyle("#c586c0", false, leftAppear)}>조건문</div>
               </div>
-              {/* for — 하이라이트 (2문장 시점에 강조) */}
-              <div
-                style={{
-                  ...monoStyle,
-                  fontSize: 44,
-                  fontWeight: 900,
-                  color: C_FOR,
-                  background: `${C_FOR}18`,
-                  border: `2px solid ${C_FOR}55`,
-                  borderRadius: 16,
-                  padding: "12px 32px",
-                  opacity: phase2 ? forAppear : 0,
-                  transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                  boxShadow: `0 0 32px ${C_FOR}33`,
-                  whiteSpace: "nowrap" as const,
-                }}
-              >
-                for
+
+              {/* 오른쪽: 내림선 + 반복문 + while/for */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
+                <div style={nodeStyle(C_FOR, true, rightAppear)}>반복문</div>
+
+                {/* 반복문 → while/for 연결선 */}
+                <div
+                  style={{
+                    width: 2,
+                    height: 30,
+                    background: "rgba(255,255,255,0.25)",
+                    opacity: rightAppear,
+                  }}
+                />
+
+                {/* while / for */}
+                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                  {/* while — 이미 배운 내용이므로 처음부터 표시 */}
+                  <div
+                    style={{
+                      ...monoStyle,
+                      fontSize: 34,
+                      fontWeight: 900,
+                      color: C_FOR,
+                      background: `${C_FOR}18`,
+                      border: `2px solid ${C_FOR}33`,
+                      borderRadius: 14,
+                      padding: "10px 22px",
+                      opacity: rightAppear * 0.5,
+                      transform: `scale(${interpolate(rightAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      whiteSpace: "nowrap" as const,
+                    }}
+                  >
+                    while
+                  </div>
+                  {/* for — 하이라이트 (2문장 시점에 강조) */}
+                  <div
+                    style={{
+                      ...monoStyle,
+                      fontSize: 44,
+                      fontWeight: 900,
+                      color: C_FOR,
+                      background: `${C_FOR}18`,
+                      border: `2px solid ${C_FOR}55`,
+                      borderRadius: 16,
+                      padding: "12px 32px",
+                      opacity: phase2 ? forAppear : 0,
+                      transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      boxShadow: `0 0 32px ${C_FOR}33`,
+                      whiteSpace: "nowrap" as const,
+                    }}
+                  >
+                    for
+                  </div>
+                </div>
               </div>
             </div>
           </div>
