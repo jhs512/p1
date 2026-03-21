@@ -34,7 +34,7 @@ export const CONTENT = {
   useReturnScene: {
     narration: [
       "함수가 돌려준 값을 변수에 저장할 수 있습니다.",
-      "저장 없이 바로 출력하거나, 다른 함수의 인자로 넘길 수도 있습니다.",
+      "저장 없이 바로 다른 함수의 인자로 넘길 수도 있습니다.",
     ],
   },
   comparisonScene: {
@@ -50,10 +50,11 @@ export const CONTENT = {
     ],
     cards: ["return = 결과 돌려주기", "리턴 타입 = 값의 종류"],
   },
-  outroScene: {
+  realExampleScene: {
     narration: [
-      "[return(발음:리턴)]은 함수가 값을 돌려주는 핵심 키워드입니다.",
-      "함수에 [return(발음:리턴)]을 붙이면 결과를 자유롭게 활용할 수 있습니다.",
+      "실감나는 예시를 보겠습니다.",
+      "가격을 넣으면 할인된 가격을 돌려주는 함수를 만들 수 있습니다.",
+      "이렇게 [return(발음:리턴)]을 쓰면 결과를 어디서든 활용할 수 있습니다.",
     ],
   },
 } satisfies EpisodeContent;

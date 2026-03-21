@@ -93,12 +93,12 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
-  outroScene: {
-    audio: "ret-outro.mp3",
-    durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
-    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
-    narration: CONTENT.outroScene.narration as string[],
-    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+  realExampleScene: {
+    audio: "ret-real.mp3",
+    durationInFrames: AUDIO_CONFIG.realExampleScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
+    narration: CONTENT.realExampleScene.narration as string[],
+    narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
   },
 } as const;
 
@@ -714,9 +714,8 @@ const ReturnFlowScene: React.FC = () => {
 };
 
 // ── 씬: UseReturnScene — 돌려받은 값 활용 ─────────────────────
-const USE_CODE_1 = "int result = sum(3, 5);";
-const USE_CODE_2 = 'System.out.println(result);';
-const USE_OUTPUT = "8";
+const USE_SAVE = "int result = sum(3, 5);";
+const USE_DIRECT = "System.out.println(sum(3, 5));";
 
 const UseReturnScene: React.FC = () => {
   const { useReturnScene: cfg } = VIDEO_CONFIG;
@@ -727,25 +726,20 @@ const UseReturnScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const line1Appear = spring({
+  // 1문장: 변수에 저장
+  const saveAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 30,
   });
 
-  const line2Appear = spring({
+  // 2문장: 바로 인자로 넘기기
+  const directAppear = spring({
     frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
-  });
-
-  const outputAppear = spring({
-    frame: frame - (split + 30),
-    fps,
-    config: { damping: 11, stiffness: 120 },
-    durationInFrames: 24,
   });
 
   return (
@@ -763,55 +757,80 @@ const UseReturnScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 24,
+              gap: 32,
+              width: 860,
             }}
           >
-            <div
-              style={{
-                background: BG_CODE,
-                borderRadius: 12,
-                padding: "28px 40px",
-                ...monoStyle,
-                fontSize: 30,
-              }}
-            >
+            {/* 1: 변수에 저장 */}
+            <div style={{ width: "100%", opacity: saveAppear }}>
               <div
                 style={{
-                  lineHeight: "1.9",
-                  color: TEXT,
-                  whiteSpace: "pre",
-                  opacity: line1Appear,
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_TEAL,
+                  letterSpacing: 2,
+                  marginBottom: 8,
+                  opacity: 0.85,
                 }}
               >
-                <JavaLine text={USE_CODE_1} />
+                변수에 저장
               </div>
               <div
                 style={{
-                  lineHeight: "1.9",
-                  color: TEXT,
-                  whiteSpace: "pre",
-                  opacity: line2Appear,
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "24px 36px",
+                  ...monoStyle,
+                  fontSize: 28,
                 }}
               >
-                <JavaLine text={USE_CODE_2} />
+                <div
+                  style={{
+                    lineHeight: "1.9",
+                    color: TEXT,
+                    whiteSpace: "pre",
+                  }}
+                >
+                  <JavaLine text={USE_SAVE} />
+                </div>
               </div>
             </div>
 
-            {/* 출력 결과 */}
-            <div
-              style={{
-                background: `${C_TEAL}12`,
-                border: `2px solid ${C_TEAL}44`,
-                borderRadius: 12,
-                padding: "16px 32px",
-                ...monoStyle,
-                fontSize: 32,
-                color: "#ffffff",
-                opacity: outputAppear,
-                transform: `scale(${interpolate(outputAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-              }}
-            >
-              {USE_OUTPUT}
+            {/* 2: 바로 인자로 넘기기 */}
+            <div style={{ width: "100%", opacity: directAppear }}>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_FUNC,
+                  letterSpacing: 2,
+                  marginBottom: 8,
+                  opacity: 0.85,
+                }}
+              >
+                바로 인자로 넘기기
+              </div>
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "24px 36px",
+                  ...monoStyle,
+                  fontSize: 28,
+                }}
+              >
+                <div
+                  style={{
+                    lineHeight: "1.9",
+                    color: TEXT,
+                    whiteSpace: "pre",
+                  }}
+                >
+                  <JavaLine text={USE_DIRECT} />
+                </div>
+              </div>
             </div>
           </div>
         </ContentArea>
@@ -1087,46 +1106,66 @@ const SummaryScene: React.FC = () => {
   );
 };
 
-// ── 씬: OutroScene — return 핵심 키워드 강조 ────────────────
-const OutroScene: React.FC = () => {
-  const { outroScene: cfg } = VIDEO_CONFIG;
+// ── 씬: RealExampleScene — return 활용 실전 예시 ─────────────
+const DISCOUNT_FUNC = [
+  "int discount(int price) {",
+  "    if (price > 30000) {",
+  "        return (int)(price * 0.9);",
+  "    }",
+  "    return price;",
+  "}",
+];
+const DISCOUNT_USE = [
+  "int cart = discount(50000);",
+  "int pay = discount(80000);",
+];
+
+const RealExampleScene: React.FC = () => {
+  const { realExampleScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
+  const split1 = cfg.narrationSplits[0];
+  const split2 = cfg.narrationSplits[1];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 1문장: return 키워드 등장
-  const returnAppear = spring({
+  // 1문장: 함수 선언 등장
+  const funcAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
   });
-
-  // return 밑줄
-  const returnUnderline = spring({
-    frame: frame - (s + 16),
+  // 2문장: 호출 + 변수 저장 등장
+  const useAppear = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 48,
+  });
+  // 3문장: return 강조
+  const returnHighlight = spring({
+    frame: frame - split2,
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
   });
-
-  // 2문장: 설명 텍스트 등장
-  const descAppear = spring({
-    frame: frame - split,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 36,
-  });
+  // return 하이라이트 소멸 (1회성 — 헌법 13조)
+  const returnHighlightOut = interpolate(
+    frame,
+    [split2 + 60, split2 + 85],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const returnGlow = returnHighlight * (1 - returnHighlightOut);
 
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="8. 핵심" />
+          <SceneTitle title="8. 실전 예시" />
           <div
             style={{
               position: "absolute",
@@ -1136,48 +1175,102 @@ const OutroScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 36,
+              gap: 24,
+              width: 860,
             }}
           >
-            {/* return 키워드 */}
-            <div
-              style={{
-                ...monoStyle,
-                fontSize: 72,
-                fontWeight: 900,
-                color: C_KEYWORD,
-                opacity: returnAppear,
-                position: "relative",
-                display: "inline-block",
-              }}
-            >
-              return
+            {/* 함수 선언 */}
+            <div style={{ width: "100%", opacity: funcAppear }}>
               <div
                 style={{
-                  position: "absolute",
-                  bottom: -6,
-                  left: 0,
-                  height: 4,
-                  background: C_TEAL,
-                  borderRadius: 2,
-                  width: `${returnUnderline * 100}%`,
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_FUNC,
+                  letterSpacing: 2,
+                  marginBottom: 8,
+                  opacity: 0.85,
                 }}
-              />
+              >
+                함수 선언
+              </div>
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "20px 28px",
+                  ...monoStyle,
+                  fontSize: 24,
+                  position: "relative",
+                }}
+              >
+                {DISCOUNT_FUNC.map((line, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      lineHeight: "1.7",
+                      color: TEXT,
+                      whiteSpace: "pre",
+                    }}
+                  >
+                    <JavaLine text={line} />
+                  </div>
+                ))}
+                {/* return 줄 하이라이트 (1회성) */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 4,
+                    right: 4,
+                    top: 20 + 2 * (24 * 1.7),
+                    height: 24 * 1.7,
+                    border: `2px solid ${C_KEYWORD}`,
+                    borderRadius: 6,
+                    background: `${C_KEYWORD}12`,
+                    opacity: returnGlow,
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
             </div>
 
-            {/* 설명 */}
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: FONT.heading,
-                fontWeight: 700,
-                color: TEXT,
-                textAlign: "center",
-                lineHeight: 1.6,
-                opacity: descAppear,
-              }}
-            >
-              결과를 자유롭게 활용
+            {/* 활용 */}
+            <div style={{ width: "100%", opacity: useAppear }}>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_TEAL,
+                  letterSpacing: 2,
+                  marginBottom: 8,
+                  opacity: 0.85,
+                }}
+              >
+                활용
+              </div>
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "20px 28px",
+                  ...monoStyle,
+                  fontSize: 24,
+                }}
+              >
+                {DISCOUNT_USE.map((line, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      lineHeight: "1.7",
+                      color: TEXT,
+                      whiteSpace: "pre",
+                    }}
+                  >
+                    <JavaLine text={line} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </ContentArea>
@@ -1186,7 +1279,7 @@ const OutroScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
-        wordFrames={AUDIO_CONFIG.outroScene.wordStartFrames}
+        wordFrames={AUDIO_CONFIG.realExampleScene.wordStartFrames}
       />
     </>
   );
@@ -1202,7 +1295,7 @@ const sceneList = [
   VIDEO_CONFIG.useReturnScene,
   VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.summaryScene,
-  VIDEO_CONFIG.outroScene,
+  VIDEO_CONFIG.realExampleScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
 const fromValues = computeFromValues(sceneDurations, {
@@ -1273,9 +1366,9 @@ const JavaReturn: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[8]}
-      durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}
+      durationInFrames={VIDEO_CONFIG.realExampleScene.durationInFrames}
     >
-      <OutroScene />
+      <RealExampleScene />
     </Sequence>
   </AbsoluteFill>
 );
