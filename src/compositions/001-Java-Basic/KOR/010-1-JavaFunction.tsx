@@ -577,7 +577,7 @@ const DeclarationScene: React.FC = () => {
               <span
                 style={{
                   display: "inline-block",
-                  maxWidth: interpolate(paramAppear, [0, 1], [0, 210], {
+                  maxWidth: interpolate(paramAppear, [0, 1], [0, 260], {
                     extrapolateLeft: "clamp",
                     extrapolateRight: "clamp",
                   }),
