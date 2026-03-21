@@ -45,6 +45,23 @@ import {
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
+const argumentParameterAudio = (
+  AUDIO_CONFIG as unknown as Record<
+    string,
+    {
+      durationInFrames: number;
+      speechStartFrame: number;
+      narrationSplits: readonly number[];
+      wordStartFrames?: readonly (readonly number[])[];
+    }
+  >
+).argumentParameterScene ?? {
+  durationInFrames: 240,
+  speechStartFrame: 0,
+  narrationSplits: [80, 160],
+  wordStartFrames: [],
+};
+
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
@@ -97,6 +114,13 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.realExampleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
   },
+  argumentParameterScene: {
+    audio: "fn-arg-param.mp3",
+    durationInFrames: argumentParameterAudio.durationInFrames,
+    speechStartFrame: argumentParameterAudio.speechStartFrame,
+    narration: CONTENT.argumentParameterScene.narration as string[],
+    narrationSplits: argumentParameterAudio.narrationSplits,
+  },
   outroScene: {
     audio: "fn-outro.mp3",
     durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
@@ -111,11 +135,11 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
   if (text.startsWith("//")) {
     return <span style={{ color: "#6a9955" }}>{text}</span>; // C_COMMENT
   }
-  const parts = text.split(/(void|return|if|else|"[^"]*")/g);
+  const parts = text.split(/(void|return|if|else|String|int|"[^"]*")/g);
   return (
     <>
       {parts.map((part, i) => {
-        if (["void", "return", "if", "else"].includes(part))
+        if (["void", "return", "if", "else", "String", "int"].includes(part))
           return (
             <span key={i} style={{ color: C_KEYWORD }}>
               {part}
@@ -143,51 +167,6 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
         return <span key={i}>{part}</span>;
       })}
     </>
-  );
-};
-
-// ── 컴포넌트: TypingGreetLine (첫 줄 전용 — greet 밑줄) ────────
-const TypingGreetLine: React.FC<{
-  text: string;
-  startFrame: number;
-  cps: number;
-  underlineAppear: number;
-}> = ({ text, startFrame, cps, underlineAppear }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, cps);
-  const parts = visibleText.split("greet");
-  return (
-    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-      <span style={{ color: C_KEYWORD }}>
-        {parts[0]?.startsWith("void") ? "void" : ""}
-      </span>
-      {parts[0]?.replace("void", "")}
-      {parts.length > 1 && (
-        <span
-          style={{
-            color: C_FUNC,
-            position: "relative",
-            display: "inline",
-          }}
-        >
-          greet
-          <span
-            style={{
-              position: "absolute",
-              bottom: -2,
-              left: 0,
-              right: 0,
-              height: 3,
-              background: C_PAIN,
-              borderRadius: 2,
-              opacity: underlineAppear,
-              transform: `scaleX(${underlineAppear})`,
-              transformOrigin: "left",
-            }}
-          />
-        </span>
-      )}
-      {parts[1] ?? ""}
-    </div>
   );
 };
 
@@ -552,35 +531,48 @@ const ConceptScene: React.FC = () => {
 };
 
 // ── 씬: DeclarationScene ──────────────────────────────────────
-const DECLARE_LINES = [
-  "void greet() {",
-  '    System.out.println("안녕 민준");',
-  "}",
-];
-const DECLARE_CPS = 18;
+const DECLARE_BASE_LINE = '    System.out.println("안녕");';
+const DECLARE_PARAM_LINE = '    System.out.println("안녕 " + name);';
 
 const DeclarationScene: React.FC = () => {
   const { declarationScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
+  const split1 = cfg.narrationSplits[0];
+  const split2 = cfg.narrationSplits[1];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const lineStarts: number[] = [];
-  let cumFrame = s;
-  for (const line of DECLARE_LINES) {
-    lineStarts.push(cumFrame);
-    cumFrame += Math.ceil((line.length / DECLARE_CPS) * fps);
-  }
-
-  // "이름에만" 발화 시점(frame 95)에 greet 함수명에 빨간 밑줄
-  const nameWordFrame = AUDIO_CONFIG.declarationScene.wordStartFrames[1][2]; // "이름에만" = 95
-  const underlineAppear = spring({
-    frame: frame - nameWordFrame,
+  const baseOpenAppear = spring({
+    frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 140 },
-    durationInFrames: 32,
+    durationInFrames: 36,
+  });
+  const baseLineAppear = spring({
+    frame: frame - (s + 18),
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 36,
+  });
+  const paramAppear = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 36,
+  });
+  const useParamLineAppear = spring({
+    frame: frame - split2,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 40,
+  });
+  const parameterChipAppear = spring({
+    frame: frame - split2,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+    durationInFrames: 44,
   });
 
   return (
@@ -601,26 +593,122 @@ const DeclarationScene: React.FC = () => {
               minWidth: 760,
               ...monoStyle,
               fontSize: 32,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
             }}
           >
-            {DECLARE_LINES.map((line, i) =>
-              i === 0 ? (
-                <TypingGreetLine
-                  key={i}
-                  text={line}
-                  startFrame={lineStarts[i]}
-                  cps={DECLARE_CPS}
-                  underlineAppear={underlineAppear}
-                />
-              ) : (
-                <TypingCodeLine
-                  key={i}
-                  text={line}
-                  startFrame={lineStarts[i]}
-                  cps={DECLARE_CPS}
-                />
-              ),
-            )}
+            <div
+              style={{
+                lineHeight: "1.9",
+                color: TEXT,
+                whiteSpace: "pre",
+                opacity: baseOpenAppear,
+              }}
+            >
+              <span style={{ color: C_KEYWORD }}>void</span>{" "}
+              <span style={{ color: C_FUNC }}>greet</span>(
+              <span
+                style={{
+                  display: "inline-block",
+                  maxWidth: interpolate(paramAppear, [0, 1], [0, 210], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  }),
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  verticalAlign: "bottom",
+                  opacity: paramAppear,
+                  transform: `translateX(${interpolate(
+                    paramAppear,
+                    [0, 1],
+                    [10, 0],
+                    {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    },
+                  )}px)`,
+                  marginInline: 2,
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    background: `${C_TEAL}18`,
+                    borderRadius: 8,
+                    padding: "2px 8px",
+                  }}
+                >
+                  <span style={{ color: C_KEYWORD }}>String</span> name
+                </span>
+              </span>
+              ) {"{"}
+            </div>
+            <div
+              style={{
+                position: "relative",
+                minHeight: 58,
+                lineHeight: "1.9",
+                color: TEXT,
+                whiteSpace: "pre",
+                opacity: baseLineAppear,
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: 1 - useParamLineAppear,
+                }}
+              >
+                <CodeLine text={DECLARE_BASE_LINE} />
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: useParamLineAppear,
+                }}
+              >
+                <CodeLine text={DECLARE_PARAM_LINE} />
+              </div>
+            </div>
+            <div
+              style={{
+                lineHeight: "1.9",
+                color: TEXT,
+                whiteSpace: "pre",
+                opacity: baseLineAppear,
+              }}
+            >
+              {"}"}
+            </div>
+            <div
+              style={{
+                marginTop: 18,
+                alignSelf: "center",
+                fontFamily: uiFont,
+                fontSize: 24,
+                fontWeight: 800,
+                color: C_TEAL,
+                background: `${C_TEAL}16`,
+                border: `2px solid ${C_TEAL}55`,
+                borderRadius: 999,
+                padding: "12px 24px",
+                opacity: parameterChipAppear,
+                transform: `scale(${interpolate(
+                  parameterChipAppear,
+                  [0, 1],
+                  [0.9, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
+              }}
+            >
+              함수 쪽 받는 자리 = 매개변수
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -635,7 +723,8 @@ const DeclarationScene: React.FC = () => {
 };
 
 // ── 씬: CallScene ─────────────────────────────────────────────
-const CALL_LINES = ["greet();", "greet();", "greet();"];
+const CALL_LINES = ['greet("민준");', 'greet("철수");', 'greet("영희");'];
+const CALL_OUTPUTS = ["안녕 민준", "안녕 철수", "안녕 영희"];
 const CALL_CPS = 20;
 
 const CallScene: React.FC = () => {
@@ -644,10 +733,18 @@ const CallScene: React.FC = () => {
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
   const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
   const lineStarts = CALL_LINES.map((_, i) => {
     const lineDuration = (split - s) / CALL_LINES.length;
     return Math.round(s + i * lineDuration);
+  });
+  const outputAppear = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+    durationInFrames: 40,
   });
 
   return (
@@ -662,22 +759,54 @@ const CallScene: React.FC = () => {
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
-              padding: "40px 56px",
-              minWidth: 400,
-              ...monoStyle,
-              fontSize: 40,
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              width: 760,
             }}
           >
-            {CALL_LINES.map((line, i) => (
-              <TypingCodeLine
-                key={i}
-                text={line}
-                startFrame={lineStarts[i]}
-                cps={CALL_CPS}
-              />
-            ))}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "40px 56px",
+                ...monoStyle,
+                fontSize: 40,
+              }}
+            >
+              {CALL_LINES.map((line, i) => (
+                <TypingCodeLine
+                  key={i}
+                  text={line}
+                  startFrame={lineStarts[i]}
+                  cps={CALL_CPS}
+                />
+              ))}
+            </div>
+            <div
+              style={{
+                background: `${C_TEAL}12`,
+                border: `2px solid ${C_TEAL}44`,
+                borderRadius: 16,
+                padding: "24px 28px",
+                ...monoStyle,
+                fontSize: 28,
+                opacity: outputAppear,
+              }}
+            >
+              {CALL_OUTPUTS.map((line, i) => (
+                <div
+                  key={i}
+                  style={{
+                    lineHeight: "1.8",
+                    color: "#ffffff",
+                    whiteSpace: "pre",
+                  }}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -717,18 +846,14 @@ const SummaryScene: React.FC = () => {
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 
-  // "선언은" 발화(frame 106) → 카드0 등장
-  const declareWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][0]; // "선언은"
   const card0Appear = spring({
-    frame: frame - declareWordFrame,
+    frame: frame - split,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
   });
-  // "호출은" 발화(frame 141) → 카드1 등장
-  const callWordFrame = AUDIO_CONFIG.summaryScene.wordStartFrames[1][3]; // "호출은"
   const card1Appear = spring({
-    frame: frame - callWordFrame,
+    frame: frame - (split + 12),
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
@@ -828,13 +953,13 @@ const SummaryScene: React.FC = () => {
 // ── 씬: ComparisonScene — 고통코드 → 화살표 → 개선코드 ───────
 const BEFORE_LINES = PAIN_LINES; // 함수 없이: 3줄 반복
 const AFTER_LINES = [
-  "void greet() {",
-  '    System.out.println("안녕 민준");',
+  "void greet(String name) {",
+  '    System.out.println("안녕 " + name);',
   "}",
   "",
-  "greet();",
-  "greet();",
-  "greet();",
+  'greet("민준");',
+  'greet("철수");',
+  'greet("영희");',
 ];
 
 // 하이라이트할 줄 인덱스 (반복되는 println 줄)
@@ -1381,6 +1506,196 @@ const RealExampleScene: React.FC = () => {
   );
 };
 
+// ── 씬: ArgumentParameterScene ───────────────────────────────
+const ArgumentParameterScene: React.FC = () => {
+  const { argumentParameterScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const s = cfg.speechStartFrame;
+  const split1 = cfg.narrationSplits[0];
+  const split2 = cfg.narrationSplits[1];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const parameterAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 44,
+  });
+  const argumentAppear = spring({
+    frame: frame - split1,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 44,
+  });
+  const compareAppear = spring({
+    frame: frame - split2,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+    durationInFrames: 44,
+  });
+
+  const cardStyle: React.CSSProperties = {
+    width: 860,
+    background: BG_CODE,
+    borderRadius: 16,
+    padding: "28px 34px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+  };
+
+  const tagStyle = (color: string, appear: number): React.CSSProperties => ({
+    alignSelf: "flex-start",
+    fontFamily: uiFont,
+    fontSize: 22,
+    fontWeight: 800,
+    color,
+    background: `${color}18`,
+    border: `2px solid ${color}55`,
+    borderRadius: 999,
+    padding: "8px 18px",
+    opacity: appear,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="8. 인자와 매개변수" />
+          <div
+            style={{
+              position: "absolute",
+              top: "45%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 24,
+            }}
+          >
+            <div style={{ ...cardStyle, opacity: parameterAppear }}>
+              <div style={tagStyle(C_TEAL, parameterAppear)}>매개변수</div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 32,
+                  lineHeight: "1.9",
+                  color: TEXT,
+                }}
+              >
+                <span style={{ color: C_KEYWORD }}>void</span>{" "}
+                <span style={{ color: C_FUNC }}>greet</span>(
+                <span
+                  style={{
+                    background: `${C_TEAL}22`,
+                    borderRadius: 8,
+                    padding: "2px 8px",
+                  }}
+                >
+                  <span style={{ color: C_KEYWORD }}>String</span> name
+                </span>
+                ) {"{"}
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                }}
+              >
+                함수 선언 쪽에서 값을 받을 자리를 미리 정해 둡니다.
+              </div>
+            </div>
+
+            <div style={{ ...cardStyle, opacity: argumentAppear }}>
+              <div style={tagStyle(C_FUNC, argumentAppear)}>인자</div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 32,
+                  lineHeight: "1.9",
+                  color: TEXT,
+                }}
+              >
+                <span style={{ color: C_FUNC }}>greet</span>(
+                <span
+                  style={{
+                    color: C_STRING,
+                    background: `${C_FUNC}18`,
+                    borderRadius: 8,
+                    padding: "2px 8px",
+                  }}
+                >
+                  "민준"
+                </span>
+                );
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                }}
+              >
+                함수 호출 쪽에서 그 자리에 실제 값을 넣어 줍니다.
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 18,
+                opacity: compareAppear,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: C_TEAL,
+                  background: `${C_TEAL}16`,
+                  border: `2px solid ${C_TEAL}55`,
+                  borderRadius: 14,
+                  padding: "18px 26px",
+                }}
+              >
+                매개변수 = 함수 쪽 받는 자리
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: C_FUNC,
+                  background: `${C_FUNC}16`,
+                  border: `2px solid ${C_FUNC}55`,
+                  borderRadius: 14,
+                  padding: "18px 26px",
+                }}
+              >
+                인자 = 호출 쪽 실제 값
+              </div>
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={argumentParameterAudio.wordStartFrames ?? []}
+      />
+    </>
+  );
+};
+
 // ── OutroScene — return/void 예고 ────────────────────────────
 const OutroScene: React.FC = () => {
   const { outroScene: cfg } = VIDEO_CONFIG;
@@ -1517,6 +1832,7 @@ const sceneList = [
   VIDEO_CONFIG.summaryScene,
   VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.realExampleScene,
+  VIDEO_CONFIG.argumentParameterScene,
   VIDEO_CONFIG.outroScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
@@ -1588,6 +1904,12 @@ const JavaFunction: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[8]}
+      durationInFrames={VIDEO_CONFIG.argumentParameterScene.durationInFrames}
+    >
+      <ArgumentParameterScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[9]}
       durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}
     >
       <OutroScene />
