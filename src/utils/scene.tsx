@@ -159,7 +159,6 @@ export const ContentArea: React.FC<{ children: React.ReactNode }> = ({
         left: 0,
         right: 0,
         height: height - SUBTITLE_DEAD_ZONE,
-        wordBreak: "keep-all",
       }}
     >
       {children}
@@ -229,7 +228,6 @@ export const Subtitle: React.FC<{
     padding: "10px 20px",
     lineHeight: 1.6,
     maxWidth: width - 80,
-    wordBreak: "keep-all",
     whiteSpace: "pre-wrap",
   };
 
