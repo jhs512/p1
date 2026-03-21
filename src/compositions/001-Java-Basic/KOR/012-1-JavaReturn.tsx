@@ -1211,8 +1211,8 @@ const DISCOUNT_FUNC = [
   "}",
 ];
 const DISCOUNT_USE = [
-  "int cart = discount(50000);",
-  "int pay = discount(80000);",
+  "int cart = discount(50000);  // 45000",
+  "int pay = discount(80000);  // 72000",
 ];
 
 const RealExampleScene: React.FC = () => {
