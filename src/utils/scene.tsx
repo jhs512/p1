@@ -61,6 +61,20 @@ export const FONT = {
   display: 56,
 } as const;
 
+/** 코드 블록(monoStyle) 전용 폰트 스케일 — 5단계 */
+export const CODE = {
+  /** 18px — 밀집 코드 (Before/After 비교, 7줄+ 긴 코드) */
+  xs: 18,
+  /** 22px — 보조 코드 (주석 설명, 활용 예시 보조) */
+  sm: 22,
+  /** 24px — 중간 코드 (실행 흐름, 3~5줄 블록) */
+  md: 24,
+  /** 28px — 기본 코드 (메인 예시, 2~3줄) */
+  lg: 28,
+  /** 32px — 강조 코드 (단일 줄, 핵심 코드) */
+  xl: 32,
+} as const;
+
 // ── 훅: useFade ───────────────────────────────────────────────
 /** fadeIn/fadeOut에 사용할 프레임 수 (CROSS=0이어도 강제 fade 시 사용) */
 const FADE_FRAMES = 20;

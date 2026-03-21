@@ -24,6 +24,7 @@ import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -156,7 +157,7 @@ const CodeBox: React.FC<{
       padding: "48px 64px",
       minWidth: 800,
       ...monoStyle,
-      fontSize: 36,
+      fontSize: CODE.xl,
     }}
   >
     {lines.map((line, i) =>
@@ -195,7 +196,7 @@ const ConsoleOutput: React.FC<{ text: string; startFrame: number }> = ({
         borderRadius: 8,
         padding: "12px 32px",
         ...monoStyle,
-        fontSize: 32,
+        fontSize: CODE.xl,
         color: "#89d185",
         opacity,
         minWidth: 300,
@@ -821,7 +822,7 @@ const InterpretScene: React.FC = () => {
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 ...monoStyle,
-                fontSize: 34,
+                fontSize: CODE.xl,
                 lineHeight: 2.1,
                 background: "#252525",
                 borderRadius: 20,
@@ -894,7 +895,7 @@ const InterpretScene: React.FC = () => {
                   <span
                     style={{
                       ...monoStyle,
-                      fontSize: 26,
+                      fontSize: CODE.lg,
                       color: C_NUMBER,
                       background: BG_CODE,
                       borderRadius: 8,

@@ -16,6 +16,7 @@ import React from "react";
 import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -220,7 +221,7 @@ const PainScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "28px 40px",
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 opacity: codeAppear,
                 transform: `scale(${interpolate(codeAppear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
               }}
@@ -344,7 +345,7 @@ const ConceptScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "28px 40px",
                 ...monoStyle,
-                fontSize: 30,
+                fontSize: CODE.xl,
                 opacity: codeAppear,
               }}
             >
@@ -512,7 +513,7 @@ const ReturnTypeScene: React.FC = () => {
               >
                 돌려줄 값 없음
               </div>
-              <div style={{ ...monoStyle, fontSize: 28, color: TEXT }}>
+              <div style={{ ...monoStyle, fontSize: CODE.xl, color: TEXT }}>
                 <span style={{ color: C_KEYWORD }}>void</span>{" "}
                 <span style={{ color: C_FUNC }}>greet</span>() {"{"}...{"}"}
               </div>
@@ -549,7 +550,7 @@ const ReturnTypeScene: React.FC = () => {
                 >
                   정수
                 </div>
-                <div style={{ ...monoStyle, fontSize: 26, color: TEXT }}>
+                <div style={{ ...monoStyle, fontSize: CODE.lg, color: TEXT }}>
                   <span style={{ color: C_KEYWORD }}>int</span>{" "}
                   <span style={{ color: C_FUNC }}>sum</span>()
                 </div>
@@ -576,7 +577,7 @@ const ReturnTypeScene: React.FC = () => {
                 >
                   실수
                 </div>
-                <div style={{ ...monoStyle, fontSize: 26, color: TEXT }}>
+                <div style={{ ...monoStyle, fontSize: CODE.lg, color: TEXT }}>
                   <span style={{ color: C_KEYWORD }}>double</span>{" "}
                   <span style={{ color: C_FUNC }}>avg</span>()
                 </div>
@@ -651,7 +652,7 @@ const ReturnFlowScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "28px 40px",
                 ...monoStyle,
-                fontSize: 26,
+                fontSize: CODE.lg,
                 opacity: codeAppear,
               }}
             >
@@ -819,7 +820,7 @@ const UseReturnScene: React.FC = () => {
                   borderRadius: 12,
                   padding: "24px 36px",
                   ...monoStyle,
-                  fontSize: 28,
+                  fontSize: CODE.xl,
                   lineHeight: "1.9",
                   color: TEXT,
                   whiteSpace: "pre",
@@ -866,7 +867,7 @@ const UseReturnScene: React.FC = () => {
                   borderRadius: 12,
                   padding: "24px 36px",
                   ...monoStyle,
-                  fontSize: 28,
+                  fontSize: CODE.xl,
                   lineHeight: "1.9",
                   color: TEXT,
                   whiteSpace: "pre",
@@ -987,7 +988,7 @@ const ComparisonScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "20px 32px",
                 ...monoStyle,
-                fontSize: 26,
+                fontSize: CODE.lg,
                 opacity: beforeAppear,
                 border: `2px solid ${C_PAIN}33`,
               }}
@@ -1032,7 +1033,7 @@ const ComparisonScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "20px 32px",
                 ...monoStyle,
-                fontSize: 26,
+                fontSize: CODE.lg,
                 opacity: afterAppear,
                 border: `2px solid ${C_TEAL}33`,
               }}
@@ -1054,7 +1055,7 @@ const ComparisonScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "14px 32px",
                 ...monoStyle,
-                fontSize: 22,
+                fontSize: CODE.md,
                 opacity: afterAppear,
                 border: `2px solid ${C_TEAL}22`,
               }}
@@ -1285,7 +1286,7 @@ const RealExampleScene: React.FC = () => {
                   borderRadius: 12,
                   padding: "20px 28px",
                   ...monoStyle,
-                  fontSize: 24,
+                  fontSize: CODE.lg,
                   position: "relative",
                 }}
               >
@@ -1354,7 +1355,7 @@ const RealExampleScene: React.FC = () => {
                   borderRadius: 12,
                   padding: "20px 28px",
                   ...monoStyle,
-                  fontSize: 24,
+                  fontSize: CODE.lg,
                 }}
               >
                 {DISCOUNT_USE.map((line, i) => (

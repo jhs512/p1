@@ -17,6 +17,7 @@ import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -260,7 +261,7 @@ const PainScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "32px 44px",
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
               }}
             >
               {PAIN_FUNC_LINES.map((line, i) => (
@@ -289,7 +290,7 @@ const PainScene: React.FC = () => {
                 borderRadius: 12,
                 padding: "20px 44px",
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 border: `2px dashed ${C_PAIN}55`,
               }}
             >
@@ -529,7 +530,7 @@ const ParamScene: React.FC = () => {
                 padding: "36px 48px",
                 maxWidth: 980,
                 ...monoStyle,
-                fontSize: 22,
+                fontSize: CODE.md,
                 position: "relative",
               }}
             >
@@ -603,7 +604,7 @@ const CallScene: React.FC = () => {
               padding: "40px 56px",
               minWidth: 760,
               ...monoStyle,
-              fontSize: 30,
+              fontSize: CODE.xl,
             }}
           >
             {CALL_LINES.map((line, i) => (
@@ -756,7 +757,7 @@ const MultiParamScene: React.FC = () => {
                 padding: "40px 56px",
                 minWidth: 760,
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
               }}
             >
               {/* 함수 선언부 */}
@@ -819,7 +820,7 @@ const MultiParamScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 32,
+                    fontSize: CODE.xl,
                     fontWeight: 700,
                     color: C_STRING,
                   }}
@@ -830,7 +831,7 @@ const MultiParamScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 32,
+                    fontSize: CODE.xl,
                     fontWeight: 700,
                     color: C_TEAL,
                   }}
@@ -861,7 +862,7 @@ const MultiParamScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 32,
+                    fontSize: CODE.xl,
                     fontWeight: 700,
                     color: C_STRING,
                   }}
@@ -872,7 +873,7 @@ const MultiParamScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 32,
+                    fontSize: CODE.xl,
                     fontWeight: 700,
                     color: C_TEAL,
                   }}
@@ -999,7 +1000,7 @@ const ArgParamScene: React.FC = () => {
                     .padStart(2, "0")}`,
                 }}
               >
-                <span style={{ ...monoStyle, fontSize: 30, color: TEXT }}>
+                <span style={{ ...monoStyle, fontSize: CODE.xl, color: TEXT }}>
                   <span style={{ color: C_KEYWORD }}>void</span>{" "}
                   <span style={{ color: C_FUNC }}>greet</span>(
                   <span
@@ -1076,7 +1077,7 @@ const ArgParamScene: React.FC = () => {
                     .padStart(2, "0")}`,
                 }}
               >
-                <span style={{ ...monoStyle, fontSize: 30, color: TEXT }}>
+                <span style={{ ...monoStyle, fontSize: CODE.xl, color: TEXT }}>
                   <span style={{ color: C_FUNC }}>greet</span>(
                   <span
                     style={{

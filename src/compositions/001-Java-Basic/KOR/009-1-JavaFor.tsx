@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS } from "../../../config";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -321,7 +322,7 @@ const IntroScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 36,
+                fontSize: CODE.xl,
                 background: "#252525",
                 borderRadius: "16px 16px 0 0",
                 padding: "28px 44px 16px",
@@ -343,7 +344,7 @@ const IntroScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 34,
+                fontSize: CODE.xl,
                 background: "#252525",
                 padding: "16px 44px 16px 88px",
                 border: "2px solid #3a3a3a",
@@ -359,7 +360,7 @@ const IntroScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 36,
+                fontSize: CODE.xl,
                 background: "#252525",
                 borderRadius: "0 0 16px 16px",
                 padding: "16px 44px 28px",
@@ -476,7 +477,7 @@ const ForScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 34,
+                  fontSize: CODE.xl,
                   lineHeight: 2.1,
                   background: "#252525",
                   borderRadius: 20,
@@ -605,7 +606,7 @@ const ForScene: React.FC = () => {
                   <span
                     style={{
                       ...monoStyle,
-                      fontSize: 24,
+                      fontSize: CODE.lg,
                       fontWeight: 700,
                     }}
                   >
@@ -782,7 +783,7 @@ const ExecutionScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 26,
+                  fontSize: CODE.lg,
                   lineHeight: 2.0,
                   background: "#252525",
                   borderRadius: 16,
@@ -865,7 +866,7 @@ const ExecutionScene: React.FC = () => {
                     style={{
                       ...monoStyle,
                       color: "#d4d4d4",
-                      fontSize: 28,
+                      fontSize: CODE.xl,
                     }}
                   >
                     i =
@@ -901,7 +902,7 @@ const ExecutionScene: React.FC = () => {
                     style={{
                       ...monoStyle,
                       color: C_COND,
-                      fontSize: 24,
+                      fontSize: CODE.lg,
                     }}
                   >
                     i {"<"} 5
@@ -929,7 +930,7 @@ const ExecutionScene: React.FC = () => {
                   borderRadius: 14,
                   padding: "16px 28px",
                   ...monoStyle,
-                  fontSize: 26,
+                  fontSize: CODE.lg,
                   opacity: stepIdx > 0 || showOutput ? 1 : 0,
                 }}
               >
@@ -1038,7 +1039,7 @@ const SummaryScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 lineHeight: 1.9,
                 background: "#252525",
                 borderRadius: 16,

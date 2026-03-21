@@ -17,6 +17,7 @@ import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -373,7 +374,7 @@ const PainScene: React.FC = () => {
               padding: "28px 44px",
               minWidth: 760,
               ...monoStyle,
-              fontSize: 26,
+              fontSize: CODE.lg,
             }}
           >
             {PAIN_LINES.map((line, i) => {
@@ -587,7 +588,7 @@ const DeclarationScene: React.FC = () => {
               padding: "40px 56px",
               minWidth: 760,
               ...monoStyle,
-              fontSize: 32,
+              fontSize: CODE.xl,
             }}
           >
             {DECLARE_LINES.map((line, i) =>
@@ -872,7 +873,7 @@ const ComparisonScene: React.FC = () => {
     borderRadius: 12,
     padding: "20px 32px",
     ...monoStyle,
-    fontSize: 24,
+    fontSize: CODE.lg,
     position: "relative",
   };
 
@@ -893,7 +894,7 @@ const ComparisonScene: React.FC = () => {
     appear: number;
   }> = ({ lineIndices, color, appear }) => {
     if (lineIndices.length === 0) return null;
-    const lineH = 24 * 1.7; // fontSize * lineHeight
+    const lineH = CODE.lg * 1.7; // fontSize * lineHeight
     // 연속 구간별 그룹핑
     const groups: number[][] = [];
     let cur: number[] = [];
@@ -1098,7 +1099,7 @@ const RealExampleScene: React.FC = () => {
     borderRadius: 12,
     padding: "14px 20px",
     ...monoStyle,
-    fontSize: 18,
+    fontSize: CODE.sm,
   };
 
   const labelStyle = (color: string): React.CSSProperties => ({

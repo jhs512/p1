@@ -16,6 +16,7 @@ import React from "react";
 import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
+  CODE,
   CROSS,
   ContentArea,
   SceneTitle,
@@ -122,7 +123,7 @@ const CodeLines: React.FC<{
         padding: "36px 56px",
         minWidth: 820,
         ...monoStyle,
-        fontSize: 32,
+        fontSize: CODE.xl,
         lineHeight: 1.9,
       }}
     >
@@ -493,7 +494,7 @@ const RemScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 22,
+                    fontSize: CODE.md,
                     color: "#555",
                   }}
                 >
@@ -528,7 +529,7 @@ const RemScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 22,
+                    fontSize: CODE.md,
                     color: C_REM,
                     opacity: 0.6,
                   }}
@@ -549,7 +550,7 @@ const RemScene: React.FC = () => {
                 display: "flex",
                 gap: 20,
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 background: BG_CODE,
                 borderRadius: 12,
                 padding: "14px 32px",
@@ -642,7 +643,7 @@ const SummaryScene: React.FC = () => {
                   padding: "36px 56px",
                   minWidth: 820,
                   ...monoStyle,
-                  fontSize: 30,
+                  fontSize: CODE.xl,
                   lineHeight: 1.85,
                 }}
               >

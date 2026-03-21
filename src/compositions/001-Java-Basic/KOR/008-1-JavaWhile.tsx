@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -460,7 +461,7 @@ const WhileScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 34,
+                  fontSize: CODE.xl,
                   lineHeight: 1.95,
                   background: "#252525",
                   borderRadius: 20,
@@ -534,7 +535,7 @@ const WhileScene: React.FC = () => {
                   <span
                     style={{
                       ...monoStyle,
-                      fontSize: 24,
+                      fontSize: CODE.lg,
                       fontWeight: 700,
                     }}
                   >
@@ -666,7 +667,7 @@ const ExecutionScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 28,
+                  fontSize: CODE.xl,
                   lineHeight: 2.0,
                   background: "#252525",
                   borderRadius: 16,
@@ -776,7 +777,7 @@ const ExecutionScene: React.FC = () => {
                     style={{
                       ...monoStyle,
                       color: "#d4d4d4",
-                      fontSize: 28,
+                      fontSize: CODE.xl,
                     }}
                   >
                     count =
@@ -811,7 +812,7 @@ const ExecutionScene: React.FC = () => {
                     style={{
                       ...monoStyle,
                       color: C_COND,
-                      fontSize: 24,
+                      fontSize: CODE.lg,
                     }}
                   >
                     count {"<="} 5
@@ -838,7 +839,7 @@ const ExecutionScene: React.FC = () => {
                     borderRadius: 14,
                     padding: "16px 28px",
                     ...monoStyle,
-                    fontSize: 26,
+                    fontSize: CODE.lg,
                     opacity: stepIdx > 0 || showOutput ? 1 : 0,
                   }}
                 >
@@ -963,7 +964,7 @@ const InfiniteScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 32,
+                  fontSize: CODE.xl,
                   lineHeight: 1.95,
                   background: "#252525",
                   borderRadius: 20,
@@ -997,7 +998,7 @@ const InfiniteScene: React.FC = () => {
                   <span
                     style={{
                       color: C_RED,
-                      fontSize: 26,
+                      fontSize: CODE.lg,
                       opacity: 0.75,
                       textDecoration: "line-through",
                     }}
@@ -1098,7 +1099,7 @@ const SummaryScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 lineHeight: 1.9,
                 background: "#252525",
                 borderRadius: 16,

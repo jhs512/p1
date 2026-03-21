@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS } from "../../../config";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -469,7 +470,7 @@ const AndScene: React.FC = () => {
                 left: "50%",
                 transform: "translateX(-50%)",
                 ...monoStyle,
-                fontSize: 36,
+                fontSize: CODE.xl,
                 opacity: 0.5,
                 color: "#d4d4d4",
                 lineHeight: 1.7,
@@ -500,7 +501,7 @@ const AndScene: React.FC = () => {
                 left: "50%",
                 transform: "translateX(-50%)",
                 ...monoStyle,
-                fontSize: 34,
+                fontSize: CODE.xl,
                 color: "#aaaaaa",
               }}
             >
@@ -589,7 +590,7 @@ const OrScene: React.FC = () => {
                 left: "50%",
                 transform: "translateX(-50%)",
                 ...monoStyle,
-                fontSize: 36,
+                fontSize: CODE.xl,
                 opacity: 0.5,
                 color: "#d4d4d4",
                 lineHeight: 1.7,
@@ -620,7 +621,7 @@ const OrScene: React.FC = () => {
                 left: "50%",
                 transform: "translateX(-50%)",
                 ...monoStyle,
-                fontSize: 34,
+                fontSize: CODE.xl,
                 color: "#aaaaaa",
               }}
             >

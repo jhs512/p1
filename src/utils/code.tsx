@@ -15,7 +15,7 @@ import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import java from "shiki/langs/java.mjs";
 import darkPlus from "shiki/themes/dark-plus.mjs";
 
-import { MONO_NO_LIGA, monoFont } from "./scene";
+import { CODE, MONO_NO_LIGA, monoFont } from "./scene";
 
 // ── Shiki highlighter (싱글턴) ────────────────────────────────
 const highlighter = createHighlighterCoreSync({
@@ -163,7 +163,7 @@ function renderLines(
 // ── 컴포넌트 ─────────────────────────────────────────────────
 export const JavaCode: React.FC<JavaCodeProps> = ({
   code,
-  fontSize = 32,
+  fontSize = CODE.xl,
   lineHeight = 1.9,
   padding = "32px 44px",
   background = "#2d2d2d",

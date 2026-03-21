@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS } from "../../../config";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -125,7 +126,7 @@ const CodeBlock: React.FC<{
     <div
       style={{
         ...monoStyle,
-        fontSize: 32,
+        fontSize: CODE.xl,
         lineHeight: 1.95,
         background: "#252525",
         borderRadius: 20,
@@ -156,7 +157,7 @@ const CodeBlock: React.FC<{
           <span
             style={{
               color: condColor,
-              fontSize: 24,
+              fontSize: CODE.lg,
               marginLeft: 16,
               opacity: 0.75,
             }}
@@ -472,7 +473,7 @@ const IntroScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 32,
+                fontSize: CODE.xl,
                 color: "#888",
                 background: "#2d2d2d",
                 borderRadius: 12,
@@ -745,7 +746,7 @@ const SummaryScene: React.FC = () => {
                     padding: "24px 36px",
                     marginTop: 8,
                     ...monoStyle,
-                    fontSize: 26,
+                    fontSize: CODE.lg,
                     lineHeight: 1.85,
                     opacity: appear,
                     transform: `scale(${sc})`,

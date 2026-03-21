@@ -16,6 +16,7 @@ import React from "react";
 import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -274,7 +275,7 @@ const ThumbnailScene: React.FC = () => {
         <div
           style={{
             ...monoStyle,
-            fontSize: 30,
+            fontSize: CODE.xl,
             color: C_PURPLE,
             opacity: 0.5,
             letterSpacing: 6,
@@ -422,7 +423,7 @@ const CompareScene: React.FC = () => {
                 left: "50%",
                 transform: "translateX(-50%)",
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 opacity: headerOpacity * 0.55,
                 color: TEXT,
               }}
@@ -534,7 +535,7 @@ const SummaryScene: React.FC = () => {
                   <span
                     style={{
                       ...monoStyle,
-                      fontSize: 36,
+                      fontSize: CODE.xl,
                       fontWeight: 700,
                       minWidth: 200,
                       textAlign: "center",
@@ -553,7 +554,7 @@ const SummaryScene: React.FC = () => {
                     style={{
                       ...monoStyle,
                       color: resColor,
-                      fontSize: 34,
+                      fontSize: CODE.xl,
                       fontWeight: 700,
                     }}
                   >

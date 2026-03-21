@@ -18,6 +18,7 @@ import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -146,7 +147,7 @@ const CodeBox: React.FC<{
       padding: "40px 56px",
       minWidth: 780,
       ...monoStyle,
-      fontSize: 36,
+      fontSize: CODE.xl,
     }}
   >
     {lines.map((line, i) =>
@@ -819,7 +820,7 @@ const ValueVsVarScene: React.FC = () => {
                 <div
                   style={{
                     ...monoStyle,
-                    fontSize: 28,
+                    fontSize: CODE.lg,
                     color: "#888",
                   }}
                 >

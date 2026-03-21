@@ -15,6 +15,7 @@ import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import {
+  CODE,
   CROSS,
   ContentArea,
   FONT,
@@ -410,7 +411,7 @@ const IntroScene: React.FC = () => {
 
   const cardBase: React.CSSProperties = {
     ...monoStyle,
-    fontSize: 24,
+    fontSize: CODE.lg,
     lineHeight: 1.85,
     background: "#252525",
     borderRadius: 16,
@@ -594,7 +595,7 @@ const SyntaxScene: React.FC = () => {
               <div
                 style={{
                   ...monoStyle,
-                  fontSize: 25,
+                  fontSize: CODE.lg,
                   lineHeight: 1.95,
                   background: "#252525",
                   borderRadius: 20,
@@ -716,7 +717,7 @@ const MultiCaseScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 34,
+                fontSize: CODE.xl,
                 lineHeight: 2.0,
                 background: "#252525",
                 borderRadius: 16,
@@ -758,7 +759,7 @@ const MultiCaseScene: React.FC = () => {
             <div
               style={{
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: CODE.xl,
                 lineHeight: 1.9,
                 background: "#252525",
                 borderRadius: 16,
@@ -824,7 +825,7 @@ const MultiCaseScene: React.FC = () => {
                   style={{
                     ...monoStyle,
                     color: C_RESULT,
-                    fontSize: 22,
+                    fontSize: CODE.md,
                     fontWeight: 900,
                   }}
                 >
