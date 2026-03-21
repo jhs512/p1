@@ -914,21 +914,22 @@ const ComparisonScene: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
-        <Audio src={staticFile(cfg.audio)} />
-        <SceneTitle title="6. Before / After" />
-        <div
-          style={{
-            position: "absolute",
-            top: "42%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 16,
-            width: 900,
-          }}
-        >
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="6. Before / After" />
+          <div
+            style={{
+              position: "absolute",
+              top: "46%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 16,
+              width: 900,
+            }}
+          >
             {/* 고통스러운 코드 — 위 */}
             <div style={{ opacity: beforeAppear, width: "100%" }}>
               <div style={labelStyle(C_PAIN)}>고통스러운 코드</div>
@@ -1000,7 +1001,8 @@ const ComparisonScene: React.FC = () => {
                 />
               </div>
             </div>
-        </div>
+          </div>
+        </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
