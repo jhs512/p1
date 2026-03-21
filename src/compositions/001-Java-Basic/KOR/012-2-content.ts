@@ -48,7 +48,7 @@ export const CONTENT = {
       "[return(발음:리턴)]은 함수가 결과를 돌려주는 방법입니다.",
       "리턴 타입은 돌려줄 값의 종류를 미리 알려주는 것입니다.",
     ],
-    cards: ["return = 결과 돌려주기", "리턴 타입 = 값의 종류"],
+    cards: ["return\n=\n결과 돌려주기", "리턴 타입\n=\n값의 종류"],
   },
   realExampleScene: {
     narration: [
