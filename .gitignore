@@ -6,6 +6,9 @@ dist
 # 렌더링 결과물
 out
 
+# 음성 파일 (pnpm sync로 재생성)
+public/*.mp3
+
 # sync 스크립트 해시 캐시 (자동 생성)
 .cache/
 
