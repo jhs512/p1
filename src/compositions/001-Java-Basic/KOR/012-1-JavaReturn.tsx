@@ -856,6 +856,10 @@ const AFTER_CODE = [
   "    return a + b;",
   "}",
 ];
+const AFTER_USE = [
+  "int result = sum(3, 5);",
+  "System.out.println(sum(3, 5));",
+];
 
 const ComparisonScene: React.FC = () => {
   const { comparisonScene: cfg } = VIDEO_CONFIG;
@@ -978,6 +982,28 @@ const ComparisonScene: React.FC = () => {
                 <div
                   key={i}
                   style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+
+            {/* 활용 예시 */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 32px",
+                ...monoStyle,
+                fontSize: 22,
+                opacity: afterAppear,
+                border: `2px solid ${C_TEAL}22`,
+              }}
+            >
+              {AFTER_USE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.7", color: TEXT, whiteSpace: "pre" }}
                 >
                   <JavaLine text={line} />
                 </div>
