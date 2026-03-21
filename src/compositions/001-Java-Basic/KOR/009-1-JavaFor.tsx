@@ -722,7 +722,7 @@ const ForScene: React.FC = () => {
                       fontWeight: 700,
                     }}
                   >
-                    i++ = i = i + 1
+                    `i++` 과 `i = i + 1` 는 같은 표현,
                   </span>
                   <span
                     style={{

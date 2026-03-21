@@ -645,7 +645,7 @@ const WhileScene: React.FC = () => {
                       fontWeight: 700,
                     }}
                   >
-                    count++ = count = count + 1
+                    `count++` 와 `count = count + 1` 는 같은 표현,
                   </span>
                   <span
                     style={{
