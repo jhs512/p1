@@ -609,10 +609,10 @@ const ParamScene: React.FC = () => {
               style={{
                 background: BG_CODE,
                 borderRadius: 12,
-                padding: "40px 56px",
-                minWidth: 760,
+                padding: "36px 40px",
+                maxWidth: 980,
                 ...monoStyle,
-                fontSize: 28,
+                fontSize: 24,
                 position: "relative",
               }}
             >
