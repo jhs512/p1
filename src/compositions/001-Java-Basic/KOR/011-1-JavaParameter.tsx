@@ -620,21 +620,25 @@ const ParamScene: React.FC = () => {
                   />
                 ),
               )}
-            </div>
-            {/* 라벨: ← 매개변수 */}
-            <div
-              style={{
-                opacity: labelAppear,
-                fontFamily: uiFont,
-                fontSize: FONT.label,
-                fontWeight: 700,
-                color: C_TEAL,
-                marginTop: 16,
-                textAlign: "center",
-                letterSpacing: 2,
-              }}
-            >
-              ← 매개변수
+              {/* 라벨: ← 매개변수 — 첫 줄 오른쪽 바깥에 배치 */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 40, // 첫 줄 높이에 맞춤 (padding-top과 동일)
+                  right: -24,
+                  transform: "translateX(100%)",
+                  opacity: labelAppear,
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_TEAL,
+                  letterSpacing: 2,
+                  whiteSpace: "nowrap",
+                  lineHeight: "1.9",
+                }}
+              >
+                ← 매개변수
+              </div>
             </div>
           </div>
         </ContentArea>
