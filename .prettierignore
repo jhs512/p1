@@ -9,6 +9,7 @@ src/compositions/**/*-srt.ts
 
 # 의존성
 node_modules
+.venv
 
 # 기타
 *.log

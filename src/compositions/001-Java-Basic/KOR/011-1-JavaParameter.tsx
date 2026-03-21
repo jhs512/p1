@@ -83,13 +83,6 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.multiParamScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.multiParamScene.narrationSplits,
   },
-  summaryScene: {
-    audio: "param-summary.mp3",
-    durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
-    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
-    narration: CONTENT.summaryScene.narration as string[],
-    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
-  },
   argParamScene: {
     audio: "param-argparam.mp3",
     durationInFrames: AUDIO_CONFIG.argParamScene.durationInFrames,
@@ -533,10 +526,10 @@ const ParamScene: React.FC = () => {
               style={{
                 background: BG_CODE,
                 borderRadius: 12,
-                padding: "36px 40px",
+                padding: "36px 48px",
                 maxWidth: 980,
                 ...monoStyle,
-                fontSize: 24,
+                fontSize: 22,
                 position: "relative",
               }}
             >
@@ -901,140 +894,6 @@ const MultiParamScene: React.FC = () => {
   );
 };
 
-// ── 씬: SummaryScene — 매개변수 vs 인자 ────────────────────
-const SUMMARY_CARDS = CONTENT.summaryScene.cards as string[];
-
-const SummaryScene: React.FC = () => {
-  const { summaryScene: cfg } = VIDEO_CONFIG;
-  const d = cfg.durationInFrames;
-  const opacity = useFade(d);
-  const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // 1문장: 요약 타이틀 등장
-  const titleAppear = spring({
-    frame: frame - s,
-    fps,
-    config: { damping: 14, stiffness: 120 },
-    durationInFrames: 48,
-  });
-  // 2문장 시작 시 타이틀 퇴장 (interpolate — 헌법 10조)
-  const titleExit = interpolate(frame, [split - 20, split], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const titleOpacity = titleAppear * (1 - titleExit);
-
-  // 카드 등장: 2문장 wordStartFrames 기준
-  const card0Frame = AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ?? split;
-  const card0Appear = spring({
-    frame: frame - card0Frame,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 48,
-  });
-  const card1Frame =
-    AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[3] ?? split + 40;
-  const card1Appear = spring({
-    frame: frame - card1Frame,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 48,
-  });
-  const cardAppears = [card0Appear, card1Appear];
-
-  return (
-    <>
-      <AbsoluteFill style={{ background: BG, opacity }}>
-        <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="6. 정리" />
-          <div
-            style={{
-              position: "absolute",
-              top: "45%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 48,
-            }}
-          >
-            {/* 1문장: 요약 타이틀 */}
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 48,
-                fontWeight: 700,
-                color: C_TEAL,
-                textAlign: "center",
-                opacity: titleOpacity,
-                transform: `scale(${interpolate(
-                  titleAppear,
-                  [0, 1],
-                  [0.85, 1],
-                  {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  },
-                )})`,
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                marginTop: -30,
-                marginLeft: -240,
-                width: 480,
-              }}
-            >
-              매개변수 = 전달 통로
-            </div>
-            {/* 2문장: 카드 2장 */}
-            <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
-              {SUMMARY_CARDS.map((card, i) => (
-                <div
-                  key={i}
-                  style={{
-                    fontFamily: uiFont,
-                    fontSize: 44,
-                    fontWeight: 700,
-                    color: "#ffffff",
-                    background: `${C_FUNC}18`,
-                    border: `3px solid ${C_FUNC}66`,
-                    borderRadius: 16,
-                    padding: "32px 48px",
-                    textAlign: "center",
-                    opacity: cardAppears[i],
-                    transform: `scale(${interpolate(
-                      cardAppears[i],
-                      [0, 1],
-                      [0.8, 1],
-                      {
-                        extrapolateLeft: "clamp",
-                        extrapolateRight: "clamp",
-                      },
-                    )})`,
-                  }}
-                >
-                  {card}
-                </div>
-              ))}
-            </div>
-          </div>
-        </ContentArea>
-      </AbsoluteFill>
-      <Subtitle
-        sentences={cfg.narration}
-        splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
-      />
-    </>
-  );
-};
-
 // ── 씬: ArgParamScene — 인자 vs 매개변수 비교 ──────────────
 const ArgParamScene: React.FC = () => {
   const { argParamScene: cfg } = VIDEO_CONFIG;
@@ -1090,7 +949,7 @@ const ArgParamScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="7. 인자 vs 매개변수" />
+          <SceneTitle title="6. 인자 vs 매개변수" />
           <div
             style={{
               position: "absolute",
@@ -1254,7 +1113,6 @@ const sceneList = [
   VIDEO_CONFIG.paramScene,
   VIDEO_CONFIG.callScene,
   VIDEO_CONFIG.multiParamScene,
-  VIDEO_CONFIG.summaryScene,
   VIDEO_CONFIG.argParamScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
@@ -1314,12 +1172,6 @@ const JavaParameter: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[6]}
-      durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
-    >
-      <SummaryScene />
-    </Sequence>
-    <Sequence
-      from={fromValues[7]}
       durationInFrames={VIDEO_CONFIG.argParamScene.durationInFrames}
     >
       <ArgParamScene />
