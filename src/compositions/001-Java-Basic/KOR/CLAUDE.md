@@ -661,6 +661,7 @@ VIDEO_CONFIG의 `audio` 필드에 사용할 파일명 prefix를 정한다.
 | 008-JavaWhile      | `while-`    |
 | 009-JavaFor        | `for-`      |
 | 010-JavaFunction   | `fn-`       |
+| 011-JavaParameter  | `param-`    |
 
 새 에피소드도 2~4글자 약어로 prefix를 정한다. (예: `arr-` for Array)
 
