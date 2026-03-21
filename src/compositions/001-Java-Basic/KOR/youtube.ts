@@ -63,6 +63,16 @@ export const YOUTUBE_CONFIG = {
       description:
         "자바에서 함수를 선언하고 호출하는 방법, 코드 반복을 줄이는 방법을 배웁니다.",
     },
+    "011": {
+      title: "Java 매개변수 — 함수에 값 전달하기 #Java #자바기초",
+      description:
+        "자바 함수의 매개변수와 인자 개념을 배우고, 값을 전달하는 방법을 알아봅니다.",
+    },
+    "012": {
+      title: "Java return — 함수에서 값 돌려받기 #Java #자바기초",
+      description:
+        "자바 함수의 return 키워드로 결과를 돌려받고 활용하는 방법을 배웁니다.",
+    },
   },
 } as const;
 
