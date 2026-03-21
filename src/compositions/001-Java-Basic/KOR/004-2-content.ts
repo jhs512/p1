@@ -9,7 +9,7 @@ export const CONTENT = {
   intro: {
     narration: [
       "비교 연산자는 두 값을 비교해 참 또는 거짓을 반환합니다.",
-      "결과는 [boolean(발음:불리언)] 타입으로,\n조건문과 함께 자주 사용됩니다.",
+      "결과는 boolean 타입으로,\n조건문과 함께 자주 사용됩니다.",
     ],
   },
   compareScene: {

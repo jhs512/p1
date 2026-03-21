@@ -453,7 +453,6 @@ const RemScene: React.FC = () => {
           </div>
 
           {/* split0: 몫 3, 나머지 2 분리 설명 */}
-          {frame >= split0 && (
             <div
               style={{
                 position: "absolute",
@@ -538,10 +537,8 @@ const RemScene: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
 
           {/* split1: 활용 예시 */}
-          {frame >= split1 && (
             <div
               style={{
                 position: "absolute",
@@ -590,7 +587,6 @@ const RemScene: React.FC = () => {
                 → 홀수
               </span>
             </div>
-          )}
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
