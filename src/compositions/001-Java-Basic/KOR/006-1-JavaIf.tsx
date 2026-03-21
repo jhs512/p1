@@ -26,6 +26,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import { TreeDiagram, TreeNode } from "../../../utils/tree";
 import { CONTENT } from "./006-2-content";
 import { AUDIO_CONFIG } from "./006-3-audio.gen";
 import { BG } from "./colors";
@@ -249,32 +250,33 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 44,
   });
 
-  const C_COND = "#c586c0"; // 조건문 색
-  const C_LOOP = "#4ec9b0"; // 반복문 색
-  const C_DIM = "rgba(255,255,255,0.22)";
-
-  const nodeStyle = (
-    color: string,
-    active: boolean,
-    appear: number,
-  ): React.CSSProperties => {
-    const sc = interpolate(appear, [0, 1], [0.75, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-    return {
-      fontFamily: uiFont,
-      fontSize: 34,
-      fontWeight: 700,
-      color: active ? color : C_DIM,
-      background: active ? `${color}18` : "rgba(255,255,255,0.04)",
-      border: `2px solid ${active ? color + "66" : "rgba(255,255,255,0.1)"}`,
-      borderRadius: 16,
-      padding: "16px 36px",
-      opacity: appear,
-      transform: `scale(${sc})`,
-      textAlign: "center" as const,
-    };
+  const treeData: TreeNode = {
+    label: "제어문",
+    color: "#9cdcfe",
+    appear: rootAppear,
+    children: [
+      {
+        label: "조건문",
+        color: "#c586c0",
+        appear: leftAppear,
+        children: [
+          {
+            label: "if",
+            color: C_CTRL,
+            mono: true,
+            fontSize: 44,
+            appear: phase2 ? ifAppear : 0,
+            glow: true,
+          },
+        ],
+      },
+      {
+        label: "반복문",
+        color: "#4ec9b0",
+        dim: phase2,
+        appear: rightAppear,
+      },
+    ],
   };
 
   return (
@@ -284,122 +286,21 @@ const OverviewScene: React.FC = () => {
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. 제어문 개요" />
 
-          {frame >= s && (
-            <div
-              style={{
-                position: "absolute",
-                top: "40%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {/* 제어문 루트 */}
-              <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
-
-              {/* 연결선 — 고정 높이로 겹침 방지 */}
-              <div
-                style={{
-                  position: "relative",
-                  width: 440,
-                  height: 50,
-                  flexShrink: 0,
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: "50%",
-                    width: 2,
-                    height: 26,
-                    background: "rgba(255,255,255,0.18)",
-                    transform: "translateX(-50%)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    left: "20%",
-                    width: "60%",
-                    height: 2,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    left: "20%",
-                    width: 2,
-                    height: 24,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    right: "20%",
-                    width: 2,
-                    height: 24,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-              </div>
-
-              {/* 조건문 / 반복문 */}
-              <div
-                style={{ display: "flex", gap: 56, alignItems: "flex-start" }}
-              >
-                {/* 조건문 + if */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 0,
-                  }}
-                >
-                  <div style={nodeStyle(C_COND, true, leftAppear)}>조건문</div>
-                  {/* phase 2: if 키워드 — opacity로 제어해 레이아웃 밀림 방지 */}
-                  <div
-                    style={{
-                      width: 2,
-                      height: 20,
-                      background: "rgba(255,255,255,0.18)",
-                      opacity: ifAppear,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 52,
-                      fontWeight: 900,
-                      color: C_CTRL,
-                      background: `${C_CTRL}18`,
-                      border: `2px solid ${C_CTRL}55`,
-                      borderRadius: 18,
-                      padding: "14px 44px",
-                      opacity: ifAppear,
-                      transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 32px ${C_CTRL}33`,
-                    }}
-                  >
-                    if
-                  </div>
-                </div>
-                {/* 반복문 */}
-                <div style={nodeStyle(C_LOOP, !phase2, rightAppear)}>
-                  반복문
-                </div>
-              </div>
-            </div>
-          )}
+          <div
+            style={{
+              position: "absolute",
+              top: "38%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <TreeDiagram
+              data={treeData}
+              width={800}
+              height={420}
+              leafSpacing={240}
+            />
+          </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle

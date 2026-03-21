@@ -27,6 +27,7 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
+import { TreeDiagram, TreeNode } from "../../../utils/tree";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./007-2-content";
 import { AUDIO_CONFIG } from "./007-3-audio.gen";
@@ -314,25 +315,41 @@ const OverviewScene: React.FC = () => {
   const C_COND = C_CASE;
   const C_LOOP = "#4ec9b0";
 
-  const nodeStyle = (color: string, appear: number): React.CSSProperties => {
-    const sc = interpolate(appear, [0, 1], [0.75, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-    return {
-      fontFamily: uiFont,
-      fontSize: 34,
-      fontWeight: 700,
-      color,
-      background: `${color}18`,
-      border: `2px solid ${color}66`,
-      borderRadius: 16,
-      padding: "16px 40px",
-      opacity: appear,
-      transform: `scale(${sc})`,
-      textAlign: "center" as const,
-      whiteSpace: "nowrap" as const,
-    };
+  const treeData: TreeNode = {
+    label: "제어문",
+    color: "#9cdcfe",
+    appear: rootAppear,
+    children: [
+      {
+        label: "조건문",
+        color: C_COND,
+        appear: leftAppear,
+        children: [
+          {
+            label: "if",
+            color: C_COND,
+            mono: true,
+            fontSize: 40,
+            appear: ifAppear,
+            dim: true,
+          },
+          {
+            label: "switch",
+            color: C_SWITCH,
+            mono: true,
+            fontSize: 40,
+            appear: switchAppear,
+            glow: true,
+          },
+        ],
+      },
+      {
+        label: "반복문",
+        color: C_LOOP,
+        dim: true,
+        appear: rightAppear,
+      },
+    ],
   };
 
   return (
@@ -341,193 +358,15 @@ const OverviewScene: React.FC = () => {
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. switch 문 개요" />
-          {/* 항상 보임 — frame 0부터 트리 등장 */}
           <div
             style={{
               position: "absolute",
-              top: "42%",
+              top: "38%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              width: 800,
             }}
           >
-            {/* 루트: 제어문 */}
-            <div style={nodeStyle("#9cdcfe", rootAppear)}>제어문</div>
-
-            {/* 연결선: 제어문 → 조건문 / 반복문 */}
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: 52,
-                flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: "50%",
-                  width: 2,
-                  height: 26,
-                  background: "rgba(255,255,255,0.18)",
-                  transform: "translateX(-50%)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 26,
-                  left: "25%",
-                  width: "50%",
-                  height: 2,
-                  background: "rgba(255,255,255,0.18)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 26,
-                  left: "25%",
-                  width: 2,
-                  height: 26,
-                  background: "rgba(255,255,255,0.18)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 26,
-                  right: "25%",
-                  width: 2,
-                  height: 26,
-                  background: "rgba(255,255,255,0.18)",
-                }}
-              />
-            </div>
-
-            {/* 조건문 / 반복문 */}
-            <div
-              style={{
-                display: "flex",
-                width: "100%",
-                justifyContent: "space-around",
-                alignItems: "flex-start",
-              }}
-            >
-              {/* 왼쪽: 조건문 + if/switch */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <div style={nodeStyle(C_COND, leftAppear)}>조건문</div>
-
-                {/* 연결선: 조건문 → if / switch */}
-                <div
-                  style={{
-                    position: "relative",
-                    width: 280,
-                    height: 42,
-                    flexShrink: 0,
-                    opacity: ifAppear,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: "50%",
-                      width: 2,
-                      height: 20,
-                      background: "rgba(255,255,255,0.18)",
-                      transform: "translateX(-50%)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 20,
-                      left: "18%",
-                      width: "64%",
-                      height: 2,
-                      background: "rgba(255,255,255,0.18)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 20,
-                      left: "18%",
-                      width: 2,
-                      height: 22,
-                      background: "rgba(255,255,255,0.18)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 20,
-                      right: "18%",
-                      width: 2,
-                      height: 22,
-                      background: "rgba(255,255,255,0.18)",
-                    }}
-                  />
-                </div>
-
-                {/* if + switch */}
-                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 44,
-                      fontWeight: 900,
-                      color: C_COND,
-                      background: `${C_COND}18`,
-                      border: `2px solid ${C_COND}55`,
-                      borderRadius: 16,
-                      padding: "12px 32px",
-                      opacity: ifAppear * 0.38,
-                      transform: `scale(${interpolate(ifAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    if
-                  </div>
-
-                  {/* switch — narrationSplits[0] 기준 팝업 */}
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 44,
-                      fontWeight: 900,
-                      color: C_SWITCH,
-                      background: `${C_SWITCH}18`,
-                      border: `2px solid ${C_SWITCH}55`,
-                      borderRadius: 16,
-                      padding: "12px 32px",
-                      opacity: switchAppear,
-                      transform: `scale(${interpolate(switchAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 28px ${C_SWITCH}44`,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    switch
-                  </div>
-                </div>
-              </div>
-
-              {/* 오른쪽: 반복문 */}
-              <div style={{ flexShrink: 0 }}>
-                <div style={nodeStyle(C_LOOP, rightAppear)}>반복문</div>
-              </div>
-            </div>
+            <TreeDiagram data={treeData} width={900} height={480} leafSpacing={220} />
           </div>
         </ContentArea>
       </AbsoluteFill>

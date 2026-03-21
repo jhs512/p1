@@ -28,6 +28,7 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import { TreeDiagram, TreeNode } from "../../../utils/tree";
 import { CONTENT } from "./008-2-content";
 import { AUDIO_CONFIG } from "./008-3-audio.gen";
 import { BG } from "./colors";
@@ -40,7 +41,6 @@ const C_TEAL = "#4ec9b0"; // 카운터/증감/참 — teal
 const C_RED = "#f47c7c"; // 거짓/경고
 const C_NUM = "#b5cea8"; // 숫자 리터럴
 const C_INT = "#4e9cd5"; // int 키워드
-const C_DIM = "rgba(255,255,255,0.22)";
 
 // ── WhileScene 타이핑 애니메이션 완료 프레임 ─────────────────────
 // CODE_LINES 전체 글자(77자) + 줄바꿈(4자) = 81자, 10자/초, 60fps
@@ -191,10 +191,7 @@ const OverviewScene: React.FC = () => {
   const { overview: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const s = cfg.speechStartFrame;
-  const [split0 = Infinity] = cfg.narrationSplits as readonly number[];
   const opacity = useFade(d, { in: true });
-
-  const phase2 = frame >= split0;
 
   const rootAppear = spring({
     frame: frame - s,
@@ -221,34 +218,33 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 44,
   });
 
-  const C_LOOP_NODE = "#4ec9b0";
-  const C_COND_NODE = "#c586c0";
-
-  const nodeStyle = (
-    color: string,
-    active: boolean,
-    appear: number,
-  ): React.CSSProperties => {
-    const sc = interpolate(appear, [0, 1], [0.75, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-    return {
-      fontFamily: uiFont,
-      fontSize: 34,
-      fontWeight: 700,
-      color: active ? color : C_DIM,
-      background: active ? `${color}18` : "rgba(255,255,255,0.04)",
-      border: `2px solid ${active ? color + "66" : "rgba(255,255,255,0.1)"}`,
-      borderRadius: 16,
-      padding: "16px 36px",
-      opacity: appear,
-      transform: `scale(${sc})`,
-      textAlign: "center" as const,
-      ...(active && phase2 && color === C_LOOP_NODE
-        ? { boxShadow: `0 0 28px ${color}44` }
-        : {}),
-    };
+  const treeData: TreeNode = {
+    label: "제어문",
+    color: "#9cdcfe",
+    appear: rootAppear,
+    children: [
+      {
+        label: "조건문",
+        color: "#c586c0",
+        dim: true,
+        appear: leftAppear,
+      },
+      {
+        label: "반복문",
+        color: "#4ec9b0",
+        appear: rightAppear,
+        children: [
+          {
+            label: "while",
+            color: C_WHILE,
+            mono: true,
+            fontSize: 44,
+            appear: whileAppear,
+            glow: true,
+          },
+        ],
+      },
+    ],
   };
 
   return (
@@ -258,124 +254,21 @@ const OverviewScene: React.FC = () => {
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="1. 반복문 개요" />
 
-          {frame >= s && (
-            <div
-              style={{
-                position: "absolute",
-                top: "40%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {/* 제어문 루트 */}
-              <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
-
-              {/* 연결선 */}
-              <div
-                style={{
-                  position: "relative",
-                  width: 440,
-                  height: 50,
-                  flexShrink: 0,
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: "50%",
-                    width: 2,
-                    height: 26,
-                    background: "rgba(255,255,255,0.18)",
-                    transform: "translateX(-50%)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    left: "20%",
-                    width: "60%",
-                    height: 2,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    left: "20%",
-                    width: 2,
-                    height: 24,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 26,
-                    right: "20%",
-                    width: 2,
-                    height: 24,
-                    background: "rgba(255,255,255,0.18)",
-                  }}
-                />
-              </div>
-
-              {/* 조건문(dim) / 반복문(하이라이트) */}
-              <div
-                style={{ display: "flex", gap: 56, alignItems: "flex-start" }}
-              >
-                {/* 조건문 — dim */}
-                <div style={nodeStyle(C_COND_NODE, false, leftAppear)}>
-                  조건문
-                </div>
-
-                {/* 반복문 + while 팝업 */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 0,
-                  }}
-                >
-                  <div style={nodeStyle(C_LOOP_NODE, true, rightAppear)}>
-                    반복문
-                  </div>
-                  <div
-                    style={{
-                      width: 2,
-                      height: 20,
-                      background: "rgba(255,255,255,0.18)",
-                      opacity: whileAppear,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 52,
-                      fontWeight: 900,
-                      color: C_WHILE,
-                      background: `${C_WHILE}18`,
-                      border: `2px solid ${C_WHILE}55`,
-                      borderRadius: 18,
-                      padding: "14px 44px",
-                      opacity: whileAppear,
-                      transform: `scale(${interpolate(whileAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 32px ${C_WHILE}33`,
-                    }}
-                  >
-                    while
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <div
+            style={{
+              position: "absolute",
+              top: "38%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <TreeDiagram
+              data={treeData}
+              width={800}
+              height={420}
+              leafSpacing={240}
+            />
+          </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
