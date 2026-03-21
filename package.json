@@ -10,6 +10,7 @@
     "@remotion/google-fonts": "^4.0.436",
     "@remotion/media": "^4.0.436",
     "@remotion/zod-types": "4.0.435",
+    "d3-hierarchy": "^3.1.2",
     "googleapis": "^171.4.0",
     "open": "^11.0.0",
     "react": "19.2.3",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.435",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@types/d3-hierarchy": "^3.1.7",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "@types/webpack-env": "^1.18.8",

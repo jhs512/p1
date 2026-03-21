@@ -26,6 +26,8 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import type { TreeNode } from "../../../utils/tree";
+import { TreeDiagram } from "../../../utils/tree";
 import { CONTENT } from "./009-2-content";
 import { AUDIO_CONFIG } from "./009-3-audio.gen";
 import { BG } from "./colors";
@@ -198,29 +200,40 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 44,
   });
 
-  const nodeStyle = (
-    color: string,
-    active: boolean,
-    appear: number,
-  ): React.CSSProperties => {
-    const sc = interpolate(appear, [0, 1], [0.75, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-    return {
-      fontFamily: uiFont,
-      fontSize: 34,
-      fontWeight: 700,
-      color: active ? color : C_DIM,
-      background: active ? `${color}18` : "rgba(255,255,255,0.04)",
-      border: `2px solid ${active ? color + "66" : "rgba(255,255,255,0.1)"}`,
-      borderRadius: 16,
-      padding: "16px 36px",
-      opacity: appear,
-      transform: `scale(${sc})`,
-      textAlign: "center" as const,
-      whiteSpace: "nowrap" as const,
-    };
+  const treeData: TreeNode = {
+    label: "제어문",
+    color: "#9cdcfe",
+    appear: rootAppear,
+    children: [
+      {
+        label: "조건문",
+        color: "#c586c0",
+        dim: true,
+        appear: leftAppear,
+      },
+      {
+        label: "반복문",
+        color: C_FOR,
+        appear: rightAppear,
+        children: [
+          {
+            label: "while",
+            color: C_FOR,
+            mono: true,
+            appear: rightAppear,
+            opacity: 0.5,
+          },
+          {
+            label: "for",
+            color: C_FOR,
+            mono: true,
+            fontSize: 40,
+            appear: phase2 ? forAppear : 0,
+            glow: true,
+          },
+        ],
+      },
+    ],
   };
 
   return (
@@ -230,93 +243,15 @@ const OverviewScene: React.FC = () => {
           <SceneTitle title="1. 반복문 개요" />
           <Audio src={staticFile(cfg.audio)} />
 
-          {/* 트리 다이어그램 */}
           <div
             style={{
               position: "absolute",
               top: "38%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              opacity: rootAppear,
             }}
           >
-            {/* 제어문 루트 */}
-            <div style={nodeStyle("#9cdcfe", true, rootAppear)}>제어문</div>
-
-            {/* 세로 줄기 */}
-            <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
-
-            {/* 가로 가지 */}
-            <div style={{ width: 480, height: 2, background: "rgba(255,255,255,0.25)" }} />
-
-            {/* 조건문 / 반복문 행 */}
-            <div style={{ display: "flex", width: 480, justifyContent: "space-between" }}>
-              {/* 왼쪽: 내림선 + 조건문 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
-                <div style={nodeStyle("#c586c0", false, leftAppear)}>조건문</div>
-              </div>
-
-              {/* 오른쪽: 내림선 + 반복문 + while/for */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ width: 2, height: 30, background: "rgba(255,255,255,0.25)" }} />
-                <div style={nodeStyle(C_FOR, true, rightAppear)}>반복문</div>
-
-                {/* 반복문 → while/for 연결선 */}
-                <div
-                  style={{
-                    width: 2,
-                    height: 30,
-                    background: "rgba(255,255,255,0.25)",
-                    opacity: rightAppear,
-                  }}
-                />
-
-                {/* while / for */}
-                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                  {/* while — 이미 배운 내용이므로 처음부터 표시 */}
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 34,
-                      fontWeight: 900,
-                      color: C_FOR,
-                      background: `${C_FOR}18`,
-                      border: `2px solid ${C_FOR}33`,
-                      borderRadius: 14,
-                      padding: "10px 22px",
-                      opacity: rightAppear * 0.5,
-                      transform: `scale(${interpolate(rightAppear, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      whiteSpace: "nowrap" as const,
-                    }}
-                  >
-                    while
-                  </div>
-                  {/* for — 하이라이트 (2문장 시점에 강조) */}
-                  <div
-                    style={{
-                      ...monoStyle,
-                      fontSize: 44,
-                      fontWeight: 900,
-                      color: C_FOR,
-                      background: `${C_FOR}18`,
-                      border: `2px solid ${C_FOR}55`,
-                      borderRadius: 16,
-                      padding: "12px 32px",
-                      opacity: phase2 ? forAppear : 0,
-                      transform: `scale(${interpolate(phase2 ? forAppear : 0, [0, 1], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                      boxShadow: `0 0 32px ${C_FOR}33`,
-                      whiteSpace: "nowrap" as const,
-                    }}
-                  >
-                    for
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TreeDiagram data={treeData} width={800} height={420} leafSpacing={240} />
           </div>
         </ContentArea>
       </AbsoluteFill>
