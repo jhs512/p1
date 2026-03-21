@@ -9,7 +9,7 @@ export const CONTENT = {
   },
   painScene: {
     narration: [
-      "지난 시간에 만든 인사 함수는 민준에게만 인사할 수 있습니다.",
+      "인사 함수는 민준에게만 인사할 수 있습니다.",
       "다른 사람에게 인사하려면 함수를 더 만들어야 합니다.",
     ],
   },
@@ -46,7 +46,7 @@ export const CONTENT = {
   },
   outroScene: {
     narration: [
-      "다음 시간에는\n함수의 반환 값에 대해 알아보겠습니다.",
+      "함수의 반환 값도 알아두면 좋습니다.",
     ],
   },
 } satisfies EpisodeContent;
