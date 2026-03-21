@@ -159,6 +159,7 @@ export const ContentArea: React.FC<{ children: React.ReactNode }> = ({
         left: 0,
         right: 0,
         height: height - SUBTITLE_DEAD_ZONE,
+        wordBreak: "keep-all",
       }}
     >
       {children}
