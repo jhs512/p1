@@ -283,10 +283,15 @@ const PainScene: React.FC = () => {
             <div
               style={{
                 opacity: extrasAppear,
-                transform: `scale(${interpolate(extrasAppear, [0, 1], [0.92, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })})`,
+                transform: `scale(${interpolate(
+                  extrasAppear,
+                  [0, 1],
+                  [0.92, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
                 background: BG_CODE,
                 borderRadius: 12,
                 padding: "20px 44px",
@@ -388,9 +393,8 @@ const ConceptScene: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              함수에{" "}
-              <span style={{ color: C_FUNC, fontWeight: 700 }}>값</span>을
-              전달하는{" "}
+              함수에 <span style={{ color: C_FUNC, fontWeight: 700 }}>값</span>
+              을 전달하는{" "}
               <span style={{ color: C_TEAL, fontWeight: 700 }}>통로</span>
             </div>
           </div>
@@ -804,10 +808,15 @@ const MultiParamScene: React.FC = () => {
               <div
                 style={{
                   opacity: arrow1Appear,
-                  transform: `translateY(${interpolate(arrow1Appear, [0, 1], [12, 0], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  })}px)`,
+                  transform: `translateY(${interpolate(
+                    arrow1Appear,
+                    [0, 1],
+                    [12, 0],
+                    {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    },
+                  )}px)`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -841,10 +850,15 @@ const MultiParamScene: React.FC = () => {
               <div
                 style={{
                   opacity: arrow2Appear,
-                  transform: `translateY(${interpolate(arrow2Appear, [0, 1], [12, 0], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  })}px)`,
+                  transform: `translateY(${interpolate(
+                    arrow2Appear,
+                    [0, 1],
+                    [12, 0],
+                    {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    },
+                  )}px)`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -914,8 +928,7 @@ const SummaryScene: React.FC = () => {
   const titleOpacity = titleAppear * (1 - titleExit);
 
   // 카드 등장: 2문장 wordStartFrames 기준
-  const card0Frame =
-    AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ?? split;
+  const card0Frame = AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ?? split;
   const card0Appear = spring({
     frame: frame - card0Frame,
     fps,
@@ -1133,7 +1146,8 @@ const ArgParamScene: React.FC = () => {
                   <span
                     style={{
                       color: C_TYPE,
-                      textDecoration: paramHighlight > 0.5 ? "underline" : "none",
+                      textDecoration:
+                        paramHighlight > 0.5 ? "underline" : "none",
                       textDecorationColor: C_TEAL,
                       textUnderlineOffset: 6,
                     }}
@@ -1143,7 +1157,8 @@ const ArgParamScene: React.FC = () => {
                   <span
                     style={{
                       color: C_TEAL,
-                      textDecoration: paramHighlight > 0.5 ? "underline" : "none",
+                      textDecoration:
+                        paramHighlight > 0.5 ? "underline" : "none",
                       textDecorationColor: C_TEAL,
                       textUnderlineOffset: 6,
                     }}

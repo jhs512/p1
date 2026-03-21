@@ -20,8 +20,8 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
-import { JavaLine } from "../../../utils/code";
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -883,28 +883,28 @@ const InterpretScene: React.FC = () => {
                   <span style={{ color: TEXT }}>);</span>
                 </div>
                 <div
+                  style={{
+                    opacity: phase >= 2 ? ann2 : 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  {badge("← 값", C_VAL, ann2)}
+                  <span
                     style={{
-                      opacity: phase >= 2 ? ann2 : 0,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
+                      ...monoStyle,
+                      fontSize: 26,
+                      color: C_NUMBER,
+                      background: BG_CODE,
+                      borderRadius: 8,
+                      padding: "4px 14px",
+                      border: "1px solid #444",
                     }}
                   >
-                    {badge("← 값", C_VAL, ann2)}
-                    <span
-                      style={{
-                        ...monoStyle,
-                        fontSize: 26,
-                        color: C_NUMBER,
-                        background: BG_CODE,
-                        borderRadius: 8,
-                        padding: "4px 14px",
-                        border: "1px solid #444",
-                      }}
-                    >
-                      = 25
-                    </span>
-                  </div>
+                    = 25
+                  </span>
+                </div>
               </div>
             </div>
           )}

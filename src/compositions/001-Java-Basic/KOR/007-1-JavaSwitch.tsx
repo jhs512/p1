@@ -27,8 +27,8 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { TreeDiagram, TreeNode } from "../../../utils/tree";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import { TreeDiagram, TreeNode } from "../../../utils/tree";
 import { CONTENT } from "./007-2-content";
 import { AUDIO_CONFIG } from "./007-3-audio.gen";
 import { BG } from "./colors";
@@ -366,7 +366,12 @@ const OverviewScene: React.FC = () => {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <TreeDiagram data={treeData} width={900} height={480} leafSpacing={220} />
+            <TreeDiagram
+              data={treeData}
+              width={900}
+              height={480}
+              leafSpacing={220}
+            />
           </div>
         </ContentArea>
       </AbsoluteFill>

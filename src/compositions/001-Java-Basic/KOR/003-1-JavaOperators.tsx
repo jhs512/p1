@@ -13,8 +13,8 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
-import { JavaLine } from "../../../utils/code";
 import { FPS } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CROSS,
   ContentArea,

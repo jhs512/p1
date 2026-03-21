@@ -29,15 +29,7 @@ import {
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./004-2-content";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
-import {
-  BG,
-  C_NUMBER,
-  C_PAIN,
-  C_PURPLE,
-  C_TEAL,
-  C_VAR,
-  TEXT,
-} from "./colors";
+import { BG, C_NUMBER, C_PAIN, C_PURPLE, C_TEAL, C_VAR, TEXT } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -166,30 +158,30 @@ const BeatCard: React.FC<{
 
       {/* 결과 배지 */}
       <div
+        style={{
+          position: "absolute",
+          top: "64%",
+          left: "50%",
+          transform: `translate(-50%, -50%) translateY(${resultY}px)`,
+          opacity: resultOp,
+          background: `${resultColor}20`,
+          border: `3px solid ${resultColor}`,
+          borderRadius: 22,
+          padding: "18px 88px",
+        }}
+      >
+        <span
           style={{
-            position: "absolute",
-            top: "64%",
-            left: "50%",
-            transform: `translate(-50%, -50%) translateY(${resultY}px)`,
-            opacity: resultOp,
-            background: `${resultColor}20`,
-            border: `3px solid ${resultColor}`,
-            borderRadius: 22,
-            padding: "18px 88px",
+            ...monoStyle,
+            fontSize: 72,
+            fontWeight: 900,
+            color: resultColor,
+            textShadow: `0 0 24px ${resultColor}66`,
           }}
         >
-          <span
-            style={{
-              ...monoStyle,
-              fontSize: 72,
-              fontWeight: 900,
-              color: resultColor,
-              textShadow: `0 0 24px ${resultColor}66`,
-            }}
-          >
-            {result ? "true" : "false"}
-          </span>
-        </div>
+          {result ? "true" : "false"}
+        </span>
+      </div>
     </AbsoluteFill>
   );
 };

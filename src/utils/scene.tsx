@@ -119,7 +119,6 @@ export function calcTypingEndFrame(
   return startFrame + Math.ceil((chars / charsPerSecond) * fps);
 }
 
-
 export function computeLineVisibility<T>(
   lines: readonly T[],
   visibleChars: number,
