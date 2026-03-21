@@ -12,7 +12,7 @@ export const fps = FPS;
 
 const narrations = {
   painScene: [
-    "인사 함수는 민준에게만 인사할 수 있습니다.",
+    "이 인사 함수는 민준에게만 인사할 수 있습니다.",
     "다른 사람에게 인사하려면 함수를 더 만들어야 합니다.",
   ],
   conceptScene: [
@@ -35,8 +35,9 @@ const narrations = {
     "매개변수는 선언할 때 만드는 전달 통로입니다.",
     "인자는 호출할 때 넣는 실제 값입니다.",
   ],
-  outroScene: [
-    "함수의 반환 값도 알아두면 좋습니다.",
+  argParamScene: [
+    "선언할 때 괄호 안에 만드는 자리가 매개변수입니다.",
+    "호출할 때 괄호 안에 넣는 실제 값이 인자입니다.",
   ],
 };
 
@@ -48,7 +49,7 @@ const sceneDurations = [
   AUDIO_CONFIG.callScene.durationInFrames,
   AUDIO_CONFIG.multiParamScene.durationInFrames,
   AUDIO_CONFIG.summaryScene.durationInFrames,
-  AUDIO_CONFIG.outroScene.durationInFrames,
+  AUDIO_CONFIG.argParamScene.durationInFrames,
 ];
 
 const froms: number[] = [];
@@ -135,10 +136,10 @@ addScene(
 addScene(
   froms[7],
   narrations.outroScene,
-  AUDIO_CONFIG.outroScene.speechStartFrame,
-  AUDIO_CONFIG.outroScene.narrationSplits,
-  AUDIO_CONFIG.outroScene.sentenceEndFrames,
-  AUDIO_CONFIG.outroScene.durationInFrames,
+  AUDIO_CONFIG.argParamScene.speechStartFrame,
+  AUDIO_CONFIG.argParamScene.narrationSplits,
+  AUDIO_CONFIG.argParamScene.sentenceEndFrames,
+  AUDIO_CONFIG.argParamScene.durationInFrames,
 );
 
 export const SRT_DATA = entries;

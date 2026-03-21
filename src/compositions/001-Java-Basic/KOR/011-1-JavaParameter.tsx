@@ -91,12 +91,12 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
-  outroScene: {
-    audio: "param-outro.mp3",
-    durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
-    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
-    narration: CONTENT.outroScene.narration as string[],
-    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+  argParamScene: {
+    audio: "param-argparam.mp3",
+    durationInFrames: AUDIO_CONFIG.argParamScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.argParamScene.speechStartFrame,
+    narration: CONTENT.argParamScene.narration as string[],
+    narrationSplits: AUDIO_CONFIG.argParamScene.narrationSplits,
   },
 } as const;
 
@@ -992,31 +992,54 @@ const SummaryScene: React.FC = () => {
   );
 };
 
-// ── 씬: OutroScene — return 예고 ────────────────────────────
-const OutroScene: React.FC = () => {
-  const { outroScene: cfg } = VIDEO_CONFIG;
+// ── 씬: ArgParamScene — 인자 vs 매개변수 비교 ──────────────
+const ArgParamScene: React.FC = () => {
+  const { argParamScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d, { out: false }); // 마지막 씬 → fadeOut 없음
   const s = cfg.speechStartFrame;
+  const splits = cfg.narrationSplits;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // "반환" 발화 시점
-  const returnFrame =
-    AUDIO_CONFIG.outroScene.wordStartFrames[0]?.[2] ?? s + 30;
-  const returnAppear = spring({
+  // 1문장: 선언부 (매개변수 강조) 등장
+  const declAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
-    durationInFrames: 48,
+    durationInFrames: 30,
   });
 
-  // 밑줄 애니메이션 — 발화 시점에 시작
-  const returnUnderline = spring({
-    frame: frame - returnFrame,
+  // 2문장: 호출부 (인자 강조) 등장
+  const split0 = splits[0] ?? s + 90;
+  const callAppear = spring({
+    frame: frame - split0,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  // 라벨 하이라이트 — 각 블록 등장 후 12프레임 뒤
+  const paramHighlight = spring({
+    frame: frame - (s + 12),
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
+  });
+  const argHighlight = spring({
+    frame: frame - (split0 + 12),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 40,
+  });
+
+  const declScale = interpolate(declAppear, [0, 1], [0.85, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const callScale = interpolate(callAppear, [0, 1], [0.85, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
   });
 
   return (
@@ -1024,7 +1047,7 @@ const OutroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="7. 다음 시간에" />
+          <SceneTitle title="7. 인자 vs 매개변수" />
           <div
             style={{
               position: "absolute",
@@ -1032,34 +1055,138 @@ const OutroScene: React.FC = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
-              gap: 28,
+              flexDirection: "column",
               alignItems: "center",
+              gap: 48,
+              width: "90%",
             }}
           >
-            {/* return */}
+            {/* 선언부 — 매개변수 */}
             <div
               style={{
-                ...monoStyle,
-                fontSize: 52,
-                fontWeight: 900,
-                color: C_KEYWORD,
-                opacity: returnAppear,
-                display: "inline-block",
-                position: "relative" as const,
+                opacity: declAppear,
+                transform: `scale(${declScale})`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 14,
+                width: "100%",
               }}
             >
-              return
               <div
                 style={{
-                  position: "absolute",
-                  bottom: -6,
-                  left: 0,
-                  height: 3,
-                  background: C_TEAL,
-                  borderRadius: 2,
-                  width: `${returnUnderline * 100}%`,
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_TEAL,
+                  letterSpacing: 2,
+                  opacity: paramHighlight * 0.85,
                 }}
-              />
+              >
+                매개변수
+              </div>
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "20px 32px",
+                  width: "100%",
+                  textAlign: "center",
+                  border: `2px solid ${C_TEAL}${Math.round(paramHighlight * 85)
+                    .toString(16)
+                    .padStart(2, "0")}`,
+                }}
+              >
+                <span style={{ ...monoStyle, fontSize: 30, color: TEXT }}>
+                  <span style={{ color: C_KEYWORD }}>void</span>{" "}
+                  <span style={{ color: C_FUNC }}>greet</span>(
+                  <span
+                    style={{
+                      color: C_TYPE,
+                      textDecoration: paramHighlight > 0.5 ? "underline" : "none",
+                      textDecorationColor: C_TEAL,
+                      textUnderlineOffset: 6,
+                    }}
+                  >
+                    String
+                  </span>{" "}
+                  <span
+                    style={{
+                      color: C_TEAL,
+                      textDecoration: paramHighlight > 0.5 ? "underline" : "none",
+                      textDecorationColor: C_TEAL,
+                      textUnderlineOffset: 6,
+                    }}
+                  >
+                    name
+                  </span>
+                  )
+                </span>
+              </div>
+            </div>
+
+            {/* 화살표 */}
+            <div
+              style={{
+                opacity: callAppear,
+                fontSize: 36,
+                color: C_TEAL,
+              }}
+            >
+              ▼
+            </div>
+
+            {/* 호출부 — 인자 */}
+            <div
+              style={{
+                opacity: callAppear,
+                transform: `scale(${callScale})`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 14,
+                width: "100%",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: FONT.label,
+                  fontWeight: 700,
+                  color: C_STRING,
+                  letterSpacing: 2,
+                  opacity: argHighlight * 0.85,
+                }}
+              >
+                인자
+              </div>
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 12,
+                  padding: "20px 32px",
+                  width: "100%",
+                  textAlign: "center",
+                  border: `2px solid ${C_STRING}${Math.round(argHighlight * 85)
+                    .toString(16)
+                    .padStart(2, "0")}`,
+                }}
+              >
+                <span style={{ ...monoStyle, fontSize: 30, color: TEXT }}>
+                  <span style={{ color: C_FUNC }}>greet</span>(
+                  <span
+                    style={{
+                      color: C_STRING,
+                      textDecoration: argHighlight > 0.5 ? "underline" : "none",
+                      textDecorationColor: C_STRING,
+                      textUnderlineOffset: 6,
+                    }}
+                  >
+                    "민준"
+                  </span>
+                  );
+                </span>
+              </div>
             </div>
           </div>
         </ContentArea>
@@ -1068,7 +1195,7 @@ const OutroScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
-        wordFrames={AUDIO_CONFIG.outroScene.wordStartFrames}
+        wordFrames={AUDIO_CONFIG.argParamScene.wordStartFrames}
       />
     </>
   );
@@ -1083,7 +1210,7 @@ const sceneList = [
   VIDEO_CONFIG.callScene,
   VIDEO_CONFIG.multiParamScene,
   VIDEO_CONFIG.summaryScene,
-  VIDEO_CONFIG.outroScene,
+  VIDEO_CONFIG.argParamScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
 const fromValues = computeFromValues(sceneDurations, {
@@ -1148,9 +1275,9 @@ const JavaParameter: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[7]}
-      durationInFrames={VIDEO_CONFIG.outroScene.durationInFrames}
+      durationInFrames={VIDEO_CONFIG.argParamScene.durationInFrames}
     >
-      <OutroScene />
+      <ArgParamScene />
     </Sequence>
   </AbsoluteFill>
 );

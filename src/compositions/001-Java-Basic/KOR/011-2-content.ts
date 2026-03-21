@@ -9,7 +9,7 @@ export const CONTENT = {
   },
   painScene: {
     narration: [
-      "인사 함수는 민준에게만 인사할 수 있습니다.",
+      "이 인사 함수는 민준에게만 인사할 수 있습니다.",
       "다른 사람에게 인사하려면 함수를 더 만들어야 합니다.",
     ],
   },
@@ -44,9 +44,10 @@ export const CONTENT = {
     ],
     cards: ["매개변수 = 통로", "인자 = 값"],
   },
-  outroScene: {
+  argParamScene: {
     narration: [
-      "함수의 반환 값도 알아두면 좋습니다.",
+      "선언할 때 괄호 안에 만드는 자리가 매개변수입니다.",
+      "호출할 때 괄호 안에 넣는 실제 값이 인자입니다.",
     ],
   },
 } satisfies EpisodeContent;
