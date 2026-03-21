@@ -8,12 +8,12 @@
  *   <JavaCode code={`int age = 25;`} />
  *   <JavaCode code={code} visibleChars={charsVisible} fontSize={28} />
  */
+import React from "react";
+
 import { createHighlighterCoreSync } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import java from "shiki/langs/java.mjs";
 import darkPlus from "shiki/themes/dark-plus.mjs";
-
-import React from "react";
 
 import { MONO_NO_LIGA, monoFont } from "./scene";
 
@@ -78,8 +78,8 @@ function tokenize(code: string): Token[][] {
     theme: "dark-plus",
   });
 
-  return result.tokens.map((line) =>
-    line.map((token) => ({
+  return result.tokens.map((line: { content: string; color?: string }[]) =>
+    line.map((token: { content: string; color?: string }) => ({
       text: token.content,
       color: token.color ?? "#d4d4d4",
     })),

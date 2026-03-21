@@ -12,9 +12,11 @@
  *   };
  *   <TreeDiagram data={data} width={700} height={400} />
  */
-import { hierarchy, tree } from "d3-hierarchy";
-import React from "react";
 import { interpolate } from "remotion";
+
+import React from "react";
+
+import { hierarchy, tree } from "d3-hierarchy";
 
 import { FONT, monoStyle, uiFont } from "./scene";
 
@@ -115,10 +117,10 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           return (
             <path
               key={`link-${i}`}
-              d={`M${link.source.x},${link.source.y}
-                  V${(link.source.y + link.target.y) / 2}
-                  H${link.target.x}
-                  V${link.target.y}`}
+              d={`M${link.source.x!},${link.source.y!}
+                  V${(link.source.y! + link.target.y!) / 2}
+                  H${link.target.x!}
+                  V${link.target.y!}`}
               fill="none"
               stroke={lineColor}
               strokeWidth={lineWidth}
@@ -146,14 +148,14 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           return (
             <rect
               key={`bg-${i}`}
-              x={node.x - rectW / 2}
-              y={node.y - rectH / 2}
+              x={node.x! - rectW / 2}
+              y={node.y! - rectH / 2}
               width={rectW}
               height={rectH}
               rx={16}
               fill={bgColor}
               opacity={appear}
-              transform={`translate(${node.x}, ${node.y}) scale(${sc}) translate(${-node.x}, ${-node.y})`}
+              transform={`translate(${node.x!}, ${node.y!}) scale(${sc}) translate(${-node.x!}, ${-node.y!})`}
             />
           );
         })}
@@ -174,12 +176,8 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           });
 
           const nodeColor = isDim ? C_DIM : d.color;
-          const nodeBgColor = isDim
-            ? "rgba(255,255,255,0.04)"
-            : `${d.color}18`;
-          const borderColor = isDim
-            ? "rgba(255,255,255,0.1)"
-            : `${d.color}66`;
+          const nodeBgColor = isDim ? "rgba(255,255,255,0.04)" : `${d.color}18`;
+          const borderColor = isDim ? "rgba(255,255,255,0.1)" : `${d.color}66`;
 
           const textW = estimateTextWidth(d.label, fontSize);
           const rectW = textW + nodePaddingX * 2;
@@ -188,7 +186,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           return (
             <g
               key={`node-${i}`}
-              transform={`translate(${node.x}, ${node.y}) scale(${sc})`}
+              transform={`translate(${node.x!}, ${node.y!}) scale(${sc})`}
               opacity={appear * nodeOpacity}
             >
               {/* 스타일 배경 rect */}
@@ -201,11 +199,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
                 fill={nodeBgColor}
                 stroke={borderColor}
                 strokeWidth={2}
-                filter={
-                  glow
-                    ? `drop-shadow(0 0 16px ${d.color}55)`
-                    : undefined
-                }
+                filter={glow ? `drop-shadow(0 0 16px ${d.color}55)` : undefined}
               />
               {/* 텍스트 */}
               <text
@@ -218,8 +212,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
                 style={
                   isMono
                     ? {
-                        fontFeatureSettings:
-                          monoStyle.fontFeatureSettings,
+                        fontFeatureSettings: monoStyle.fontFeatureSettings,
                       }
                     : undefined
                 }

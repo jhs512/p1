@@ -13,8 +13,8 @@ import { Audio } from "@remotion/media";
 
 import React from "react";
 
-import { JavaLine } from "../../../utils/code";
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -62,6 +62,36 @@ const argumentParameterAudio = (
   narrationSplits: [80, 160],
   wordStartFrames: [],
 };
+
+// ── PainScene duration 계산 (VIDEO_CONFIG 앞에 선언) ────────────
+const PAIN_LINES = [
+  'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
+];
+const PAIN_CPS = 28;
+const REPLACE_DUR = 60;
+const REPLACE_GAP = 40;
+
+const PAIN_TYPING_END = (() => {
+  let f = AUDIO_CONFIG.painScene.speechStartFrame;
+  for (const line of PAIN_LINES) f += Math.ceil((line.length / PAIN_CPS) * FPS);
+  return f;
+})();
+const PAIN_REPLACE_END =
+  Math.max(AUDIO_CONFIG.painScene.narrationSplits[0] ?? 0, PAIN_TYPING_END) +
+  REPLACE_GAP * 4 +
+  REPLACE_DUR;
+const PAIN_SCENE_DURATION = Math.max(
+  AUDIO_CONFIG.painScene.durationInFrames,
+  PAIN_REPLACE_END + CROSS + SCENE_TAIL_FRAMES,
+);
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
@@ -240,18 +270,6 @@ const ThumbnailScene: React.FC = () => {
 };
 
 // ── 씬: PainScene ─────────────────────────────────────────────
-const PAIN_LINES = [
-  'System.out.println("안녕 민준");',
-  "// ...",
-  'System.out.println("안녕 민준");',
-  "// ...",
-  'System.out.println("안녕 민준");',
-  "// ...",
-  'System.out.println("안녕 민준");',
-  "// ...",
-  'System.out.println("안녕 민준");',
-];
-const PAIN_CPS = 28;
 
 // "민준" → 공백 → "철수" 교체 애니메이션
 // phase 0→0.5: 민준 → 공백, 0.5→1: 공백 → 철수
@@ -261,24 +279,6 @@ function getReplaceWord(progress: number): { text: string; blank: boolean } {
   if (progress < 0.5) return { text: "　　", blank: true }; // 전각 공백 2자 (폭 유지)
   return { text: "철수", blank: false };
 }
-
-const REPLACE_DUR = 60; // 교체 애니메이션 프레임 수
-const REPLACE_GAP = 40; // 줄 간격 프레임 수
-
-// 씬 duration 헌법 계산 — 타이핑 + 교체 애니메이션이 오디오보다 길 수 있음
-const PAIN_TYPING_END = (() => {
-  let f = AUDIO_CONFIG.painScene.speechStartFrame;
-  for (const line of PAIN_LINES) f += Math.ceil((line.length / PAIN_CPS) * FPS);
-  return f;
-})();
-const PAIN_REPLACE_END =
-  Math.max(AUDIO_CONFIG.painScene.narrationSplits[0] ?? 0, PAIN_TYPING_END) +
-  REPLACE_GAP * 4 +
-  REPLACE_DUR;
-const PAIN_SCENE_DURATION = Math.max(
-  AUDIO_CONFIG.painScene.durationInFrames,
-  PAIN_REPLACE_END + CROSS + SCENE_TAIL_FRAMES,
-);
 
 // println 줄: 타이핑 후 민준→공백→철수 교체 + 하이라이트 사각형
 const PainPrintlnLine: React.FC<{

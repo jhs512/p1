@@ -39,7 +39,6 @@ const C_INIT = "#4e9cd5"; // 초기식 (int i = 0) — blue
 const C_COND = "#e5c07b"; // 조건식 — amber
 const C_INC = "#c586c0"; // 증감식 — purple
 const C_NUM = "#b5cea8"; // 숫자 리터럴
-const C_DIM = "rgba(255,255,255,0.22)";
 const C_RED = "#f47c7c"; // 거짓/경고
 
 // ── ForScene: 순차 등장 애니메이션 (init→cond→body→inc) ──────
@@ -251,7 +250,12 @@ const OverviewScene: React.FC = () => {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <TreeDiagram data={treeData} width={800} height={420} leafSpacing={240} />
+            <TreeDiagram
+              data={treeData}
+              width={800}
+              height={420}
+              leafSpacing={240}
+            />
           </div>
         </ContentArea>
       </AbsoluteFill>

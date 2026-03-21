@@ -136,7 +136,7 @@ addScene(
 );
 addScene(
   froms[7],
-  narrations.outroScene,
+  narrations.argParamScene,
   AUDIO_CONFIG.argParamScene.speechStartFrame,
   AUDIO_CONFIG.argParamScene.narrationSplits,
   AUDIO_CONFIG.argParamScene.sentenceEndFrames,
