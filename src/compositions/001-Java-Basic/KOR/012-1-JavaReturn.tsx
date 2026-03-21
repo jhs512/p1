@@ -1193,11 +1193,11 @@ const SummaryScene: React.FC = () => {
 
 // ── 씬: RealExampleScene — return 활용 실전 예시 ─────────────
 const DISCOUNT_FUNC = [
-  "int discount(int price) {",
-  "    if (price > 30000) {",
-  "        return (int)(price * 0.9);",
+  "int discount(int price) {  // 가격을 받아 할인 가격을 돌려주는 함수",
+  "    if (price > 30000) {  // 3만 원 초과이면",
+  "        return (int)(price * 0.9);  // 10% 할인 가격 리턴",
   "    }",
-  "    return price;",
+  "    return price;  // 아니면 원래 가격 리턴",
   "}",
 ];
 const DISCOUNT_USE = [
