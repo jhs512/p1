@@ -21,7 +21,6 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
-import { JavaLine } from "../../../utils/code";
 import {
   CHARS_PER_SEC,
   CODE,
@@ -31,10 +30,10 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  TypingCodeLine,
   monoStyle,
   uiFont,
   useFade,
-  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
@@ -128,19 +127,6 @@ const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   <div style={{ opacity: 0.5, color: TEXT, lineHeight: "1.8" }}>{text}</div>
 );
 
-const TypingLine: React.FC<{
-  text: string;
-  startFrame: number;
-  charsPerSecond: number;
-}> = ({ text, startFrame, charsPerSecond }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
-  return (
-    <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <JavaLine text={visibleText} />
-    </div>
-  );
-};
-
 const CodeBox: React.FC<{
   lines: CodeLine[];
   startFrame: number;
@@ -162,11 +148,12 @@ const CodeBox: React.FC<{
   >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine
+        <TypingCodeLine
           key={`new-${i}-${line.text}`}
           text={line.text}
           startFrame={startFrame}
-          charsPerSecond={charsPerSecond}
+          cps={charsPerSecond}
+          lineHeight="1.8"
         />
       ) : (
         <StaticLine key={`static-${i}-${line.text}`} text={line.text} />

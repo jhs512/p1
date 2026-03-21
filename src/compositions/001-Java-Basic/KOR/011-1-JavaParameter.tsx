@@ -16,7 +16,6 @@ import React from "react";
 import { FPS } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
-  CHARS_PER_SEC,
   CODE,
   CROSS,
   ContentArea,
@@ -24,6 +23,7 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  TypingCodeLine,
   monoStyle,
   uiFont,
   useFade,
@@ -93,24 +93,6 @@ export const VIDEO_CONFIG = {
   },
 } as const;
 
-// ── CodeLine — shiki 기반 JavaLine 래퍼 ─────────────────────
-const CodeLine: React.FC<{ text: string }> = ({ text }) => (
-  <JavaLine text={text} />
-);
-
-// ── TypingCodeLine — 타이핑 애니메이션 래퍼 ──────────────────
-const TypingCodeLine: React.FC<{
-  text: string;
-  startFrame: number;
-  cps?: number;
-}> = ({ text, startFrame, cps = CHARS_PER_SEC }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, cps);
-  return (
-    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-      <CodeLine text={visibleText} />
-    </div>
-  );
-};
 
 // ── 씬: ThumbnailScene ──────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
@@ -304,7 +286,7 @@ const PainScene: React.FC = () => {
                     opacity: 0.8,
                   }}
                 >
-                  <CodeLine text={line} />
+                  <JavaLine text={line} />
                 </div>
               ))}
             </div>
@@ -425,7 +407,7 @@ const TypingParamLine: React.FC<{
   if (paramStart < 0) {
     return (
       <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-        <CodeLine text={visibleText} />
+        <JavaLine text={visibleText} />
       </div>
     );
   }
@@ -435,7 +417,7 @@ const TypingParamLine: React.FC<{
 
   return (
     <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-      <CodeLine text={before} />
+      <JavaLine text={before} />
       <span style={{ position: "relative", display: "inline" }}>
         <span style={{ color: C_TYPE }}>String</span>
         <span> </span>
@@ -456,7 +438,7 @@ const TypingParamLine: React.FC<{
           }}
         />
       </span>
-      <CodeLine text={after} />
+      <JavaLine text={after} />
     </div>
   );
 };
@@ -650,7 +632,7 @@ const TypingMultiParamLine: React.FC<{
   if (paramStart < 0) {
     return (
       <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-        <CodeLine text={visibleText} />
+        <JavaLine text={visibleText} />
       </div>
     );
   }
@@ -660,7 +642,7 @@ const TypingMultiParamLine: React.FC<{
 
   return (
     <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-      <CodeLine text={before} />
+      <JavaLine text={before} />
       <span style={{ position: "relative", display: "inline" }}>
         <span style={{ color: C_TYPE }}>int</span>
         <span> a, </span>
@@ -682,7 +664,7 @@ const TypingMultiParamLine: React.FC<{
           }}
         />
       </span>
-      <CodeLine text={after} />
+      <JavaLine text={after} />
     </div>
   );
 };

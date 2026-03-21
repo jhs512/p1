@@ -22,10 +22,10 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  TypingCodeLine,
   monoStyle,
   uiFont,
   useFade,
-  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./003-2-content";
@@ -89,19 +89,6 @@ export const VIDEO_CONFIG = {
   },
 };
 
-// ── 공통: TypingLine (SummaryScene과 공유) ───────────────────
-const TypingLine: React.FC<{
-  text: string;
-  startFrame: number;
-  cps: number;
-}> = ({ text, startFrame, cps }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, cps);
-  return (
-    <div style={{ color: TEXT }}>
-      <JavaLine text={visibleText} />
-    </div>
-  );
-};
 
 // ── 공통: 코드 라인 점진적 등장 블록 ─────────────────────────
 const CodeLines: React.FC<{
@@ -137,11 +124,12 @@ const CodeLines: React.FC<{
           );
         }
         return (
-          <TypingLine
+          <TypingCodeLine
             key={i}
             text={l.text}
             startFrame={l.startFrame}
             cps={cps}
+            lineHeight="inherit"
           />
         );
       })}
@@ -653,11 +641,12 @@ const SummaryScene: React.FC = () => {
                       <JavaLine text={text} />
                     </div>
                   ) : (
-                    <TypingLine
+                    <TypingCodeLine
                       key={j}
                       text={text}
                       startFrame={0}
                       cps={SUMMARY_CPS}
+                      lineHeight="inherit"
                     />
                   ),
                 )}

@@ -16,7 +16,6 @@ import React from "react";
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import { JavaLine } from "../../../utils/code";
 import {
-  CHARS_PER_SEC,
   CODE,
   CROSS,
   ContentArea,
@@ -24,6 +23,7 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  TypingCodeLine,
   monoStyle,
   uiFont,
   useFade,
@@ -138,24 +138,6 @@ export const VIDEO_CONFIG = {
   },
 } as const;
 
-// ── 컴포넌트: CodeLine ─────────────────────────────────────────
-const CodeLine: React.FC<{ text: string }> = ({ text }) => (
-  <JavaLine text={text} />
-);
-
-// ── 컴포넌트: TypingCodeLine ───────────────────────────────────
-const TypingCodeLine: React.FC<{
-  text: string;
-  startFrame: number;
-  cps?: number;
-}> = ({ text, startFrame, cps = CHARS_PER_SEC }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, cps);
-  return (
-    <div style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}>
-      <CodeLine text={visibleText} />
-    </div>
-  );
-};
 
 // ── 씬: ThumbnailScene — 006 스타일 통일 ─────────────────────
 // 색상 통일: "Java" = C_FUNC(노란색), "함수" = 흰색, JAVA 라벨 = 흰색(저채도)
@@ -961,7 +943,7 @@ const ComparisonScene: React.FC = () => {
                       whiteSpace: "pre",
                     }}
                   >
-                    <CodeLine text={line} />
+                    <JavaLine text={line} />
                   </div>
                 ))}
                 <HighlightRect
@@ -1004,7 +986,7 @@ const ComparisonScene: React.FC = () => {
                       whiteSpace: "pre",
                     }}
                   >
-                    {line ? <CodeLine text={line} /> : "\u00A0"}
+                    {line ? <JavaLine text={line} /> : "\u00A0"}
                   </div>
                 ))}
                 <HighlightRect

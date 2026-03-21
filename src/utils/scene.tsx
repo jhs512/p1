@@ -15,6 +15,7 @@ import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
 import React from "react";
 
 import { CHARS_PER_SEC, CROSS, SCENE_TAIL_FRAMES } from "../config";
+import { JavaLine } from "./code";
 import { toDisplayText } from "./narration";
 
 // ── 폰트 ─────────────────────────────────────────────────────
@@ -303,3 +304,20 @@ export function calcDuration(
 ): number {
   return Math.max(audioDurationInFrames, animEndFrame + cross + tail);
 }
+
+// ── 컴포넌트: TypingCodeLine ─────────────────────────────────
+/** 타이핑 애니메이션이 적용된 한 줄 코드 */
+export const TypingCodeLine: React.FC<{
+  text: string;
+  startFrame: number;
+  cps?: number;
+  color?: string;
+  lineHeight?: string | number;
+}> = ({ text, startFrame, cps = CHARS_PER_SEC, color = "#d4d4d4", lineHeight = "1.9" }) => {
+  const { visibleText } = useTypingEffect(text, startFrame, cps);
+  return (
+    <div style={{ lineHeight, color, whiteSpace: "pre" }}>
+      <JavaLine text={visibleText} />
+    </div>
+  );
+};

@@ -25,10 +25,10 @@ import {
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
+  TypingCodeLine,
   monoStyle,
   uiFont,
   useFade,
-  useTypingEffect,
 } from "../../../utils/scene";
 import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./002-2-content";
@@ -118,18 +118,6 @@ const StaticLine: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-const TypingLine: React.FC<{
-  text: string;
-  startFrame: number;
-  charsPerSecond: number;
-}> = ({ text, startFrame, charsPerSecond }) => {
-  const { visibleText } = useTypingEffect(text, startFrame, charsPerSecond);
-  return (
-    <div style={{ color: TEXT, lineHeight: "1.8" }}>
-      <JavaLine text={visibleText} />
-    </div>
-  );
-};
 
 const CodeBox: React.FC<{
   lines: { text: string; isNew: boolean }[];
@@ -152,11 +140,12 @@ const CodeBox: React.FC<{
   >
     {lines.map((line, i) =>
       line.isNew ? (
-        <TypingLine
+        <TypingCodeLine
           key={`new-${i}`}
           text={line.text}
           startFrame={startFrame}
-          charsPerSecond={charsPerSecond}
+          cps={charsPerSecond}
+          lineHeight="1.8"
         />
       ) : (
         <StaticLine key={`static-${i}`} text={line.text} />
