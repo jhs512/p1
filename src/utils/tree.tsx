@@ -59,6 +59,8 @@ interface TreeDiagramProps {
   nodePaddingX?: number;
   /** 노드 상하 패딩 — 기본 16 */
   nodePaddingY?: number;
+  /** 노드 뒤 불투명 배경색 (연결선 가림용) — 기본 "#1e1e1e" */
+  bgColor?: string;
 }
 
 // ── 기본 스타일 ──────────────────────────────────────────────
@@ -84,6 +86,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
   lineWidth = 2,
   nodePaddingX = 36,
   nodePaddingY = 16,
+  bgColor = "#1e1e1e",
 }) => {
   // d3-hierarchy 레이아웃 계산
   const root = hierarchy(data);
@@ -140,7 +143,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           });
 
           const nodeColor = isDim ? C_DIM : d.color;
-          const bgColor = isDim
+          const nodeBgColor = isDim
             ? "rgba(255,255,255,0.04)"
             : `${d.color}18`;
           const borderColor = isDim
@@ -158,7 +161,7 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
               transform={`translate(${node.x}, ${node.y}) scale(${sc})`}
               opacity={appear * nodeOpacity}
             >
-              {/* 배경 rect */}
+              {/* 불투명 배경 — 연결선 가림 */}
               <rect
                 x={-rectW / 2}
                 y={-rectH / 2}
@@ -166,6 +169,15 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
                 height={rectH}
                 rx={16}
                 fill={bgColor}
+              />
+              {/* 스타일 배경 rect */}
+              <rect
+                x={-rectW / 2}
+                y={-rectH / 2}
+                width={rectW}
+                height={rectH}
+                rx={16}
+                fill={nodeBgColor}
                 stroke={borderColor}
                 strokeWidth={2}
                 filter={
