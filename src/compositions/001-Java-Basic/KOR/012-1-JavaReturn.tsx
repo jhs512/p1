@@ -714,8 +714,29 @@ const ReturnFlowScene: React.FC = () => {
 };
 
 // ── 씬: UseReturnScene — 돌려받은 값 활용 ─────────────────────
-const USE_SAVE = "int result = sum(3, 5);";
-const USE_DIRECT = "System.out.println(sum(3, 5));";
+// 밑줄 헬퍼 — inline 요소에 하단 밑줄 + 1회성 소멸
+const Underlined: React.FC<{
+  children: React.ReactNode;
+  color: string;
+  appear: number;
+}> = ({ children, color, appear }) => (
+  <span style={{ position: "relative", display: "inline" }}>
+    {children}
+    <span
+      style={{
+        position: "absolute",
+        bottom: -3,
+        left: 0,
+        right: 0,
+        height: 3,
+        background: color,
+        borderRadius: 2,
+        transform: `scaleX(${appear})`,
+        transformOrigin: "left",
+      }}
+    />
+  </span>
+);
 
 const UseReturnScene: React.FC = () => {
   const { useReturnScene: cfg } = VIDEO_CONFIG;
@@ -734,6 +755,19 @@ const UseReturnScene: React.FC = () => {
     durationInFrames: 30,
   });
 
+  // 1문장: sum(3,5) 밑줄 (1회성 — 헌법 13조)
+  const saveUlIn = spring({
+    frame: frame - (s + 20),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 40,
+  });
+  const saveUlOut = interpolate(frame, [s + 70, s + 95], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const saveUl = saveUlIn * (1 - saveUlOut);
+
   // 2문장: 바로 인자로 넘기기
   const directAppear = spring({
     frame: frame - split,
@@ -741,6 +775,19 @@ const UseReturnScene: React.FC = () => {
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
   });
+
+  // 2문장: sum(3,5)가 인자 위치에 있음 — 밑줄 (1회성)
+  const directUlIn = spring({
+    frame: frame - (split + 20),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 40,
+  });
+  const directUlOut = interpolate(frame, [split + 70, split + 95], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const directUl = directUlIn * (1 - directUlOut);
 
   return (
     <>
@@ -783,17 +830,28 @@ const UseReturnScene: React.FC = () => {
                   padding: "24px 36px",
                   ...monoStyle,
                   fontSize: 28,
+                  lineHeight: "1.9",
+                  color: TEXT,
+                  whiteSpace: "pre",
                 }}
               >
-                <div
-                  style={{
-                    lineHeight: "1.9",
-                    color: TEXT,
-                    whiteSpace: "pre",
-                  }}
-                >
-                  <JavaLine text={USE_SAVE} />
-                </div>
+                <JavaLine text="int result = " />
+                <Underlined color={C_TEAL} appear={saveUl}>
+                  <JavaLine text="sum(3, 5)" />
+                </Underlined>
+                <JavaLine text=";" />
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: C_TEAL,
+                  opacity: saveUl * 0.8,
+                  marginTop: 6,
+                }}
+              >
+                ↑ 함수의 결과를 변수에 담기
               </div>
             </div>
 
@@ -819,17 +877,28 @@ const UseReturnScene: React.FC = () => {
                   padding: "24px 36px",
                   ...monoStyle,
                   fontSize: 28,
+                  lineHeight: "1.9",
+                  color: TEXT,
+                  whiteSpace: "pre",
                 }}
               >
-                <div
-                  style={{
-                    lineHeight: "1.9",
-                    color: TEXT,
-                    whiteSpace: "pre",
-                  }}
-                >
-                  <JavaLine text={USE_DIRECT} />
-                </div>
+                <JavaLine text="System.out.println(" />
+                <Underlined color={C_FUNC} appear={directUl}>
+                  <JavaLine text="sum(3, 5)" />
+                </Underlined>
+                <JavaLine text=");" />
+              </div>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: C_FUNC,
+                  opacity: directUl * 0.8,
+                  marginTop: 6,
+                }}
+              >
+                ↑ 함수 호출을 그대로 다른 함수의 인자로
               </div>
             </div>
           </div>
