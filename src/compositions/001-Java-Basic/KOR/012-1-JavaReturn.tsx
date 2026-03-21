@@ -37,7 +37,6 @@ import {
   C_KEYWORD,
   C_PAIN,
   C_TEAL,
-  C_VAR,
   TEXT,
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
@@ -79,6 +78,13 @@ export const VIDEO_CONFIG = {
     speechStartFrame: AUDIO_CONFIG.useReturnScene.speechStartFrame,
     narration: CONTENT.useReturnScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.useReturnScene.narrationSplits,
+  },
+  comparisonScene: {
+    audio: "ret-comparison.mp3",
+    durationInFrames: AUDIO_CONFIG.comparisonScene.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narration: CONTENT.comparisonScene.narration as string[],
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
   },
   summaryScene: {
     audio: "ret-summary.mp3",
@@ -147,21 +153,6 @@ const ThumbnailScene: React.FC = () => {
         Java
         <br />
         <span style={{ color: C_TEAL }}>return</span>
-      </div>
-      <div
-        style={{
-          ...monoStyle,
-          fontSize: 64,
-          fontWeight: 900,
-          color: C_KEYWORD,
-          background: `${C_KEYWORD}18`,
-          border: `2px solid ${C_KEYWORD}55`,
-          borderRadius: 18,
-          padding: "18px 56px",
-          marginTop: 8,
-        }}
-      >
-        return
       </div>
     </AbsoluteFill>
   );
@@ -416,24 +407,41 @@ const ConceptScene: React.FC = () => {
   );
 };
 
-// ── 씬: ReturnTypeScene — void vs int ─────────────────────────
+// ── 씬: ReturnTypeScene — 리턴 타입 (3문장: 설명 → void → int/double) ──
 const ReturnTypeScene: React.FC = () => {
   const { returnTypeScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
+  const split1 = cfg.narrationSplits[0];
+  const split2 = cfg.narrationSplits[1];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const voidAppear = spring({
+  // 1문장: 타이틀 등장
+  const titleAppear = spring({
     frame: frame - s,
+    fps,
+    config: { damping: 14, stiffness: 120 },
+    durationInFrames: 36,
+  });
+  const titleExit = interpolate(frame, [split1 - 20, split1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const titleOpacity = titleAppear * (1 - titleExit);
+
+  // 2문장: void 카드
+  const voidAppear = spring({
+    frame: frame - split1,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 36,
   });
+
+  // 3문장: int/double 카드
   const intAppear = spring({
-    frame: frame - split,
+    frame: frame - split2,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 36,
@@ -442,11 +450,11 @@ const ReturnTypeScene: React.FC = () => {
   const cardStyle = (appear: number, color: string): React.CSSProperties => ({
     background: BG_CODE,
     borderRadius: 16,
-    padding: "28px 36px",
-    width: 420,
+    padding: "24px 32px",
+    width: 480,
     display: "flex",
     flexDirection: "column",
-    gap: 14,
+    gap: 12,
     opacity: appear,
     transform: `scale(${interpolate(appear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
     border: `2px solid ${color}44`,
@@ -467,10 +475,24 @@ const ReturnTypeScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 36,
+              gap: 28,
             }}
           >
-            {/* void 카드 */}
+            {/* 1문장: 타이틀 */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 44,
+                fontWeight: 700,
+                color: C_TEAL,
+                textAlign: "center",
+                opacity: titleOpacity,
+              }}
+            >
+              돌려줄 값의 타입
+            </div>
+
+            {/* 2문장: void 카드 */}
             <div style={cardStyle(voidAppear, C_PAIN)}>
               <div
                 style={{
@@ -489,26 +511,68 @@ const ReturnTypeScene: React.FC = () => {
               </div>
             </div>
 
-            {/* int 카드 */}
-            <div style={cardStyle(intAppear, C_TEAL)}>
+            {/* 3문장: int / double 카드 */}
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                opacity: intAppear,
+                transform: `scale(${interpolate(intAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              }}
+            >
               <div
                 style={{
-                  fontFamily: uiFont,
-                  fontSize: FONT.label,
-                  fontWeight: 700,
-                  color: C_TEAL,
-                  letterSpacing: 2,
+                  background: BG_CODE,
+                  borderRadius: 16,
+                  padding: "20px 28px",
+                  border: `2px solid ${C_TEAL}44`,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
                 }}
               >
-                정수를 돌려줌
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: C_TEAL,
+                    letterSpacing: 2,
+                  }}
+                >
+                  정수
+                </div>
+                <div style={{ ...monoStyle, fontSize: 26, color: TEXT }}>
+                  <span style={{ color: C_KEYWORD }}>int</span>{" "}
+                  <span style={{ color: C_FUNC }}>sum</span>()
+                </div>
               </div>
-              <div style={{ ...monoStyle, fontSize: 28, color: TEXT }}>
-                <span style={{ color: C_KEYWORD }}>int</span>{" "}
-                <span style={{ color: C_FUNC }}>sum</span>(
-                <span style={{ color: C_KEYWORD }}>int</span>{" "}
-                <span style={{ color: C_VAR }}>a</span>,{" "}
-                <span style={{ color: C_KEYWORD }}>int</span>{" "}
-                <span style={{ color: C_VAR }}>b</span>) {"{"}...{"}"}
+              <div
+                style={{
+                  background: BG_CODE,
+                  borderRadius: 16,
+                  padding: "20px 28px",
+                  border: `2px solid ${C_TEAL}44`,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: C_TEAL,
+                    letterSpacing: 2,
+                  }}
+                >
+                  실수
+                </div>
+                <div style={{ ...monoStyle, fontSize: 26, color: TEXT }}>
+                  <span style={{ color: C_KEYWORD }}>double</span>{" "}
+                  <span style={{ color: C_FUNC }}>avg</span>()
+                </div>
               </div>
             </div>
           </div>
@@ -755,6 +819,157 @@ const UseReturnScene: React.FC = () => {
   );
 };
 
+// ── 씬: ComparisonScene — void vs return Before/After ─────────
+const BEFORE_CODE = [
+  "void printSum(int a, int b) {",
+  '    System.out.println(a + b);',
+  "}",
+];
+const AFTER_CODE = [
+  "int sum(int a, int b) {",
+  "    return a + b;",
+  "}",
+];
+
+const ComparisonScene: React.FC = () => {
+  const { comparisonScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const s = cfg.speechStartFrame;
+  const split = cfg.narrationSplits[0];
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const beforeAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 36,
+  });
+
+  const afterAppear = spring({
+    frame: frame - split,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 36,
+  });
+
+  const arrowAppear = spring({
+    frame: frame - (split - 10),
+    fps,
+    config: { damping: 14, stiffness: 100 },
+    durationInFrames: 30,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Audio src={staticFile(cfg.audio)} />
+          <SceneTitle title="6. Before / After" />
+          <div
+            style={{
+              position: "absolute",
+              top: "42%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+            }}
+          >
+            {/* Before — void */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.label,
+                fontWeight: 700,
+                color: C_PAIN,
+                letterSpacing: 2,
+                opacity: beforeAppear * 0.85,
+              }}
+            >
+              출력만 가능
+            </div>
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "20px 32px",
+                ...monoStyle,
+                fontSize: 26,
+                opacity: beforeAppear,
+                border: `2px solid ${C_PAIN}33`,
+              }}
+            >
+              {BEFORE_CODE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+
+            {/* 화살표 */}
+            <div
+              style={{
+                fontSize: 32,
+                color: C_TEAL,
+                opacity: arrowAppear,
+              }}
+            >
+              ▼
+            </div>
+
+            {/* After — return */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.label,
+                fontWeight: 700,
+                color: C_TEAL,
+                letterSpacing: 2,
+                opacity: afterAppear * 0.85,
+              }}
+            >
+              결과를 자유롭게 활용
+            </div>
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "20px 32px",
+                ...monoStyle,
+                fontSize: 26,
+                opacity: afterAppear,
+                border: `2px solid ${C_TEAL}33`,
+              }}
+            >
+              {AFTER_CODE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
+      />
+    </>
+  );
+};
+
 // ── 씬: SummaryScene — 정리 ──────────────────────────────────
 const SUMMARY_CARDS = CONTENT.summaryScene.cards as string[];
 
@@ -802,7 +1017,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="6. 정리" />
+          <SceneTitle title="7. 정리" />
           <div
             style={{
               position: "absolute",
@@ -873,6 +1088,7 @@ const sceneList = [
   VIDEO_CONFIG.returnTypeScene,
   VIDEO_CONFIG.returnFlowScene,
   VIDEO_CONFIG.useReturnScene,
+  VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.summaryScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
@@ -932,6 +1148,12 @@ const JavaReturn: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}
+    >
+      <ComparisonScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[7]}
       durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
     >
       <SummaryScene />
