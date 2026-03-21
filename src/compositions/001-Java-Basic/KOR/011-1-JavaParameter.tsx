@@ -132,7 +132,7 @@ const CodeLine: React.FC<{ text: string }> = ({ text }) => {
 
   // 코드 토큰화
   const parts = codePart.split(
-    /(void|return|if|int|String|"[^"]*"|\d+)/g,
+    /(\bvoid\b|\breturn\b|\bif\b|\bint\b|\bString\b|"[^"]*"|\b\d+\b)/g,
   );
 
   return (
