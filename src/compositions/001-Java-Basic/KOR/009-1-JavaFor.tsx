@@ -230,14 +230,21 @@ const OverviewScene: React.FC = () => {
           <Audio src={staticFile(cfg.audio)} />
 
           {/* 트리 다이어그램 — absolute 배치로 연결선 정렬 */}
+          {/*
+            좌표계 (800 × 380):
+            제어문 중심: (400, 30)
+            조건문 중심: (200, 150)
+            반복문 중심: (600, 150)
+            while/for 중심: (600, 270)
+          */}
           <div
             style={{
               position: "absolute",
               top: "38%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 520,
-              height: 320,
+              width: 800,
+              height: 380,
               opacity: rootAppear,
             }}
           >
@@ -247,30 +254,29 @@ const OverviewScene: React.FC = () => {
                 ...nodeStyle("#9cdcfe", true, rootAppear),
                 position: "absolute",
                 top: 0,
-                left: "50%",
+                left: 400,
                 transform: "translateX(-50%)",
               }}
             >
               제어문
             </div>
 
-            {/* SVG 연결선 — 노드 중심 좌표 기준 */}
-            {/* 제어문 중심: (260, 30), 조건문 중심: (110, 130), 반복문 중심: (370, 130) */}
+            {/* SVG 연결선 */}
             <svg
-              width={520}
-              height={320}
+              width={800}
+              height={380}
               style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
             >
               {/* 제어문 → 수평 분기 */}
-              <line x1={260} y1={60} x2={260} y2={88} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
-              <line x1={130} y1={88} x2={390} y2={88} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
+              <line x1={400} y1={62} x2={400} y2={90} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
+              <line x1={200} y1={90} x2={600} y2={90} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
               {/* 조건문 내림선 */}
-              <line x1={130} y1={88} x2={130} y2={110} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
+              <line x1={200} y1={90} x2={200} y2={120} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
               {/* 반복문 내림선 */}
-              <line x1={390} y1={88} x2={390} y2={110} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
+              <line x1={600} y1={90} x2={600} y2={120} stroke="rgba(255,255,255,0.25)" strokeWidth={2} />
               {/* 반복문 → while/for 내림선 */}
               <line
-                x1={390} y1={170} x2={390} y2={200}
+                x1={600} y1={185} x2={600} y2={220}
                 stroke="rgba(255,255,255,0.25)" strokeWidth={2}
                 opacity={rightAppear}
               />
@@ -281,8 +287,8 @@ const OverviewScene: React.FC = () => {
               style={{
                 ...nodeStyle("#c586c0", false, leftAppear),
                 position: "absolute",
-                top: 110,
-                left: 130,
+                top: 120,
+                left: 200,
                 transform: "translateX(-50%)",
               }}
             >
@@ -294,8 +300,8 @@ const OverviewScene: React.FC = () => {
               style={{
                 ...nodeStyle(C_FOR, true, rightAppear),
                 position: "absolute",
-                top: 110,
-                left: 390,
+                top: 120,
+                left: 600,
                 transform: "translateX(-50%)",
               }}
             >
@@ -306,11 +312,11 @@ const OverviewScene: React.FC = () => {
             <div
               style={{
                 position: "absolute",
-                top: 200,
-                left: 390,
+                top: 220,
+                left: 600,
                 transform: "translateX(-50%)",
                 display: "flex",
-                gap: 12,
+                gap: 16,
                 alignItems: "center",
               }}
             >
