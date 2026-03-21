@@ -14,7 +14,7 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { JavaLine } from "../../../utils/code";
-import { FPS } from "../../../config";
+import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
 import {
   CHARS_PER_SEC,
   CROSS,
@@ -68,7 +68,7 @@ export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
   painScene: {
     audio: "fn-pain.mp3",
-    durationInFrames: AUDIO_CONFIG.painScene.durationInFrames,
+    durationInFrames: PAIN_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
     narration: CONTENT.painScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
@@ -246,6 +246,10 @@ const PAIN_LINES = [
   'System.out.println("안녕 민준");',
   "// ...",
   'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
+  "// ...",
+  'System.out.println("안녕 민준");',
 ];
 const PAIN_CPS = 28;
 
@@ -260,6 +264,21 @@ function getReplaceWord(progress: number): { text: string; blank: boolean } {
 
 const REPLACE_DUR = 60; // 교체 애니메이션 프레임 수
 const REPLACE_GAP = 40; // 줄 간격 프레임 수
+
+// 씬 duration 헌법 계산 — 타이핑 + 교체 애니메이션이 오디오보다 길 수 있음
+const PAIN_TYPING_END = (() => {
+  let f = AUDIO_CONFIG.painScene.speechStartFrame;
+  for (const line of PAIN_LINES) f += Math.ceil((line.length / PAIN_CPS) * FPS);
+  return f;
+})();
+const PAIN_REPLACE_END =
+  Math.max(AUDIO_CONFIG.painScene.narrationSplits[0] ?? 0, PAIN_TYPING_END) +
+  REPLACE_GAP * 4 +
+  REPLACE_DUR;
+const PAIN_SCENE_DURATION = Math.max(
+  AUDIO_CONFIG.painScene.durationInFrames,
+  PAIN_REPLACE_END + CROSS + SCENE_TAIL_FRAMES,
+);
 
 // println 줄: 타이핑 후 민준→공백→철수 교체 + 하이라이트 사각형
 const PainPrintlnLine: React.FC<{
@@ -357,6 +376,8 @@ const PainScene: React.FC = () => {
     replaceBegin,
     replaceBegin + REPLACE_GAP,
     replaceBegin + REPLACE_GAP * 2,
+    replaceBegin + REPLACE_GAP * 3,
+    replaceBegin + REPLACE_GAP * 4,
   ];
 
   return (
@@ -373,10 +394,10 @@ const PainScene: React.FC = () => {
               transform: "translate(-50%, -50%)",
               background: BG_CODE,
               borderRadius: 12,
-              padding: "40px 56px",
+              padding: "28px 44px",
               minWidth: 760,
               ...monoStyle,
-              fontSize: 32,
+              fontSize: 26,
             }}
           >
             {PAIN_LINES.map((line, i) => {
@@ -391,7 +412,7 @@ const PainScene: React.FC = () => {
                 );
               }
               // println 줄: 교체 애니메이션
-              const rIdx = [0, 2, 4].indexOf(i);
+              const rIdx = [0, 2, 4, 6, 8].indexOf(i);
               return (
                 <PainPrintlnLine
                   key={i}
@@ -917,7 +938,7 @@ const SummaryScene: React.FC = () => {
 };
 
 // ── 씬: ComparisonScene — 고통코드 → 화살표 → 개선코드 ───────
-const BEFORE_LINES = PAIN_LINES; // 함수 없이: 3줄 반복
+const BEFORE_LINES = PAIN_LINES; // 함수 없이: 5줄 반복
 const AFTER_LINES = [
   "void greet(String name) {",
   '    System.out.println("안녕 " + name);',
@@ -929,7 +950,7 @@ const AFTER_LINES = [
 ];
 
 // 하이라이트할 줄 인덱스 (반복되는 println 줄)
-const BEFORE_HIGHLIGHT = [0, 2, 4]; // println 3줄
+const BEFORE_HIGHLIGHT = [0, 2, 4, 6, 8]; // println 5줄
 // 함수 선언 블록 + 간결한 호출부
 const AFTER_HIGHLIGHT_DECLARE = [0, 1, 2]; // void greet() { ... }
 const AFTER_HIGHLIGHT_CALL = [4, 5, 6]; // greet(); x3
