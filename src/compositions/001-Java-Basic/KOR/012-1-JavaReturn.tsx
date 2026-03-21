@@ -926,8 +926,8 @@ const AFTER_CODE = [
   "}",
 ];
 const AFTER_USE = [
-  "int result = sum(3, 5);",
-  "System.out.println(sum(3, 5));",
+  "int result = sum(3, 5);  // 변수에 저장",
+  "System.out.println(sum(3, 5));  // 바로 활용",
 ];
 
 const ComparisonScene: React.FC = () => {
