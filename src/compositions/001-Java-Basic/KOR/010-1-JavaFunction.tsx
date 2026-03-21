@@ -816,9 +816,13 @@ const AFTER_LINES = [
   "}",
   "",
   "greet();",
+  "// ...",
   "greet();",
+  "// ...",
   "greet();",
+  "// ...",
   "greet();",
+  "// ...",
   "greet();",
 ];
 
@@ -826,7 +830,7 @@ const AFTER_LINES = [
 const BEFORE_HIGHLIGHT = [0, 2, 4, 6, 8]; // println 5줄
 // 함수 선언 블록 + 간결한 호출부
 const AFTER_HIGHLIGHT_DECLARE = [0, 1, 2]; // void greet() { ... }
-const AFTER_HIGHLIGHT_CALL = [4, 5, 6, 7, 8]; // greet(); x5
+const AFTER_HIGHLIGHT_CALL = [4, 6, 8, 10, 12]; // greet(); x5
 
 const ComparisonScene: React.FC = () => {
   const { comparisonScene: cfg } = VIDEO_CONFIG;
