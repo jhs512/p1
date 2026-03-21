@@ -178,8 +178,7 @@ const BeatCard: React.FC<{
       </div>
 
       {/* 결과 배지 */}
-      {frame >= 40 && (
-        <div
+      <div
           style={{
             position: "absolute",
             top: "64%",
@@ -204,7 +203,6 @@ const BeatCard: React.FC<{
             {result ? "true" : "false"}
           </span>
         </div>
-      )}
     </AbsoluteFill>
   );
 };

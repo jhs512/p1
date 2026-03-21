@@ -344,7 +344,7 @@ const AddSubScene: React.FC = () => {
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
           <SceneTitle title="2. 덧셈 · 뺄셈" />
-          {frame >= s && (
+          <div style={{ opacity: frame >= s ? 1 : 0 }}>
             <CodeLines
               lines={[
                 { text: "int a = 10, b = 3;", startFrame: s },
@@ -352,7 +352,7 @@ const AddSubScene: React.FC = () => {
                 { text: "int diff = a - b;   //  7", startFrame: split0 },
               ]}
             />
-          )}
+          </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle

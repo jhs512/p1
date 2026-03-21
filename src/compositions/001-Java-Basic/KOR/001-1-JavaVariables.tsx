@@ -853,7 +853,7 @@ const InterpretScene: React.FC = () => {
                   {ageSpan(phase === 1, C_SPACE)}
                   <span style={{ color: TEXT }}>;</span>
                 </div>
-                {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+                {badge("← 공간", C_SPACE, phase >= 1 ? ann1 : 0)}
               </div>
 
               {/* Line 2: age = 25; */}
@@ -871,7 +871,7 @@ const InterpretScene: React.FC = () => {
                   <span style={{ color: C_NUMBER }}>25</span>
                   <span style={{ color: TEXT }}>;</span>
                 </div>
-                {phase >= 1 && badge("← 공간", C_SPACE, ann1)}
+                {badge("← 공간", C_SPACE, phase >= 1 ? ann1 : 0)}
               </div>
 
               {/* Line 3: System.out.println(age); */}
@@ -891,10 +891,9 @@ const InterpretScene: React.FC = () => {
                   {ageSpan(phase === 2, C_VAL)}
                   <span style={{ color: TEXT }}>);</span>
                 </div>
-                {phase >= 2 && (
-                  <div
+                <div
                     style={{
-                      opacity: ann2,
+                      opacity: phase >= 2 ? ann2 : 0,
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
@@ -915,7 +914,6 @@ const InterpretScene: React.FC = () => {
                       = 25
                     </span>
                   </div>
-                )}
               </div>
             </div>
           )}
