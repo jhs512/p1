@@ -54,7 +54,7 @@ export const CONTENT = {
   },
   outroScene: {
     narration: [
-      "함수에서 사용된\n[return(발음:리턴)] 과 [void(발음:보이드)]도 알아두면 좋습니다.",
+      "[return(발음:리턴)]에 대해서는 나중에 알아보겠습니다.",
     ],
   },
 } satisfies EpisodeContent;

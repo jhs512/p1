@@ -811,13 +811,13 @@ const SummaryScene: React.FC = () => {
 // ── 씬: ComparisonScene — 고통코드 → 화살표 → 개선코드 ───────
 const BEFORE_LINES = PAIN_LINES; // 함수 없이: 5줄 반복
 const AFTER_LINES = [
-  "void greet(String name) {",
-  '    System.out.println("안녕 " + name);',
+  "void greet() {",
+  '    System.out.println("안녕 민준");',
   "}",
   "",
-  'greet("민준");',
-  'greet("철수");',
-  'greet("영희");',
+  "greet();",
+  "greet();",
+  "greet();",
 ];
 
 // 하이라이트할 줄 인덱스 (반복되는 println 줄)
@@ -1364,7 +1364,7 @@ const RealExampleScene: React.FC = () => {
   );
 };
 
-// ── OutroScene — return/void 예고 ────────────────────────────
+// ── OutroScene — return 예고 ─────────────────────────────────
 const OutroScene: React.FC = () => {
   const { outroScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
@@ -1373,19 +1373,11 @@ const OutroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // "return" 발화 시점 → frame 2
+  // "return" 발화 시점
   const returnFrame = AUDIO_CONFIG.outroScene.wordStartFrames[0][0];
-  // "void는" 발화 시점 → frame 18
-  const voidFrame = AUDIO_CONFIG.outroScene.wordStartFrames[0][2];
 
   const returnAppear = spring({
     frame: frame - returnFrame,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 48,
-  });
-  const voidAppear = spring({
-    frame: frame - voidFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
@@ -1397,22 +1389,6 @@ const OutroScene: React.FC = () => {
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
-  });
-  const voidUnderline = spring({
-    frame: frame - voidFrame - 16,
-    fps,
-    config: { damping: 14, stiffness: 100 },
-    durationInFrames: 40,
-  });
-
-  const keywordStyle = (appear: number): React.CSSProperties => ({
-    ...monoStyle,
-    fontSize: 52,
-    fontWeight: 900,
-    color: C_KEYWORD,
-    opacity: appear,
-    display: "inline-block",
-    position: "relative" as const,
   });
 
   return (
@@ -1428,13 +1404,20 @@ const OutroScene: React.FC = () => {
               top: "42%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              display: "flex",
-              gap: 28,
-              alignItems: "center",
             }}
           >
             {/* return */}
-            <div style={keywordStyle(returnAppear)}>
+            <div
+              style={{
+                ...monoStyle,
+                fontSize: 64,
+                fontWeight: 900,
+                color: C_KEYWORD,
+                opacity: returnAppear,
+                display: "inline-block",
+                position: "relative" as const,
+              }}
+            >
               return
               <div
                 style={{
@@ -1445,35 +1428,6 @@ const OutroScene: React.FC = () => {
                   background: C_TEAL,
                   borderRadius: 2,
                   width: `${returnUnderline * 100}%`,
-                }}
-              />
-            </div>
-
-            {/* 과 */}
-            <span
-              style={{
-                fontFamily: uiFont,
-                fontSize: 36,
-                fontWeight: 700,
-                color: TEXT,
-                opacity: returnAppear,
-              }}
-            >
-              과
-            </span>
-
-            {/* void */}
-            <div style={keywordStyle(voidAppear)}>
-              void
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: -6,
-                  left: 0,
-                  height: 3,
-                  background: C_TEAL,
-                  borderRadius: 2,
-                  width: `${voidUnderline * 100}%`,
                 }}
               />
             </div>
