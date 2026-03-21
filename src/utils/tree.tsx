@@ -127,7 +127,38 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
           );
         })}
 
-        {/* 노드 */}
+        {/* 불투명 배경 — 연결선 가림 (opacity 그룹 밖에서 렌더) */}
+        {root.descendants().map((node, i) => {
+          const d = node.data;
+          const appear = d.appear ?? 1;
+          const isMono = d.mono ?? false;
+          const fontSize = d.fontSize ?? (isMono ? 34 : FONT.heading);
+
+          const sc = interpolate(appear, [0, 1], [0.75, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+
+          const textW = estimateTextWidth(d.label, fontSize);
+          const rectW = textW + nodePaddingX * 2;
+          const rectH = fontSize + nodePaddingY * 2;
+
+          return (
+            <rect
+              key={`bg-${i}`}
+              x={node.x - rectW / 2}
+              y={node.y - rectH / 2}
+              width={rectW}
+              height={rectH}
+              rx={16}
+              fill={bgColor}
+              opacity={appear}
+              transform={`translate(${node.x}, ${node.y}) scale(${sc}) translate(${-node.x}, ${-node.y})`}
+            />
+          );
+        })}
+
+        {/* 노드 (스타일 배경 + 텍스트) */}
         {root.descendants().map((node, i) => {
           const d = node.data;
           const appear = d.appear ?? 1;
@@ -150,7 +181,6 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
             ? "rgba(255,255,255,0.1)"
             : `${d.color}66`;
 
-          // 텍스트 기반 rect 크기 계산
           const textW = estimateTextWidth(d.label, fontSize);
           const rectW = textW + nodePaddingX * 2;
           const rectH = fontSize + nodePaddingY * 2;
@@ -161,15 +191,6 @@ export const TreeDiagram: React.FC<TreeDiagramProps> = ({
               transform={`translate(${node.x}, ${node.y}) scale(${sc})`}
               opacity={appear * nodeOpacity}
             >
-              {/* 불투명 배경 — 연결선 가림 */}
-              <rect
-                x={-rectW / 2}
-                y={-rectH / 2}
-                width={rectW}
-                height={rectH}
-                rx={16}
-                fill={bgColor}
-              />
               {/* 스타일 배경 rect */}
               <rect
                 x={-rectW / 2}
