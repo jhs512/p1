@@ -14,6 +14,7 @@ import { Audio } from "@remotion/media";
 import React from "react";
 
 import { FPS, SCENE_TAIL_FRAMES } from "../../../config";
+import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
@@ -532,24 +533,17 @@ const WhileScene: React.FC = () => {
                     gap: 14,
                   }}
                 >
-                  <span
+                  <div
                     style={{
                       ...monoStyle,
                       fontSize: CODE.lg,
                       fontWeight: 700,
+                      lineHeight: 1.6,
                     }}
                   >
-                    `count++` 와 `count = count + 1` 는 같은 표현,
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: uiFont,
-                      fontSize: 22,
-                      fontWeight: 700,
-                    }}
-                  >
-                    count를 1 증가
-                  </span>
+                    <JavaLine text="count++" /> 와 <JavaLine text="count = count + 1" />
+                    <br />은 같은 표현, count를 1 증가
+                  </div>
                 </div>
               </div>
             </div>
