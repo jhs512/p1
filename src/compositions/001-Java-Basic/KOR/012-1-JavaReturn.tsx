@@ -1258,6 +1258,20 @@ const RealExampleScene: React.FC = () => {
                   }}
                 />
               </div>
+              {/* 함수 설명 */}
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 20,
+                  fontWeight: 600,
+                  color: TEXT,
+                  opacity: funcAppear * 0.7,
+                  marginTop: 8,
+                  lineHeight: 1.5,
+                }}
+              >
+                일정 가격이 넘으면 할인율이 적용된 가격을 리턴하는 함수
+              </div>
             </div>
 
             {/* 활용 */}
