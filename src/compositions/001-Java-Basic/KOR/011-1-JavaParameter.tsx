@@ -590,6 +590,21 @@ const ParamScene: React.FC = () => {
               transform: "translate(-50%, -50%)",
             }}
           >
+            {/* 라벨: 매개변수 ↓ — 코드 블록 위 */}
+            <div
+              style={{
+                opacity: labelAppear,
+                fontFamily: uiFont,
+                fontSize: FONT.label,
+                fontWeight: 700,
+                color: C_TEAL,
+                marginBottom: 16,
+                textAlign: "center",
+                letterSpacing: 2,
+              }}
+            >
+              매개변수 ↓
+            </div>
             <div
               style={{
                 background: BG_CODE,
@@ -620,21 +635,6 @@ const ParamScene: React.FC = () => {
                   />
                 ),
               )}
-            </div>
-            {/* 라벨: ↑ 매개변수 — 코드 블록 아래, String name 위치에 맞춤 */}
-            <div
-              style={{
-                opacity: labelAppear,
-                fontFamily: uiFont,
-                fontSize: FONT.label,
-                fontWeight: 700,
-                color: C_TEAL,
-                marginTop: 16,
-                textAlign: "center",
-                letterSpacing: 2,
-              }}
-            >
-              ↑ 매개변수
             </div>
           </div>
         </ContentArea>
