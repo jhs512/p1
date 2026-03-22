@@ -3,8 +3,8 @@
 
 export const YOUTUBE_CONFIG = {
   playlist: {
-    title: "자바 기초 프로그래밍",
-    description: "자바 기초 문법을 처음부터 배우는 시리즈입니다.",
+    title: "자바 입문 — 변수에서 함수까지",
+    description: "자바의 변수, 자료형, 연산자, 조건문, 반복문, 함수를 처음부터 배우는 시리즈입니다.",
   },
   defaults: {
     tags: ["java", "자바", "프로그래밍", "코딩", "기초", "자바기초"],
