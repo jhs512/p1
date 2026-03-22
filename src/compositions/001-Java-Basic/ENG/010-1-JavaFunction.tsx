@@ -50,6 +50,7 @@ import {
   C_PURPLE,
   C_STRING,
   C_TEAL,
+  C_VAR,
   TEXT,
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
@@ -297,7 +298,11 @@ const PainPrintlnLine: React.FC<{
         position: "relative",
       }}
     >
-      <span>System.out.println(</span>
+      <span>
+        <span style={{ color: C_TEAL }}>System</span>.
+        <span style={{ color: C_VAR }}>out</span>.
+        <span style={{ color: C_FUNC }}>println</span>(
+      </span>
       <span style={{ color: C_STRING }}>"Hello </span>
       <span
         style={{
