@@ -41,6 +41,53 @@ import {
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
+// ── 카운트다운 컴포넌트 (3, 2, 1) ────────────────────────────
+const Countdown: React.FC<{ startFrame: number }> = ({ startFrame }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const counts = [3, 2, 1];
+  return (
+    <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+      {counts.map((n, i) => {
+        const showFrame = startFrame + i * 60; // 각 1초 간격
+        const appear = spring({
+          frame: frame - showFrame,
+          fps,
+          config: { damping: 14, stiffness: 160 },
+          durationInFrames: 20,
+        });
+        // 다음 숫자 등장 시 사라짐
+        const fadeOut = i < 2
+          ? interpolate(frame, [showFrame + 50, showFrame + 58], [1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })
+          : interpolate(frame, [startFrame + 170, startFrame + 178], [1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+        return (
+          <div
+            key={n}
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: `translate(-50%, 0) scale(${interpolate(appear, [0, 1], [1.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              fontFamily: uiFont,
+              fontSize: 64,
+              fontWeight: 900,
+              color: C_TEAL,
+              opacity: appear * fadeOut,
+            }}
+          >
+            {n}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // ── 3초 대기 씬 duration 계산 ─────────────────────────────────
 // "예상해 보세요" 발화 종료 후 3초(180프레임) 대기, 그 뒤에 3문장 오디오
 const GUESS_WAIT = 180; // 3초 대기
@@ -304,7 +351,12 @@ const PrintScene: React.FC = () => {
               <JavaLine text="printRange(1, 5);" />
             </div>
 
-            {/* 3문장: 실행 결과 */}
+            {/* 카운트다운 3, 2, 1 */}
+            <div style={{ position: "relative", height: 70, width: "100%" }}>
+              <Countdown startFrame={guessEndFrame} />
+            </div>
+
+            {/* 결과 */}
             <div
               style={{
                 display: "flex",
@@ -443,6 +495,11 @@ const SumScene: React.FC = () => {
               <JavaLine text="int result = sumRange(1, 5);" />
             </div>
 
+            {/* 카운트다운 3, 2, 1 */}
+            <div style={{ position: "relative", height: 70, width: "100%" }}>
+              <Countdown startFrame={guessEndFrame} />
+            </div>
+
             {/* 결과 뱃지 */}
             <div
               style={{
@@ -560,6 +617,11 @@ const SumEvenScene: React.FC = () => {
               }}
             >
               <JavaLine text="int result = sumEven(1, 10);" />
+            </div>
+
+            {/* 카운트다운 3, 2, 1 */}
+            <div style={{ position: "relative", height: 70, width: "100%" }}>
+              <Countdown startFrame={guessEndFrame} />
             </div>
 
             {/* 결과 뱃지 */}
