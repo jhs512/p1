@@ -11,6 +11,10 @@ export const CONTENT = {
     narration: [
       "시작 숫자와 끝 숫자를 받아서, 그 사이의 숫자를 전부 출력하는 함수입니다.",
       "결과를 예상해 보세요.",
+    ],
+  },
+  printRevealScene: {
+    narration: [
       "반복문이 시작부터 끝까지 하나씩 돌면서 출력합니다.",
     ],
   },
@@ -18,6 +22,10 @@ export const CONTENT = {
     narration: [
       "출력 대신, 합을 구해서 돌려주는 함수입니다.",
       "결과를 예상해 보세요.",
+    ],
+  },
+  sumRevealScene: {
+    narration: [
       "변수 하나에 숫자를 하나씩 더해서 결과를 돌려줍니다.",
     ],
   },
@@ -25,6 +33,10 @@ export const CONTENT = {
     narration: [
       "짝수만 골라서 더하는 함수입니다.",
       "결과를 예상해 보세요.",
+    ],
+  },
+  sumEvenRevealScene: {
+    narration: [
       "조건문으로 나머지가 영인 숫자만 골라서 더합니다.",
     ],
   },

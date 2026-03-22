@@ -76,22 +76,17 @@ const Countdown: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   );
 };
 
-// ── 3초 대기 씬 duration 계산 ─────────────────────────────────
-// "예상해 보세요" 발화 종료 후 3초(180프레임) 대기, 그 뒤에 3문장 오디오
+// ── 카운트다운 대기 ──────────────────────────────────────────
 const GUESS_WAIT = 300; // 5초 대기
 
-function calcGuessSceneDuration(sceneKey: "printScene" | "sumScene" | "sumEvenScene") {
-  const cfg = AUDIO_CONFIG[sceneKey];
-  // 2문장("예상해 보세요") 종료 프레임
-  const guessEnd = cfg.sentenceEndFrames[0]; // 1문장 종료
-  // 3문장 오디오 길이 = 전체 - 3문장 시작
-  const sent3Start = cfg.narrationSplits[1];
-  const sent3Len = cfg.speechEndFrame - sent3Start;
-  // 원래 오디오 duration
-  const audioDur = cfg.durationInFrames;
-  // 대기 삽입 후 필요한 최소 duration
-  const withWait = guessEnd + GUESS_WAIT + sent3Len + 30; // +30 여유
-  return Math.max(audioDur, withWait);
+// Reveal 씬: AUDIO_CONFIG에 아직 키가 없을 수 있으므로 안전하게 접근
+type RevealKey = "printRevealScene" | "sumRevealScene" | "sumEvenRevealScene";
+const _ac = AUDIO_CONFIG as unknown as Record<string, { durationInFrames: number; speechStartFrame: number; narrationSplits: number[]; wordStartFrames: number[][] }>;
+function revealDuration(sceneKey: RevealKey) {
+  return GUESS_WAIT + (_ac[sceneKey]?.durationInFrames ?? 60);
+}
+function revealSpeechStart(sceneKey: RevealKey) {
+  return GUESS_WAIT + (_ac[sceneKey]?.speechStartFrame ?? 3);
 }
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
@@ -99,24 +94,45 @@ export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
   printScene: {
     audio: "prac-print.mp3",
-    durationInFrames: calcGuessSceneDuration("printScene"),
+    durationInFrames: AUDIO_CONFIG.printScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.printScene.speechStartFrame,
     narration: CONTENT.printScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.printScene.narrationSplits,
   },
+  printRevealScene: {
+    audio: "prac-printReveal.mp3",
+    durationInFrames: revealDuration("printRevealScene"),
+    speechStartFrame: revealSpeechStart("printRevealScene"),
+    narration: CONTENT.printRevealScene.narration as string[],
+    narrationSplits: [] as number[],
+  },
   sumScene: {
     audio: "prac-sum.mp3",
-    durationInFrames: calcGuessSceneDuration("sumScene"),
+    durationInFrames: AUDIO_CONFIG.sumScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.sumScene.speechStartFrame,
     narration: CONTENT.sumScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumScene.narrationSplits,
   },
+  sumRevealScene: {
+    audio: "prac-sumReveal.mp3",
+    durationInFrames: revealDuration("sumRevealScene"),
+    speechStartFrame: revealSpeechStart("sumRevealScene"),
+    narration: CONTENT.sumRevealScene.narration as string[],
+    narrationSplits: [] as number[],
+  },
   sumEvenScene: {
     audio: "prac-sumEven.mp3",
-    durationInFrames: calcGuessSceneDuration("sumEvenScene"),
+    durationInFrames: AUDIO_CONFIG.sumEvenScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.sumEvenScene.speechStartFrame,
     narration: CONTENT.sumEvenScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumEvenScene.narrationSplits,
+  },
+  sumEvenRevealScene: {
+    audio: "prac-sumEvenReveal.mp3",
+    durationInFrames: revealDuration("sumEvenRevealScene"),
+    speechStartFrame: revealSpeechStart("sumEvenRevealScene"),
+    narration: CONTENT.sumEvenRevealScene.narration as string[],
+    narrationSplits: [] as number[],
   },
   comparisonScene: {
     audio: "prac-comparison.mp3",
@@ -250,15 +266,12 @@ const ThumbnailScene: React.FC = () => {
   );
 };
 
-// ── 씬: PrintScene — 1. 범위 출력 ──────────────────────────────
+// ── 씬: PrintScene — 1. 범위 출력 (코드 + 호출만) ─────────────
 const PrintScene: React.FC = () => {
   const { printScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  // "예상해 보세요" 발화 종료 + 3초 대기 후 결과 등장
-  const guessEndFrame = AUDIO_CONFIG.printScene.sentenceEndFrames[0];
-  const resultFrame = guessEndFrame + GUESS_WAIT;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -269,17 +282,8 @@ const PrintScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 호출 예시: 1문장 말미에 등장
   const callAppear = spring({
     frame: frame - (s + 40),
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 30,
-  });
-
-  // 결과 등장 (대기 후)
-  const resultAppear = spring({
-    frame: frame - resultFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -338,11 +342,93 @@ const PrintScene: React.FC = () => {
             >
               <JavaLine text="printRange(1, 5);" />
             </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.printScene.wordStartFrames}
+      />
+    </>
+  );
+};
 
-            {/* 카운트다운 3, 2, 1 */}
-            <Countdown startFrame={guessEndFrame} />
+// ── 씬: PrintRevealScene — 1. 범위 출력 (결과 공개) ─────────────
+const PrintRevealScene: React.FC = () => {
+  const { printRevealScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
-            {/* 결과 */}
+  // 결과: 카운트다운 종료 후 등장
+  const resultAppear = spring({
+    frame: frame - GUESS_WAIT,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          {/* 오디오는 카운트다운 이후에 재생 */}
+          <Sequence from={GUESS_WAIT}>
+            <Audio src={staticFile(cfg.audio)} />
+          </Sequence>
+          <SceneTitle title="1. 범위 출력" />
+          <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+            }}
+          >
+            {/* 코드 블록 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "24px 36px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+              }}
+            >
+              {PRINT_CODE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+
+            {/* 호출 예시 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+              }}
+            >
+              <JavaLine text="printRange(1, 5);" />
+            </div>
+
+            {/* 카운트다운 */}
+            <Countdown startFrame={0} />
+
+            {/* 결과: 1, 2, 3, 4, 5 */}
             <div
               style={{
                 display: "flex",
@@ -353,7 +439,7 @@ const PrintScene: React.FC = () => {
             >
               {[1, 2, 3, 4, 5].map((n, i) => {
                 const stagger = spring({
-                  frame: frame - resultFrame - i * 4,
+                  frame: frame - GUESS_WAIT - i * 4,
                   fps,
                   config: { damping: 13, stiffness: 140 },
                   durationInFrames: 20,
@@ -385,14 +471,14 @@ const PrintScene: React.FC = () => {
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.printScene.wordStartFrames}
+        speechStart={cfg.speechStartFrame}
+        wordFrames={_ac.printRevealScene?.wordStartFrames}
       />
     </>
   );
 };
 
-// ── 씬: SumScene — 2. 범위 합산 ────────────────────────────────
+// ── 씬: SumScene — 2. 범위 합산 (코드 + 호출만) ────────────────
 const SumScene: React.FC = () => {
   const { sumScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
@@ -401,9 +487,6 @@ const SumScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const guessEndFrame = AUDIO_CONFIG.sumScene.sentenceEndFrames[0];
-  const resultFrame = guessEndFrame + GUESS_WAIT;
-
   const codeAppear = spring({
     frame: frame - s,
     fps,
@@ -411,17 +494,8 @@ const SumScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 호출 예시
   const callAppear = spring({
     frame: frame - (s + 40),
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 30,
-  });
-
-  // 결과 등장 (대기 후)
-  const resultAppear = spring({
-    frame: frame - resultFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -480,9 +554,89 @@ const SumScene: React.FC = () => {
             >
               <JavaLine text="int result = sumRange(1, 5);" />
             </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.sumScene.wordStartFrames}
+      />
+    </>
+  );
+};
 
-            {/* 카운트다운 3, 2, 1 */}
-            <Countdown startFrame={guessEndFrame} />
+// ── 씬: SumRevealScene — 2. 범위 합산 (결과 공개) ───────────────
+const SumRevealScene: React.FC = () => {
+  const { sumRevealScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const resultAppear = spring({
+    frame: frame - GUESS_WAIT,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Sequence from={GUESS_WAIT}>
+            <Audio src={staticFile(cfg.audio)} />
+          </Sequence>
+          <SceneTitle title="2. 범위 합산" />
+          <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+            }}
+          >
+            {/* 코드 블록 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "20px 32px",
+                ...monoStyle,
+                fontSize: CODE.md,
+              }}
+            >
+              {SUM_CODE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+
+            {/* 호출 예시 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+              }}
+            >
+              <JavaLine text="int result = sumRange(1, 5);" />
+            </div>
+
+            {/* 카운트다운 */}
+            <Countdown startFrame={0} />
 
             {/* 결과 뱃지 */}
             <div
@@ -507,14 +661,14 @@ const SumScene: React.FC = () => {
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.sumScene.wordStartFrames}
+        speechStart={cfg.speechStartFrame}
+        wordFrames={_ac.sumRevealScene?.wordStartFrames}
       />
     </>
   );
 };
 
-// ── 씬: SumEvenScene — 3. 짝수만 합산 ──────────────────────────
+// ── 씬: SumEvenScene — 3. 짝수만 합산 (코드 + 호출만) ──────────
 const SumEvenScene: React.FC = () => {
   const { sumEvenScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
@@ -523,9 +677,6 @@ const SumEvenScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const guessEndFrame = AUDIO_CONFIG.sumEvenScene.sentenceEndFrames[0];
-  const resultFrame = guessEndFrame + GUESS_WAIT;
-
   const codeAppear = spring({
     frame: frame - s,
     fps,
@@ -533,17 +684,8 @@ const SumEvenScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 호출 예시
   const callAppear = spring({
     frame: frame - (s + 40),
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 30,
-  });
-
-  // 결과 등장 (대기 후)
-  const resultAppear = spring({
-    frame: frame - resultFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -602,9 +744,89 @@ const SumEvenScene: React.FC = () => {
             >
               <JavaLine text="int result = sumEven(1, 10);" />
             </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={AUDIO_CONFIG.sumEvenScene.wordStartFrames}
+      />
+    </>
+  );
+};
 
-            {/* 카운트다운 3, 2, 1 */}
-            <Countdown startFrame={guessEndFrame} />
+// ── 씬: SumEvenRevealScene — 3. 짝수만 합산 (결과 공개) ─────────
+const SumEvenRevealScene: React.FC = () => {
+  const { sumEvenRevealScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const resultAppear = spring({
+    frame: frame - GUESS_WAIT,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <Sequence from={GUESS_WAIT}>
+            <Audio src={staticFile(cfg.audio)} />
+          </Sequence>
+          <SceneTitle title="3. 짝수만 합산" />
+          <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 20,
+            }}
+          >
+            {/* 코드 블록 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "18px 28px",
+                ...monoStyle,
+                fontSize: CODE.sm,
+              }}
+            >
+              {SUM_EVEN_CODE.map((line, i) => (
+                <div
+                  key={i}
+                  style={{ lineHeight: "1.9", color: TEXT, whiteSpace: "pre" }}
+                >
+                  <JavaLine text={line} />
+                </div>
+              ))}
+            </div>
+
+            {/* 호출 예시 (정적) */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+              }}
+            >
+              <JavaLine text="int result = sumEven(1, 10);" />
+            </div>
+
+            {/* 카운트다운 */}
+            <Countdown startFrame={0} />
 
             {/* 결과 뱃지 */}
             <div
@@ -629,8 +851,8 @@ const SumEvenScene: React.FC = () => {
       <Subtitle
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
-        speechStart={s}
-        wordFrames={AUDIO_CONFIG.sumEvenScene.wordStartFrames}
+        speechStart={cfg.speechStartFrame}
+        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames}
       />
     </>
   );
@@ -1088,8 +1310,11 @@ const SummaryScene: React.FC = () => {
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
   VIDEO_CONFIG.printScene,
+  VIDEO_CONFIG.printRevealScene,
   VIDEO_CONFIG.sumScene,
+  VIDEO_CONFIG.sumRevealScene,
   VIDEO_CONFIG.sumEvenScene,
+  VIDEO_CONFIG.sumEvenRevealScene,
   VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.callScene,
   VIDEO_CONFIG.summaryScene,
@@ -1127,30 +1352,48 @@ const JavaPractice: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[2]}
+      durationInFrames={VIDEO_CONFIG.printRevealScene.durationInFrames}
+    >
+      <PrintRevealScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[3]}
       durationInFrames={VIDEO_CONFIG.sumScene.durationInFrames}
     >
       <SumScene />
     </Sequence>
     <Sequence
-      from={fromValues[3]}
+      from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.sumRevealScene.durationInFrames}
+    >
+      <SumRevealScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[5]}
       durationInFrames={VIDEO_CONFIG.sumEvenScene.durationInFrames}
     >
       <SumEvenScene />
     </Sequence>
     <Sequence
-      from={fromValues[4]}
+      from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.sumEvenRevealScene.durationInFrames}
+    >
+      <SumEvenRevealScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[7]}
       durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}
     >
       <ComparisonScene />
     </Sequence>
     <Sequence
-      from={fromValues[5]}
+      from={fromValues[8]}
       durationInFrames={VIDEO_CONFIG.callScene.durationInFrames}
     >
       <CallScene />
     </Sequence>
     <Sequence
-      from={fromValues[6]}
+      from={fromValues[9]}
       durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
     >
       <SummaryScene />
