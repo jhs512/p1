@@ -156,7 +156,7 @@ export function computeLineVisibility<T>(
 export const BOTTOM_MARGIN = 350;
 /** 자막(bottom) + 자막 높이(~65px). ContentArea의 하단 여백으로 사용. */
 export const SUBTITLE_DEAD_ZONE = BOTTOM_MARGIN + 75;
-const SECONDARY_SUBTITLE_BOTTOM = 74;
+const SECONDARY_SUBTITLE_GAP = 6;
 
 // ── 컴포넌트: ContentArea ─────────────────────────────────────
 /**
@@ -226,7 +226,7 @@ export const Subtitle: React.FC<{
   wordFrames,
 }) => {
   const frame = useCurrentFrame();
-  const { width } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
 
   if (frame < speechStart) return null;
@@ -263,7 +263,7 @@ export const Subtitle: React.FC<{
 
   const secondaryOuterStyle: React.CSSProperties = {
     position: "absolute",
-    bottom: SECONDARY_SUBTITLE_BOTTOM,
+    top: height - (BOTTOM_MARGIN + 10) + SECONDARY_SUBTITLE_GAP,
     left: 0,
     right: 0,
     display: "flex",
