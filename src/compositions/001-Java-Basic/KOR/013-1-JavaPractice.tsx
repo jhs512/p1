@@ -742,7 +742,7 @@ const SumEvenScene: React.FC = () => {
                 opacity: callAppear,
               }}
             >
-              <JavaLine text="int result = sumEven(1, 10);" />
+              <JavaLine text="int result = sumEven(1, 6);" />
             </div>
           </div>
         </ContentArea>
@@ -822,7 +822,7 @@ const SumEvenRevealScene: React.FC = () => {
                 fontSize: CODE.lg,
               }}
             >
-              <JavaLine text="int result = sumEven(1, 10);" />
+              <JavaLine text="int result = sumEven(1, 6);" />
             </div>
 
             {/* 카운트다운 */}
@@ -843,7 +843,7 @@ const SumEvenRevealScene: React.FC = () => {
                 transform: `scale(${interpolate(resultAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
               }}
             >
-              → 30
+              → 12
             </div>
           </div>
         </ContentArea>
@@ -1139,7 +1139,7 @@ const CallScene: React.FC = () => {
               </div>
             </div>
 
-            {/* sumEven(1, 10) → 30 */}
+            {/* sumEven(1, 6) → 12 */}
             <div
               style={{
                 display: "flex",
@@ -1158,7 +1158,7 @@ const CallScene: React.FC = () => {
                   color: TEXT,
                 }}
               >
-                <JavaLine text="sumEven(1, 10)" />
+                <JavaLine text="sumEven(1, 6)" />
               </div>
               <div
                 style={{
@@ -1181,7 +1181,7 @@ const CallScene: React.FC = () => {
                   padding: "8px 20px",
                 }}
               >
-                30
+                12
               </div>
             </div>
           </div>
