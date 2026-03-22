@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -19,6 +16,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -253,7 +251,7 @@ const OverviewScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="1. Loop Overview" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           <div
             style={{
@@ -316,7 +314,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="2. What Is a for Loop?" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <div
             style={{
               position: "absolute",
@@ -475,7 +473,7 @@ const ForScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="3. for Syntax" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           {frame >= s && (
             <div
               style={{
@@ -765,7 +763,7 @@ const ExecutionScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="4. for Execution Flow" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           {frame >= s && (
             <div
@@ -1048,7 +1046,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="5. for Summary" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           <div
             style={{

@@ -5,12 +5,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -22,6 +19,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -469,7 +467,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(intro.audio)} />
+          <SceneAudio src={intro.audio} />
           <SceneTitle title="1. What Is a Data Type?" />
           {/* 1문장: 자료 == 데이터 타이틀 */}
           <div
@@ -645,7 +643,7 @@ const ValueVsVarScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(valueVsVar.audio)} />
+          <SceneAudio src={valueVsVar.audio} />
           <SceneTitle title="2. Value vs Variable" />
 
           {/* 1문장: 핵심 메시지 */}
@@ -904,7 +902,7 @@ const TypeScene: React.FC<{
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(config.audio)} />
+          <SceneAudio src={config.audio} />
           <SceneTitle title={title} />
           <div
             style={{
@@ -950,7 +948,7 @@ const BooleanScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(booleanScene.audio)} />
+          <SceneAudio src={booleanScene.audio} />
           <SceneTitle title="6. boolean - true or false" />
           <div
             style={{
@@ -1003,7 +1001,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(summaryScene.audio)} />
+          <SceneAudio src={summaryScene.audio} />
           <SceneTitle title="7. Data Type Summary" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

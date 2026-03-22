@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -92,7 +90,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.argParamScene.narrationSplits,
   },
 } as const;
-
 
 // ── 씬: ThumbnailScene ──────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
@@ -222,7 +219,7 @@ const PainScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 고정된 함수" />
           <div
             style={{
@@ -330,7 +327,7 @@ const ConceptScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. 매개변수란?" />
           <div
             style={{
@@ -480,7 +477,7 @@ const ParamScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 매개변수 선언" />
           <div
             style={{
@@ -573,7 +570,7 @@ const CallScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 인자 전달" />
           <div
             style={{
@@ -717,7 +714,7 @@ const MultiParamScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 여러 매개변수" />
           <div
             style={{
@@ -931,7 +928,7 @@ const ArgParamScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. 인자 vs 매개변수" />
           <div
             style={{

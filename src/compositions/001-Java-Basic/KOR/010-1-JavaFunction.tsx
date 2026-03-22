@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -43,6 +41,7 @@ import {
   C_PURPLE,
   C_STRING,
   C_TEAL,
+  C_VAR,
   TEXT,
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
@@ -137,7 +136,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
   },
 } as const;
-
 
 // ── 씬: ThumbnailScene — 006 스타일 통일 ─────────────────────
 // 색상 통일: "Java" = C_FUNC(노란색), "함수" = 흰색, JAVA 라벨 = 흰색(저채도)
@@ -283,7 +281,11 @@ const PainPrintlnLine: React.FC<{
         position: "relative",
       }}
     >
-      <span>System.out.println(</span>
+      <span>
+        <span style={{ color: C_TEAL }}>System</span>.
+        <span style={{ color: C_VAR }}>out</span>.
+        <span style={{ color: C_FUNC }}>println</span>(
+      </span>
       <span style={{ color: C_STRING }}>"안녕 </span>
       <span
         style={{
@@ -343,7 +345,7 @@ const PainScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 반복의 고통" />
           <div
             style={{
@@ -420,7 +422,7 @@ const ConceptScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. 함수란?" />
           <div
             style={{
@@ -557,7 +559,7 @@ const DeclarationScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 함수 선언" />
           <div
             style={{
@@ -624,7 +626,7 @@ const CallScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 함수 호출" />
           <div
             style={{
@@ -705,7 +707,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 함수 정리" />
           <div
             style={{
@@ -911,7 +913,7 @@ const ComparisonScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. Before / After" />
           <div
             style={{
@@ -1219,7 +1221,7 @@ const RealExampleScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="7. 실전 예시" />
           <div
             style={{
@@ -1380,7 +1382,7 @@ const OutroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="8. 다음 시간에" />
 
           <div

@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -19,6 +16,7 @@ import {
   CODE,
   CROSS,
   ContentArea,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -250,7 +248,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(intro.audio)} />
+          <SceneAudio src={intro.audio} />
           <SceneTitle title="1. What Are Arithmetic Operators?" />
           <div
             style={{
@@ -331,7 +329,7 @@ const AddSubScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. Addition and Subtraction" />
           <div style={{ opacity: frame >= s ? 1 : 0 }}>
             <CodeLines
@@ -368,7 +366,7 @@ const MulDivScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. Multiplication and Division" />
           {frame >= s && (
             <CodeLines
@@ -434,7 +432,7 @@ const RemScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. Remainder Operator" />
 
           {/* 메인: 11 % 3 == 2 */}
@@ -636,7 +634,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. Arithmetic Summary" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

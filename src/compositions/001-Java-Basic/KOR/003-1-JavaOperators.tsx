@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -19,6 +16,7 @@ import {
   CODE,
   CROSS,
   ContentArea,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -88,7 +86,6 @@ export const VIDEO_CONFIG = {
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
-
 
 // ── 공통: 코드 라인 점진적 등장 블록 ─────────────────────────
 const CodeLines: React.FC<{
@@ -232,7 +229,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(intro.audio)} />
+          <SceneAudio src={intro.audio} />
           <SceneTitle title="1. 산술 연산자란?" />
           <div
             style={{
@@ -312,7 +309,7 @@ const AddSubScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. 덧셈 · 뺄셈" />
           <div style={{ opacity: frame >= s ? 1 : 0 }}>
             <CodeLines
@@ -348,7 +345,7 @@ const MulDivScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 곱셈 · 나눗셈" />
           {frame >= s && (
             <CodeLines
@@ -413,7 +410,7 @@ const RemScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 나머지 연산" />
 
           {/* 메인: 11 % 3 == 2 */}
@@ -442,140 +439,138 @@ const RemScene: React.FC = () => {
           </div>
 
           {/* split0: 몫 3, 나머지 2 분리 설명 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "58%",
+              left: "50%",
+              transform: `translate(-50%, -50%)`,
+              opacity: detailAppear,
+              display: "flex",
+              gap: 40,
+            }}
+          >
             <div
               style={{
-                position: "absolute",
-                top: "58%",
-                left: "50%",
-                transform: `translate(-50%, -50%)`,
-                opacity: detailAppear,
                 display: "flex",
-                gap: 40,
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                background: BG_CODE,
+                borderRadius: 16,
+                padding: "20px 40px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 8,
-                  background: BG_CODE,
-                  borderRadius: 16,
-                  padding: "20px 40px",
-                }}
-              >
-                <div
-                  style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}
-                >
-                  몫
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: 64,
-                    fontWeight: 900,
-                    color: C_NUM,
-                  }}
-                >
-                  3
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: CODE.md,
-                    color: "#555",
-                  }}
-                >
-                  11 / 3
-                </div>
+              <div style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}>
+                몫
               </div>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 8,
-                  background: `${C_REM}1a`,
-                  border: `2px solid ${C_REM}66`,
-                  borderRadius: 16,
-                  padding: "20px 40px",
+                  ...monoStyle,
+                  fontSize: 64,
+                  fontWeight: 900,
+                  color: C_NUM,
                 }}
               >
-                <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>
-                  나머지
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: 64,
-                    fontWeight: 900,
-                    color: C_REM,
-                  }}
-                >
-                  2
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: CODE.md,
-                    color: C_REM,
-                    opacity: 0.6,
-                  }}
-                >
-                  11 % 3
-                </div>
+                3
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: CODE.md,
+                  color: "#555",
+                }}
+              >
+                11 / 3
               </div>
             </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                background: `${C_REM}1a`,
+                border: `2px solid ${C_REM}66`,
+                borderRadius: 16,
+                padding: "20px 40px",
+              }}
+            >
+              <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>
+                나머지
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 64,
+                  fontWeight: 900,
+                  color: C_REM,
+                }}
+              >
+                2
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: CODE.md,
+                  color: C_REM,
+                  opacity: 0.6,
+                }}
+              >
+                11 % 3
+              </div>
+            </div>
+          </div>
 
           {/* split1: 활용 예시 */}
-            <div
+          <div
+            style={{
+              position: "absolute",
+              bottom: 230,
+              left: "50%",
+              transform: "translateX(-50%)",
+              opacity: usageAppear,
+              display: "flex",
+              gap: 20,
+              ...monoStyle,
+              fontSize: CODE.xl,
+              background: BG_CODE,
+              borderRadius: 12,
+              padding: "14px 32px",
+            }}
+          >
+            <span style={{ color: TEXT }}>n</span>
+            <span style={{ color: C_OP }}>%</span>
+            <span style={{ color: C_INT }}>2</span>
+            <span style={{ color: C_OP }}>==</span>
+            <span style={{ color: C_INT }}>0</span>
+            <span
               style={{
-                position: "absolute",
-                bottom: 230,
-                left: "50%",
-                transform: "translateX(-50%)",
-                opacity: usageAppear,
-                display: "flex",
-                gap: 20,
-                ...monoStyle,
-                fontSize: CODE.xl,
-                background: BG_CODE,
-                borderRadius: 12,
-                padding: "14px 32px",
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                marginLeft: 4,
               }}
             >
-              <span style={{ color: TEXT }}>n</span>
-              <span style={{ color: C_OP }}>%</span>
-              <span style={{ color: C_INT }}>2</span>
-              <span style={{ color: C_OP }}>==</span>
-              <span style={{ color: C_INT }}>0</span>
-              <span
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 24,
-                  color: "#666",
-                  marginLeft: 4,
-                }}
-              >
-                → 짝수
-              </span>
-              <span style={{ color: "#444", margin: "0 8px" }}>/</span>
-              <span style={{ color: TEXT }}>n</span>
-              <span style={{ color: C_OP }}>%</span>
-              <span style={{ color: C_INT }}>2</span>
-              <span style={{ color: C_OP }}>==</span>
-              <span style={{ color: C_INT }}>1</span>
-              <span
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 24,
-                  color: "#666",
-                  marginLeft: 4,
-                }}
-              >
-                → 홀수
-              </span>
-            </div>
+              → 짝수
+            </span>
+            <span style={{ color: "#444", margin: "0 8px" }}>/</span>
+            <span style={{ color: TEXT }}>n</span>
+            <span style={{ color: C_OP }}>%</span>
+            <span style={{ color: C_INT }}>2</span>
+            <span style={{ color: C_OP }}>==</span>
+            <span style={{ color: C_INT }}>1</span>
+            <span
+              style={{
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                marginLeft: 4,
+              }}
+            >
+              → 홀수
+            </span>
+          </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -616,7 +611,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 산술 연산자 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

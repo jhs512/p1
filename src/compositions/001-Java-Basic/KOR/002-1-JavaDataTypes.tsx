@@ -5,12 +5,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -22,6 +19,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -117,7 +115,6 @@ const StaticLine: React.FC<{ text: string }> = ({ text }) => (
     <JavaLine text={text} />
   </div>
 );
-
 
 const CodeBox: React.FC<{
   lines: { text: string; isNew: boolean }[];
@@ -456,7 +453,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(intro.audio)} />
+          <SceneAudio src={intro.audio} />
           <SceneTitle title="1. 자료형이란?" />
           {/* 1문장: 자료 == 데이터 타이틀 */}
           <div
@@ -630,7 +627,7 @@ const ValueVsVarScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(valueVsVar.audio)} />
+          <SceneAudio src={valueVsVar.audio} />
           <SceneTitle title="2. 값 vs 변수" />
 
           {/* 1문장: 핵심 메시지 */}
@@ -887,7 +884,7 @@ const TypeScene: React.FC<{
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(config.audio)} />
+          <SceneAudio src={config.audio} />
           <SceneTitle title={title} />
           <div
             style={{
@@ -932,7 +929,7 @@ const BooleanScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(booleanScene.audio)} />
+          <SceneAudio src={booleanScene.audio} />
           <SceneTitle title="6. boolean — 논리형" />
           <div
             style={{
@@ -984,7 +981,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(summaryScene.audio)} />
+          <SceneAudio src={summaryScene.audio} />
           <SceneTitle title="7. 자료형 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>

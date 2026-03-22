@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -317,7 +315,7 @@ const PrintScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. Print a Range" />
           <div
             style={{
@@ -402,7 +400,7 @@ const PrintRevealScene: React.FC = () => {
         <ContentArea>
           {/* 오디오는 카운트다운 이후에 재생 */}
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="1. Print a Range" />
           <div
@@ -533,7 +531,7 @@ const SumScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. Sum a Range" />
           <div
             style={{
@@ -616,7 +614,7 @@ const SumRevealScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="2. Sum a Range" />
           <div
@@ -727,7 +725,7 @@ const SumEvenScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. Sum Only Even Numbers" />
           <div
             style={{
@@ -810,7 +808,7 @@ const SumEvenRevealScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="3. Sum Only Even Numbers" />
           <div
@@ -914,7 +912,7 @@ const ComparisonScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. Comparison" />
           <div
             style={{
@@ -1062,7 +1060,7 @@ const CallScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. Calls in Action" />
           <div
             style={{
@@ -1264,7 +1262,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. Summary" />
           <div
             style={{

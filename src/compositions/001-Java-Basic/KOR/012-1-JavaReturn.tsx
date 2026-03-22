@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -169,7 +167,7 @@ const ThumbnailScene: React.FC = () => {
 // ── 씬: PainScene — void 함수의 한계 ─────────────────────────
 const PAIN_CODE = [
   "void printSum(int a, int b) {",
-  '    System.out.println(a + b);',
+  "    System.out.println(a + b);",
   "}",
 ];
 
@@ -201,7 +199,7 @@ const PainScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 문제 상황" />
           <div
             style={{
@@ -278,11 +276,7 @@ const PainScene: React.FC = () => {
 };
 
 // ── 씬: ConceptScene — return으로 값 돌려주기 ─────────────────
-const CONCEPT_CODE = [
-  "int sum(int a, int b) {",
-  "    return a + b;",
-  "}",
-];
+const CONCEPT_CODE = ["int sum(int a, int b) {", "    return a + b;", "}"];
 
 const ConceptScene: React.FC = () => {
   const { conceptScene: cfg } = VIDEO_CONFIG;
@@ -325,7 +319,7 @@ const ConceptScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. return이란?" />
           <div
             style={{
@@ -472,7 +466,7 @@ const ReturnTypeScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 리턴 타입" />
           <div
             style={{
@@ -632,7 +626,7 @@ const ReturnFlowScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 실행 흐름" />
           <div
             style={{
@@ -784,7 +778,7 @@ const UseReturnScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 값 활용" />
           <div
             style={{
@@ -908,14 +902,10 @@ const UseReturnScene: React.FC = () => {
 // ── 씬: ComparisonScene — void vs return Before/After ─────────
 const BEFORE_CODE = [
   "void printSum(int a, int b) {",
-  '    System.out.println(a + b);',
+  "    System.out.println(a + b);",
   "}",
 ];
-const AFTER_CODE = [
-  "int sum(int a, int b) {",
-  "    return a + b;",
-  "}",
-];
+const AFTER_CODE = ["int sum(int a, int b) {", "    return a + b;", "}"];
 const AFTER_USE = [
   "int result = sum(3, 5);  // 변수에 저장",
   "System.out.println(sum(3, 5));  // 바로 활용",
@@ -955,7 +945,7 @@ const ComparisonScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. Before / After" />
           <div
             style={{
@@ -1106,8 +1096,7 @@ const SummaryScene: React.FC = () => {
   });
   const titleOpacity = titleAppear * (1 - titleExit);
 
-  const card0Frame =
-    AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ?? split;
+  const card0Frame = AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ?? split;
   const card0Appear = spring({
     frame: frame - card0Frame,
     fps,
@@ -1128,7 +1117,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="7. 정리" />
           <div
             style={{
@@ -1235,7 +1224,7 @@ const RealExampleScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="8. 실전 예시" />
           <div
             style={{

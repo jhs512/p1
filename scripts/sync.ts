@@ -66,6 +66,7 @@ function resolveSeriesDir(parts: string[]): string {
 
 const SERIES_DIR = resolveSeriesDir(argParts.slice(0, -1));
 const compositionId = episodeId;
+const relativeSeriesDir = path.relative(SRC_DIR, SERIES_DIR);
 
 // loadTsExports / loadMergedConfig → scripts/config-cascade.ts
 
@@ -138,10 +139,19 @@ function loadConfig(): {
       },
     },
   );
+  const reactStub = {
+    createContext: () => ({ Provider: stub, Consumer: stub }),
+    useContext: () => "",
+    useMemo: <T>(factory: () => T) => factory(),
+    useState: <T>(value: T) => [value, () => undefined],
+    useRef: <T>(value: T) => ({ current: value }),
+    Fragment: stub,
+  };
   const realRequire = require;
   const mockRequire = (id: string): unknown => {
-    if (id === "react" || id === "remotion" || id.startsWith("@remotion/"))
-      return stub;
+    if (id === "react")
+      return { __esModule: true, default: reactStub, ...reactStub };
+    if (id === "remotion" || id.startsWith("@remotion/")) return stub;
     return realRequire(id);
   };
   new Function("module", "exports", "require", code)(
@@ -419,9 +429,18 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
 
   const ttsText = toTTSText(narration.join(" "), pronMap);
   const audio = scene.audio;
+  const audioRelativePath = path
+    .join(relativeSeriesDir, episodeId, audio)
+    .split(path.sep)
+    .join("/");
+  const audioOutputPath = path.join(
+    PUBLIC_DIR,
+    ...audioRelativePath.split("/"),
+  );
+  mkdirSync(path.dirname(audioOutputPath), { recursive: true });
   const newHash = hash(VOICE + RATE + ttsText);
 
-  if (hashes[key] === newHash) {
+  if (hashes[key] === newHash && existsSync(audioOutputPath)) {
     if (existingAudioConfig[key]) {
       audioConfig[key] = existingAudioConfig[key];
       console.log(`[skip] ${audio}`);
@@ -434,7 +453,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
   // 1) TTS 생성 + Word Boundary 추출
   const ttsRes = spawnSync(
     venvPython,
-    [ttsScript, VOICE, RATE, ttsText, `${PUBLIC_DIR}/${audio}`],
+    [ttsScript, VOICE, RATE, ttsText, audioOutputPath],
     { encoding: "utf-8" },
   );
   if (ttsRes.status !== 0) {
@@ -462,7 +481,7 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
       "format=duration",
       "-of",
       "csv=p=0",
-      `${PUBLIC_DIR}/${audio}`,
+      audioOutputPath,
     ],
     { encoding: "utf-8" },
   );

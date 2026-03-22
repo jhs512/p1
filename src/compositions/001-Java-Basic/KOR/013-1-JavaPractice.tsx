@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -81,7 +79,15 @@ const GUESS_WAIT = 300; // 5초 대기
 
 // Reveal 씬: AUDIO_CONFIG에 아직 키가 없을 수 있으므로 안전하게 접근
 type RevealKey = "printRevealScene" | "sumRevealScene" | "sumEvenRevealScene";
-const _ac = AUDIO_CONFIG as unknown as Record<string, { durationInFrames: number; speechStartFrame: number; narrationSplits: number[]; wordStartFrames: number[][] }>;
+const _ac = AUDIO_CONFIG as unknown as Record<
+  string,
+  {
+    durationInFrames: number;
+    speechStartFrame: number;
+    narrationSplits: number[];
+    wordStartFrames: number[][];
+  }
+>;
 function revealDuration(sceneKey: RevealKey) {
   return GUESS_WAIT + (_ac[sceneKey]?.durationInFrames ?? 60);
 }
@@ -293,7 +299,7 @@ const PrintScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 범위 출력" />
           <div
             style={{
@@ -377,7 +383,7 @@ const PrintRevealScene: React.FC = () => {
         <ContentArea>
           {/* 오디오는 카운트다운 이후에 재생 */}
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="1. 범위 출력" />
           <div
@@ -472,7 +478,9 @@ const PrintRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.printRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.printRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -505,7 +513,7 @@ const SumScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. 범위 합산" />
           <div
             style={{
@@ -587,7 +595,7 @@ const SumRevealScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="2. 범위 합산" />
           <div
@@ -662,7 +670,9 @@ const SumRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.sumRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -695,7 +705,7 @@ const SumEvenScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 짝수만 합산" />
           <div
             style={{
@@ -777,7 +787,7 @@ const SumEvenRevealScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Sequence from={GUESS_WAIT}>
-            <Audio src={staticFile(cfg.audio)} />
+            <SceneAudio src={cfg.audio} />
           </Sequence>
           <SceneTitle title="3. 짝수만 합산" />
           <div
@@ -852,7 +862,9 @@ const SumEvenRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -878,7 +890,7 @@ const ComparisonScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 비교" />
           <div
             style={{
@@ -1025,7 +1037,7 @@ const CallScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 실행" />
           <div
             style={{
@@ -1226,7 +1238,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. 정리" />
           <div
             style={{

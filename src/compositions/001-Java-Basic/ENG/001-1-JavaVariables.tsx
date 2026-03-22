@@ -11,12 +11,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -27,6 +24,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -426,7 +424,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(intro.audio)} />
+          <SceneAudio src={intro.audio} />
           <SceneTitle title="1. What Is a Variable?" />
           <BoxMetaphorAnim />
         </ContentArea>
@@ -686,10 +684,10 @@ const CombinedDeclarationInitScene: React.FC = () => {
         <ContentArea>
           {/* 오디오: 선언 오디오 끝나는 즉시 초기화 오디오 시작 (SCENE_TAIL_FRAMES 공백 제거) */}
           <Sequence durationInFrames={SPLIT}>
-            <Audio src={staticFile(declaration.audio)} />
+            <SceneAudio src={declaration.audio} />
           </Sequence>
           <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
-            <Audio src={staticFile(initialization.audio)} />
+            <SceneAudio src={initialization.audio} />
           </Sequence>
 
           {/* 제목: 씬 전환 시 교체 */}
@@ -815,7 +813,7 @@ const InterpretScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. How a Variable Is Read" />
 
           {frame >= s && (
@@ -1053,11 +1051,11 @@ const QuizScene: React.FC = () => {
           <SceneTitle title="5. Interpretation Quiz" />
           {/* 오디오: 문제 */}
           <Sequence durationInFrames={qDur}>
-            <Audio src={staticFile(qCfg.audio)} />
+            <SceneAudio src={qCfg.audio} />
           </Sequence>
           {/* 오디오: 정답 */}
           <Sequence from={REVEAL_START}>
-            <Audio src={staticFile(rCfg.audio)} />
+            <SceneAudio src={rCfg.audio} />
           </Sequence>
 
           {/* Quiz 라벨 */}
@@ -1294,7 +1292,7 @@ const PrintScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(print.audio)} />
+          <SceneAudio src={print.audio} />
           <SceneTitle title={`6. ${print.title}`} />
           <CodeBox lines={print.code} startFrame={s} />
           <ConsoleOutput text={print.consoleOutput} startFrame={consoleStart} />

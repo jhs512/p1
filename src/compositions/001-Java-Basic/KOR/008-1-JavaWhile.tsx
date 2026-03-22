@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -253,7 +251,7 @@ const OverviewScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 반복문 개요" />
 
           <div
@@ -304,7 +302,7 @@ const IntroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. while 문이란?" />
           <div
             style={{
@@ -448,7 +446,7 @@ const WhileScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. while 문법" />
           {frame >= s && (
             <div
@@ -541,7 +539,8 @@ const WhileScene: React.FC = () => {
                       lineHeight: 1.6,
                     }}
                   >
-                    <JavaLine text="count++" /> 와 <JavaLine text="count = count + 1" />
+                    <JavaLine text="count++" /> 와{" "}
+                    <JavaLine text="count = count + 1" />
                     <br />은 같은 표현, count를 1 증가
                   </div>
                 </div>
@@ -641,7 +640,7 @@ const ExecutionScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. while 실행 흐름" />
 
           {frame >= s && (
@@ -938,7 +937,7 @@ const InfiniteScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 무한 루프" />
 
           {frame >= s && (
@@ -1074,7 +1073,7 @@ const SummaryScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. while 정리" />
 
           <div

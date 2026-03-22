@@ -2,6 +2,8 @@ import { Composition, Folder } from "remotion";
 
 import React from "react";
 
+import { AudioBaseDirProvider } from "./utils/scene";
+
 // compositions/ 폴더의 모든 .tsx 파일을 자동으로 불러옵니다.
 // 새 영상을 추가하려면 compositions/<series>/ 에 파일을 만들고 아래 exports 를 추가하면 됩니다:
 //   export const compositionMeta = { fps, width, height }
@@ -60,7 +62,17 @@ const entries = ctx
         (sum, s) => sum + s.durationInFrames,
         0,
       );
-    return { mod, dir: seriesFolder, lang: langFolder, ep, totalFrames };
+    const audioBaseDir = langFolder
+      ? [seriesFolder, langFolder, epNum].join("/")
+      : [seriesFolder, epNum].join("/");
+    return {
+      mod,
+      dir: seriesFolder,
+      lang: langFolder,
+      ep,
+      totalFrames,
+      audioBaseDir,
+    };
   })
   .filter(Boolean) as {
   mod: CompositionModule;
@@ -68,6 +80,7 @@ const entries = ctx
   lang: string | null;
   ep: string;
   totalFrames: number;
+  audioBaseDir: string;
 }[];
 
 // 시리즈 → 언어 2단계 그룹핑
@@ -82,12 +95,16 @@ const byFolder = entries.reduce<Record<string, Record<string, Entry[]>>>(
 );
 
 const CompItem: React.FC<{ entry: Entry }> = ({
-  entry: { mod, ep, totalFrames },
+  entry: { mod, ep, totalFrames, audioBaseDir },
 }) => (
   <Composition
     key={ep}
     id={ep}
-    component={mod.Component}
+    component={() => (
+      <AudioBaseDirProvider baseDir={audioBaseDir}>
+        <mod.Component />
+      </AudioBaseDirProvider>
+    )}
     durationInFrames={totalFrames}
     fps={mod.compositionMeta.fps}
     width={mod.compositionMeta.width}

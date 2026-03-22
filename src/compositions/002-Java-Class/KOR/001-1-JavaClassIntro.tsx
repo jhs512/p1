@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -20,6 +17,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -30,14 +28,7 @@ import {
 import { computeFromValues } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
-import {
-  BG,
-  BG_CODE,
-  BG_THUMB,
-  C_PAIN,
-  C_TEAL,
-  TEXT,
-} from "./colors";
+import { BG, BG_CODE, BG_THUMB, C_PAIN, C_TEAL, TEXT } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
@@ -199,7 +190,7 @@ const PainScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 따로 보내는 고통" />
           <div
             style={{
@@ -333,7 +324,7 @@ const PackageScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="2. 묶어서 보내기" />
           <div
             style={{
@@ -502,7 +493,7 @@ const CodeAnalogy: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 코드에서도" />
 
           {/* 1문장: 타이틀 */}
@@ -592,7 +583,7 @@ const BundleScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 묶으면 편하다" />
           <div
             style={{
@@ -691,15 +682,14 @@ const ObjectPreviewScene: React.FC = () => {
   });
 
   // 2문장: 필드 강조 펄싱
-  const fieldPulse = frame >= split
-    ? 0.4 + 0.6 * Math.abs(Math.sin((frame - split) * 0.05))
-    : 0;
+  const fieldPulse =
+    frame >= split ? 0.4 + 0.6 * Math.abs(Math.sin((frame - split) * 0.05)) : 0;
 
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="5. 객체란?" />
           <div
             style={{
@@ -802,9 +792,10 @@ const ObjectPreviewScene: React.FC = () => {
                           fontSize: FONT.heading,
                           fontWeight: 700,
                           color: field.color,
-                          textShadow: fieldPulse > 0
-                            ? `0 0 ${fieldPulse * 12}px ${field.color}66`
-                            : "none",
+                          textShadow:
+                            fieldPulse > 0
+                              ? `0 0 ${fieldPulse * 12}px ${field.color}66`
+                              : "none",
                         }}
                       >
                         {field.value}
@@ -857,7 +848,7 @@ const OutroScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <SceneTitle title="6. 다음 시간에" />
 
           <div

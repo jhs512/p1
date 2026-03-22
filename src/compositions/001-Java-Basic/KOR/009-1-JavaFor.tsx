@@ -4,12 +4,9 @@ import {
   Sequence,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-
-import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -19,6 +16,7 @@ import {
   CROSS,
   ContentArea,
   FONT,
+  SceneAudio,
   SceneTitle,
   Subtitle,
   THUMB_CROSS,
@@ -241,7 +239,7 @@ const OverviewScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="1. 반복문 개요" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           <div
             style={{
@@ -303,7 +301,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="2. for 문이란?" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           <div
             style={{
               position: "absolute",
@@ -459,7 +457,7 @@ const ForScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="3. for 문법" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
           {frame >= s && (
             <div
               style={{
@@ -739,7 +737,7 @@ const ExecutionScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="4. for 실행 흐름" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           {frame >= s && (
             <div
@@ -1021,7 +1019,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneTitle title="5. for 정리" />
-          <Audio src={staticFile(cfg.audio)} />
+          <SceneAudio src={cfg.audio} />
 
           <div
             style={{

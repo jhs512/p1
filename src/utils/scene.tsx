@@ -6,12 +6,14 @@ import {
   delayRender,
   getInputProps,
   interpolate,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 
 import { loadFont as loadJetBrains } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadNotoSans } from "@remotion/google-fonts/NotoSansKR";
+import { Audio } from "@remotion/media";
 
 import React from "react";
 
@@ -48,6 +50,23 @@ export const monoStyle = {
 export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
 
 export type SubtitleMode = "primary-only" | "secondary-only" | "bilingual";
+
+const AudioBaseDirContext = React.createContext("");
+
+export const AudioBaseDirProvider: React.FC<{
+  baseDir: string;
+  children: React.ReactNode;
+}> = ({ baseDir, children }) => (
+  <AudioBaseDirContext.Provider value={baseDir}>
+    {children}
+  </AudioBaseDirContext.Provider>
+);
+
+export const SceneAudio: React.FC<{ src: string }> = ({ src }) => {
+  const baseDir = React.useContext(AudioBaseDirContext);
+  const resolvedSrc = baseDir ? `${baseDir}/${src}` : src;
+  return <Audio src={staticFile(resolvedSrc)} />;
+};
 
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**
