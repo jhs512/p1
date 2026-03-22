@@ -34,8 +34,6 @@ import {
   BG,
   BG_CODE,
   BG_THUMB,
-  C_FUNC,
-  C_KEYWORD,
   C_PAIN,
   C_TEAL,
   TEXT,
@@ -73,12 +71,12 @@ export const VIDEO_CONFIG = {
     narration: CONTENT.bundleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.bundleScene.narrationSplits,
   },
-  classPreview: {
-    audio: "cls-classPreview.mp3",
-    durationInFrames: AUDIO_CONFIG.classPreview.durationInFrames,
-    speechStartFrame: AUDIO_CONFIG.classPreview.speechStartFrame,
-    narration: CONTENT.classPreview.narration as string[],
-    narrationSplits: AUDIO_CONFIG.classPreview.narrationSplits,
+  objectPreview: {
+    audio: "cls-objectPreview.mp3",
+    durationInFrames: AUDIO_CONFIG.objectPreview.durationInFrames,
+    speechStartFrame: AUDIO_CONFIG.objectPreview.speechStartFrame,
+    narration: CONTENT.objectPreview.narration as string[],
+    narrationSplits: AUDIO_CONFIG.objectPreview.narrationSplits,
   },
   outroScene: {
     audio: "cls-outroScene.mp3",
@@ -146,7 +144,7 @@ const ThumbnailScene: React.FC = () => {
       >
         Java
         <br />
-        <span style={{ color: C_TEAL }}>클래스</span>
+        <span style={{ color: C_TEAL }}>객체</span>
       </div>
       <div
         style={{
@@ -671,18 +669,15 @@ const BundleScene: React.FC = () => {
   );
 };
 
-// ── 씬: ClassPreview — 클래스와 객체 ──────────────────────────
-const CLASS_CODE = [
-  "class Student {",
-  "    String name;",
-  "    int age;",
-  "    int score;",
-  "    int grade;",
-  "}",
+// ── 씬: ObjectPreviewScene — 객체란? ──────────────────────────
+const OBJECT_FIELDS = [
+  { label: "이름", value: '"민준"', color: C_TEAL },
+  { label: "나이", value: "17", color: C_TEAL },
+  { label: "점수", value: "85", color: C_TEAL },
 ];
 
-const ClassPreview: React.FC = () => {
-  const { classPreview: cfg } = VIDEO_CONFIG;
+const ObjectPreviewScene: React.FC = () => {
+  const { objectPreview: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
@@ -690,133 +685,135 @@ const ClassPreview: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 1문장: 클래스 코드 등장
-  const classAppear = spring({
+  // 1문장: 객체 카드 등장
+  const cardAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
   });
 
-  // 2문장: 객체 생성 코드 등장
-  const objectAppear = spring({
-    frame: frame - split,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 30,
-  });
+  // 2문장: 필드 강조 펄싱
+  const fieldPulse = frame >= split
+    ? 0.4 + 0.6 * Math.abs(Math.sin((frame - split) * 0.05))
+    : 0;
 
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <Audio src={staticFile(cfg.audio)} />
-          <SceneTitle title="5. 클래스와 객체" />
+          <SceneTitle title="5. 객체란?" />
           <div
             style={{
               position: "absolute",
-              top: "40%",
+              top: "42%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 28,
-              width: 700,
+              gap: 0,
             }}
           >
-            {/* 클래스 코드 블록 */}
+            {/* 객체 카드 */}
             <div
               style={{
-                width: "100%",
-                opacity: classAppear,
-                transform: `scale(${interpolate(classAppear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                opacity: cardAppear,
+                transform: `scale(${interpolate(cardAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0,
               }}
             >
+              {/* 카드 헤더 — 객체 이름 */}
               <div
                 style={{
                   fontFamily: uiFont,
-                  fontSize: FONT.label,
-                  fontWeight: 700,
-                  color: C_TEAL,
+                  fontSize: FONT.heading,
+                  fontWeight: 800,
+                  color: "#fff",
+                  background: C_TEAL,
+                  borderRadius: "14px 14px 0 0",
+                  padding: "14px 64px",
+                  textAlign: "center",
                   letterSpacing: 2,
-                  marginBottom: 8,
-                  opacity: 0.85,
                 }}
               >
-                틀 = 클래스
+                민준
               </div>
+
+              {/* 카드 바디 — 필드 목록 */}
               <div
                 style={{
                   background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
-                  ...monoStyle,
-                  fontSize: CODE.lg,
-                  border: `2px solid ${C_TEAL}44`,
+                  borderRadius: "0 0 14px 14px",
+                  border: `3px solid ${C_TEAL}66`,
+                  borderTop: "none",
+                  padding: "24px 48px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 18,
+                  minWidth: 340,
                 }}
               >
-                {CLASS_CODE.map((line, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      lineHeight: "1.8",
-                      color: TEXT,
-                      whiteSpace: "pre",
-                    }}
-                  >
-                    <JavaLine text={line} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 화살표 */}
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: 36,
-                color: C_TEAL,
-                opacity: objectAppear,
-              }}
-            >
-              ▼
-            </div>
-
-            {/* 객체 생성 */}
-            <div
-              style={{
-                width: "100%",
-                opacity: objectAppear,
-                transform: `scale(${interpolate(objectAppear, [0, 1], [0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: FONT.label,
-                  fontWeight: 700,
-                  color: C_FUNC,
-                  letterSpacing: 2,
-                  marginBottom: 8,
-                  opacity: 0.85,
-                }}
-              >
-                실체 = 객체
-              </div>
-              <div
-                style={{
-                  background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
-                  ...monoStyle,
-                  fontSize: CODE.lg,
-                  border: `2px solid ${C_FUNC}44`,
-                  color: TEXT,
-                  whiteSpace: "pre" as const,
-                }}
-              >
-                <JavaLine text="Student minJun = new Student();" />
+                {OBJECT_FIELDS.map((field, i) => {
+                  const fieldAppear = spring({
+                    frame: frame - s - 10 - i * 8,
+                    fps,
+                    config: { damping: 12, stiffness: 130 },
+                    durationInFrames: 24,
+                  });
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 20,
+                        opacity: fieldAppear,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: uiFont,
+                          fontSize: FONT.label,
+                          fontWeight: 700,
+                          color: TEXT,
+                          minWidth: 60,
+                          textAlign: "right",
+                        }}
+                      >
+                        {field.label}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: uiFont,
+                          fontSize: 28,
+                          fontWeight: 400,
+                          color: TEXT,
+                          opacity: 0.5,
+                        }}
+                      >
+                        :
+                      </div>
+                      <div
+                        style={{
+                          ...monoStyle,
+                          fontSize: FONT.heading,
+                          fontWeight: 700,
+                          color: field.color,
+                          textShadow: fieldPulse > 0
+                            ? `0 0 ${fieldPulse * 12}px ${field.color}66`
+                            : "none",
+                        }}
+                      >
+                        {field.value}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -826,7 +823,7 @@ const ClassPreview: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={s}
-        wordFrames={AUDIO_CONFIG.classPreview.wordStartFrames}
+        wordFrames={AUDIO_CONFIG.objectPreview.wordStartFrames}
       />
     </>
   );
@@ -841,18 +838,18 @@ const OutroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // "class" 키워드 등장
-  const classFrame = s;
-  const classAppear = spring({
-    frame: frame - classFrame,
+  // "객체" 키워드 등장
+  const keywordFrame = s;
+  const keywordAppear = spring({
+    frame: frame - keywordFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 48,
   });
 
   // 밑줄 애니메이션 — 발화 시점 + 16프레임 후 시작
-  const classUnderline = spring({
-    frame: frame - classFrame - 16,
+  const keywordUnderline = spring({
+    frame: frame - keywordFrame - 16,
     fps,
     config: { damping: 14, stiffness: 100 },
     durationInFrames: 40,
@@ -875,16 +872,16 @@ const OutroScene: React.FC = () => {
           >
             <div
               style={{
-                ...monoStyle,
-                fontSize: 64,
+                fontFamily: uiFont,
+                fontSize: FONT.display,
                 fontWeight: 900,
-                color: C_KEYWORD,
-                opacity: classAppear,
+                color: C_TEAL,
+                opacity: keywordAppear,
                 display: "inline-block",
                 position: "relative" as const,
               }}
             >
-              class
+              객체
               <div
                 style={{
                   position: "absolute",
@@ -893,7 +890,7 @@ const OutroScene: React.FC = () => {
                   height: 3,
                   background: C_TEAL,
                   borderRadius: 2,
-                  width: `${classUnderline * 100}%`,
+                  width: `${keywordUnderline * 100}%`,
                 }}
               />
             </div>
@@ -917,7 +914,7 @@ const sceneList = [
   VIDEO_CONFIG.packageScene,
   VIDEO_CONFIG.codeAnalogy,
   VIDEO_CONFIG.bundleScene,
-  VIDEO_CONFIG.classPreview,
+  VIDEO_CONFIG.objectPreview,
   VIDEO_CONFIG.outroScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
@@ -971,9 +968,9 @@ const JavaClassIntro: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[5]}
-      durationInFrames={VIDEO_CONFIG.classPreview.durationInFrames}
+      durationInFrames={VIDEO_CONFIG.objectPreview.durationInFrames}
     >
-      <ClassPreview />
+      <ObjectPreviewScene />
     </Sequence>
     <Sequence
       from={fromValues[6]}

@@ -4,8 +4,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n클래스",
-    badge: "class",
+    title: "Java\n객체",
+    badge: "객체",
   },
   painScene: {
     narration: [
@@ -27,19 +27,19 @@ export const CONTENT = {
   },
   bundleScene: {
     narration: [
-      "관련된 데이터끼리 하나로 묶으면 훨씬 편합니다.",
-      "필요할 때 묶음째로 전달하면 됩니다.",
+      "관련된 데이터끼리 하나로 묶은 것을 객체라고 합니다.",
+      "필요할 때 객체째로 전달하면 됩니다.",
     ],
   },
-  classPreview: {
+  objectPreview: {
     narration: [
-      "이렇게 데이터를 묶는 틀을 클래스라고 합니다.",
-      "클래스로 만든 실체를 객체라고 합니다.",
+      "이름, 나이, 점수를 하나의 객체로 묶으면 이렇게 됩니다.",
+      "객체 하나에 관련된 데이터가 전부 들어 있습니다.",
     ],
   },
   outroScene: {
     narration: [
-      "클래스에 대해서는 다음에 본격적으로 알아보겠습니다.",
+      "객체를 만드는 방법은 다음에 알아보겠습니다.",
     ],
   },
 } satisfies EpisodeContent;
