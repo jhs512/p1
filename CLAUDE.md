@@ -4,10 +4,13 @@
 
 ## ⚠️ 절대 원칙 — 나레이션 작성 시 반드시 지킨다
 
-### 1. 자막에 코드를 쓰지 않는다
+### 1. 자막에 긴 코드를 쓰지 않는다
 
-`int`, `score += 10`, `count++`, `String` 같은 코드는 **자막(narration 텍스트)에 절대 넣지 않는다**.
+`score += 10`, `count++`, `System.out.println(age)` 같은 **긴 코드 구문**은 자막(narration 텍스트)에 넣지 않는다.
 코드는 화면 디자인(씬 비주얼)으로 보여준다.
+
+단, **짧고 읽기 쉬운 코드**(타입명, 메서드명, 변수명 등)는 자막에 써도 된다.
+예: `int`, `String`, `System.out.println`, `age`, `for`, `if`
 
 ### 2. TTS가 잘못 읽을 단어는 인라인 발음 문법을 쓴다
 
@@ -233,6 +236,33 @@ scripts/
 public/                         — 생성된 mp3 파일
 out/                            — 렌더링 출력
 ```
+
+## edge-tts Word Boundary 특성
+
+edge-tts는 Word Boundary 이벤트로 단어별 시작/종료 프레임을 감지한다.
+**구두점에 따라 단어가 합쳐지거나 분리되는 특성**이 있으므로 주의한다.
+
+| TTS 텍스트 | Word Boundary 결과 | 비고 |
+|---|---|---|
+| `AND, OR, NOT` | `AND` `OR` `NOT` (3개) | ✅ 쉼표 1개 — 정상 분리, 쉼 거의 없음 |
+| `AND. OR. NOT` | `AND` `OR` `NOT` (3개) | ✅ 마침표 — 정상 분리 + 자연스러운 쉼 |
+| `AND,, OR,, NOT` | `AND,, OR,, NOT` (1개) | ❌ 쉼표 2개 이상 — 전체가 하나로 합쳐짐 |
+| `AND,,, OR,,, NOT` | `AND,,, OR,,, NOT` (1개) | ❌ 쉼표 3개 — 동일하게 합쳐짐 |
+| `AND.. OR.. NOT` | `AND.. OR.. NOT` (1개) | ❌ 마침표 2개 — 합쳐짐 |
+
+**단어 사이에 쉼을 넣고 싶을 때:**
+- ✅ 마침표(`.`) 사용 → 쉼 + 단어 분리 유지
+- ❌ 쉼표 여러 개(`,,`, `,,,`) 사용 → 단어가 합쳐져 `wordStartFrames` / `wordTiming` 깨짐
+
+**인라인 발음과 조합하는 패턴:**
+```
+자막에 쉼표, TTS에 마침표:
+[AND,(발음:AND.)] [OR,(발음:OR.)] and NOT.
+→ 자막: AND, OR, and NOT.
+→ TTS:  AND. OR. and NOT.  (쉼 + 단어 분리)
+```
+
+---
 
 ## 나레이션 수정 워크플로우
 
