@@ -227,9 +227,6 @@ export const Subtitle: React.FC<{
 }) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
-  const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
-  const mode = subtitleMode ?? "bilingual";
-
   if (frame < speechStart) return null;
 
   const starts = [speechStart, ...(splits ?? [])];
@@ -238,6 +235,14 @@ export const Subtitle: React.FC<{
   const secondaryText = secondarySentences?.[idx]
     ? toDisplayText(secondarySentences[idx])
     : null;
+  const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
+  const fallbackMode: SubtitleMode = secondaryText
+    ? "bilingual"
+    : "primary-only";
+  const mode =
+    subtitleMode === "secondary-only" && !secondaryText
+      ? "primary-only"
+      : (subtitleMode ?? fallbackMode);
   const primaryText = mode === "secondary-only" ? secondaryText : displayText;
   const showPrimary = Boolean(primaryText);
   const showSecondary = Boolean(secondaryText) && mode === "bilingual";
@@ -284,7 +289,8 @@ export const Subtitle: React.FC<{
     background: "rgba(0,0,0,0.5)",
     borderRadius: 10,
     padding: "10px 18px",
-    maxWidth: width - 140,
+    width: "100%",
+    boxSizing: "border-box",
     whiteSpace: "pre-wrap",
   };
 
