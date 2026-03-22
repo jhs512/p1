@@ -45,9 +45,9 @@ import { HEIGHT, WIDTH } from "./config";
 const Countdown: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   const frame = useCurrentFrame();
   const elapsed = frame - startFrame;
-  // 0~59: "3", 60~119: "2", 120~179: "1", 180+: 사라짐
+  // 0~59: "5", 60~119: "4", ..., 240~299: "1", 300+: 사라짐
   if (elapsed < 0 || elapsed >= GUESS_WAIT) return null;
-  const n = 3 - Math.floor(elapsed / 60);
+  const n = 5 - Math.floor(elapsed / 60);
   const intraFrame = elapsed % 60;
   // 등장: 처음 10프레임
   const fadeIn = interpolate(intraFrame, [0, 10], [0, 1], {
@@ -78,7 +78,7 @@ const Countdown: React.FC<{ startFrame: number }> = ({ startFrame }) => {
 
 // ── 3초 대기 씬 duration 계산 ─────────────────────────────────
 // "예상해 보세요" 발화 종료 후 3초(180프레임) 대기, 그 뒤에 3문장 오디오
-const GUESS_WAIT = 180; // 3초 대기
+const GUESS_WAIT = 300; // 5초 대기
 
 function calcGuessSceneDuration(sceneKey: "printScene" | "sumScene" | "sumEvenScene") {
   const cfg = AUDIO_CONFIG[sceneKey];
