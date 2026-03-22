@@ -472,7 +472,7 @@ const PrintRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.printRevealScene?.wordStartFrames}
+        wordFrames={_ac.printRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
       />
     </>
   );
@@ -662,7 +662,7 @@ const SumRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumRevealScene?.wordStartFrames}
+        wordFrames={_ac.sumRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
       />
     </>
   );
@@ -852,7 +852,7 @@ const SumEvenRevealScene: React.FC = () => {
         sentences={cfg.narration}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames}
+        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
       />
     </>
   );
