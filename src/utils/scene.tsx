@@ -294,12 +294,14 @@ export const Subtitle: React.FC<{
   // wordFrames 없으면 기존 방식
   if (!currentWordFrames || currentWordFrames.length === 0) {
     return (
-      <div style={outerStyle}>
-        <div style={innerStyle}>
-          <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
+      <>
+        <div style={outerStyle}>
+          <div style={innerStyle}>
+            <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
+          </div>
         </div>
         {renderSecondary()}
-      </div>
+      </>
     );
   }
 
@@ -314,27 +316,30 @@ export const Subtitle: React.FC<{
 
   let wordIdx = 0;
   return (
-    <div style={outerStyle}>
-      <div style={innerStyle}>
-        <div style={{ fontSize: 42, lineHeight: 1.45 }}>
-          {tokens.map((token, i) => {
-            if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-            const thisWordIdx = wordIdx++;
-            return (
-              <span
-                key={i}
-                style={{
-                  color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
-                }}
-              >
-                {token}
-              </span>
-            );
-          })}
+    <>
+      <div style={outerStyle}>
+        <div style={innerStyle}>
+          <div style={{ fontSize: 42, lineHeight: 1.45 }}>
+            {tokens.map((token, i) => {
+              if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+              const thisWordIdx = wordIdx++;
+              return (
+                <span
+                  key={i}
+                  style={{
+                    color:
+                      thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
+                  }}
+                >
+                  {token}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
       {renderSecondary()}
-    </div>
+    </>
   );
 };
 
