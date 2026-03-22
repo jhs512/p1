@@ -709,6 +709,7 @@ const ValueVsVarScene: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                width: 300,
                 gap: 20,
                 opacity: valueAppear,
                 transform: `scale(${valueScale})`,
@@ -721,6 +722,7 @@ const ValueVsVarScene: React.FC = () => {
                   fontWeight: 700,
                   color: "#aaa",
                   letterSpacing: 2,
+                  textAlign: "center",
                 }}
               >
                 integer value
@@ -754,6 +756,7 @@ const ValueVsVarScene: React.FC = () => {
                   fontSize: 24,
                   color: "#666",
                   fontStyle: "italic",
+                  textAlign: "center",
                 }}
               >
                 the data itself
@@ -771,6 +774,7 @@ const ValueVsVarScene: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                width: 300,
                 gap: 20,
                 opacity: varAppear,
                 transform: `scale(${varScale})`,
@@ -783,6 +787,7 @@ const ValueVsVarScene: React.FC = () => {
                   fontWeight: 700,
                   color: "#aaa",
                   letterSpacing: 2,
+                  textAlign: "center",
                 }}
               >
                 integer variable
@@ -835,6 +840,7 @@ const ValueVsVarScene: React.FC = () => {
                   fontSize: 24,
                   color: "#666",
                   fontStyle: "italic",
+                  textAlign: "center",
                 }}
               >
                 a named space for a value
