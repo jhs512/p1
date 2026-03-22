@@ -389,9 +389,13 @@ const IntroScene: React.FC = () => {
             }}
           >
             {INTRO_OPS.map((op, i) => {
-              // TODO: wordTiming 미지원 — 동적 인덱스
+              const opFrames = [
+                AUDIO_CONFIG.intro.wordTiming["AND"][0],
+                AUDIO_CONFIG.intro.wordTiming["OR"][0],
+                AUDIO_CONFIG.intro.wordTiming["NOT"][0],
+              ];
               const appear = spring({
-                frame: frame - AUDIO_CONFIG.intro.wordStartFrames[1][i],
+                frame: frame - opFrames[i],
                 fps,
                 config: { damping: 13, stiffness: 140 },
                 durationInFrames: 60,

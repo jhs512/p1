@@ -27,7 +27,7 @@ export const CONTENT = {
   notScene: {
     narration: [
       "The NOT operator flips true to false\nand false to true.",
-      "It simply reverses the boolean value.",
+      "!true is false, and !false is true.",
     ],
   },
   summaryScene: {
