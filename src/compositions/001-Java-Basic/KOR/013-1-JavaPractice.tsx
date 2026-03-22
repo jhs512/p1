@@ -204,7 +204,9 @@ const PrintScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
+  const _split1 = cfg.narrationSplits[0]; // "예상해 보세요" (대기 구간)
+  const split2 = cfg.narrationSplits[1]; // "반복문이 시작부터~"
+  void _split1;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -215,9 +217,17 @@ const PrintScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 2문장: 실행 결과 등장
+  // 호출 예시: 1문장 말미에 등장
+  const callAppear = spring({
+    frame: frame - (s + 40),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  // 3문장: 실행 결과 등장
   const resultAppear = spring({
-    frame: frame - split,
+    frame: frame - split2,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -232,13 +242,13 @@ const PrintScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "42%",
+              top: "40%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 28,
+              gap: 20,
             }}
           >
             {/* 코드 블록 */}
@@ -263,7 +273,21 @@ const PrintScene: React.FC = () => {
               ))}
             </div>
 
-            {/* 2문장: 실행 결과 */}
+            {/* 호출 예시 */}
+            <div
+              style={{
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+                opacity: callAppear,
+              }}
+            >
+              <JavaLine text="printRange(1, 5);" />
+            </div>
+
+            {/* 3문장: 실행 결과 */}
             <div
               style={{
                 display: "flex",
@@ -274,7 +298,7 @@ const PrintScene: React.FC = () => {
             >
               {[1, 2, 3, 4, 5].map((n, i) => {
                 const stagger = spring({
-                  frame: frame - split - i * 4,
+                  frame: frame - split2 - i * 4,
                   fps,
                   config: { damping: 13, stiffness: 140 },
                   durationInFrames: 20,
