@@ -156,7 +156,7 @@ export function computeLineVisibility<T>(
 export const BOTTOM_MARGIN = 350;
 /** 자막(bottom) + 자막 높이(~65px). ContentArea의 하단 여백으로 사용. */
 export const SUBTITLE_DEAD_ZONE = BOTTOM_MARGIN + 75;
-const SECONDARY_SUBTITLE_GAP = 6;
+const SECONDARY_SUBTITLE_GAP = 0;
 
 // ── 컴포넌트: ContentArea ─────────────────────────────────────
 /**
