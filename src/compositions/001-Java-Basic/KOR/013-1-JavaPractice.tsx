@@ -44,46 +44,34 @@ import { HEIGHT, WIDTH } from "./config";
 // ── 카운트다운 컴포넌트 (3, 2, 1) ────────────────────────────
 const Countdown: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const counts = [3, 2, 1];
+  const elapsed = frame - startFrame;
+  // 0~59: "3", 60~119: "2", 120~179: "1", 180+: 사라짐
+  if (elapsed < 0 || elapsed >= GUESS_WAIT) return null;
+  const n = 3 - Math.floor(elapsed / 60);
+  const intraFrame = elapsed % 60;
+  // 등장: 처음 10프레임
+  const fadeIn = interpolate(intraFrame, [0, 10], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  // 축소: 1.4 → 1.0
+  const scale = interpolate(intraFrame, [0, 10], [1.4, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-      {counts.map((n, i) => {
-        const showFrame = startFrame + i * 60; // 각 1초 간격
-        const appear = spring({
-          frame: frame - showFrame,
-          fps,
-          config: { damping: 14, stiffness: 160 },
-          durationInFrames: 20,
-        });
-        // 다음 숫자 등장 시 사라짐
-        const fadeOut = i < 2
-          ? interpolate(frame, [showFrame + 50, showFrame + 58], [1, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            })
-          : interpolate(frame, [startFrame + 170, startFrame + 178], [1, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-        return (
-          <div
-            key={n}
-            style={{
-              position: "absolute",
-              left: "50%",
-              transform: `translate(-50%, 0) scale(${interpolate(appear, [0, 1], [1.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-              fontFamily: uiFont,
-              fontSize: 64,
-              fontWeight: 900,
-              color: C_TEAL,
-              opacity: appear * fadeOut,
-            }}
-          >
-            {n}
-          </div>
-        );
-      })}
+    <div
+      style={{
+        fontFamily: uiFont,
+        fontSize: 56,
+        fontWeight: 900,
+        color: C_TEAL,
+        opacity: fadeIn,
+        transform: `scale(${scale})`,
+        textAlign: "center",
+      }}
+    >
+      {n}
     </div>
   );
 };
@@ -352,9 +340,7 @@ const PrintScene: React.FC = () => {
             </div>
 
             {/* 카운트다운 3, 2, 1 */}
-            <div style={{ position: "relative", height: 70, width: "100%" }}>
-              <Countdown startFrame={guessEndFrame} />
-            </div>
+            <Countdown startFrame={guessEndFrame} />
 
             {/* 결과 */}
             <div
@@ -496,9 +482,7 @@ const SumScene: React.FC = () => {
             </div>
 
             {/* 카운트다운 3, 2, 1 */}
-            <div style={{ position: "relative", height: 70, width: "100%" }}>
-              <Countdown startFrame={guessEndFrame} />
-            </div>
+            <Countdown startFrame={guessEndFrame} />
 
             {/* 결과 뱃지 */}
             <div
@@ -620,9 +604,7 @@ const SumEvenScene: React.FC = () => {
             </div>
 
             {/* 카운트다운 3, 2, 1 */}
-            <div style={{ position: "relative", height: 70, width: "100%" }}>
-              <Countdown startFrame={guessEndFrame} />
-            </div>
+            <Countdown startFrame={guessEndFrame} />
 
             {/* 결과 뱃지 */}
             <div
