@@ -148,30 +148,15 @@ const ThumbnailScene: React.FC = () => {
       </div>
       <div
         style={{
-          ...monoStyle,
-          fontSize: 64,
-          fontWeight: 900,
-          color: C_TEAL,
-          background: "#4ec9b018",
-          border: "2px solid #4ec9b055",
-          borderRadius: 18,
-          padding: "18px 56px",
-          marginTop: 8,
-        }}
-      >
-        {CONTENT.thumbnail.badge}
-      </div>
-      <div
-        style={{
           fontFamily: uiFont,
-          fontSize: 32,
+          fontSize: 36,
           fontWeight: 700,
           color: TEXT,
-          opacity: 0.7,
           marginTop: 24,
         }}
       >
-        객체는 데이터의 묶음이다.
+        <span style={{ color: C_TEAL, fontWeight: 900 }}>객체</span>
+        {" == 데이터의 묶음"}
       </div>
     </AbsoluteFill>
   );
