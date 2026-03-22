@@ -34,7 +34,6 @@ import {
   BG,
   BG_CODE,
   BG_THUMB,
-  C_DIM,
   C_FUNC,
   C_NUMBER,
   C_TEAL,
@@ -42,26 +41,44 @@ import {
 } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
+// ── 3초 대기 씬 duration 계산 ─────────────────────────────────
+// "예상해 보세요" 발화 종료 후 3초(180프레임) 대기, 그 뒤에 3문장 오디오
+const GUESS_WAIT = 180; // 3초 대기
+
+function calcGuessSceneDuration(sceneKey: "printScene" | "sumScene" | "sumEvenScene") {
+  const cfg = AUDIO_CONFIG[sceneKey];
+  // 2문장("예상해 보세요") 종료 프레임
+  const guessEnd = cfg.sentenceEndFrames[0]; // 1문장 종료
+  // 3문장 오디오 길이 = 전체 - 3문장 시작
+  const sent3Start = cfg.narrationSplits[1];
+  const sent3Len = cfg.speechEndFrame - sent3Start;
+  // 원래 오디오 duration
+  const audioDur = cfg.durationInFrames;
+  // 대기 삽입 후 필요한 최소 duration
+  const withWait = guessEnd + GUESS_WAIT + sent3Len + 30; // +30 여유
+  return Math.max(audioDur, withWait);
+}
+
 // ── VIDEO_CONFIG ──────────────────────────────────────────────
 export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
   printScene: {
     audio: "prac-print.mp3",
-    durationInFrames: AUDIO_CONFIG.printScene.durationInFrames,
+    durationInFrames: calcGuessSceneDuration("printScene"),
     speechStartFrame: AUDIO_CONFIG.printScene.speechStartFrame,
     narration: CONTENT.printScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.printScene.narrationSplits,
   },
   sumScene: {
     audio: "prac-sum.mp3",
-    durationInFrames: AUDIO_CONFIG.sumScene.durationInFrames,
+    durationInFrames: calcGuessSceneDuration("sumScene"),
     speechStartFrame: AUDIO_CONFIG.sumScene.speechStartFrame,
     narration: CONTENT.sumScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumScene.narrationSplits,
   },
   sumEvenScene: {
     audio: "prac-sumEven.mp3",
-    durationInFrames: AUDIO_CONFIG.sumEvenScene.durationInFrames,
+    durationInFrames: calcGuessSceneDuration("sumEvenScene"),
     speechStartFrame: AUDIO_CONFIG.sumEvenScene.speechStartFrame,
     narration: CONTENT.sumEvenScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumEvenScene.narrationSplits,
@@ -204,9 +221,9 @@ const PrintScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const _split1 = cfg.narrationSplits[0]; // "예상해 보세요" (대기 구간)
-  const split2 = cfg.narrationSplits[1]; // "반복문이 시작부터~"
-  void _split1;
+  // "예상해 보세요" 발화 종료 + 3초 대기 후 결과 등장
+  const guessEndFrame = AUDIO_CONFIG.printScene.sentenceEndFrames[0];
+  const resultFrame = guessEndFrame + GUESS_WAIT;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -225,9 +242,9 @@ const PrintScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 3문장: 실행 결과 등장
+  // 결과 등장 (대기 후)
   const resultAppear = spring({
-    frame: frame - split2,
+    frame: frame - resultFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -298,7 +315,7 @@ const PrintScene: React.FC = () => {
             >
               {[1, 2, 3, 4, 5].map((n, i) => {
                 const stagger = spring({
-                  frame: frame - split2 - i * 4,
+                  frame: frame - resultFrame - i * 4,
                   fps,
                   config: { damping: 13, stiffness: 140 },
                   durationInFrames: 20,
@@ -343,9 +360,11 @@ const SumScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const guessEndFrame = AUDIO_CONFIG.sumScene.sentenceEndFrames[0];
+  const resultFrame = guessEndFrame + GUESS_WAIT;
 
   const codeAppear = spring({
     frame: frame - s,
@@ -354,15 +373,21 @@ const SumScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 2문장: 누적 합산 시각화
-  const accumAppear = spring({
-    frame: frame - split,
+  // 호출 예시
+  const callAppear = spring({
+    frame: frame - (s + 40),
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
   });
 
-  const accumValues = [0, 1, 3, 6, 10, 15];
+  // 결과 등장 (대기 후)
+  const resultAppear = spring({
+    frame: frame - resultFrame,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
 
   return (
     <>
@@ -379,7 +404,7 @@ const SumScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 28,
+              gap: 20,
             }}
           >
             {/* 코드 블록 */}
@@ -404,72 +429,36 @@ const SumScene: React.FC = () => {
               ))}
             </div>
 
-            {/* 2문장: 누적 합산 시각화 */}
+            {/* 호출 예시 */}
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                opacity: accumAppear,
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+                opacity: callAppear,
               }}
             >
-              {accumValues.map((v, i) => {
-                const stagger = spring({
-                  frame: frame - split - i * 5,
-                  fps,
-                  config: { damping: 13, stiffness: 140 },
-                  durationInFrames: 20,
-                });
-                return (
-                  <React.Fragment key={i}>
-                    {i > 0 && (
-                      <div
-                        style={{
-                          ...monoStyle,
-                          fontSize: FONT.label,
-                          color: C_DIM,
-                          opacity: stagger,
-                        }}
-                      >
-                        →
-                      </div>
-                    )}
-                    <div
-                      style={{
-                        ...monoStyle,
-                        fontSize: FONT.heading,
-                        fontWeight: 700,
-                        color: i === accumValues.length - 1 ? C_TEAL : C_NUMBER,
-                        opacity: stagger,
-                      }}
-                    >
-                      {v}
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-              {/* 결과 뱃지 */}
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: FONT.heading,
-                  fontWeight: 800,
-                  color: C_TEAL,
-                  background: `${C_TEAL}16`,
-                  border: `2px solid ${C_TEAL}55`,
-                  borderRadius: 12,
-                  padding: "8px 20px",
-                  marginLeft: 12,
-                  opacity: spring({
-                    frame: frame - split - accumValues.length * 5,
-                    fps,
-                    config: { damping: 11, stiffness: 120 },
-                    durationInFrames: 22,
-                  }),
-                }}
-              >
-                → 15
-              </div>
+              <JavaLine text="int result = sumRange(1, 5);" />
+            </div>
+
+            {/* 결과 뱃지 */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.title,
+                fontWeight: 800,
+                color: C_TEAL,
+                background: `${C_TEAL}16`,
+                border: `2px solid ${C_TEAL}55`,
+                borderRadius: 12,
+                padding: "12px 28px",
+                opacity: resultAppear,
+                transform: `scale(${interpolate(resultAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              }}
+            >
+              → 15
             </div>
           </div>
         </ContentArea>
@@ -490,9 +479,11 @@ const SumEvenScene: React.FC = () => {
   const d = cfg.durationInFrames;
   const opacity = useFade(d);
   const s = cfg.speechStartFrame;
-  const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const guessEndFrame = AUDIO_CONFIG.sumEvenScene.sentenceEndFrames[0];
+  const resultFrame = guessEndFrame + GUESS_WAIT;
 
   const codeAppear = spring({
     frame: frame - s,
@@ -501,9 +492,17 @@ const SumEvenScene: React.FC = () => {
     durationInFrames: 30,
   });
 
-  // 2문장: 필터 애니메이션
-  const filterAppear = spring({
-    frame: frame - split,
+  // 호출 예시
+  const callAppear = spring({
+    frame: frame - (s + 40),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 30,
+  });
+
+  // 결과 등장 (대기 후)
+  const resultAppear = spring({
+    frame: frame - resultFrame,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 30,
@@ -524,7 +523,7 @@ const SumEvenScene: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 28,
+              gap: 20,
             }}
           >
             {/* 코드 블록 */}
@@ -549,61 +548,36 @@ const SumEvenScene: React.FC = () => {
               ))}
             </div>
 
-            {/* 2문장: 필터 애니메이션 — 1~10 */}
+            {/* 호출 예시 */}
             <div
               style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                opacity: filterAppear,
+                background: BG_CODE,
+                borderRadius: 12,
+                padding: "14px 28px",
+                ...monoStyle,
+                fontSize: CODE.lg,
+                opacity: callAppear,
               }}
             >
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((n, i) => {
-                const isEven = n % 2 === 0;
-                const stagger = spring({
-                  frame: frame - split - i * 3,
-                  fps,
-                  config: { damping: 13, stiffness: 140 },
-                  durationInFrames: 20,
-                });
-                return (
-                  <div
-                    key={n}
-                    style={{
-                      ...monoStyle,
-                      fontSize: FONT.label,
-                      fontWeight: 700,
-                      color: isEven ? C_TEAL : C_DIM,
-                      opacity: stagger,
-                      transform: `scale(${interpolate(stagger, [0, 1], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-                    }}
-                  >
-                    {n}
-                  </div>
-                );
-              })}
-              {/* 결과 뱃지 */}
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: FONT.heading,
-                  fontWeight: 800,
-                  color: C_TEAL,
-                  background: `${C_TEAL}16`,
-                  border: `2px solid ${C_TEAL}55`,
-                  borderRadius: 12,
-                  padding: "8px 20px",
-                  marginLeft: 8,
-                  opacity: spring({
-                    frame: frame - split - 35,
-                    fps,
-                    config: { damping: 11, stiffness: 120 },
-                    durationInFrames: 22,
-                  }),
-                }}
-              >
-                → 30
-              </div>
+              <JavaLine text="int result = sumEven(1, 10);" />
+            </div>
+
+            {/* 결과 뱃지 */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.title,
+                fontWeight: 800,
+                color: C_TEAL,
+                background: `${C_TEAL}16`,
+                border: `2px solid ${C_TEAL}55`,
+                borderRadius: 12,
+                padding: "12px 28px",
+                opacity: resultAppear,
+                transform: `scale(${interpolate(resultAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              }}
+            >
+              → 30
             </div>
           </div>
         </ContentArea>
