@@ -35,7 +35,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/001-2-content";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { BG, BG_CODE, BG_THUMB, C_NUMBER, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -67,6 +74,7 @@ export const VIDEO_CONFIG = {
     audio: "scene0.mp3",
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
 
@@ -76,6 +84,7 @@ export const VIDEO_CONFIG = {
     title: "Variable Declaration",
     code: codeUpTo(1),
     narration: CONTENT.declaration.narration as string[],
+    subtitleKo: KOR_CONTENT.declaration.narration as string[],
     narrationSplits: AUDIO_CONFIG.declaration.narrationSplits,
   },
 
@@ -85,6 +94,7 @@ export const VIDEO_CONFIG = {
     title: "Variable Initialization",
     code: codeUpTo(2),
     narration: CONTENT.initialization.narration as string[],
+    subtitleKo: KOR_CONTENT.initialization.narration as string[],
     narrationSplits: AUDIO_CONFIG.initialization.narrationSplits,
   },
 
@@ -93,6 +103,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.interpret.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpret.speechStartFrame,
     narration: CONTENT.interpret.narration as string[],
+    subtitleKo: KOR_CONTENT.interpret.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpret.narrationSplits,
   },
 
@@ -101,6 +112,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.interpretQuiz.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretQuiz.speechStartFrame,
     narration: CONTENT.interpretQuiz.narration as string[],
+    subtitleKo: KOR_CONTENT.interpretQuiz.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpretQuiz.narrationSplits,
   },
 
@@ -109,6 +121,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.interpretReveal.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.interpretReveal.speechStartFrame,
     narration: CONTENT.interpretReveal.narration as string[],
+    subtitleKo: KOR_CONTENT.interpretReveal.narration as string[],
     narrationSplits: AUDIO_CONFIG.interpretReveal.narrationSplits,
   },
 
@@ -119,6 +132,7 @@ export const VIDEO_CONFIG = {
     code: codeUpTo(3),
     consoleOutput: "> 25",
     narration: CONTENT.print.narration as string[],
+    subtitleKo: KOR_CONTENT.print.narration as string[],
     narrationSplits: AUDIO_CONFIG.print.narrationSplits,
   },
 };
@@ -419,6 +433,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={AUDIO_CONFIG.intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -713,6 +728,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
       <Sequence durationInFrames={SPLIT - SCENE_TAIL_FRAMES}>
         <Subtitle
           sentences={declaration.narration}
+          secondarySentences={declaration.subtitleKo}
           splits={declaration.narrationSplits}
           speechStart={AUDIO_CONFIG.declaration.speechStartFrame}
           wordFrames={AUDIO_CONFIG.declaration.wordStartFrames}
@@ -721,6 +737,7 @@ const CombinedDeclarationInitScene: React.FC = () => {
       <Sequence from={SPLIT - SCENE_TAIL_FRAMES}>
         <Subtitle
           sentences={initialization.narration}
+          secondarySentences={initialization.subtitleKo}
           splits={initialization.narrationSplits}
           speechStart={AUDIO_CONFIG.initialization.speechStartFrame}
           wordFrames={AUDIO_CONFIG.initialization.wordStartFrames}
@@ -900,6 +917,7 @@ const InterpretScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.interpret.wordStartFrames}
@@ -1173,7 +1191,8 @@ const QuizScene: React.FC = () => {
                     opacity: isReveal ? revealAnim : 0,
                   }}
                 >
-                  ↑<br />value (= 4)
+                  ↑<br />
+                  value (= 4)
                 </div>
               </div>
 
@@ -1246,6 +1265,7 @@ const QuizScene: React.FC = () => {
       <Sequence durationInFrames={qDur}>
         <Subtitle
           sentences={qCfg.narration}
+          secondarySentences={qCfg.subtitleKo}
           splits={[]}
           speechStart={qCfg.speechStartFrame}
           wordFrames={AUDIO_CONFIG.interpretQuiz.wordStartFrames}
@@ -1255,6 +1275,7 @@ const QuizScene: React.FC = () => {
       <Sequence from={REVEAL_START}>
         <Subtitle
           sentences={rCfg.narration}
+          secondarySentences={rCfg.subtitleKo}
           splits={rCfg.narrationSplits as unknown as number[]}
           speechStart={rCfg.speechStartFrame}
           wordFrames={AUDIO_CONFIG.interpretReveal.wordStartFrames}
@@ -1281,6 +1302,7 @@ const PrintScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={print.narration}
+        secondarySentences={print.subtitleKo}
         splits={print.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.print.wordStartFrames}
@@ -1389,6 +1411,21 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...intro.subtitleKo,
+  ...declaration.subtitleKo,
+  ...initialization.subtitleKo,
+  ...interpret.subtitleKo,
+  ...interpretQuiz.subtitleKo,
+  ...interpretReveal.subtitleKo,
+  ...print.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {

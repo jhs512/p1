@@ -107,15 +107,20 @@ function episodesOf(seriesDir: string): Target[] {
     const compositionId = langDir
       ? [dirPrefix, langDir, episodeNum].join("-")
       : [dirPrefix, episodeNum].filter(Boolean).join("-");
-    const outputDir = path.join("out", seriesDir);
+    const outputDir = langDir
+      ? path.join("out", seriesDir, langDir)
+      : path.join("out", seriesDir);
     const outputFile = path.join(outputDir, episodeNum + ".mp4");
 
     mkdirSync(outputDir, { recursive: true });
     console.log(`\n▶  "${compositionId}" → ${outputFile}`);
+    const inputProps =
+      langDir === "ENG" ? { subtitleMode: "primary-only" as const } : {};
 
     const composition = await selectComposition({
       serveUrl: bundled,
       id: compositionId,
+      inputProps,
     });
     const scale = 4 / 3; // 1080×1920 → 1440×2560 (2K)
     await renderMedia({
@@ -123,6 +128,7 @@ function episodesOf(seriesDir: string): Target[] {
       serveUrl: bundled,
       codec: "h264",
       scale,
+      inputProps,
       outputLocation: outputFile,
       onProgress: ({ progress }) =>
         process.stdout.write(`\r   ⏳  ${(progress * 100).toFixed(1)}%`),

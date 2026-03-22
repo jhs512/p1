@@ -29,7 +29,14 @@ import {
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/011-2-content";
 import { CONTENT } from "./011-2-content";
 import { AUDIO_CONFIG } from "./011-3-audio.gen";
 import {
@@ -54,6 +61,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.painScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
     narration: CONTENT.painScene.narration as string[],
+    subtitleKo: KOR_CONTENT.painScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
   },
   conceptScene: {
@@ -61,6 +69,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.conceptScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
     narration: CONTENT.conceptScene.narration as string[],
+    subtitleKo: KOR_CONTENT.conceptScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
   },
   paramScene: {
@@ -68,6 +77,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.paramScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.paramScene.speechStartFrame,
     narration: CONTENT.paramScene.narration as string[],
+    subtitleKo: KOR_CONTENT.paramScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.paramScene.narrationSplits,
   },
   callScene: {
@@ -75,6 +85,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.callScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
     narration: CONTENT.callScene.narration as string[],
+    subtitleKo: KOR_CONTENT.callScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
   },
   multiParamScene: {
@@ -82,6 +93,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.multiParamScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.multiParamScene.speechStartFrame,
     narration: CONTENT.multiParamScene.narration as string[],
+    subtitleKo: KOR_CONTENT.multiParamScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.multiParamScene.narrationSplits,
   },
   argParamScene: {
@@ -89,10 +101,10 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.argParamScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.argParamScene.speechStartFrame,
     narration: CONTENT.argParamScene.narration as string[],
+    subtitleKo: KOR_CONTENT.argParamScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.argParamScene.narrationSplits,
   },
 } as const;
-
 
 // ── 씬: ThumbnailScene ──────────────────────────────────────
 const ThumbnailScene: React.FC = () => {
@@ -295,6 +307,7 @@ const PainScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.painScene.wordStartFrames}
@@ -377,6 +390,7 @@ const ConceptScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.conceptScene.wordStartFrames}
@@ -540,6 +554,7 @@ const ParamScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.paramScene.wordStartFrames}
@@ -601,6 +616,7 @@ const CallScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
@@ -868,6 +884,7 @@ const MultiParamScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.multiParamScene.wordStartFrames}
@@ -1079,6 +1096,7 @@ const ArgParamScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.argParamScene.wordStartFrames}
@@ -1104,6 +1122,73 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.painScene.narration,
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.conceptScene.narration,
+    speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.conceptScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.conceptScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.paramScene.narration,
+    speechStartFrame: AUDIO_CONFIG.paramScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.paramScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.paramScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.paramScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.multiParamScene.narration,
+    speechStartFrame: AUDIO_CONFIG.multiParamScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.multiParamScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.multiParamScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.multiParamScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.argParamScene.narration,
+    speechStartFrame: AUDIO_CONFIG.argParamScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.argParamScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.argParamScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.argParamScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.painScene.subtitleKo,
+  ...VIDEO_CONFIG.conceptScene.subtitleKo,
+  ...VIDEO_CONFIG.paramScene.subtitleKo,
+  ...VIDEO_CONFIG.callScene.subtitleKo,
+  ...VIDEO_CONFIG.multiParamScene.subtitleKo,
+  ...VIDEO_CONFIG.argParamScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

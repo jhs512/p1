@@ -11,28 +11,29 @@ export const YOUTUBE_CONFIG = {
     tags: ["java", "programming", "coding", "beginner", "java basics"],
     categoryId: "27", // Education
     privacyStatus: "private" as const,
-    language: "en",
+    language: "en-US",
   },
   episodes: {
     "001": {
-      title: "Java Variables - Declaration, Initialization, and Printing #Java #JavaBasics",
+      title:
+        "Java Variables - Declaration, Initialization, and Printing #Java #JavaBasics",
       description:
         "Learn how to declare a variable, initialize it, and print its value in Java.",
     },
     "002": {
       title: "Java Data Types - int, double, String, boolean #Java #JavaBasics",
-      description:
-        "Learn the core Java data types and when to use each one.",
+      description: "Learn the core Java data types and when to use each one.",
     },
     "003": {
-      title: "Java Arithmetic Operators - Add, Subtract, Multiply, Divide #Java #JavaBasics",
+      title:
+        "Java Arithmetic Operators - Add, Subtract, Multiply, Divide #Java #JavaBasics",
       description:
         "Learn the main arithmetic operators in Java with clear examples.",
     },
     "004": {
-      title: "Java Comparison Operators - Greater, Less, Equal #Java #JavaBasics",
-      description:
-        "Learn how Java comparison operators evaluate two values.",
+      title:
+        "Java Comparison Operators - Greater, Less, Equal #Java #JavaBasics",
+      description: "Learn how Java comparison operators evaluate two values.",
     },
     "005": {
       title: "Java Logical Operators - AND, OR, NOT #Java #JavaBasics",
@@ -65,17 +66,20 @@ export const YOUTUBE_CONFIG = {
         "Learn how Java functions are declared and called to remove repeated code.",
     },
     "011": {
-      title: "Java Parameters - Passing Values into Functions #Java #JavaBasics",
+      title:
+        "Java Parameters - Passing Values into Functions #Java #JavaBasics",
       description:
         "Learn the difference between parameters and arguments in Java functions.",
     },
     "012": {
-      title: "Java return - Getting Values Back from Functions #Java #JavaBasics",
+      title:
+        "Java return - Getting Values Back from Functions #Java #JavaBasics",
       description:
         "Learn how Java return sends results back so you can store and reuse them.",
     },
     "013": {
-      title: "Java Function Practice - Build 3 Useful Functions #Java #JavaBasics",
+      title:
+        "Java Function Practice - Build 3 Useful Functions #Java #JavaBasics",
       description:
         "Build three practical Java functions step by step: print a range, sum a range, and sum only even numbers.",
     },

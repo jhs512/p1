@@ -4,6 +4,7 @@
 import {
   continueRender,
   delayRender,
+  getInputProps,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
@@ -45,6 +46,8 @@ export const monoStyle = {
 } as const;
 
 export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
+
+export type SubtitleMode = "primary-only" | "bilingual";
 
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**
@@ -210,18 +213,31 @@ export const SceneTitle: React.FC<{ title: string }> = ({ title }) => (
  */
 export const Subtitle: React.FC<{
   sentences: string[];
+  secondarySentences?: readonly string[];
   splits?: readonly number[];
   speechStart?: number;
   wordFrames?: readonly (readonly number[])[];
-}> = ({ sentences, splits, speechStart = 0, wordFrames }) => {
+}> = ({
+  sentences,
+  secondarySentences,
+  splits,
+  speechStart = 0,
+  wordFrames,
+}) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
+  const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
 
   if (frame < speechStart) return null;
 
   const starts = [speechStart, ...(splits ?? [])];
   const idx = starts.reduce((acc, s, i) => (frame >= s ? i : acc), 0);
   const displayText = toDisplayText(sentences[idx]);
+  const secondaryText = secondarySentences?.[idx]
+    ? toDisplayText(secondarySentences[idx])
+    : null;
+  const showSecondary =
+    Boolean(secondaryText) && subtitleMode !== "primary-only";
   const currentWordFrames = wordFrames?.[idx];
 
   const outerStyle: React.CSSProperties = {
@@ -236,21 +252,35 @@ export const Subtitle: React.FC<{
 
   const innerStyle: React.CSSProperties = {
     fontFamily: uiFont,
-    fontSize: 42,
     color: "#ffffff",
     background: "rgba(0,0,0,0.55)",
     borderRadius: 10,
-    padding: "10px 20px",
-    lineHeight: 1.6,
+    padding: showSecondary ? "12px 22px" : "10px 20px",
     maxWidth: width - 80,
     whiteSpace: "pre-wrap",
   };
+
+  const secondaryStyle: React.CSSProperties = {
+    fontSize: 28,
+    fontWeight: 600,
+    lineHeight: 1.45,
+    marginTop: 4,
+    color: "rgba(255,255,255,0.92)",
+  };
+
+  const renderSecondary = () =>
+    showSecondary ? <div style={secondaryStyle}>{secondaryText}</div> : null;
 
   // wordFrames 없으면 기존 방식
   if (!currentWordFrames || currentWordFrames.length === 0) {
     return (
       <div style={outerStyle}>
-        <div style={innerStyle}>{displayText}</div>
+        <div style={innerStyle}>
+          <div style={{ fontSize: showSecondary ? 36 : 42, lineHeight: 1.45 }}>
+            {displayText}
+          </div>
+          {renderSecondary()}
+        </div>
       </div>
     );
   }
@@ -268,20 +298,23 @@ export const Subtitle: React.FC<{
   return (
     <div style={outerStyle}>
       <div style={innerStyle}>
-        {tokens.map((token, i) => {
-          if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-          const thisWordIdx = wordIdx++;
-          return (
-            <span
-              key={i}
-              style={{
-                color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
-              }}
-            >
-              {token}
-            </span>
-          );
-        })}
+        <div style={{ fontSize: showSecondary ? 36 : 42, lineHeight: 1.45 }}>
+          {tokens.map((token, i) => {
+            if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+            const thisWordIdx = wordIdx++;
+            return (
+              <span
+                key={i}
+                style={{
+                  color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
+                }}
+              >
+                {token}
+              </span>
+            );
+          })}
+        </div>
+        {renderSecondary()}
       </div>
     </div>
   );
@@ -314,7 +347,13 @@ export const TypingCodeLine: React.FC<{
   cps?: number;
   color?: string;
   lineHeight?: string | number;
-}> = ({ text, startFrame, cps = CHARS_PER_SEC, color = "#d4d4d4", lineHeight = "1.9" }) => {
+}> = ({
+  text,
+  startFrame,
+  cps = CHARS_PER_SEC,
+  color = "#d4d4d4",
+  lineHeight = "1.9",
+}) => {
   const { visibleText } = useTypingEffect(text, startFrame, cps);
   return (
     <div style={{ lineHeight, color, whiteSpace: "pre" }}>

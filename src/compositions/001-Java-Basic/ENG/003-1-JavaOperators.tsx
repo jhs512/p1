@@ -27,7 +27,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/003-2-content";
 import { CONTENT } from "./003-2-content";
 import { AUDIO_CONFIG } from "./003-3-audio.gen";
 import {
@@ -57,6 +64,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   addSubScene: {
@@ -64,6 +72,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.addSubScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.addSubScene.speechStartFrame,
     narration: CONTENT.addSubScene.narration as string[],
+    subtitleKo: KOR_CONTENT.addSubScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.addSubScene.narrationSplits,
   },
   mulDivScene: {
@@ -71,6 +80,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.mulDivScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.mulDivScene.speechStartFrame,
     narration: CONTENT.mulDivScene.narration as string[],
+    subtitleKo: KOR_CONTENT.mulDivScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.mulDivScene.narrationSplits,
   },
   remScene: {
@@ -78,6 +88,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.remScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.remScene.speechStartFrame,
     narration: CONTENT.remScene.narration as string[],
+    subtitleKo: KOR_CONTENT.remScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.remScene.narrationSplits,
   },
   summaryScene: {
@@ -85,10 +96,10 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
-
 
 // ── 공통: 코드 라인 점진적 등장 블록 ─────────────────────────
 const CodeLines: React.FC<{
@@ -291,6 +302,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -327,6 +339,7 @@ const AddSubScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.addSubScene.wordStartFrames}
@@ -367,6 +380,7 @@ const MulDivScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.mulDivScene.wordStartFrames}
@@ -442,144 +456,143 @@ const RemScene: React.FC = () => {
           </div>
 
           {/* split0: quotient 3, remainder 2 분리 설명 */}
+          <div
+            style={{
+              position: "absolute",
+              top: "58%",
+              left: "50%",
+              transform: `translate(-50%, -50%)`,
+              opacity: detailAppear,
+              display: "flex",
+              gap: 40,
+            }}
+          >
             <div
               style={{
-                position: "absolute",
-                top: "58%",
-                left: "50%",
-                transform: `translate(-50%, -50%)`,
-                opacity: detailAppear,
                 display: "flex",
-                gap: 40,
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                background: BG_CODE,
+                borderRadius: 16,
+                padding: "20px 40px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 8,
-                  background: BG_CODE,
-                  borderRadius: 16,
-                  padding: "20px 40px",
-                }}
-              >
-                <div
-                  style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}
-                >
-                  quotient
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: 64,
-                    fontWeight: 900,
-                    color: C_NUM,
-                  }}
-                >
-                  3
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: CODE.md,
-                    color: "#555",
-                  }}
-                >
-                  11 / 3
-                </div>
+              <div style={{ fontFamily: uiFont, fontSize: 24, color: "#888" }}>
+                quotient
               </div>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 8,
-                  background: `${C_REM}1a`,
-                  border: `2px solid ${C_REM}66`,
-                  borderRadius: 16,
-                  padding: "20px 40px",
+                  ...monoStyle,
+                  fontSize: 64,
+                  fontWeight: 900,
+                  color: C_NUM,
                 }}
               >
-                <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>
-                  remainder
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: 64,
-                    fontWeight: 900,
-                    color: C_REM,
-                  }}
-                >
-                  2
-                </div>
-                <div
-                  style={{
-                    ...monoStyle,
-                    fontSize: CODE.md,
-                    color: C_REM,
-                    opacity: 0.6,
-                  }}
-                >
-                  11 % 3
-                </div>
+                3
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: CODE.md,
+                  color: "#555",
+                }}
+              >
+                11 / 3
               </div>
             </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                background: `${C_REM}1a`,
+                border: `2px solid ${C_REM}66`,
+                borderRadius: 16,
+                padding: "20px 40px",
+              }}
+            >
+              <div style={{ fontFamily: uiFont, fontSize: 24, color: C_REM }}>
+                remainder
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 64,
+                  fontWeight: 900,
+                  color: C_REM,
+                }}
+              >
+                2
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: CODE.md,
+                  color: C_REM,
+                  opacity: 0.6,
+                }}
+              >
+                11 % 3
+              </div>
+            </div>
+          </div>
 
           {/* split1: 활용 예시 */}
-            <div
+          <div
+            style={{
+              position: "absolute",
+              bottom: 230,
+              left: "50%",
+              transform: "translateX(-50%)",
+              opacity: usageAppear,
+              display: "flex",
+              gap: 20,
+              ...monoStyle,
+              fontSize: CODE.xl,
+              background: BG_CODE,
+              borderRadius: 12,
+              padding: "14px 32px",
+            }}
+          >
+            <span style={{ color: TEXT }}>n</span>
+            <span style={{ color: C_OP }}>%</span>
+            <span style={{ color: C_INT }}>2</span>
+            <span style={{ color: C_OP }}>==</span>
+            <span style={{ color: C_INT }}>0</span>
+            <span
               style={{
-                position: "absolute",
-                bottom: 230,
-                left: "50%",
-                transform: "translateX(-50%)",
-                opacity: usageAppear,
-                display: "flex",
-                gap: 20,
-                ...monoStyle,
-                fontSize: CODE.xl,
-                background: BG_CODE,
-                borderRadius: 12,
-                padding: "14px 32px",
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                marginLeft: 4,
               }}
             >
-              <span style={{ color: TEXT }}>n</span>
-              <span style={{ color: C_OP }}>%</span>
-              <span style={{ color: C_INT }}>2</span>
-              <span style={{ color: C_OP }}>==</span>
-              <span style={{ color: C_INT }}>0</span>
-              <span
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 24,
-                  color: "#666",
-                  marginLeft: 4,
-                }}
-              >
-                → even
-              </span>
-              <span style={{ color: "#444", margin: "0 8px" }}>/</span>
-              <span style={{ color: TEXT }}>n</span>
-              <span style={{ color: C_OP }}>%</span>
-              <span style={{ color: C_INT }}>2</span>
-              <span style={{ color: C_OP }}>==</span>
-              <span style={{ color: C_INT }}>1</span>
-              <span
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: 24,
-                  color: "#666",
-                  marginLeft: 4,
-                }}
-              >
-                → odd
-              </span>
-            </div>
+              → even
+            </span>
+            <span style={{ color: "#444", margin: "0 8px" }}>/</span>
+            <span style={{ color: TEXT }}>n</span>
+            <span style={{ color: C_OP }}>%</span>
+            <span style={{ color: C_INT }}>2</span>
+            <span style={{ color: C_OP }}>==</span>
+            <span style={{ color: C_INT }}>1</span>
+            <span
+              style={{
+                fontFamily: uiFont,
+                fontSize: 24,
+                color: "#666",
+                marginLeft: 4,
+              }}
+            >
+              → odd
+            </span>
+          </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.remScene.wordStartFrames}
@@ -657,6 +670,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -732,6 +746,19 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.addSubScene.subtitleKo,
+  ...VIDEO_CONFIG.mulDivScene.subtitleKo,
+  ...VIDEO_CONFIG.remScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

@@ -26,9 +26,16 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
 import type { TreeNode } from "../../../utils/tree";
 import { TreeDiagram } from "../../../utils/tree";
+import { CONTENT as KOR_CONTENT } from "../KOR/009-2-content";
 import { CONTENT } from "./009-2-content";
 import { AUDIO_CONFIG } from "./009-3-audio.gen";
 import { BG } from "./colors";
@@ -53,6 +60,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
     narration: CONTENT.overview.narration as string[],
+    subtitleKo: KOR_CONTENT.overview.narration as string[],
     narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
   },
   intro: {
@@ -60,6 +68,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   forScene: {
@@ -67,6 +76,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: FOR_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.forScene.speechStartFrame,
     narration: CONTENT.forScene.narration as string[],
+    subtitleKo: KOR_CONTENT.forScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.forScene.narrationSplits,
   },
   executionScene: {
@@ -74,6 +84,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.executionScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.executionScene.speechStartFrame,
     narration: CONTENT.executionScene.narration as string[],
+    subtitleKo: KOR_CONTENT.executionScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.executionScene.narrationSplits,
   },
   summaryScene: {
@@ -81,6 +92,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -262,6 +274,7 @@ const OverviewScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.overview.wordStartFrames}
@@ -333,7 +346,9 @@ const IntroScene: React.FC = () => {
             >
               <span style={{ color: C_FOR, fontWeight: 900 }}>for</span>
               <span style={{ color: "#d4d4d4" }}> (</span>
-              <span style={{ color: C_INIT, fontWeight: 700 }}>initializer</span>
+              <span style={{ color: C_INIT, fontWeight: 700 }}>
+                initializer
+              </span>
               <span style={{ color: "#d4d4d4" }}>; </span>
               <span style={{ color: C_COND, fontWeight: 700 }}>condition</span>
               <span style={{ color: "#d4d4d4" }}>; </span>
@@ -404,6 +419,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -555,8 +571,16 @@ const ForScene: React.FC = () => {
               >
                 {(
                   [
-                    { label: "1. initializer", color: C_INIT, appear: initAppear },
-                    { label: "2. condition", color: C_COND, appear: condAppear },
+                    {
+                      label: "1. initializer",
+                      color: C_INIT,
+                      appear: initAppear,
+                    },
+                    {
+                      label: "2. condition",
+                      color: C_COND,
+                      appear: condAppear,
+                    },
                     { label: "3. body", color: C_FOR, appear: bodyAppear },
                     { label: "4. update", color: C_INC, appear: incAppear },
                   ] as const
@@ -629,6 +653,7 @@ const ForScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.forScene.wordStartFrames}
@@ -984,6 +1009,7 @@ const ExecutionScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.executionScene.wordStartFrames}
@@ -1130,6 +1156,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -1205,6 +1232,19 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.overview.subtitleKo,
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.forScene.subtitleKo,
+  ...VIDEO_CONFIG.executionScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

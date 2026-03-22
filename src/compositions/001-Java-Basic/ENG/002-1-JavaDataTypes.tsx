@@ -30,7 +30,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/002-2-content";
 import { CONTENT } from "./002-2-content";
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
 import {
@@ -65,6 +72,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   valueVsVar: {
@@ -72,6 +80,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.valueVsVar.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.valueVsVar.speechStartFrame,
     narration: CONTENT.valueVsVar.narration as string[],
+    subtitleKo: KOR_CONTENT.valueVsVar.narration as string[],
     narrationSplits: AUDIO_CONFIG.valueVsVar.narrationSplits,
   },
   intScene: {
@@ -79,6 +88,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intScene.speechStartFrame,
     narration: CONTENT.intScene.narration as string[],
+    subtitleKo: KOR_CONTENT.intScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.intScene.narrationSplits,
   },
   doubleScene: {
@@ -86,6 +96,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.doubleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.doubleScene.speechStartFrame,
     narration: CONTENT.doubleScene.narration as string[],
+    subtitleKo: KOR_CONTENT.doubleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.doubleScene.narrationSplits,
   },
   stringScene: {
@@ -93,6 +104,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.stringScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.stringScene.speechStartFrame,
     narration: CONTENT.stringScene.narration as string[],
+    subtitleKo: KOR_CONTENT.stringScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.stringScene.narrationSplits,
   },
   booleanScene: {
@@ -100,6 +112,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.booleanScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.booleanScene.speechStartFrame,
     narration: CONTENT.booleanScene.narration as string[],
+    subtitleKo: KOR_CONTENT.booleanScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.booleanScene.narrationSplits,
   },
   summaryScene: {
@@ -107,6 +120,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -117,7 +131,6 @@ const StaticLine: React.FC<{ text: string }> = ({ text }) => (
     <JavaLine text={text} />
   </div>
 );
-
 
 const CodeBox: React.FC<{
   lines: { text: string; isNew: boolean }[];
@@ -557,6 +570,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -594,7 +608,8 @@ const ValueVsVarScene: React.FC = () => {
   // "int형 값" → 문장 2 첫 단어, "int형 변수" → 문장 3 첫 단어
   const valueWordFrame =
     AUDIO_CONFIG.valueVsVar.wordStartFrames[1]?.[1] ?? split0;
-  const varWordFrame = AUDIO_CONFIG.valueVsVar.wordStartFrames[2]?.[1] ?? split1;
+  const varWordFrame =
+    AUDIO_CONFIG.valueVsVar.wordStartFrames[2]?.[1] ?? split1;
 
   const valueAppear = spring({
     frame: frame - valueWordFrame,
@@ -832,6 +847,7 @@ const ValueVsVarScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={valueVsVar.narration}
+        secondarySentences={valueVsVar.subtitleKo}
         splits={splits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.valueVsVar.wordStartFrames}
@@ -872,6 +888,7 @@ const TypeScene: React.FC<{
     durationInFrames: number;
     speechStartFrame: number;
     narration: string[];
+    subtitleKo: string[];
     narrationSplits: readonly number[];
   };
 }> = ({ sceneKey, config }) => {
@@ -910,6 +927,7 @@ const TypeScene: React.FC<{
       </AbsoluteFill>
       <Subtitle
         sentences={config.narration}
+        secondarySentences={config.subtitleKo}
         splits={config.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG[sceneKey].wordStartFrames}
@@ -949,6 +967,7 @@ const BooleanScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={booleanScene.narration}
+        secondarySentences={booleanScene.subtitleKo}
         splits={booleanScene.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.booleanScene.wordStartFrames}
@@ -1002,6 +1021,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={summaryScene.narration}
+        secondarySentences={summaryScene.subtitleKo}
         splits={summaryScene.narrationSplits}
         speechStart={summaryScene.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -1095,6 +1115,21 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.valueVsVar.subtitleKo,
+  ...VIDEO_CONFIG.intScene.subtitleKo,
+  ...VIDEO_CONFIG.doubleScene.subtitleKo,
+  ...VIDEO_CONFIG.stringScene.subtitleKo,
+  ...VIDEO_CONFIG.booleanScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

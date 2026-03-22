@@ -29,7 +29,14 @@ import {
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/010-2-content";
 import { CONTENT } from "./010-2-content";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
@@ -85,6 +92,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: PAIN_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
     narration: CONTENT.painScene.narration as string[],
+    subtitleKo: KOR_CONTENT.painScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
   },
   conceptScene: {
@@ -92,6 +100,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.conceptScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
     narration: CONTENT.conceptScene.narration as string[],
+    subtitleKo: KOR_CONTENT.conceptScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
   },
   declarationScene: {
@@ -99,6 +108,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.declarationScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.declarationScene.speechStartFrame,
     narration: CONTENT.declarationScene.narration as string[],
+    subtitleKo: KOR_CONTENT.declarationScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.declarationScene.narrationSplits,
   },
   callScene: {
@@ -106,6 +116,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.callScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
     narration: CONTENT.callScene.narration as string[],
+    subtitleKo: KOR_CONTENT.callScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
   },
   summaryScene: {
@@ -113,6 +124,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
   comparisonScene: {
@@ -120,6 +132,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.comparisonScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
     narration: CONTENT.comparisonScene.narration as string[],
+    subtitleKo: KOR_CONTENT.comparisonScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
   },
   realExampleScene: {
@@ -127,6 +140,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.realExampleScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
     narration: CONTENT.realExampleScene.narration as string[],
+    subtitleKo: KOR_CONTENT.realExampleScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
   },
   outroScene: {
@@ -134,10 +148,10 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.outroScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
     narration: CONTENT.outroScene.narration as string[],
+    subtitleKo: KOR_CONTENT.outroScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
   },
 } as const;
-
 
 // ── 씬: ThumbnailScene — 006 스타일 통일 ─────────────────────
 // 색상 통일: "Java" = C_FUNC(노란색), "Functions" = 흰색, JAVA 라벨 = 흰색(저채도)
@@ -385,6 +399,7 @@ const PainScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.painScene.wordStartFrames}
@@ -459,13 +474,15 @@ const ConceptScene: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              A <span style={{ color: C_FUNC, fontWeight: 700 }}>named</span> block of code
+              A <span style={{ color: C_FUNC, fontWeight: 700 }}>named</span>{" "}
+              block of code
             </div>
           </div>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.conceptScene.wordStartFrames}
@@ -594,6 +611,7 @@ const DeclarationScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.declarationScene.wordStartFrames}
@@ -651,6 +669,7 @@ const CallScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
@@ -781,6 +800,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -1000,6 +1020,7 @@ const ComparisonScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
@@ -1246,7 +1267,10 @@ const RealExampleScene: React.FC = () => {
                 lines={REAL_PAIN_CARD1}
                 label="cart-related source code"
               />
-              <PainCard lines={REAL_PAIN_CARD2} label="payment-related source code" />
+              <PainCard
+                lines={REAL_PAIN_CARD2}
+                label="payment-related source code"
+              />
             </div>
             {/* 화살표 ▼ */}
             <div
@@ -1339,6 +1363,7 @@ const RealExampleScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.realExampleScene.wordStartFrames}
@@ -1419,6 +1444,7 @@ const OutroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.outroScene.wordStartFrames}
@@ -1446,6 +1472,91 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.painScene.narration,
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.conceptScene.narration,
+    speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.conceptScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.conceptScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.declarationScene.narration,
+    speechStartFrame: AUDIO_CONFIG.declarationScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.declarationScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.declarationScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.declarationScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.summaryScene.narration,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.comparisonScene.narration,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.comparisonScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[7],
+    narration: VIDEO_CONFIG.realExampleScene.narration,
+    speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.realExampleScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.realExampleScene.durationInFrames,
+  },
+  {
+    offset: fromValues[8],
+    narration: VIDEO_CONFIG.outroScene.narration,
+    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.outroScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.outroScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.painScene.subtitleKo,
+  ...VIDEO_CONFIG.conceptScene.subtitleKo,
+  ...VIDEO_CONFIG.declarationScene.subtitleKo,
+  ...VIDEO_CONFIG.callScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+  ...VIDEO_CONFIG.comparisonScene.subtitleKo,
+  ...VIDEO_CONFIG.realExampleScene.subtitleKo,
+  ...VIDEO_CONFIG.outroScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

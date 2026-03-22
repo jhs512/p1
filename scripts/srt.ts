@@ -5,14 +5,22 @@
  *   시리즈 전체:   pnpm srt 001
  *   전체:          pnpm srt
  */
-import { mkdirSync, readdirSync, statSync, writeFileSync } from "fs";
+import {
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from "fs";
 import path from "path";
 
 const SRC_DIR = "src/compositions";
 const arg = process.argv[2] ?? "";
+type Target = { seriesDir: string; langDir: string | null; episodeNum: string };
 
 // ── 대상 목록 수집 (render.ts 동일 로직) ─────────────────────
-function collectTargets(): { seriesDir: string; episodeNum: string }[] {
+function collectTargets(): Target[] {
   const allSeries = readdirSync(SRC_DIR)
     .filter((d) => statSync(path.join(SRC_DIR, d)).isDirectory())
     .sort();
@@ -25,6 +33,10 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
     const parts = arg.split("/");
     const episodeNum = parts[parts.length - 1];
     const seriesArg = parts[0];
+    const langDir =
+      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
+        ? parts[parts.length - 2]
+        : null;
     const seriesDir =
       allSeries.find((d) => d === seriesArg) ??
       allSeries.find((d) => d.startsWith(seriesArg));
@@ -32,7 +44,7 @@ function collectTargets(): { seriesDir: string; episodeNum: string }[] {
       console.error(`No series folder matching "${seriesArg}" found.`);
       process.exit(1);
     }
-    return [{ seriesDir, episodeNum }];
+    return [{ seriesDir, langDir, episodeNum }];
   }
 
   const matched = allSeries.filter((d) => d.startsWith(arg));
@@ -57,12 +69,20 @@ function episodesOf(seriesDir: string) {
   return scanDirs
     .flatMap((dir) =>
       readdirSync(dir)
-        .filter((f) => /^\d+-4-sub\.gen\.ts$/.test(f))
-        .map((f) => f.match(/^(\d+)-4-/)?.[1])
+        .filter((f) => /^\d+-1-.+\.tsx$/.test(f))
+        .map((f) => f.match(/^(\d+)-1-/)?.[1])
         .filter((ep): ep is string => !!ep)
-        .map((episodeNum) => ({ seriesDir, episodeNum })),
+        .map((episodeNum) => ({
+          seriesDir,
+          langDir: dir === seriesPath ? null : path.basename(dir),
+          episodeNum,
+        })),
     )
-    .sort((a, b) => a.episodeNum.localeCompare(b.episodeNum));
+    .sort(
+      (a, b) =>
+        a.episodeNum.localeCompare(b.episodeNum) ||
+        (a.langDir ?? "").localeCompare(b.langDir ?? ""),
+    );
 }
 
 // ── 프레임 → SRT 타임스탬프 변환 ────────────────────────────
@@ -92,6 +112,32 @@ function buildSRT(
   );
 }
 
+function writeTrackFile(
+  outputDir: string,
+  filename: string,
+  entries: Array<{ startFrame: number; endFrame: number; text: string }>,
+  fps: number,
+): void {
+  const outputFile = path.join(outputDir, filename);
+  writeFileSync(outputFile, buildSRT(entries, fps), "utf-8");
+  console.log(`  ${filename} (${entries.length} cues)`);
+}
+
+function prepareImportableModule(sourcePath: string): string {
+  const source = readFileSync(sourcePath, "utf-8");
+  const patched = source
+    .replace(
+      /import\s+\{\s*Audio\s*\}\s+from\s+"@remotion\/media";/,
+      "const Audio = () => null;",
+    )
+    .replace(/from\s+"(\.\.\/\.\.\/\.\.\/utils\/scene)";/g, 'from "$1.srt";')
+    .replace(/from\s+"(\.\.\/\.\.\/\.\.\/utils\/code)";/g, 'from "$1.srt";')
+    .replace(/from\s+"(\.\.\/\.\.\/\.\.\/utils\/tree)";/g, 'from "$1.srt";');
+  const tempPath = sourcePath.replace(/\.tsx$/, ".srt-import.tmp.tsx");
+  writeFileSync(tempPath, patched, "utf-8");
+  return tempPath;
+}
+
 // ── 메인 ─────────────────────────────────────────────────────
 (async () => {
   const targets = collectTargets();
@@ -100,36 +146,91 @@ function buildSRT(
     process.exit(1);
   }
 
-  for (const { seriesDir, episodeNum } of targets) {
-    // {id}-srt.ts 파일 경로 탐색 — 언어 서브폴더(KOR 등) 안도 확인
+  for (const { seriesDir, langDir, episodeNum } of targets) {
+    // 메인 컴포지션 파일 경로 탐색 — 언어 서브폴더(KOR 등) 안도 확인
     const seriesPath = path.join(SRC_DIR, seriesDir);
-    const srtFile = `${episodeNum}-4-sub.gen.ts`;
+    const compFilePattern = new RegExp(`^${episodeNum}-1-.+\\.tsx$`);
 
     const seriesEntries = readdirSync(seriesPath, { withFileTypes: true });
     const langDirs = seriesEntries
       .filter((e) => e.isDirectory() && /^[A-Z]{2,3}$/.test(e.name))
       .map((e) => path.join(seriesPath, e.name));
     const searchDirs = langDirs.length > 0 ? langDirs : [seriesPath];
+    const effectiveSearchDirs = langDir
+      ? searchDirs.filter((dir) => path.basename(dir) === langDir)
+      : searchDirs;
 
-    const foundDir = searchDirs.find((d) => readdirSync(d).includes(srtFile));
+    const foundDir = effectiveSearchDirs.find((d) =>
+      readdirSync(d).some((file) => compFilePattern.test(file)),
+    );
     if (!foundDir) {
-      console.error(`  No srt file for episode ${episodeNum} in ${seriesDir}`);
+      console.error(
+        `  No composition file for episode ${episodeNum} in ${seriesDir}`,
+      );
       continue;
     }
-    const srtFilePath = path.join(foundDir, srtFile);
+    const srtFilename = readdirSync(foundDir).find((file) =>
+      compFilePattern.test(file),
+    );
+    if (!srtFilename) {
+      console.error(
+        `  No composition file for episode ${episodeNum} in ${seriesDir}`,
+      );
+      continue;
+    }
+    const srtFilePath = path.join(foundDir, srtFilename);
     const compFile = path.resolve(srtFilePath);
+    const importableFile = prepareImportableModule(compFile);
 
     // 동적 import
-    let mod: { SRT_DATA?: unknown; fps?: number };
+    let mod: { SRT_DATA?: unknown; SRT_TRACKS?: unknown; fps?: number };
     try {
-      mod = await import(compFile);
+      mod = await import(importableFile);
     } catch (err) {
       console.error(`  Failed to import ${compFile}:`, (err as Error).message);
       continue;
+    } finally {
+      unlinkSync(importableFile);
     }
 
     const srtData = mod.SRT_DATA;
+    const srtTracks = mod.SRT_TRACKS;
     const fps = mod.fps ?? 30;
+
+    const outputDir = langDir
+      ? path.join("out", seriesDir, langDir)
+      : path.join("out", seriesDir);
+    mkdirSync(outputDir, { recursive: true });
+
+    if (
+      srtTracks &&
+      typeof srtTracks === "object" &&
+      !Array.isArray(srtTracks) &&
+      Object.values(srtTracks).every((track) => Array.isArray(track))
+    ) {
+      const tracks = Object.entries(
+        srtTracks as Record<
+          string,
+          Array<{ startFrame: number; endFrame: number; text: string }>
+        >,
+      );
+
+      if (tracks.length === 0) {
+        console.warn(`  ${srtFilePath}: SRT_TRACKS is empty — skipping`);
+        continue;
+      }
+
+      console.log(`  ${srtFilename} -> ${outputDir}`);
+      for (const [language, entries] of tracks) {
+        writeTrackFile(
+          outputDir,
+          `${episodeNum}.${language}.srt`,
+          entries,
+          fps,
+        );
+      }
+      continue;
+    }
 
     if (!Array.isArray(srtData)) {
       console.warn(
@@ -138,18 +239,12 @@ function buildSRT(
       continue;
     }
 
-    const srtContent = buildSRT(
+    console.log(`  ${srtFilename} -> ${outputDir}`);
+    writeTrackFile(
+      outputDir,
+      `${episodeNum}.srt`,
       srtData as Array<{ startFrame: number; endFrame: number; text: string }>,
       fps,
-    );
-
-    const outputDir = path.join("out", seriesDir);
-    mkdirSync(outputDir, { recursive: true });
-    const outputFile = path.join(outputDir, `${episodeNum}.srt`);
-    writeFileSync(outputFile, srtContent, "utf-8");
-
-    console.log(
-      `  ${srtFile} -> ${outputFile} (${(srtData as unknown[]).length} cues)`,
     );
   }
 

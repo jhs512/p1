@@ -26,8 +26,15 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
 import { TreeDiagram, TreeNode } from "../../../utils/tree";
+import { CONTENT as KOR_CONTENT } from "../KOR/006-2-content";
 import { CONTENT } from "./006-2-content";
 import { AUDIO_CONFIG } from "./006-3-audio.gen";
 import { BG } from "./colors";
@@ -50,6 +57,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
     narration: CONTENT.overview.narration as string[],
+    subtitleKo: KOR_CONTENT.overview.narration as string[],
     narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
   },
   intro: {
@@ -57,6 +65,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   ifScene: {
@@ -64,6 +73,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.ifScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.ifScene.speechStartFrame,
     narration: CONTENT.ifScene.narration as string[],
+    subtitleKo: KOR_CONTENT.ifScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.ifScene.narrationSplits,
   },
   ifElseScene: {
@@ -71,6 +81,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.ifElseScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.ifElseScene.speechStartFrame,
     narration: CONTENT.ifElseScene.narration as string[],
+    subtitleKo: KOR_CONTENT.ifElseScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.ifElseScene.narrationSplits,
   },
   summaryScene: {
@@ -78,6 +89,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -306,6 +318,7 @@ const OverviewScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.overview.wordStartFrames}
@@ -532,6 +545,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -577,6 +591,7 @@ const IfScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.ifScene.wordStartFrames}
@@ -625,6 +640,7 @@ const IfElseScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.ifElseScene.wordStartFrames}
@@ -668,10 +684,8 @@ const SummaryScene: React.FC = () => {
             {SUMMARY_ROWS.map((row, i) => {
               const triggerFrame =
                 i === 0
-                  ? (cfg.speechStartFrame ??
-                    cfg.speechStartFrame)
-                  : (cfg.narrationSplits[0] ??
-                    cfg.speechStartFrame);
+                  ? (cfg.speechStartFrame ?? cfg.speechStartFrame)
+                  : (cfg.narrationSplits[0] ?? cfg.speechStartFrame);
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,
@@ -787,6 +801,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -862,6 +877,19 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.overview.subtitleKo,
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.ifScene.subtitleKo,
+  ...VIDEO_CONFIG.ifElseScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

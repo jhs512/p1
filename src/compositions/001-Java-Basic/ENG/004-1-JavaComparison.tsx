@@ -27,7 +27,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/004-2-content";
 import { CONTENT } from "./004-2-content";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import { BG, C_NUMBER, C_PAIN, C_PURPLE, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -54,6 +61,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   compareScene: {
@@ -61,6 +69,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.compareScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.compareScene.speechStartFrame,
     narration: CONTENT.compareScene.narration as string[],
+    subtitleKo: KOR_CONTENT.compareScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.compareScene.narrationSplits,
   },
   summaryScene: {
@@ -68,6 +77,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -330,7 +340,8 @@ const IntroScene: React.FC = () => {
                       [0, 5],
                       [
                         intro.speechStartFrame,
-                        (intro.narrationSplits[0] ?? intro.durationInFrames) - 12,
+                        (intro.narrationSplits[0] ?? intro.durationInFrames) -
+                          12,
                       ],
                     ),
                   );
@@ -381,6 +392,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -453,6 +465,7 @@ const CompareScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.compareScene.wordStartFrames}
@@ -568,6 +581,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -625,6 +639,17 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.compareScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

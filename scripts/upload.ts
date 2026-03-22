@@ -135,24 +135,85 @@ async function uploadThumbnail(
 }
 
 /** 자막 업로드 */
+function captionDisplayName(language: string): string {
+  switch (language) {
+    case "ko":
+    case "ko-KR":
+      return "한국어";
+    case "en":
+      return "English";
+    case "en-US":
+      return "English (US)";
+    default:
+      return language;
+  }
+}
+
 async function uploadCaption(
   yt: youtube_v3.Youtube,
   videoId: string,
   srtPath: string,
   language: string,
 ): Promise<void> {
+  const existing = await yt.captions.list({
+    part: ["snippet"],
+    videoId,
+  });
+
+  for (const item of existing.data.items ?? []) {
+    if (item.id && item.snippet?.language === language) {
+      await yt.captions.delete({ id: item.id });
+    }
+  }
+
   await yt.captions.insert({
     part: ["snippet"],
     requestBody: {
       snippet: {
         videoId,
         language,
-        name: language === "ko" ? "한국어" : language,
+        name: captionDisplayName(language),
       },
     },
     media: { body: createReadStream(srtPath) },
   });
   console.log(`   📝  자막 업로드 완료 (${language})`);
+}
+
+function collectCaptionTracks(
+  seriesDir: string,
+  langDir: string,
+  episode: string,
+  defaultLanguage: string,
+): Array<{ language: string; path: string }> {
+  const outputDir = path.join(OUT_DIR, seriesDir, langDir);
+  if (!existsSync(outputDir)) return [];
+
+  const localizedTracks = readdirSync(outputDir)
+    .filter(
+      (file) =>
+        file.startsWith(`${episode}.`) &&
+        file.endsWith(".srt") &&
+        file !== `${episode}.srt`,
+    )
+    .map((file) => ({
+      language: file.slice(episode.length + 1, -4),
+      path: path.join(outputDir, file),
+    }))
+    .sort((a, b) => {
+      if (a.language === defaultLanguage) return -1;
+      if (b.language === defaultLanguage) return 1;
+      return a.language.localeCompare(b.language);
+    });
+
+  if (localizedTracks.length > 0) {
+    return localizedTracks;
+  }
+
+  const fallbackPath = path.join(outputDir, `${episode}.srt`);
+  return existsSync(fallbackPath)
+    ? [{ language: defaultLanguage, path: fallbackPath }]
+    : [];
 }
 
 /** 기존 영상 메타데이터 업데이트 */
@@ -297,8 +358,8 @@ async function addToPlaylist(
     const existingVideoId = videoIds[ep];
     const isUpdate = !!existingVideoId;
 
-    const mp4Path = path.join(OUT_DIR, seriesDir, `${ep}.mp4`);
-    const srtPath = path.join(OUT_DIR, seriesDir, `${ep}.srt`);
+    const outputDir = path.join(OUT_DIR, seriesDir, langDir);
+    const mp4Path = path.join(outputDir, `${ep}.mp4`);
 
     // 신규 업로드인데 mp4 없으면 스킵
     if (!isUpdate && !existsSync(mp4Path)) {
@@ -320,6 +381,12 @@ async function addToPlaylist(
           (ep_.privacyStatus as PrivacyStatus) ?? defaults.privacyStatus,
         language: defaults.language,
       };
+      const captionTracks = collectCaptionTracks(
+        seriesDir,
+        langDir,
+        ep,
+        meta.language,
+      );
 
       // 썸네일 렌더링
       if (!bundled) {
@@ -333,9 +400,8 @@ async function addToPlaylist(
       const compositionId = langDir
         ? [dirPrefix, langDir, ep].join("-")
         : [dirPrefix, ep].join("-");
-      const thumbDir = path.join(OUT_DIR, seriesDir);
-      const thumbPath = path.join(thumbDir, `${ep}-thumb.jpeg`);
-      mkdirSync(thumbDir, { recursive: true });
+      const thumbPath = path.join(outputDir, `${ep}-thumb.jpeg`);
+      mkdirSync(outputDir, { recursive: true });
 
       const composition = await selectComposition({
         serveUrl: bundled,
@@ -374,8 +440,8 @@ async function addToPlaylist(
       }
 
       // 자막 업로드 (SRT 파일 있을 때만)
-      if (existsSync(srtPath)) {
-        await uploadCaption(yt, videoId, srtPath, meta.language);
+      for (const track of captionTracks) {
+        await uploadCaption(yt, videoId, track.path, track.language);
       }
 
       // videoId 저장

@@ -27,7 +27,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/013-2-content";
 import { CONTENT } from "./013-2-content";
 import { AUDIO_CONFIG } from "./013-3-audio.gen";
 import {
@@ -81,7 +88,15 @@ const GUESS_WAIT = 300; // 5초 대기
 
 // Reveal 씬: AUDIO_CONFIG에 아직 키가 없을 수 있으므로 안전하게 접근
 type RevealKey = "printRevealScene" | "sumRevealScene" | "sumEvenRevealScene";
-const _ac = AUDIO_CONFIG as unknown as Record<string, { durationInFrames: number; speechStartFrame: number; narrationSplits: number[]; wordStartFrames: number[][] }>;
+const _ac = AUDIO_CONFIG as unknown as Record<
+  string,
+  {
+    durationInFrames: number;
+    speechStartFrame: number;
+    narrationSplits: number[];
+    wordStartFrames: number[][];
+  }
+>;
 function revealDuration(sceneKey: RevealKey) {
   return GUESS_WAIT + (_ac[sceneKey]?.durationInFrames ?? 60);
 }
@@ -97,6 +112,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.printScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.printScene.speechStartFrame,
     narration: CONTENT.printScene.narration as string[],
+    subtitleKo: KOR_CONTENT.printScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.printScene.narrationSplits,
   },
   printRevealScene: {
@@ -104,6 +120,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: revealDuration("printRevealScene"),
     speechStartFrame: revealSpeechStart("printRevealScene"),
     narration: CONTENT.printRevealScene.narration as string[],
+    subtitleKo: KOR_CONTENT.printRevealScene.narration as string[],
     narrationSplits: [] as number[],
   },
   sumScene: {
@@ -111,6 +128,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.sumScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.sumScene.speechStartFrame,
     narration: CONTENT.sumScene.narration as string[],
+    subtitleKo: KOR_CONTENT.sumScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumScene.narrationSplits,
   },
   sumRevealScene: {
@@ -118,6 +136,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: revealDuration("sumRevealScene"),
     speechStartFrame: revealSpeechStart("sumRevealScene"),
     narration: CONTENT.sumRevealScene.narration as string[],
+    subtitleKo: KOR_CONTENT.sumRevealScene.narration as string[],
     narrationSplits: [] as number[],
   },
   sumEvenScene: {
@@ -125,6 +144,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.sumEvenScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.sumEvenScene.speechStartFrame,
     narration: CONTENT.sumEvenScene.narration as string[],
+    subtitleKo: KOR_CONTENT.sumEvenScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.sumEvenScene.narrationSplits,
   },
   sumEvenRevealScene: {
@@ -132,6 +152,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: revealDuration("sumEvenRevealScene"),
     speechStartFrame: revealSpeechStart("sumEvenRevealScene"),
     narration: CONTENT.sumEvenRevealScene.narration as string[],
+    subtitleKo: KOR_CONTENT.sumEvenRevealScene.narration as string[],
     narrationSplits: [] as number[],
   },
   comparisonScene: {
@@ -139,6 +160,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.comparisonScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
     narration: CONTENT.comparisonScene.narration as string[],
+    subtitleKo: KOR_CONTENT.comparisonScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
   },
   callScene: {
@@ -146,6 +168,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.callScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
     narration: CONTENT.callScene.narration as string[],
+    subtitleKo: KOR_CONTENT.callScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
   },
   summaryScene: {
@@ -153,6 +176,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 } as const;
@@ -347,6 +371,7 @@ const PrintScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.printScene.wordStartFrames}
@@ -470,9 +495,12 @@ const PrintRevealScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.printRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.printRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -559,6 +587,7 @@ const SumScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.sumScene.wordStartFrames}
@@ -660,9 +689,12 @@ const SumRevealScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.sumRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -749,6 +781,7 @@ const SumEvenScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.sumEvenScene.wordStartFrames}
@@ -850,9 +883,12 @@ const SumEvenRevealScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
-        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames?.map((s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT))}
+        wordFrames={_ac.sumEvenRevealScene?.wordStartFrames?.map(
+          (s: readonly number[]) => s.map((f: number) => f + GUESS_WAIT),
+        )}
       />
     </>
   );
@@ -973,6 +1009,7 @@ const ComparisonScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.comparisonScene.wordStartFrames}
@@ -1189,6 +1226,7 @@ const CallScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.callScene.wordStartFrames}
@@ -1298,6 +1336,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -1326,6 +1365,100 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.printScene.narration,
+    speechStartFrame: AUDIO_CONFIG.printScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.printScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.printScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.printScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.printRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.printRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.printRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.printRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.printRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.sumScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.sumRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.sumEvenScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumEvenScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumEvenScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumEvenScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumEvenScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.sumEvenRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumEvenRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumEvenRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumEvenRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumEvenRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[7],
+    narration: VIDEO_CONFIG.comparisonScene.narration,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.comparisonScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[8],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[9],
+    narration: VIDEO_CONFIG.summaryScene.narration,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.printScene.subtitleKo,
+  ...VIDEO_CONFIG.printRevealScene.subtitleKo,
+  ...VIDEO_CONFIG.sumScene.subtitleKo,
+  ...VIDEO_CONFIG.sumRevealScene.subtitleKo,
+  ...VIDEO_CONFIG.sumEvenScene.subtitleKo,
+  ...VIDEO_CONFIG.sumEvenRevealScene.subtitleKo,
+  ...VIDEO_CONFIG.comparisonScene.subtitleKo,
+  ...VIDEO_CONFIG.callScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

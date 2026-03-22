@@ -10,6 +10,8 @@ export type SrtEntry = {
   text: string;
 };
 
+export type SrtTracks = Record<string, SrtEntry[]>;
+
 export type SrtSceneConfig = {
   offset: number;
   narration: string[];
@@ -18,6 +20,10 @@ export type SrtSceneConfig = {
   sentenceEndFrames: readonly number[];
   sceneDuration: number;
 };
+
+function toSrtText(text: string): string {
+  return toDisplayText(text).replace(/\n/g, " ");
+}
 
 /**
  * 씬 하나의 나레이션을 SRT 엔트리로 변환하여 entries 배열에 추가한다.
@@ -40,7 +46,7 @@ export function addSrtScene(
       entries.push({
         startFrame: offset + s,
         endFrame: offset + e,
-        text: toDisplayText(text).replace(/\n/g, " "),
+        text: toSrtText(text),
       });
     }
   });
@@ -60,6 +66,22 @@ export function buildSrtData(scenes: readonly SrtSceneConfig[]): SrtEntry[] {
     );
   });
   return entries;
+}
+
+export function localizeSrtData(
+  entries: readonly SrtEntry[],
+  texts: readonly string[],
+): SrtEntry[] {
+  if (entries.length !== texts.length) {
+    throw new Error(
+      `SRT cue count mismatch: entries=${entries.length}, texts=${texts.length}`,
+    );
+  }
+
+  return entries.map((entry, index) => ({
+    ...entry,
+    text: toSrtText(texts[index]),
+  }));
 }
 
 /**

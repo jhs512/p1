@@ -26,7 +26,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as KOR_CONTENT } from "../KOR/005-2-content";
 import { CONTENT } from "./005-2-content";
 import { AUDIO_CONFIG } from "./005-3-audio.gen";
 import { BG } from "./colors";
@@ -46,6 +53,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   andScene: {
@@ -53,6 +61,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.andScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.andScene.speechStartFrame,
     narration: CONTENT.andScene.narration as string[],
+    subtitleKo: KOR_CONTENT.andScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.andScene.narrationSplits,
   },
   orScene: {
@@ -60,6 +69,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.orScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.orScene.speechStartFrame,
     narration: CONTENT.orScene.narration as string[],
+    subtitleKo: KOR_CONTENT.orScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.orScene.narrationSplits,
   },
   notScene: {
@@ -67,6 +77,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.notScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.notScene.speechStartFrame,
     narration: CONTENT.notScene.narration as string[],
+    subtitleKo: KOR_CONTENT.notScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.notScene.narrationSplits,
   },
   summaryScene: {
@@ -74,6 +85,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -437,6 +449,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={intro.narration}
+        secondarySentences={intro.subtitleKo}
         splits={intro.narrationSplits}
         speechStart={intro.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -557,6 +570,7 @@ const AndScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.andScene.wordStartFrames}
@@ -677,6 +691,7 @@ const OrScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.orScene.wordStartFrames}
@@ -745,6 +760,7 @@ const NotScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.notScene.wordStartFrames}
@@ -904,6 +920,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -979,6 +996,19 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.andScene.subtitleKo,
+  ...VIDEO_CONFIG.orScene.subtitleKo,
+  ...VIDEO_CONFIG.notScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

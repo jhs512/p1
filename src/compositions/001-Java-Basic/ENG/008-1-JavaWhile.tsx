@@ -29,8 +29,15 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
 import { TreeDiagram, TreeNode } from "../../../utils/tree";
+import { CONTENT as KOR_CONTENT } from "../KOR/008-2-content";
 import { CONTENT } from "./008-2-content";
 import { AUDIO_CONFIG } from "./008-3-audio.gen";
 import { BG } from "./colors";
@@ -68,6 +75,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.overview.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.overview.speechStartFrame,
     narration: CONTENT.overview.narration as string[],
+    subtitleKo: KOR_CONTENT.overview.narration as string[],
     narrationSplits: AUDIO_CONFIG.overview.narrationSplits,
   },
   intro: {
@@ -75,6 +83,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.intro.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.intro.speechStartFrame,
     narration: CONTENT.intro.narration as string[],
+    subtitleKo: KOR_CONTENT.intro.narration as string[],
     narrationSplits: AUDIO_CONFIG.intro.narrationSplits,
   },
   whileScene: {
@@ -82,6 +91,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: WHILE_SCENE_DURATION,
     speechStartFrame: AUDIO_CONFIG.whileScene.speechStartFrame,
     narration: CONTENT.whileScene.narration as string[],
+    subtitleKo: KOR_CONTENT.whileScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.whileScene.narrationSplits,
   },
   executionScene: {
@@ -89,6 +99,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.executionScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.executionScene.speechStartFrame,
     narration: CONTENT.executionScene.narration as string[],
+    subtitleKo: KOR_CONTENT.executionScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.executionScene.narrationSplits,
   },
   infiniteScene: {
@@ -96,6 +107,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.infiniteScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.infiniteScene.speechStartFrame,
     narration: CONTENT.infiniteScene.narration as string[],
+    subtitleKo: KOR_CONTENT.infiniteScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.infiniteScene.narrationSplits,
   },
   summaryScene: {
@@ -103,6 +115,7 @@ export const VIDEO_CONFIG = {
     durationInFrames: AUDIO_CONFIG.summaryScene.durationInFrames,
     speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
     narration: CONTENT.summaryScene.narration as string[],
+    subtitleKo: KOR_CONTENT.summaryScene.narration as string[],
     narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
   },
 };
@@ -275,6 +288,7 @@ const OverviewScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.overview.wordStartFrames}
@@ -333,7 +347,9 @@ const IntroScene: React.FC = () => {
               <div style={{ fontSize: 42 }}>
                 <span style={{ color: C_WHILE, fontWeight: 900 }}>while</span>
                 <span style={{ color: "#d4d4d4" }}> (</span>
-                <span style={{ color: C_COND, fontWeight: 900 }}>condition</span>
+                <span style={{ color: C_COND, fontWeight: 900 }}>
+                  condition
+                </span>
                 <span style={{ color: "#d4d4d4" }}>) {"{"}</span>
               </div>
               <div
@@ -353,6 +369,7 @@ const IntroScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.intro.wordStartFrames}
@@ -435,8 +452,7 @@ const WhileScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const incrementExplainAppear = spring({
-    frame:
-      frame - split0,
+    frame: frame - split0,
     fps,
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 40,
@@ -475,10 +491,7 @@ const WhileScene: React.FC = () => {
               >
                 {CODE_LINES.map((line, lineIdx) => {
                   const showChars = lineVisibility[lineIdx];
-                  const isCountPlusPlus =
-                    lineIdx === 3 &&
-                    frame >=
-                      split0;
+                  const isCountPlusPlus = lineIdx === 3 && frame >= split0;
                   let rem = showChars;
                   return (
                     <div key={lineIdx} style={{ lineHeight: 1.95 }}>
@@ -540,8 +553,10 @@ const WhileScene: React.FC = () => {
                       lineHeight: 1.6,
                     }}
                   >
-                    <JavaLine text="count++" /> or <JavaLine text="count = count + 1" />
-                    <br />means the same thing: increase count by one
+                    <JavaLine text="count++" /> or{" "}
+                    <JavaLine text="count = count + 1" />
+                    <br />
+                    means the same thing: increase count by one
                   </div>
                 </div>
               </div>
@@ -551,6 +566,7 @@ const WhileScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.whileScene.wordStartFrames}
@@ -887,6 +903,7 @@ const ExecutionScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.executionScene.wordStartFrames}
@@ -904,7 +921,8 @@ const InfiniteScene: React.FC = () => {
   const opacity = useFade(d);
 
   const MUHANROOP_FRAME =
-    AUDIO_CONFIG.infiniteScene.wordTiming["infinite"][0] ?? cfg.speechStartFrame;
+    AUDIO_CONFIG.infiniteScene.wordTiming["infinite"][0] ??
+    cfg.speechStartFrame;
   const blockAppear = spring({
     frame: frame - s,
     fps,
@@ -1035,6 +1053,7 @@ const InfiniteScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={s}
         wordFrames={AUDIO_CONFIG.infiniteScene.wordStartFrames}
@@ -1050,7 +1069,12 @@ const SUMMARY_CARDS = [
     color: C_TEAL,
     desc: "run the block, then check again",
   },
-  { emoji: "⛔", label: "condition false", color: C_RED, desc: "stop the loop" },
+  {
+    emoji: "⛔",
+    label: "condition false",
+    color: C_RED,
+    desc: "stop the loop",
+  },
 ] as const;
 
 const SummaryScene: React.FC = () => {
@@ -1191,6 +1215,7 @@ const SummaryScene: React.FC = () => {
       </AbsoluteFill>
       <Subtitle
         sentences={cfg.narration}
+        secondarySentences={cfg.subtitleKo}
         splits={cfg.narrationSplits}
         speechStart={cfg.speechStartFrame}
         wordFrames={AUDIO_CONFIG.summaryScene.wordStartFrames}
@@ -1275,6 +1300,20 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_KO: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...VIDEO_CONFIG.overview.subtitleKo,
+  ...VIDEO_CONFIG.intro.subtitleKo,
+  ...VIDEO_CONFIG.whileScene.subtitleKo,
+  ...VIDEO_CONFIG.executionScene.subtitleKo,
+  ...VIDEO_CONFIG.infiniteScene.subtitleKo,
+  ...VIDEO_CONFIG.summaryScene.subtitleKo,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "en-US": SRT_DATA,
+  "ko-KR": SRT_DATA_KO,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {
