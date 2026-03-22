@@ -1,4 +1,4 @@
-// src/compositions/001-Java-Basic/KOR/014-1-JavaClassIntro.tsx
+// src/compositions/002-Java-Class/KOR/001-1-JavaClassIntro.tsx
 import {
   AbsoluteFill,
   Sequence,
@@ -28,8 +28,8 @@ import {
   useFade,
 } from "../../../utils/scene";
 import { computeFromValues } from "../../../utils/srt";
-import { CONTENT } from "./014-2-content";
-import { AUDIO_CONFIG } from "./014-3-audio.gen";
+import { CONTENT } from "./001-2-content";
+import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import {
   BG,
   BG_CODE,

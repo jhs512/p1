@@ -1,4 +1,4 @@
-// src/compositions/001-Java-Basic/KOR/014-2-content.ts
+// src/compositions/002-Java-Class/KOR/001-2-content.ts
 import type { EpisodeContent } from "../../../types/episode";
 
 export const CONTENT = {

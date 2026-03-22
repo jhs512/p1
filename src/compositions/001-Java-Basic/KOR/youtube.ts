@@ -78,11 +78,6 @@ export const YOUTUBE_CONFIG = {
       description:
         "범위 출력, 합산, 짝수 합산 함수를 단계적으로 만들어 봅니다.",
     },
-    "014": {
-      title: "Java 객체 — 데이터를 묶는 이유 #Java #자바기초",
-      description:
-        "관련 데이터를 묶어서 관리하는 객체의 필요성을 알아봅니다.",
-    },
   },
 } as const;
 
