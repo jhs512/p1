@@ -226,7 +226,7 @@ export const Subtitle: React.FC<{
   wordFrames,
 }) => {
   const frame = useCurrentFrame();
-  const { width, height } = useVideoConfig();
+  const { width } = useVideoConfig();
   const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
 
   if (frame < speechStart) return null;
@@ -252,6 +252,7 @@ export const Subtitle: React.FC<{
   };
 
   const innerStyle: React.CSSProperties = {
+    position: "relative",
     fontFamily: uiFont,
     color: "#ffffff",
     background: "rgba(0,0,0,0.55)",
@@ -263,12 +264,13 @@ export const Subtitle: React.FC<{
 
   const secondaryOuterStyle: React.CSSProperties = {
     position: "absolute",
-    top: height - (BOTTOM_MARGIN + 10) + SECONDARY_SUBTITLE_GAP,
+    top: "100%",
     left: 0,
-    right: 0,
+    width: "100%",
     display: "flex",
     justifyContent: "center",
     textAlign: "center",
+    paddingTop: SECONDARY_SUBTITLE_GAP,
   };
 
   const secondaryStyle: React.CSSProperties = {
@@ -294,14 +296,12 @@ export const Subtitle: React.FC<{
   // wordFrames 없으면 기존 방식
   if (!currentWordFrames || currentWordFrames.length === 0) {
     return (
-      <>
-        <div style={outerStyle}>
-          <div style={innerStyle}>
-            <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
-          </div>
+      <div style={outerStyle}>
+        <div style={innerStyle}>
+          <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
+          {renderSecondary()}
         </div>
-        {renderSecondary()}
-      </>
+      </div>
     );
   }
 
@@ -316,30 +316,27 @@ export const Subtitle: React.FC<{
 
   let wordIdx = 0;
   return (
-    <>
-      <div style={outerStyle}>
-        <div style={innerStyle}>
-          <div style={{ fontSize: 42, lineHeight: 1.45 }}>
-            {tokens.map((token, i) => {
-              if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
-              const thisWordIdx = wordIdx++;
-              return (
-                <span
-                  key={i}
-                  style={{
-                    color:
-                      thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
-                  }}
-                >
-                  {token}
-                </span>
-              );
-            })}
-          </div>
+    <div style={outerStyle}>
+      <div style={innerStyle}>
+        <div style={{ fontSize: 42, lineHeight: 1.45 }}>
+          {tokens.map((token, i) => {
+            if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
+            const thisWordIdx = wordIdx++;
+            return (
+              <span
+                key={i}
+                style={{
+                  color: thisWordIdx === currentWordIdx ? "#fbbf24" : "#ffffff",
+                }}
+              >
+                {token}
+              </span>
+            );
+          })}
         </div>
+        {renderSecondary()}
       </div>
-      {renderSecondary()}
-    </>
+    </div>
   );
 };
 
