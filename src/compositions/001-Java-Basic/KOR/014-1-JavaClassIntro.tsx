@@ -161,6 +161,18 @@ const ThumbnailScene: React.FC = () => {
       >
         {CONTENT.thumbnail.badge}
       </div>
+      <div
+        style={{
+          fontFamily: uiFont,
+          fontSize: 32,
+          fontWeight: 700,
+          color: TEXT,
+          opacity: 0.7,
+          marginTop: 24,
+        }}
+      >
+        객체는 데이터의 묶음이다.
+      </div>
     </AbsoluteFill>
   );
 };
