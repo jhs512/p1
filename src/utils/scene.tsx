@@ -47,7 +47,7 @@ export const monoStyle = {
 
 export { CROSS, CHARS_PER_SEC, THUMB_CROSS } from "../config";
 
-export type SubtitleMode = "primary-only" | "bilingual";
+export type SubtitleMode = "primary-only" | "secondary-only" | "bilingual";
 
 // ── 폰트 스케일 ──────────────────────────────────────────────
 /**
@@ -228,6 +228,7 @@ export const Subtitle: React.FC<{
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
   const { subtitleMode } = getInputProps() as { subtitleMode?: SubtitleMode };
+  const mode = subtitleMode ?? "bilingual";
 
   if (frame < speechStart) return null;
 
@@ -237,8 +238,9 @@ export const Subtitle: React.FC<{
   const secondaryText = secondarySentences?.[idx]
     ? toDisplayText(secondarySentences[idx])
     : null;
-  const showSecondary =
-    Boolean(secondaryText) && subtitleMode !== "primary-only";
+  const primaryText = mode === "secondary-only" ? secondaryText : displayText;
+  const showPrimary = Boolean(primaryText);
+  const showSecondary = Boolean(secondaryText) && mode === "bilingual";
   const currentWordFrames = wordFrames?.[idx];
 
   const outerStyle: React.CSSProperties = {
@@ -293,12 +295,18 @@ export const Subtitle: React.FC<{
       </div>
     ) : null;
 
+  if (!showPrimary) return null;
+
   // wordFrames 없으면 기존 방식
-  if (!currentWordFrames || currentWordFrames.length === 0) {
+  if (
+    mode === "secondary-only" ||
+    !currentWordFrames ||
+    currentWordFrames.length === 0
+  ) {
     return (
       <div style={outerStyle}>
         <div style={innerStyle}>
-          <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
+          <div style={{ fontSize: 42, lineHeight: 1.45 }}>{primaryText}</div>
           {renderSecondary()}
         </div>
       </div>
