@@ -8,7 +8,7 @@ export const CONTENT = {
   },
   intro: {
     narration: [
-      "A data type means the shape of data.",
+      "A data type tells us what kind of value it is.",
       "It decides what kind of value\na variable is allowed to store.",
       "Let's look at four common Java data types.",
     ],

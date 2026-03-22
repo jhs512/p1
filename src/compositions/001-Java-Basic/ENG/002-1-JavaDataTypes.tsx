@@ -443,7 +443,7 @@ const IntroScene: React.FC = () => {
   const s = intro.speechStartFrame;
   const split1 = intro.narrationSplits[0]; // 2문장 시작 (frame 106)
 
-  // 1문장: "자료 == 데이터" 타이틀
+  // 1문장: data type concept title
   const titleAppear = spring({
     frame: frame - s,
     fps,
@@ -469,7 +469,7 @@ const IntroScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={intro.audio} />
           <SceneTitle title="1. What Is a Data Type?" />
-          {/* 1문장: 자료 == 데이터 타이틀 */}
+          {/* 1문장: data type concept title */}
           <div
             style={{
               position: "absolute",
@@ -491,21 +491,7 @@ const IntroScene: React.FC = () => {
             }}
           >
             <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
-              data
-            </span>
-            <span
-              style={{
-                fontSize: 48,
-                fontWeight: 700,
-                color: TEXT,
-                ...monoStyle,
-                margin: "0 16px",
-              }}
-            >
-              ==
-            </span>
-            <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
-              shape
+              kind of value
             </span>
           </div>
           {/* 2문장~: Data Types 박스 4개 */}

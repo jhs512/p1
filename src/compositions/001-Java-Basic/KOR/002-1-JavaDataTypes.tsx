@@ -429,7 +429,7 @@ const IntroScene: React.FC = () => {
   const s = intro.speechStartFrame;
   const split1 = intro.narrationSplits[0]; // 2문장 시작 (frame 106)
 
-  // 1문장: "자료 == 데이터" 타이틀
+  // 1문장: 자료형 개념 타이틀
   const titleAppear = spring({
     frame: frame - s,
     fps,
@@ -455,7 +455,7 @@ const IntroScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={intro.audio} />
           <SceneTitle title="1. 자료형이란?" />
-          {/* 1문장: 자료 == 데이터 타이틀 */}
+          {/* 1문장: 자료형 개념 타이틀 */}
           <div
             style={{
               position: "absolute",
@@ -477,21 +477,7 @@ const IntroScene: React.FC = () => {
             }}
           >
             <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
-              자료
-            </span>
-            <span
-              style={{
-                fontSize: 48,
-                fontWeight: 700,
-                color: TEXT,
-                ...monoStyle,
-                margin: "0 16px",
-              }}
-            >
-              ==
-            </span>
-            <span style={{ fontSize: 56, fontWeight: 700, color: C_TEAL }}>
-              데이터
+              값의 종류
             </span>
           </div>
           {/* 2문장~: 자료형 박스 4개 */}
