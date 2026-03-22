@@ -156,6 +156,7 @@ export function computeLineVisibility<T>(
 export const BOTTOM_MARGIN = 350;
 /** 자막(bottom) + 자막 높이(~65px). ContentArea의 하단 여백으로 사용. */
 export const SUBTITLE_DEAD_ZONE = BOTTOM_MARGIN + 75;
+const SECONDARY_SUBTITLE_BOTTOM = 120;
 
 // ── 컴포넌트: ContentArea ─────────────────────────────────────
 /**
@@ -255,32 +256,49 @@ export const Subtitle: React.FC<{
     color: "#ffffff",
     background: "rgba(0,0,0,0.55)",
     borderRadius: 10,
-    padding: showSecondary ? "12px 22px" : "10px 20px",
+    padding: "10px 20px",
     maxWidth: width - 80,
     whiteSpace: "pre-wrap",
   };
 
+  const secondaryOuterStyle: React.CSSProperties = {
+    position: "absolute",
+    bottom: SECONDARY_SUBTITLE_BOTTOM,
+    left: 0,
+    right: 0,
+    display: "flex",
+    justifyContent: "center",
+    textAlign: "center",
+  };
+
   const secondaryStyle: React.CSSProperties = {
-    fontSize: 28,
+    fontFamily: uiFont,
+    fontSize: 30,
     fontWeight: 600,
     lineHeight: 1.45,
-    marginTop: 4,
     color: "rgba(255,255,255,0.92)",
+    background: "rgba(0,0,0,0.5)",
+    borderRadius: 10,
+    padding: "10px 18px",
+    maxWidth: width - 140,
+    whiteSpace: "pre-wrap",
   };
 
   const renderSecondary = () =>
-    showSecondary ? <div style={secondaryStyle}>{secondaryText}</div> : null;
+    showSecondary ? (
+      <div style={secondaryOuterStyle}>
+        <div style={secondaryStyle}>{secondaryText}</div>
+      </div>
+    ) : null;
 
   // wordFrames 없으면 기존 방식
   if (!currentWordFrames || currentWordFrames.length === 0) {
     return (
       <div style={outerStyle}>
         <div style={innerStyle}>
-          <div style={{ fontSize: showSecondary ? 36 : 42, lineHeight: 1.45 }}>
-            {displayText}
-          </div>
-          {renderSecondary()}
+          <div style={{ fontSize: 42, lineHeight: 1.45 }}>{displayText}</div>
         </div>
+        {renderSecondary()}
       </div>
     );
   }
@@ -298,7 +316,7 @@ export const Subtitle: React.FC<{
   return (
     <div style={outerStyle}>
       <div style={innerStyle}>
-        <div style={{ fontSize: showSecondary ? 36 : 42, lineHeight: 1.45 }}>
+        <div style={{ fontSize: 42, lineHeight: 1.45 }}>
           {tokens.map((token, i) => {
             if (/^\s+$/.test(token)) return <span key={i}>{token}</span>;
             const thisWordIdx = wordIdx++;
@@ -314,8 +332,8 @@ export const Subtitle: React.FC<{
             );
           })}
         </div>
-        {renderSecondary()}
       </div>
+      {renderSecondary()}
     </div>
   );
 };
