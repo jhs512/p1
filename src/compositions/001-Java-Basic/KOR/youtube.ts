@@ -73,6 +73,16 @@ export const YOUTUBE_CONFIG = {
       description:
         "자바 함수의 return 키워드로 결과를 돌려받고 활용하는 방법을 배웁니다.",
     },
+    "013": {
+      title: "Java 함수 실전 — 3가지 함수 만들기 #Java #자바기초",
+      description:
+        "범위 출력, 합산, 짝수 합산 함수를 단계적으로 만들어 봅니다.",
+    },
+    "014": {
+      title: "Java 클래스 — 데이터를 묶는 이유 #Java #자바기초",
+      description:
+        "관련 데이터를 묶어서 관리하는 이유를 알아보고, 클래스와 객체 개념을 소개합니다.",
+    },
   },
 } as const;
 
