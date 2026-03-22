@@ -9,7 +9,7 @@ export const CONTENT = {
   intro: {
     narration: [
       "Logical operators connect conditions\nor flip them around.",
-      "We will look at three of them:\nAND, OR, and NOT.",
+      "We will look at three of them:\n[AND,(발음:AND.)] [OR,(발음:OR.)] and NOT.",
     ],
   },
   andScene: {
