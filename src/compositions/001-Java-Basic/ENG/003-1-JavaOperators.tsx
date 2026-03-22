@@ -224,6 +224,13 @@ const ThumbnailScene: React.FC = () => {
 
 // ── 씬: IntroScene ────────────────────────────────────────────
 const INTRO_OPS = ["+", "-", "*", "/", "%"];
+const INTRO_OP_WORDS = [
+  "plus",
+  "minus",
+  "multiply",
+  "divide",
+  "remainder",
+] as const;
 
 const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -231,13 +238,13 @@ const IntroScene: React.FC = () => {
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames, { in: true });
 
-  // 두 번째 문장(더하기, 빼기, 곱하기, 나누기, remainder)의 앞 5단어 발화 프레임
-  // TODO: wordTiming 미지원 — 동적 인덱스 (slice(0,5) 후 reduce로 순회)
-  const opWordFrames = (AUDIO_CONFIG.intro.wordStartFrames[1] ??
-    []) as readonly number[];
-  const currentOpIdx = opWordFrames
-    .slice(0, 5)
-    .reduce((acc, f, i) => (frame >= f ? i : acc), -1);
+  const opWordFrames = INTRO_OP_WORDS.map(
+    (word) => AUDIO_CONFIG.intro.wordTiming[word][0],
+  );
+  const currentOpIdx = opWordFrames.reduce(
+    (acc, f, i) => (frame >= f ? i : acc),
+    -1,
+  );
 
   return (
     <>
