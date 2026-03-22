@@ -10,12 +10,12 @@ export const CONTENT = {
   overview: {
     narration: [
       "There are several kinds of loops.",
-      "This time, let's look at the for statement.",
+      "This time, let's look at the for loop.",
     ],
   },
   intro: {
     narration: [
-      "A for statement puts the initializer,\ncondition, and update in one line.",
+      "A for loop puts the initializer,\ncondition, and update in one line.",
       "It keeps running the block\nwhile the condition is true.",
     ],
   },
@@ -37,7 +37,7 @@ export const CONTENT = {
   },
   summaryScene: {
     narration: [
-      "A for statement controls repetition with\nan initializer, a condition, and an update.",
+      "A for loop controls repetition with\nan initializer, a condition, and an update.",
       "It is a good fit when the number of repetitions is known.",
     ],
     cards: ["Initializer", "Condition", "Update"],

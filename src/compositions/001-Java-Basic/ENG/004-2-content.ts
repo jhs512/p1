@@ -9,7 +9,7 @@ export const CONTENT = {
   intro: {
     narration: [
       "Comparison operators compare two values\nand return true or false.",
-      "The result is a boolean value,\nso it is often used with conditionals.",
+      "The result is a boolean value,\nso it is often used in conditions and if statements.",
     ],
   },
   compareScene: {
@@ -18,8 +18,8 @@ export const CONTENT = {
       "This is the inequality operator.\nTen and three are different, so the result is true.",
       "This is the greater-than operator.\nTen is greater than three, so the result is true.",
       "This is the less-than operator.\nTen is not less than three, so the result is false.",
-      "This is the greater-than-or-equal operator.\nTen is at least three, so the result is true.",
-      "This is the less-than-or-equal operator.\nTen is not at most three, so the result is false.",
+      "This is the greater-than-or-equal operator.\nTen is greater than or equal to three, so the result is true.",
+      "This is the less-than-or-equal operator.\nTen is not less than or equal to three, so the result is false.",
     ],
   },
   summaryScene: {

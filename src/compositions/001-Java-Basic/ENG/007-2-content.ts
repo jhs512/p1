@@ -8,14 +8,14 @@ export const CONTENT = {
   },
   overview: {
     narration: [
-      "When you need to handle many cases,\nyou can use a switch expression.",
+      "When you need to handle many cases,\nyou can use switch.",
       "It can branch conditions more cleanly\nthan a long if chain.",
     ],
   },
   intro: {
     narration: [
       "If you want different messages for different days,\nan if chain gets repetitive.",
-      "A switch expression lets you write\nthat logic much more cleanly.",
+      "Switch lets you write\nthat logic much more cleanly.",
     ],
   },
   syntaxScene: {
@@ -27,7 +27,7 @@ export const CONTENT = {
   multiCaseScene: {
     narration: [
       "You can group several values into one case\nand handle them without duplication.",
-      "Because a switch expression returns a value,\nyou can assign it directly to a variable.",
+      "With arrow syntax, switch can produce a value,\nso you can assign it directly to a variable.",
     ],
   },
   summaryScene: {

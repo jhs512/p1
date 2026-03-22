@@ -4,7 +4,7 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\nreturn",
+    title: "Java\nReturn",
   },
   painScene: {
     narration: [
@@ -14,7 +14,7 @@ export const CONTENT = {
   },
   conceptScene: {
     narration: [
-      "With return, a function sends a result back out.",
+      "With return, a function sends a value back to the caller.",
       "You can store that returned value\nor use it directly in another expression.",
     ],
   },
@@ -39,16 +39,16 @@ export const CONTENT = {
   },
   comparisonScene: {
     narration: [
-      "A void function can only produce output.",
-      "With return, you can take the result\nand use it freely.",
+      "A void function cannot return a value to the caller.",
+      "With return, you can take that value\nand use it freely.",
     ],
   },
   summaryScene: {
     narration: [
-      "Return is how a function sends a result back.",
+      "Return is how a function sends a value back.",
       "The return type tells you\nwhat kind of value will come back.",
     ],
-    cards: ["return\n=\nsend back a result", "return type\n=\nkind of value"],
+    cards: ["return\n=\nsend a value back", "return type\n=\nkind of value"],
   },
   realExampleScene: {
     narration: [

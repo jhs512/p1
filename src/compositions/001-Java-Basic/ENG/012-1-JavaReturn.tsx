@@ -336,7 +336,7 @@ const ConceptScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="2. What Is return?" />
+          <SceneTitle title="2. What Does return Do?" />
           <div
             style={{
               position: "absolute",
@@ -394,7 +394,7 @@ const ConceptScene: React.FC = () => {
                 opacity: useAppear,
               }}
             >
-              {["store in a variable", "use directly"].map((label) => (
+              {["store it in a variable", "use it directly"].map((label) => (
                 <div
                   key={label}
                   style={{
@@ -825,7 +825,7 @@ const UseReturnScene: React.FC = () => {
                   opacity: 0.85,
                 }}
               >
-                store in a variable
+                store it in a variable
               </div>
               <div
                 style={{
@@ -927,7 +927,7 @@ const BEFORE_CODE = [
 ];
 const AFTER_CODE = ["int sum(int a, int b) {", "    return a + b;", "}"];
 const AFTER_USE = [
-  "int result = sum(3, 5);  // store in a variable",
+  "int result = sum(3, 5);  // store it in a variable",
   "System.out.println(sum(3, 5));  // use directly",
 ];
 
@@ -1164,7 +1164,7 @@ const SummaryScene: React.FC = () => {
                 transform: `scale(${interpolate(titleAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
               }}
             >
-              return = send back a result
+              return = send a value back
             </div>
             {/* 2문장: 카드 */}
             <div style={{ display: "flex", gap: 32, alignItems: "center" }}>

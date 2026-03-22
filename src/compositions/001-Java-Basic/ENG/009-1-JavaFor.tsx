@@ -472,7 +472,7 @@ const ForScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <SceneTitle title="3. for Syntax" />
+          <SceneTitle title="3. for Loop Syntax" />
           <SceneAudio src={cfg.audio} />
           {frame >= s && (
             <div
@@ -632,7 +632,7 @@ const ForScene: React.FC = () => {
                       fontWeight: 700,
                     }}
                   >
-                    `i++` and `i = i + 1` mean the same thing,
+                    `i++` and `i = i + 1` mean the same thing:
                   </span>
                   <span
                     style={{
@@ -641,7 +641,7 @@ const ForScene: React.FC = () => {
                       fontWeight: 700,
                     }}
                   >
-                    increase `i` by 1
+                    increase i by 1
                   </span>
                 </div>
               </div>
@@ -762,7 +762,7 @@ const ExecutionScene: React.FC = () => {
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
-          <SceneTitle title="4. for Execution Flow" />
+          <SceneTitle title="4. for Loop Execution" />
           <SceneAudio src={cfg.audio} />
 
           {frame >= s && (

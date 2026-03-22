@@ -30,21 +30,21 @@ export const CONTENT = {
   },
   interpret: {
     narration: [
-      "A variable can be interpreted in two ways.",
-      "When you declare it or assign into it,\nit is treated like storage space.",
+      "A variable can be read in two different ways.",
+      "When you declare it or assign a value to it,\nit is treated like storage space.",
       "In other places, it is treated like the value it holds.",
     ],
   },
   interpretQuiz: {
     narration: [
-      "In the first position,\nshould this variable be read as space,\nor as a value?",
+      "In the first position,\nshould this variable be read as storage space,\nor as a value?",
     ],
   },
   interpretReveal: {
     narration: [
-      "The answer is space.",
-      "That position is on the left side,\nwhere a value is being assigned.",
-      "The variable on the right side means the stored value.\nHere, that value is four.",
+      "The answer is storage space.",
+      "That position is on the left side,\nwhere a value is assigned.",
+      "On the right side, the variable means the stored value.\nHere, that value is four.",
     ],
   },
   print: {

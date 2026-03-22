@@ -439,7 +439,7 @@ const IntroScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="2. What Is switch?" />
+          <SceneTitle title="2. What Is a switch Statement?" />
           <div
             style={{
               position: "absolute",
@@ -486,7 +486,7 @@ const IntroScene: React.FC = () => {
               <div>{dimSpan("} // ...")}</div>
             </div>
 
-            {/* 하단: switch expression (간결, 밝은 색) — split0 기준 등장 */}
+            {/* 하단: switch with arrow syntax (간결, 밝은 색) — split0 기준 등장 */}
             <div
               style={{
                 ...cardBase,
@@ -505,7 +505,7 @@ const IntroScene: React.FC = () => {
                   fontWeight: 700,
                 }}
               >
-                switch expression
+                switch with arrow syntax
               </div>
               <div>
                 <span style={{ color: C_SWITCH, fontWeight: 900 }}>switch</span>
@@ -851,7 +851,7 @@ const MultiCaseScene: React.FC = () => {
                     fontSize: FONT.label,
                   }}
                 >
-                  store in a variable
+                  store it in a variable
                 </span>
               </div>
             </div>
@@ -885,7 +885,7 @@ const SUMMARY_CARDS = [
   },
   {
     emoji: "📦",
-    label: "returned value and grouped cases",
+    label: "grouped cases and return values",
     desc: "can assign directly to a variable",
     color: C_RESULT,
   },

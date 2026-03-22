@@ -814,7 +814,7 @@ const InterpretScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="4. How a Variable Is Read" />
+          <SceneTitle title="4. How to Read a Variable" />
 
           {frame >= s && (
             <div
