@@ -733,9 +733,10 @@ const ObjectPreviewScene: React.FC = () => {
                   color: "#fff",
                   background: C_TEAL,
                   borderRadius: "14px 14px 0 0",
-                  padding: "14px 64px",
+                  padding: "14px 0",
                   textAlign: "center",
                   letterSpacing: 2,
+                  width: "100%",
                 }}
               >
                 민준
