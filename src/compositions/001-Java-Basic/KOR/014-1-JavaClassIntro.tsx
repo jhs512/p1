@@ -475,7 +475,7 @@ const CodeAnalogy: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 1문장: "프로그래밍에서도 마찬가지" 타이틀
+  // 1문장: "프로그램에서도 마찬가지" 타이틀
   const titleAppear = spring({
     frame: frame - s,
     fps,
@@ -520,7 +520,7 @@ const CodeAnalogy: React.FC = () => {
               opacity: titleOpacity,
             }}
           >
-            프로그래밍에서도 마찬가지
+            프로그램에서도 마찬가지
           </div>
 
           {/* 2문장: 흩어진 변수 박스 */}
