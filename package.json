@@ -7,8 +7,8 @@
   "private": true,
   "dependencies": {
     "@remotion/cli": "4.0.435",
-    "@remotion/google-fonts": "^4.0.436",
-    "@remotion/media": "^4.0.436",
+    "@remotion/google-fonts": "4.0.435",
+    "@remotion/media": "4.0.435",
     "@remotion/zod-types": "4.0.435",
     "d3-hierarchy": "^3.1.2",
     "googleapis": "^171.4.0",
