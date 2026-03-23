@@ -66,7 +66,8 @@ const clean = (s: string) => s.replace(/\[([^\]]*?)\(발음:[^\)]*\)\]/g, "$1").
 // ── VIDEO_CONFIG ────────────────────────────────────────────
 const sceneKeys = [
   "thumbnail", "hook", "collapse", "why", "reveal", "rgbIntro",
-  "rulesWhy", "rulesStructure", "rulesLevels",
+  "rulesWhy", "rulesOverview", "structureConstitution", "structureLaw",
+  "specConstitution", "specLaw",
   "guard", "build", "loop", "aiRole", "insight", "closing",
 ] as const;
 
@@ -88,8 +89,11 @@ export const VIDEO_CONFIG = {
   reveal: buildCfg("reveal"),
   rgbIntro: buildCfg("rgbIntro"),
   rulesWhy: buildCfg("rulesWhy"),
-  rulesStructure: buildCfg("rulesStructure"),
-  rulesLevels: buildCfg("rulesLevels"),
+  rulesOverview: buildCfg("rulesOverview"),
+  structureConstitution: buildCfg("structureConstitution"),
+  structureLaw: buildCfg("structureLaw"),
+  specConstitution: buildCfg("specConstitution"),
+  specLaw: buildCfg("specLaw"),
   guard: buildCfg("guard"),
   build: buildCfg("build"),
   loop: buildCfg("loop"),
@@ -601,14 +605,17 @@ const scenes: [number, React.ReactNode][] = [
   [4, <RevealScene />],
   [5, <RGBIntroScene />],
   [6, <RulesWhyScene />],
-  [7, <BrightCardScene sceneKey="rulesStructure" title="Rules — 구조 vs 스펙" />],
-  [8, <BrightCardScene sceneKey="rulesLevels" title="Rules — 헌법 vs 법률" />],
-  [9, <BigCardScene sceneKey="guard" label="Guard" color={C_GREEN} />],
-  [10, <BigCardScene sceneKey="build" label="Build" color={C_BLUE} />],
-  [11, <LoopScene />],
-  [12, <BrightCardScene sceneKey="aiRole" title="AI의 역할" accentColor={TEXT_SECONDARY} />],
-  [13, <DarkNarrativeScene sceneKey="insight" accent={C_HIGHLIGHT} />],
-  [14, <ClosingScene />],
+  [7, <BrightCardScene sceneKey="rulesOverview" title="Rules — 헌법과 법률" />],
+  [8, <BrightCardScene sceneKey="structureConstitution" title="구조 Rule — 헌법" accentColor={C_RED} />],
+  [9, <BrightCardScene sceneKey="structureLaw" title="구조 Rule — 법률 (코프링)" accentColor={C_RED} />],
+  [10, <BrightCardScene sceneKey="specConstitution" title="스펙 Rule — 헌법" accentColor={C_RED} />],
+  [11, <BrightCardScene sceneKey="specLaw" title="스펙 Rule — 법률" accentColor={C_RED} />],
+  [12, <BigCardScene sceneKey="guard" label="Guard" color={C_GREEN} />],
+  [13, <BigCardScene sceneKey="build" label="Build" color={C_BLUE} />],
+  [14, <LoopScene />],
+  [15, <BrightCardScene sceneKey="aiRole" title="AI의 역할" accentColor={TEXT_SECONDARY} />],
+  [16, <DarkNarrativeScene sceneKey="insight" accent={C_HIGHLIGHT} />],
+  [17, <ClosingScene />],
 ];
 
 const RGBMethod: React.FC = () => (
