@@ -277,9 +277,9 @@ const OverviewScene: React.FC = () => {
           >
             <TreeDiagram
               data={treeData}
-              width={800}
+              width={1200}
               height={420}
-              leafSpacing={240}
+              leafSpacing={420}
             />
           </div>
         </ContentArea>
@@ -450,7 +450,7 @@ const WhileScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const incrementExplainAppear = spring({
-    frame: frame - split0,
+    frame: frame - (AUDIO_CONFIG.whileScene.wordTiming["increases"]?.[0] ?? split0),
     fps,
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 40,
@@ -617,23 +617,23 @@ const ExecutionScene: React.FC = () => {
   // condPass=false(count=6)일 때만 조건 줄 강조
   const activeLineIsCondition = !step.condPass;
 
-  // 조건 하이라이트 — "참" 발화 시 count <= 5 span에 amber glow
+  // 조건 하이라이트 — "true" 발화 시 count <= 5 span에 amber glow
   const STEP_STARTS = [s, ...cfg.narrationSplits] as number[];
   const COND_TRUE_FRAMES: Record<number, number> = {
-    0: STEP_STARTS[0],
-    1: STEP_STARTS[1],
-    2: STEP_STARTS[2],
-    3: STEP_STARTS[3],
-    4: STEP_STARTS[4],
+    0: AUDIO_CONFIG.executionScene.wordTiming["true"]?.[0] ?? STEP_STARTS[0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[0] ?? STEP_STARTS[1],
+    2: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[1] ?? STEP_STARTS[2],
+    3: AUDIO_CONFIG.executionScene.wordTiming["same"]?.[0] ?? STEP_STARTS[3],
+    4: AUDIO_CONFIG.executionScene.wordTiming["last"]?.[0] ?? STEP_STARTS[4],
   };
 
-  // 출력 로그 — "실행" 발화 시점 이후에만 표시
+  // 출력 로그 — "runs/prints" 발화 시점 이후에만 표시
   const EXEC_FRAMES: Record<number, number> = {
-    0: STEP_STARTS[0],
-    1: STEP_STARTS[1],
-    2: STEP_STARTS[2],
-    3: STEP_STARTS[3],
-    4: STEP_STARTS[4],
+    0: AUDIO_CONFIG.executionScene.wordTiming["runs"]?.[0] ?? STEP_STARTS[0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["again"]?.[0] ?? STEP_STARTS[1],
+    2: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[1] ?? STEP_STARTS[2],
+    3: AUDIO_CONFIG.executionScene.wordTiming["same"]?.[0] ?? STEP_STARTS[3],
+    4: AUDIO_CONFIG.executionScene.wordTiming["last"]?.[0] ?? STEP_STARTS[4],
   };
   const OUTPUT_DELAY = 20; // 조건 하이라이트 후 약간 딜레이
   const showOutput =
@@ -1156,8 +1156,10 @@ const SummaryScene: React.FC = () => {
             {SUMMARY_CARDS.map((card, i) => {
               const triggerFrame =
                 i === 0
-                  ? cfg.speechStartFrame
-                  : (cfg.narrationSplits[0] ?? cfg.speechStartFrame);
+                  ? (AUDIO_CONFIG.summaryScene.wordTiming["While"]?.[0] ??
+                    cfg.speechStartFrame)
+                  : (AUDIO_CONFIG.summaryScene.wordTiming["stops"]?.[0] ??
+                    cfg.narrationSplits[0] ?? cfg.speechStartFrame);
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,

@@ -37,7 +37,7 @@ export const CONTENT = {
   },
   interpretQuiz: {
     narration: [
-      "앞 부분의 age 변수는\n공간으로 해석해야할까요?\n아니면 값으로 해석해야 할까요?",
+      "앞 부분의 age 변수는\n공간으로 해석해야 할까요?\n아니면 값으로 해석해야 할까요?",
     ],
   },
   interpretReveal: {

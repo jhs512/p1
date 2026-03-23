@@ -969,7 +969,7 @@ const QuizScene: React.FC = () => {
 
   // 질문 단계에서 왼쪽 변수명 펄싱 — 첫 문장 속 "variable" 발화 시점부터
   const AGE_WORD_FRAME =
-    AUDIO_CONFIG.interpretQuiz.wordTiming["variable"]?.[0] ??
+    AUDIO_CONFIG.interpretQuiz.wordTiming["age"]?.[0] ??
     AUDIO_CONFIG.interpretQuiz.speechStartFrame;
   const pulseAlpha = 0.45 + 0.55 * Math.abs(Math.sin(frame * 0.04));
   const showPulse = !isReveal && frame >= AGE_WORD_FRAME;

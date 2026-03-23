@@ -589,11 +589,11 @@ const ValueVsVarScene: React.FC = () => {
   });
   const msgOpacity = msgAppear * (1 - msgExit);
 
-  // "int형 값" → 문장 2 첫 단어, "int형 변수" → 문장 3 첫 단어
+  // "int value" → wordTiming "int"[0] (sentence 2), "int variable" → wordTiming "int"[1] (sentence 3)
   const valueWordFrame =
-    AUDIO_CONFIG.valueVsVar.wordStartFrames[1]?.[1] ?? split0;
+    AUDIO_CONFIG.valueVsVar.wordTiming["int"][0] ?? split0;
   const varWordFrame =
-    AUDIO_CONFIG.valueVsVar.wordStartFrames[2]?.[1] ?? split1;
+    AUDIO_CONFIG.valueVsVar.wordTiming["int"][1] ?? split1;
 
   const valueAppear = spring({
     frame: frame - valueWordFrame,

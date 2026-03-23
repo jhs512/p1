@@ -337,9 +337,8 @@ const IntroScene: React.FC = () => {
                       idx,
                       [0, 5],
                       [
-                        intro.speechStartFrame,
-                        (intro.narrationSplits[0] ?? intro.durationInFrames) -
-                          12,
+                        AUDIO_CONFIG.intro.wordTiming["compare"][0],
+                        AUDIO_CONFIG.intro.wordTiming["false"][0],
                       ],
                     ),
                   );

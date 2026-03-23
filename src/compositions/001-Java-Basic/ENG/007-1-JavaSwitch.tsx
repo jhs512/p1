@@ -379,9 +379,9 @@ const OverviewScene: React.FC = () => {
           >
             <TreeDiagram
               data={treeData}
-              width={900}
+              width={1300}
               height={480}
-              leafSpacing={220}
+              leafSpacing={420}
             />
           </div>
         </ContentArea>

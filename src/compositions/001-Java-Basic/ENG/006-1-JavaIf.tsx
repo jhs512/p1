@@ -307,9 +307,9 @@ const OverviewScene: React.FC = () => {
           >
             <TreeDiagram
               data={treeData}
-              width={800}
+              width={1200}
               height={420}
-              leafSpacing={240}
+              leafSpacing={420}
             />
           </div>
         </ContentArea>
@@ -416,9 +416,9 @@ const IntroScene: React.FC = () => {
   const { intro } = VIDEO_CONFIG;
   const opacity = useFade(intro.durationInFrames);
   const ifTriggerFrame =
-    AUDIO_CONFIG.intro.wordStartFrames[0]?.[8] ?? intro.speechStartFrame;
+    AUDIO_CONFIG.intro.wordTiming["true"]?.[0] ?? intro.speechStartFrame;
   const elseTriggerFrame =
-    AUDIO_CONFIG.intro.wordStartFrames[1]?.[8] ??
+    AUDIO_CONFIG.intro.wordTiming["else"]?.[0] ??
     intro.narrationSplits[0] ??
     intro.speechStartFrame;
 
@@ -682,8 +682,10 @@ const SummaryScene: React.FC = () => {
             {SUMMARY_ROWS.map((row, i) => {
               const triggerFrame =
                 i === 0
-                  ? (cfg.speechStartFrame ?? cfg.speechStartFrame)
-                  : (cfg.narrationSplits[0] ?? cfg.speechStartFrame);
+                  ? (AUDIO_CONFIG.summaryScene.wordTiming["If"]?.[0] ??
+                    cfg.speechStartFrame)
+                  : (AUDIO_CONFIG.summaryScene.wordTiming["Else"]?.[0] ??
+                    cfg.speechStartFrame);
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,
@@ -737,7 +739,7 @@ const SummaryScene: React.FC = () => {
             {/* 코드 미리보기 */}
             {(() => {
               const codePreviewTrigger =
-                AUDIO_CONFIG.summaryScene.wordStartFrames[1]?.[0] ??
+                AUDIO_CONFIG.summaryScene.wordTiming["code"]?.[0] ??
                 cfg.narrationSplits[0] ??
                 cfg.speechStartFrame;
               const appear = spring({

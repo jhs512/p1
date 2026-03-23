@@ -198,8 +198,8 @@ const PAIN_FUNC_LINES = [
   "}",
 ];
 const PAIN_EXTRAS = [
-  "void greetCheolsu() { ... }",
-  "void greetYounghee() { ... }",
+  "void greetChris() { ... }",
+  "void greetEmma() { ... }",
 ];
 const PAIN_CPS = 22;
 

@@ -204,7 +204,7 @@ const OverviewScene: React.FC = () => {
     durationInFrames: 48,
   });
   const forAppear = spring({
-    frame: frame - (cfg.narrationSplits[0] ?? s),
+    frame: frame - (AUDIO_CONFIG.overview.wordTiming["for"]?.[0] ?? s),
     fps,
     config: { damping: 12, stiffness: 160 },
     durationInFrames: 44,
@@ -263,9 +263,9 @@ const OverviewScene: React.FC = () => {
           >
             <TreeDiagram
               data={treeData}
-              width={800}
+              width={1200}
               height={420}
-              leafSpacing={240}
+              leafSpacing={420}
             />
           </div>
         </ContentArea>
@@ -447,19 +447,19 @@ const ForScene: React.FC = () => {
     durationInFrames: dur,
   });
   const condAppear = spring({
-    frame: frame - s,
+    frame: frame - (AUDIO_CONFIG.forScene.wordTiming["condition"]?.[0] ?? s),
     fps,
     config: cfg_spring,
     durationInFrames: dur,
   });
   const bodyAppear = spring({
-    frame: frame - split0,
+    frame: frame - (AUDIO_CONFIG.forScene.wordTiming["runs"]?.[0] ?? split0),
     fps,
     config: cfg_spring,
     durationInFrames: dur,
   });
   const incAppear = spring({
-    frame: frame - split0,
+    frame: frame - (AUDIO_CONFIG.forScene.wordTiming["update"]?.[0] ?? split0),
     fps,
     config: cfg_spring,
     durationInFrames: dur,
@@ -621,14 +621,15 @@ const ForScene: React.FC = () => {
                     opacity: incAppear,
                     transform: slideY(incAppear),
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
-                    gap: 14,
+                    gap: 6,
                   }}
                 >
                   <span
                     style={{
                       ...monoStyle,
-                      fontSize: CODE.lg,
+                      fontSize: CODE.md,
                       fontWeight: 700,
                     }}
                   >
@@ -712,14 +713,14 @@ const ExecutionScene: React.FC = () => {
 
   const activeLineIsCondition = !step.condPass;
 
-  // 조건 하이라이트 — "참" 발화 시 i < 5 span에 amber glow
+  // 조건 하이라이트 — "true" 발화 시 i < 5 span에 amber glow
   const STEP_STARTS = [s, ...splits] as number[];
   const COND_TRUE_FRAMES: Record<number, number> = {
-    0: STEP_STARTS[0],
-    1: STEP_STARTS[1],
-    2: STEP_STARTS[2],
-    3: STEP_STARTS[3],
-    4: STEP_STARTS[4],
+    0: AUDIO_CONFIG.executionScene.wordTiming["true"]?.[0] ?? STEP_STARTS[0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[0] ?? STEP_STARTS[1],
+    2: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[1] ?? STEP_STARTS[2],
+    3: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[2] ?? STEP_STARTS[3],
+    4: AUDIO_CONFIG.executionScene.wordTiming["last"]?.[0] ?? STEP_STARTS[4],
   };
   const condHLStart = step.condPass
     ? (COND_TRUE_FRAMES[stepIdx] ?? Infinity)
@@ -734,13 +735,13 @@ const ExecutionScene: React.FC = () => {
     },
   );
 
-  // 출력 로그 — "실행" 발화 시점 이후에만 표시
+  // 출력 로그 — "runs/prints" 발화 시점 이후에만 표시
   const EXEC_FRAMES: Record<number, number> = {
-    0: STEP_STARTS[0],
-    1: STEP_STARTS[1],
-    2: STEP_STARTS[2],
-    3: STEP_STARTS[3],
-    4: STEP_STARTS[4],
+    0: AUDIO_CONFIG.executionScene.wordTiming["runs"]?.[0] ?? STEP_STARTS[0],
+    1: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[0] ?? STEP_STARTS[1],
+    2: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[1] ?? STEP_STARTS[2],
+    3: AUDIO_CONFIG.executionScene.wordTiming["still"]?.[2] ?? STEP_STARTS[3],
+    4: AUDIO_CONFIG.executionScene.wordTiming["last"]?.[0] ?? STEP_STARTS[4],
   };
   const OUTPUT_DELAY = 20;
   const showOutput =
@@ -1096,10 +1097,13 @@ const SummaryScene: React.FC = () => {
 
             {/* 요약 카드 — 각 단어 발화 시작 프레임에 맞춰 등장 */}
             {SUMMARY_ROWS.map((row, i) => {
-              // 초기식=wordStartFrames[0][2], 조건식=[0][3], 증감식=[0][4]
-              // TODO: wordTiming 미지원 — 동적 인덱스
+              const SUMMARY_TRIGGERS = [
+                AUDIO_CONFIG.summaryScene.wordTiming["initializer"]?.[0],
+                AUDIO_CONFIG.summaryScene.wordTiming["condition"]?.[0],
+                AUDIO_CONFIG.summaryScene.wordTiming["update"]?.[0],
+              ];
               const triggerFrame =
-                AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
+                SUMMARY_TRIGGERS[i] ?? AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,

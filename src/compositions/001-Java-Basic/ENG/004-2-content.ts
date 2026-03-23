@@ -9,7 +9,7 @@ export const CONTENT = {
   intro: {
     narration: [
       "Comparison operators compare two values\nand return true or false.",
-      "The result is a boolean value,\nso it is often used in conditions and if statements.",
+      "The result is a boolean value,\noften used with if statements.",
     ],
   },
   compareScene: {
@@ -25,7 +25,7 @@ export const CONTENT = {
   summaryScene: {
     narration: [
       "Here is a summary of the six comparison operators.",
-      "If the comparison is true, the result is true.\nIf it is false, the result is false.",
+      "True means the condition is met.\nFalse means it is not.",
     ],
   },
 } satisfies EpisodeContent;

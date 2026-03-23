@@ -27,7 +27,7 @@ export const CONTENT = {
   notScene: {
     narration: [
       "The NOT operator flips true to false\nand false to true.",
-      "!true is false, and !false is true.",
+      "[!true(발음:not true)] is false, and [!false(발음:not false)] is true.",
     ],
   },
   summaryScene: {
