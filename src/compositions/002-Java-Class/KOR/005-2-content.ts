@@ -6,6 +6,12 @@ export const CONTENT = {
     title: "클래스",
     badge: "틀",
   },
+  painScene: {
+    narration: [
+      "시나몬 별 쿠키, 딸기 별 쿠키, 초코 별 쿠키.",
+      "6개의 쿠키를 손으로 하나하나 만들려면 정말 힘듭니다.",
+    ],
+  },
   analogyScene: {
     narration: [
       "쿠키를 만들 때 쿠키 틀을 사용하면, 같은 모양의 쿠키를 쉽게 여러 개 만들 수 있습니다.",

@@ -63,6 +63,13 @@ const getAudioScene = (key: string) => {
 
 export const VIDEO_CONFIG = {
   thumbnail: { durationInFrames: 60 },
+  painScene: {
+    audio: "cls-painScene.mp3",
+    durationInFrames: getAudioScene("painScene").durationInFrames,
+    speechStartFrame: getAudioScene("painScene").speechStartFrame,
+    narration: CONTENT.painScene.narration as string[],
+    narrationSplits: getAudioScene("painScene").narrationSplits,
+  },
   analogyScene: {
     audio: "cls-analogyScene.mp3",
     durationInFrames: getAudioScene("analogyScene").durationInFrames,
@@ -307,6 +314,131 @@ const ThumbnailScene: React.FC = () => {
   );
 };
 
+const PainScene: React.FC = () => {
+  const { painScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const s = cfg.speechStartFrame;
+  const splits = cfg.narrationSplits;
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const cookies = [
+    { label: "시나몬", flavor: "cinnamon" as const },
+    { label: "딸기", flavor: "strawberry" as const },
+    { label: "초코", flavor: "choco" as const },
+    { label: "시나몬", flavor: "cinnamon" as const },
+    { label: "딸기", flavor: "strawberry" as const },
+    { label: "초코", flavor: "choco" as const },
+  ];
+
+  const tiredAppear = spring({
+    frame: frame - (splits[0] ?? s + 30),
+    fps,
+    config: { damping: 13, stiffness: 140 },
+    durationInFrames: 24,
+  });
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <SceneAudio src={cfg.audio} />
+          <SceneTitle title="1. 손으로 만들기" />
+
+          <div
+            style={{
+              position: "absolute",
+              top: "18%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 20,
+              width: 700,
+            }}
+          >
+            {cookies.map(({ label, flavor }, index) => {
+              const appear = spring({
+                frame: frame - s - index * 6,
+                fps,
+                config: { damping: 13, stiffness: 140 },
+                durationInFrames: 22,
+              });
+              return (
+                <div
+                  key={`pain-${index}`}
+                  style={{
+                    ...panelStyle,
+                    width: 200,
+                    border: `2px solid ${C_PAIN}44`,
+                    opacity: appear,
+                    transform: `translateY(${interpolate(
+                      appear,
+                      [0, 1],
+                      [20, 0],
+                      {
+                        extrapolateLeft: "clamp",
+                        extrapolateRight: "clamp",
+                      },
+                    )}px)`,
+                    padding: "20px 16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ fontSize: 36, lineHeight: 1 }}>🖐️</div>
+                  <StarCookieIcon size={72} flavor={flavor} />
+                  <div
+                    style={{
+                      fontFamily: uiFont,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: C_DIM,
+                      textAlign: "center",
+                    }}
+                  >
+                    {label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: "72%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily: uiFont,
+              fontSize: FONT.heading,
+              fontWeight: 900,
+              color: C_PAIN,
+              textAlign: "center",
+              lineHeight: 1.4,
+              opacity: tiredAppear,
+            }}
+          >
+            6개를 손으로 만들려면
+            <br />
+            정말 힘듭니다…
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={getAudioScene("painScene").wordStartFrames}
+      />
+    </>
+  );
+};
+
 const AnalogyScene: React.FC = () => {
   const { analogyScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
@@ -334,7 +466,7 @@ const AnalogyScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="1. 쿠키 틀 = 클래스" />
+          <SceneTitle title="2. 쿠키 틀 = 클래스" />
 
           {/* Mold (left) + Arrow + Cookies (right) — vertical layout for portrait */}
           <div
@@ -593,7 +725,7 @@ const ArrayScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="2. int[3]도 일종의 틀" />
+          <SceneTitle title="3. int[3]도 일종의 틀" />
 
           <div
             style={{
@@ -719,7 +851,7 @@ const LimitScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="3. 배열의 한계" />
+          <SceneTitle title="4. 배열의 한계" />
 
           <div
             style={{
@@ -968,7 +1100,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="4. 정리" />
+          <SceneTitle title="5. 정리" />
 
           <div
             style={{
@@ -1027,6 +1159,7 @@ const SummaryScene: React.FC = () => {
 
 const sceneList = [
   VIDEO_CONFIG.thumbnail,
+  VIDEO_CONFIG.painScene,
   VIDEO_CONFIG.analogyScene,
   VIDEO_CONFIG.arrayScene,
   VIDEO_CONFIG.limitScene,
@@ -1050,6 +1183,14 @@ export const compositionMeta = {
 export const SRT_DATA: SrtEntry[] = buildSrtData([
   {
     offset: fromValues[1],
+    narration: CONTENT.painScene.narration as string[],
+    speechStartFrame: getAudioScene("painScene").speechStartFrame,
+    narrationSplits: getAudioScene("painScene").narrationSplits,
+    sentenceEndFrames: getAudioScene("painScene").sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
     narration: CONTENT.analogyScene.narration as string[],
     speechStartFrame: getAudioScene("analogyScene").speechStartFrame,
     narrationSplits: getAudioScene("analogyScene").narrationSplits,
@@ -1057,7 +1198,7 @@ export const SRT_DATA: SrtEntry[] = buildSrtData([
     sceneDuration: VIDEO_CONFIG.analogyScene.durationInFrames,
   },
   {
-    offset: fromValues[2],
+    offset: fromValues[3],
     narration: CONTENT.arrayScene.narration as string[],
     speechStartFrame: getAudioScene("arrayScene").speechStartFrame,
     narrationSplits: getAudioScene("arrayScene").narrationSplits,
@@ -1065,7 +1206,7 @@ export const SRT_DATA: SrtEntry[] = buildSrtData([
     sceneDuration: VIDEO_CONFIG.arrayScene.durationInFrames,
   },
   {
-    offset: fromValues[3],
+    offset: fromValues[4],
     narration: CONTENT.limitScene.narration as string[],
     speechStartFrame: getAudioScene("limitScene").speechStartFrame,
     narrationSplits: getAudioScene("limitScene").narrationSplits,
@@ -1073,7 +1214,7 @@ export const SRT_DATA: SrtEntry[] = buildSrtData([
     sceneDuration: VIDEO_CONFIG.limitScene.durationInFrames,
   },
   {
-    offset: fromValues[4],
+    offset: fromValues[5],
     narration: CONTENT.summaryScene.narration as string[],
     speechStartFrame: getAudioScene("summaryScene").speechStartFrame,
     narrationSplits: getAudioScene("summaryScene").narrationSplits,
@@ -1094,24 +1235,30 @@ const JavaClassTemplate: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.painScene.durationInFrames}
+    >
+      <PainScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[2]}
       durationInFrames={VIDEO_CONFIG.analogyScene.durationInFrames}
     >
       <AnalogyScene />
     </Sequence>
     <Sequence
-      from={fromValues[2]}
+      from={fromValues[3]}
       durationInFrames={VIDEO_CONFIG.arrayScene.durationInFrames}
     >
       <ArrayScene />
     </Sequence>
     <Sequence
-      from={fromValues[3]}
+      from={fromValues[4]}
       durationInFrames={VIDEO_CONFIG.limitScene.durationInFrames}
     >
       <LimitScene />
     </Sequence>
     <Sequence
-      from={fromValues[4]}
+      from={fromValues[5]}
       durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
     >
       <SummaryScene />
