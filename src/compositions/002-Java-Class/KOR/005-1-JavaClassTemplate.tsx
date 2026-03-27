@@ -954,13 +954,6 @@ const SummaryScene: React.FC = () => {
     },
   ];
 
-  const cardAppear = spring({
-    frame: frame - s,
-    fps,
-    config: { damping: 12, stiffness: 130 },
-    durationInFrames: 28,
-  });
-
   const lineAppears = points.map((_, i) =>
     spring({
       frame: frame - (splits[i] ?? s),
@@ -980,78 +973,43 @@ const SummaryScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "44%",
+              top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               display: "flex",
               flexDirection: "column",
-              gap: 28,
-              width: 940,
+              gap: 36,
               alignItems: "center",
             }}
           >
-            <MoldCard
-              color={C_TEAL}
-              width={940}
-              style={{
-                opacity: cardAppear,
-                transform: `scale(${interpolate(cardAppear, [0, 1], [0.92, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })})`,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: uiFont,
-                  fontSize: FONT.display,
-                  fontWeight: 900,
-                  color: TEXT,
-                  textAlign: "center",
-                  lineHeight: 1.2,
-                  marginBottom: 24,
-                }}
-              >
-                정리하겠습니다.
-              </div>
-
-              {points.map((point, i) => (
+            {points.map((point, i) => {
+              const appear = lineAppears[i];
+              return (
                 <div
                   key={`summary-${i}`}
                   style={{
+                    background: BG_CODE,
+                    padding: "28px 48px",
+                    border: `2px solid ${point.color}44`,
+                    borderRadius: 16,
+                    whiteSpace: "nowrap",
                     fontFamily: uiFont,
-                    fontSize: 30,
+                    fontSize: FONT.heading,
                     fontWeight: 800,
                     color: TEXT,
                     textAlign: "center",
-                    lineHeight: 1.55,
-                    opacity: lineAppears[i],
-                    marginBottom: 8,
+                    lineHeight: 1.5,
+                    opacity: appear,
+                    transform: `scale(${interpolate(appear, [0, 1], [0.92, 1], {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    })})`,
                   }}
                 >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: 32,
-                      height: 32,
-                      borderRadius: 999,
-                      background: `${point.color}22`,
-                      border: `2px solid ${point.color}55`,
-                      textAlign: "center",
-                      lineHeight: "28px",
-                      fontSize: 20,
-                      fontWeight: 900,
-                      color: point.color,
-                      marginRight: 12,
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    {i + 1}
-                  </span>
                   {point.text}
                 </div>
-              ))}
-            </MoldCard>
+              );
+            })}
           </div>
         </ContentArea>
       </AbsoluteFill>
