@@ -154,31 +154,61 @@ const MoldCard: React.FC<{
 const STAR_COOKIE_PATH =
   "M80 8L98 56H150L108 88L124 140L80 110L36 140L52 88L10 56H62L80 8Z";
 
+type CookieFlavor =
+  | "cinnamon"
+  | "strawberry"
+  | "choco"
+  | "vanilla"
+  | "blueberry"
+  | "matcha";
+
+const COOKIE_PALETTES: Record<
+  CookieFlavor,
+  { fill: string; stroke: string; chip: string; shine: string }
+> = {
+  cinnamon: {
+    fill: "#c4783a",
+    stroke: "#9b5a28",
+    chip: "#7a421a",
+    shine: "#e8a86d",
+  },
+  strawberry: {
+    fill: "#ffb7c9",
+    stroke: "#e67f98",
+    chip: "#d84d68",
+    shine: "#fff4f8",
+  },
+  choco: {
+    fill: "#6b4326",
+    stroke: "#4b2b15",
+    chip: "#32190f",
+    shine: "#a57854",
+  },
+  vanilla: {
+    fill: "#f5e6b8",
+    stroke: "#d4c48a",
+    chip: "#c4a44a",
+    shine: "#fdf6e3",
+  },
+  blueberry: {
+    fill: "#8b9fd6",
+    stroke: "#6474b0",
+    chip: "#3f4f8a",
+    shine: "#c8d4f0",
+  },
+  matcha: {
+    fill: "#8cb87a",
+    stroke: "#5f8a50",
+    chip: "#3d6630",
+    shine: "#c8e6b8",
+  },
+};
+
 const StarCookieIcon: React.FC<{
   size?: number;
-  flavor?: "cinnamon" | "strawberry" | "choco";
+  flavor?: CookieFlavor;
 }> = ({ size = 112, flavor = "cinnamon" }) => {
-  const palette =
-    flavor === "strawberry"
-      ? {
-          fill: "#ffb7c9",
-          stroke: "#e67f98",
-          chip: "#d84d68",
-          shine: "#fff4f8",
-        }
-      : flavor === "choco"
-        ? {
-            fill: "#6b4326",
-            stroke: "#4b2b15",
-            chip: "#32190f",
-            shine: "#a57854",
-          }
-        : {
-            fill: "#c4783a",
-            stroke: "#9b5a28",
-            chip: "#7a421a",
-            shine: "#e8a86d",
-          };
+  const palette = COOKIE_PALETTES[flavor];
 
   return (
     <svg
@@ -323,13 +353,13 @@ const PainScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const cookies = [
-    { label: "시나몬", flavor: "cinnamon" as const },
-    { label: "딸기", flavor: "strawberry" as const },
-    { label: "초코", flavor: "choco" as const },
-    { label: "시나몬", flavor: "cinnamon" as const },
-    { label: "딸기", flavor: "strawberry" as const },
-    { label: "초코", flavor: "choco" as const },
+  const cookies: { label: string; flavor: CookieFlavor }[] = [
+    { label: "시나몬", flavor: "cinnamon" },
+    { label: "딸기", flavor: "strawberry" },
+    { label: "초코", flavor: "choco" },
+    { label: "바닐라", flavor: "vanilla" },
+    { label: "블루베리", flavor: "blueberry" },
+    { label: "말차", flavor: "matcha" },
   ];
 
   const tiredAppear = spring({
