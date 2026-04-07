@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   SceneAudio,
   SceneTitle,
@@ -108,16 +109,14 @@ const CodeLines: React.FC<{
   const visibleLines = lines.filter((l) => frame >= l.startFrame);
   if (visibleLines.length === 0) return null;
   return (
-    <div
+    <CodeBlock
       style={{
         position: "absolute",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        background: BG_CODE,
         borderRadius: 14,
         padding: "36px 56px",
-        minWidth: 820,
         ...monoStyle,
         fontSize: CODE.xl,
         lineHeight: 1.9,
@@ -142,7 +141,7 @@ const CodeLines: React.FC<{
           />
         );
       })}
-    </div>
+    </CodeBlock>
   );
 };
 
@@ -545,7 +544,7 @@ const RemScene: React.FC = () => {
           </div>
 
           {/* split1: 활용 예시 */}
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               bottom: 230,
@@ -556,8 +555,6 @@ const RemScene: React.FC = () => {
               gap: 20,
               ...monoStyle,
               fontSize: CODE.xl,
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "14px 32px",
             }}
           >
@@ -592,7 +589,7 @@ const RemScene: React.FC = () => {
             >
               → odd
             </span>
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -638,16 +635,13 @@ const SummaryScene: React.FC = () => {
           <SceneTitle title="5. Arithmetic Summary" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
-              <div
+              <CodeBlock
                 style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: BG_CODE,
-                  borderRadius: 12,
                   padding: "36px 56px",
-                  minWidth: 820,
                   ...monoStyle,
                   fontSize: CODE.xl,
                   lineHeight: 1.85,
@@ -668,7 +662,7 @@ const SummaryScene: React.FC = () => {
                     />
                   ),
                 )}
-              </div>
+              </CodeBlock>
             </Sequence>
           ))}
         </ContentArea>

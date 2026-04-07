@@ -17,6 +17,7 @@ import {
   CHARS_PER_SEC,
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -38,15 +39,7 @@ import {
 import { CONTENT as KOR_CONTENT } from "../KOR/002-2-content";
 import { CONTENT } from "./002-2-content";
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
-import {
-  BG,
-  BG_CODE,
-  BG_THUMB,
-  C_OPERATOR,
-  C_TEAL,
-  C_TYPE,
-  TEXT,
-} from "./colors";
+import { BG, BG_THUMB, C_OPERATOR, C_TEAL, C_TYPE, TEXT } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -135,16 +128,13 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = CHARS_PER_SEC }) => (
-  <div
+  <CodeBlock
     style={{
       position: "absolute",
       top: "57%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: BG_CODE,
-      borderRadius: 12,
       padding: "40px 56px",
-      minWidth: 780,
       ...monoStyle,
       fontSize: CODE.xl,
     }}
@@ -162,7 +152,7 @@ const CodeBox: React.FC<{
         <StaticLine key={`static-${i}`} text={line.text} />
       ),
     )}
-  </div>
+  </CodeBlock>
 );
 
 // ── 컴포넌트: TypeBox ─────────────────────────────────────────
@@ -590,10 +580,8 @@ const ValueVsVarScene: React.FC = () => {
   const msgOpacity = msgAppear * (1 - msgExit);
 
   // "int value" → wordTiming "int"[0] (sentence 2), "int variable" → wordTiming "int"[1] (sentence 3)
-  const valueWordFrame =
-    AUDIO_CONFIG.valueVsVar.wordTiming["int"][0] ?? split0;
-  const varWordFrame =
-    AUDIO_CONFIG.valueVsVar.wordTiming["int"][1] ?? split1;
+  const valueWordFrame = AUDIO_CONFIG.valueVsVar.wordTiming["int"][0] ?? split0;
+  const varWordFrame = AUDIO_CONFIG.valueVsVar.wordTiming["int"][1] ?? split1;
 
   const valueAppear = spring({
     frame: frame - valueWordFrame,

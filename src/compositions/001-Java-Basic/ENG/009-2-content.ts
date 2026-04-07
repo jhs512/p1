@@ -27,12 +27,12 @@ export const CONTENT = {
   },
   executionScene: {
     narration: [
-      "When i is zero, the condition is true,\nso the block runs.",
-      "When i is one, the condition is still true.",
-      "When i is two, the condition is still true.",
-      "When i is three, the condition is still true.",
-      "When i is four,\nthis is the last time the condition is true.",
-      "When i becomes five, the condition is false,\nso the loop ends.",
+      "When i is 0, the condition is true,\nso the block runs.",
+      "When i is 1, the condition is still true.",
+      "When i is 2, the condition is still true.",
+      "When i is 3, the condition is still true.",
+      "When i is 4,\nthis is the last time the condition is true.",
+      "When i becomes 5, the condition is false,\nso the loop ends.",
     ],
   },
   summaryScene: {

@@ -7,6 +7,17 @@
 
 ---
 
+# YouTube 채널
+
+| 언어 | 채널                 | 채널 ID                  |
+| ---- | -------------------- | ------------------------ |
+| KOR  | 몰입코딩 (@micoding) | UCrzfEJknj3SPqveyYnl-SvQ |
+| ENG  | RGB-DEV              | (별도 채널)              |
+
+**KOR과 ENG는 완전히 다른 YouTube 채널에 업로드된다.** 혼동하지 않는다.
+
+---
+
 # 아키텍처
 
 ## 헌법
@@ -49,6 +60,10 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 `useFade(d, { out: false })` 사용.
 
+### 모든 나레이션 씬에 SceneTitle을 넣는다
+
+ThumbnailScene을 제외한 모든 씬 상단에 `<SceneTitle title="N. 제목" />` 필수.
+
 ### CSS transition / animation 사용 금지
 
 렌더링 시 무시된다. `interpolate` / `spring`만 사용.
@@ -65,6 +80,36 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 `...monoStyle` 스프레드로 `fontFamily` + `fontFeatureSettings` 동시 적용.
 
+### 모든 텍스트는 최소 18px 이상이어야 한다
+
+- 화면에 보이는 모든 텍스트의 기본 최소값은 `18px`이다.
+- 작다고 느껴지면 폰트를 줄여서 우겨 넣지 말고, 레이아웃을 다시 잡는다.
+- 정보 라벨(`스택 (주소만 가짐)`, 인덱스, 상태 설명, 보조 문장 등)도 예외 없이 읽히는 크기를 유지한다.
+
+### 칩형 라벨은 의미가 있을 때만 쓴다
+
+- pill/chip 형태 라벨은 정보 계층, 그룹 이름, 상태 표시처럼 실제 의미가 있을 때만 사용한다.
+- 단순 장식, 분위기용, 이미 본문으로 충분한 내용을 한 번 더 감싸는 용도로는 쓰지 않는다.
+- 의미가 약하면 칩을 붙이지 말고 본문만 남긴다.
+
+### 박스 라벨은 테두리와 충분히 떨어뜨린다
+
+- `PROCESS`, `MEMORY (RAM)` 같은 박스 라벨은 테두리에 딱 붙이면 안 된다.
+- 라벨과 박스 테두리 사이에는 최소 `12~16px` 이상의 시각적 여백을 둔다.
+- 답답해 보이면 폰트를 줄이지 말고 라벨 위치와 박스 위치를 다시 조정한다.
+
+### 카드/패널은 세로 배열이 기본이다
+
+- 코드 블록, 결과 카드, 비교 패널 등은 **세로(column)** 배열이 기본이다.
+- 좌우(row) 배열은 아주 짧은 라벨 2개 정도만 허용한다.
+- 코드가 들어간 카드를 좌우로 놓으면 줄바꿈이 생겨서 가독성이 떨어진다.
+
+### 코드의 모든 문자는 반드시 색상이 지정되어야 한다
+
+- `<span>` 밖에 `;`, `(`, `)`, `{`, `}` 등의 문자를 두면 기본 검은색으로 렌더링된다.
+- **모든 코드 문자**는 반드시 `<span style={{ color: ... }}>` 안에 넣는다.
+- `);` → `<span style={{ color: TEXT }}>);</span>`
+
 ### 중간 작업마다 커밋/푸시한다
 
 기능·씬 단위 완료 시 즉시. 사용자 요청 없이 자동 판단.
@@ -75,9 +120,29 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 - **1회성**: 등장(spring) → 소멸(interpolate)
 - **예외**: 밑줄은 영구 유지 허용.
 
-### `100dvw` 사용 금지
+### 발화 타이밍에 맞춰 하이라이팅/밑줄을 적극 활용한다
 
-`useVideoConfig().width` 사용.
+- 키워드를 발화할 때 해당 코드/요소에 **밑줄**, **글로우**, **boxShadow** 등으로 시각적 강조.
+- `wordTiming`을 활용하여 정확한 프레임에 등장 → 유지 → 소멸.
+- 코드 키워드(`new`, 변수명 등), 메모리 다이어그램 셀, 개념 카드 등 모두 대상.
+
+### 화살표는 시작점과 끝점이 명확해야 한다
+
+- 화살표는 반드시 **출발 요소**에서 시작하여 **도착 요소**를 가리켜야 한다.
+- SVG 하드코딩 좌표 대신 [`ElementArrow`](/Users/jangka512/Custom/remotions/p1/src/utils/Arrow.tsx)를 사용한다.
+- 입력은 `containerRef`, `from`, `to` 구조로 넘긴다. `from/to`에는 `ref`, `anchor`, `padding`, `offsetX`, `offsetY`를 사용한다.
+- `anchor`로 시작점/끝점의 방향(`right-center`, `left-top`, `bottom-center` 등)을 명시하고, 요소에 너무 딱 붙으면 `padding`으로 8~12px 정도 띄운다.
+- 어떤 요소가 어떤 요소를 가리키는지 **한눈에** 알 수 있어야 한다.
+
+### 너비 기준
+
+CSS `100dvw`도 허용하지만, `useVideoConfig().width`도 사용 가능. 코드 블록에는 `CodeBlock` 컴포넌트 사용 권장.
+
+### 자막(SRT) 업로드 룰
+
+- **KOR 영상**: 한국어 자막 필수. 같은 시리즈에 ENG 폴더가 있으면 영어 자막을 서브로 추가.
+- **ENG 영상**: 영어 자막 필수. 같은 시리즈에 KOR 폴더가 있으면 한국어 자막을 서브로 추가.
+- 구현: 컴포지션 파일에서 `SRT_TRACKS`로 `{ "ko-KR": ..., "en-US": ... }` 형태로 export. 상대 언어 content를 import하여 `localizeSrtData`로 타이밍 복사.
 
 ---
 
@@ -93,11 +158,12 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 ### TTS가 잘못 읽을 단어는 인라인 발음 문법을 쓴다
 
 ```
-[표시텍스트(발음:TTS읽기)]
+[표시텍스트(pron:TTS읽기)]
 ```
 
-- `[System.out.println(발음:print line)]` → 자막: System.out.println / TTS: print line
-- `[(자료)(발음:)]` → 자막: (자료) / TTS: 묵음
+- `[System.out.println(pron:print line)]` → 자막: System.out.println / TTS: print line
+- `[(자료)(pron:)]` → 자막: (자료) / TTS: 묵음
+- `상자(mute:변수)` → 자막: 상자(변수) / TTS: 상자
 
 **나레이션을 쓸 때마다 반드시 확인한다.**
 
@@ -109,6 +175,21 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 새 줄이 타이핑되더라도 이전 줄의 opacity를 낮추지 않는다.
 (상세 설명 씬에서 포커싱 목적으로 흐리게 하는 것은 허용)
+
+### 자막에 숫자는 아라비아 숫자로 표시한다
+
+화면에 보이는 코드 값을 가리키는 숫자는 아라비아 숫자로 쓴다. TTS가 자연스럽게 읽는다.
+일반 서술에서 쓰이는 숫자는 영문 그대로 둔다.
+
+```ts
+// ✅ 코드 값을 가리킬 때 — 아라비아 숫자
+"10 is not less than 3, so the result is false."; // 화면: 10 < 3
+"The variable age now stores 25."; // 화면: age = 25
+
+// ✅ 일반 서술 — 영문 그대로
+"Let's look at four main data types.";
+"The addition operator adds two values.";
+```
 
 ### 코드 연산자 양옆에 반드시 공백을 넣는다
 
@@ -124,14 +205,49 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 ## 법률
 
+### 나레이션 속 코드 구문은 토큰별로 pron을 분리한다
+
+`id = id`, `age + 2`, `count++` 같은 코드 구문이 나레이션에 들어갈 때, **변수·연산자·값을 각각 별도 `[...(pron:...)]`로 감싼다.**
+TTS가 토큰을 합쳐 읽는 것을 방지하고, 하이라이팅을 개별 단어에 걸 수 있게 한다.
+
+```ts
+// ✅ 토큰별 분리
+"`[id(pron:아이디)] [=(pron:이퀄)] [id(pron:아이디)]` 처럼"
+
+// ❌ 한 덩어리
+"`[id = id(pron:아이디 이퀄 아이디)]` 처럼"
+```
+
+- 백틱(`` ` ``) 닫은 뒤 한글 조사가 바로 붙으면 TTS가 합친다 → **공백을 넣는다** (`` ` 처럼``).
+- `pron` 안에서 한국어 발음·영어 발음 모두 허용.
+- **pron 문법 `]` 뒤에 괄호·숫자가 바로 붙으면 TTS가 합친다** → `]`와 `(` 사이에 **공백**을 넣는다.
+
+```ts
+// ✅ Person과 (2 분리됨
+"`new [Person(pron:퍼슨)] (2, 25, 175)`"
+
+// ❌ TTS가 "Person(2"를 한 단어로 합침
+"`new [Person(pron:퍼슨)](2, 25, 175)`"
+```
+
 ### 인라인 발음 문법 상세
 
 ```ts
-"[유튜브(발음:유튭)]에서 확인할 수 있습니다.";
+"[유튜브(pron:유튭)]에서 확인할 수 있습니다.";
 // 자막: 유튜브  /  TTS: 유튭
 ```
 
 - `src/utils/narration.ts`의 `toDisplayText` / `toTTSText`로 파싱
+
+### 묵음(mute) 문법
+
+```ts
+"상자(mute:변수)에 값을 넣습니다.";
+// 자막: 상자(변수)에 값을 넣습니다.  /  TTS: 상자에 값을 넣습니다.
+```
+
+- `(mute:텍스트)` → 자막에는 `(텍스트)`로 표시, TTS에서는 통째로 제거.
+- 괄호 안 보충 설명을 자막에만 보여주고 TTS가 읽지 않게 할 때 사용.
 
 ### ENG 번역 시 한국 이름은 영어권 이름으로 변경한다
 
@@ -164,7 +280,7 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 **쉼을 넣고 싶을 때**: 마침표(`.`) 1개 사용.
 
 ```
-[AND,(발음:AND.)] [OR,(발음:OR.)] and NOT.
+[AND,(pron:AND.)] [OR,(pron:OR.)] and NOT.
 → 자막: AND, OR, and NOT.  /  TTS: AND. OR. and NOT.
 ```
 
@@ -172,27 +288,27 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 | 텍스트               | Emma 발음             | 해결                                    |
 | -------------------- | --------------------- | --------------------------------------- |
-| `!true`              | "true" (! 무시)       | `[!true(발음:not true)]`                |
-| `!false`             | "false" (! 무시)      | `[!false(발음:not false)]`              |
-| `!=`                 | 불안정                | `[!=(발음:not equal)]`                  |
-| `&&`                 | "and and" 또는 무시   | `[&&(발음:and)]`                        |
-| `\|\|`               | 무시 또는 이상한 발음 | `[\|\|(발음:or)]`                       |
-| `System.out.println` | 부자연스러운 분절     | `[System.out.println(발음:print line)]` |
+| `!true`              | "true" (! 무시)       | `[!true(pron:not true)]`                |
+| `!false`             | "false" (! 무시)      | `[!false(pron:not false)]`              |
+| `!=`                 | 불안정                | `[!=(pron:not equal)]`                  |
+| `&&`                 | "and and" 또는 무시   | `[&&(pron:and)]`                        |
+| `\|\|`               | 무시 또는 이상한 발음 | `[\|\|(pron:or)]`                       |
+| `System.out.println` | 부자연스러운 분절     | `[System.out.println(pron:print line)]` |
 
 ## Hyunsu (한국어) — 고유 버그
 
 Hyunsu는 영어 단어/기호를 한국어식으로 잘못 읽는다.
 
-| 텍스트   | Hyunsu 발음      | 해결                         |
-| -------- | ---------------- | ---------------------------- |
-| `OR`                 | "오얼"                | `[OR(발음:오어)]`                             |
-| `!은`                | "나슨"                | `[!(발음:느낌표)]` 또는 우회                  |
-| `!true`              | "true" (! 무시)       | `[!true(발음:낫 트루)]`                       |
-| `!false`             | "false" (! 무시)      | `[!false(발음:낫 폴스)]`                      |
-| `!=`                 | 불안정                | `[!=(발음:낫 이퀄)]`                          |
-| `&&`                 | 무시 또는 이상한 발음 | `[&&(발음:앤드)]`                             |
-| `\|\|`               | 무시 또는 이상한 발음 | `[\|\|(발음:오어)]`                           |
-| `System.out.println` | 부자연스러운 분절     | `[System.out.println(발음:프린트 라인)]`      |
+| 텍스트               | Hyunsu 발음           | 해결                                     |
+| -------------------- | --------------------- | ---------------------------------------- |
+| `OR`                 | "오얼"                | `[OR(pron:오어)]`                        |
+| `!은`                | "나슨"                | `[!(pron:느낌표)]` 또는 우회             |
+| `!true`              | "true" (! 무시)       | `[!true(pron:낫 트루)]`                  |
+| `!false`             | "false" (! 무시)      | `[!false(pron:낫 폴스)]`                 |
+| `!=`                 | 불안정                | `[!=(pron:낫 이퀄)]`                     |
+| `&&`                 | 무시 또는 이상한 발음 | `[&&(pron:앤드)]`                        |
+| `\|\|`               | 무시 또는 이상한 발음 | `[\|\|(pron:오어)]`                      |
+| `System.out.println` | 부자연스러운 분절     | `[System.out.println(pron:프린트 라인)]` |
 
 **원칙: 코드 기호가 나레이션에 포함되면 반드시 인라인 발음을 확인한다.**
 
@@ -478,7 +594,6 @@ pnpm new 001-Java-Basic/KOR/011 --title "JavaArray" --prefix arr
 ## 금지 사항 체크리스트
 
 - [ ] CSS `transition` / `animation` 사용
-- [ ] `100dvw` 사용
 - [ ] `monoFont`에 `MONO_NO_LIGA` 누락
 - [ ] `as const` 사용 (→ `satisfies EpisodeContent`)
 - [ ] 자막에 긴 코드 구문

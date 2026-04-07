@@ -20,14 +20,14 @@ export const CONTENT = {
   },
   ifScene: {
     narration: [
-      "If the score is at least sixty,\nit prints a pass message.",
-      "Seventy-five is at least sixty,\nso the condition is true and the block runs.",
+      "If the score is at least 60,\nit prints a pass message.",
+      "75 is at least 60,\nso the condition is true and the block runs.",
     ],
   },
   ifElseScene: {
     narration: [
       "Else is the block that runs\nwhen the condition is false.",
-      "If the score is forty-five,\nthe condition is false, so the else block runs.",
+      "If the score is 45,\nthe condition is false, so the else block runs.",
     ],
   },
   summaryScene: {

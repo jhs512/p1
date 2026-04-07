@@ -25,7 +25,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/013-2-content";
 import { CONTENT } from "./013-2-content";
 import { AUDIO_CONFIG } from "./013-3-audio.gen";
 import {
@@ -1338,6 +1345,100 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.printScene.narration,
+    speechStartFrame: AUDIO_CONFIG.printScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.printScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.printScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.printScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.printRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.printRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.printRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.printRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.printRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.sumScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.sumRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.sumEvenScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumEvenScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumEvenScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumEvenScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumEvenScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.sumEvenRevealScene.narration,
+    speechStartFrame: AUDIO_CONFIG.sumEvenRevealScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.sumEvenRevealScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.sumEvenRevealScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.sumEvenRevealScene.durationInFrames,
+  },
+  {
+    offset: fromValues[7],
+    narration: VIDEO_CONFIG.comparisonScene.narration,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.comparisonScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[8],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[9],
+    narration: VIDEO_CONFIG.summaryScene.narration,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.printScene.narration,
+  ...ENG_CONTENT.printRevealScene.narration,
+  ...ENG_CONTENT.sumScene.narration,
+  ...ENG_CONTENT.sumRevealScene.narration,
+  ...ENG_CONTENT.sumEvenScene.narration,
+  ...ENG_CONTENT.sumEvenRevealScene.narration,
+  ...ENG_CONTENT.comparisonScene.narration,
+  ...ENG_CONTENT.callScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

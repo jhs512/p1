@@ -17,6 +17,7 @@ import {
   CHARS_PER_SEC,
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -28,18 +29,17 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/002-2-content";
 import { CONTENT } from "./002-2-content";
 import { AUDIO_CONFIG } from "./002-3-audio.gen";
-import {
-  BG,
-  BG_CODE,
-  BG_THUMB,
-  C_OPERATOR,
-  C_TEAL,
-  C_TYPE,
-  TEXT,
-} from "./colors";
+import { BG, BG_THUMB, C_OPERATOR, C_TEAL, C_TYPE, TEXT } from "./colors";
 import { HEIGHT, WIDTH } from "./config";
 
 // ── 상수 ─────────────────────────────────────────────────────
@@ -121,16 +121,13 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = CHARS_PER_SEC }) => (
-  <div
+  <CodeBlock
     style={{
       position: "absolute",
       top: "57%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: BG_CODE,
-      borderRadius: 12,
       padding: "40px 56px",
-      minWidth: 780,
       ...monoStyle,
       fontSize: CODE.xl,
     }}
@@ -148,7 +145,7 @@ const CodeBox: React.FC<{
         <StaticLine key={`static-${i}`} text={line.text} />
       ),
     )}
-  </div>
+  </CodeBlock>
 );
 
 // ── 컴포넌트: TypeBox ─────────────────────────────────────────
@@ -1078,6 +1075,21 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.intro.narration,
+  ...ENG_CONTENT.valueVsVar.narration,
+  ...ENG_CONTENT.intScene.narration,
+  ...ENG_CONTENT.doubleScene.narration,
+  ...ENG_CONTENT.stringScene.narration,
+  ...ENG_CONTENT.booleanScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

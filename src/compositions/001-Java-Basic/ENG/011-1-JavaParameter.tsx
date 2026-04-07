@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -39,7 +40,6 @@ import { CONTENT } from "./011-2-content";
 import { AUDIO_CONFIG } from "./011-3-audio.gen";
 import {
   BG,
-  BG_CODE,
   BG_THUMB,
   C_FUNC,
   C_KEYWORD,
@@ -197,10 +197,7 @@ const PAIN_FUNC_LINES = [
   '    System.out.println("Hello Mike");',
   "}",
 ];
-const PAIN_EXTRAS = [
-  "void greetChris() { ... }",
-  "void greetEmma() { ... }",
-];
+const PAIN_EXTRAS = ["void greetChris() { ... }", "void greetEmma() { ... }"];
 const PAIN_CPS = 22;
 
 const PainScene: React.FC = () => {
@@ -247,10 +244,8 @@ const PainScene: React.FC = () => {
             }}
           >
             {/* 원래 greet() 함수 */}
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "32px 44px",
                 ...monoStyle,
                 fontSize: CODE.xl,
@@ -264,9 +259,9 @@ const PainScene: React.FC = () => {
                   cps={PAIN_CPS}
                 />
               ))}
-            </div>
+            </CodeBlock>
             {/* 추가 함수 스텁 — 2문장 시점에 등장 */}
-            <div
+            <CodeBlock
               style={{
                 opacity: extrasAppear,
                 transform: `scale(${interpolate(
@@ -278,8 +273,6 @@ const PainScene: React.FC = () => {
                     extrapolateRight: "clamp",
                   },
                 )})`,
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "20px 44px",
                 ...monoStyle,
                 fontSize: CODE.xl,
@@ -299,7 +292,7 @@ const PainScene: React.FC = () => {
                   <JavaLine text={line} />
                 </div>
               ))}
-            </div>
+            </CodeBlock>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -516,12 +509,9 @@ const ParamScene: React.FC = () => {
             >
               parameter ↓
             </div>
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "36px 48px",
-                maxWidth: 980,
                 ...monoStyle,
                 fontSize: CODE.md,
                 position: "relative",
@@ -546,7 +536,7 @@ const ParamScene: React.FC = () => {
                   />
                 ),
               )}
-            </div>
+            </CodeBlock>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -587,16 +577,13 @@ const CallScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. Passing Arguments" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.xl,
             }}
@@ -609,7 +596,7 @@ const CallScene: React.FC = () => {
                 cps={CALL_CPS}
               />
             ))}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -745,12 +732,9 @@ const MultiParamScene: React.FC = () => {
             }}
           >
             {/* 코드 블록 */}
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "40px 56px",
-                minWidth: 760,
                 ...monoStyle,
                 fontSize: CODE.xl,
               }}
@@ -782,7 +766,7 @@ const MultiParamScene: React.FC = () => {
                 startFrame={callStart}
                 cps={CALL_CPS}
               />
-            </div>
+            </CodeBlock>
 
             {/* 매핑 다이어그램: 3문장 시점에 등장 */}
             <div
@@ -984,11 +968,8 @@ const ArgParamScene: React.FC = () => {
               >
                 Parameters
               </div>
-              <div
+              <CodeBlock
                 style={{
-                  background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
                   width: "100%",
                   textAlign: "center",
                   border: `2px solid ${C_TEAL}${Math.round(paramHighlight * 85)
@@ -1023,7 +1004,7 @@ const ArgParamScene: React.FC = () => {
                   </span>
                   )
                 </span>
-              </div>
+              </CodeBlock>
             </div>
 
             {/* 화살표 */}
@@ -1061,11 +1042,8 @@ const ArgParamScene: React.FC = () => {
               >
                 Argument
               </div>
-              <div
+              <CodeBlock
                 style={{
-                  background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
                   width: "100%",
                   textAlign: "center",
                   border: `2px solid ${C_STRING}${Math.round(argHighlight * 85)
@@ -1087,7 +1065,7 @@ const ArgParamScene: React.FC = () => {
                   </span>
                   );
                 </span>
-              </div>
+              </CodeBlock>
             </div>
           </div>
         </ContentArea>

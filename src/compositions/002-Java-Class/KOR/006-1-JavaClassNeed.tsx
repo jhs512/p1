@@ -34,6 +34,8 @@ import {
   C_KEYWORD,
   C_NUMBER,
   C_PAIN,
+  C_PURPLE,
+  C_STRING,
   C_TEAL,
   C_TYPE,
   C_VAR,
@@ -82,6 +84,13 @@ export const VIDEO_CONFIG = {
     speechStartFrame: getAudioScene("flexScene").speechStartFrame,
     narration: CONTENT.flexScene.narration as string[],
     narrationSplits: getAudioScene("flexScene").narrationSplits,
+  },
+  comparisonScene: {
+    audio: "cls2-comparisonScene.mp3",
+    durationInFrames: getAudioScene("comparisonScene").durationInFrames,
+    speechStartFrame: getAudioScene("comparisonScene").speechStartFrame,
+    narration: CONTENT.comparisonScene.narration as string[],
+    narrationSplits: getAudioScene("comparisonScene").narrationSplits,
   },
   summaryScene: {
     audio: "cls2-summaryScene.mp3",
@@ -188,13 +197,29 @@ const ArrayPainScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const codeAppear = spring({
+  /* Step 1: 번호, 나이, 키 카드 (1st sentence) */
+  const infoAppear = spring({
     frame: frame - s,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 26,
   });
 
+  const infoItems = [
+    { label: "번호", example: "1", color: C_VAR },
+    { label: "나이", example: "20", color: C_VAR },
+    { label: "키", example: "170", color: C_VAR },
+  ];
+
+  /* Step 2: int 배열 코드 (2nd sentence) */
+  const codeAppear = spring({
+    frame: frame - (splits[0] ?? s + 40),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 26,
+  });
+
+  /* Step 3: 접근 예시 + 혼란 (3rd sentence) */
   const accessItems = [
     { index: "person1[0]", value: "1", question: "번호? 나이?" },
     { index: "person1[1]", value: "20", question: "나이? 키?" },
@@ -211,16 +236,83 @@ const ArrayPainScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "20%",
+              top: "14%",
               left: "50%",
               transform: "translateX(-50%)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 40,
+              gap: 32,
               width: 920,
             }}
           >
+            {/* Info cards: 번호, 나이, 키 */}
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                opacity: infoAppear,
+                transform: `scale(${interpolate(infoAppear, [0, 1], [0.88, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })})`,
+              }}
+            >
+              {infoItems.map((item, i) => {
+                const itemDelay = spring({
+                  frame: frame - s - i * 6,
+                  fps,
+                  config: { damping: 13, stiffness: 140 },
+                  durationInFrames: 22,
+                });
+                return (
+                  <div
+                    key={`info-${i}`}
+                    style={{
+                      ...panelStyle,
+                      padding: "20px 36px",
+                      border: `2px solid ${C_TEAL}44`,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 8,
+                      minWidth: 160,
+                      opacity: itemDelay,
+                      transform: `translateY(${interpolate(
+                        itemDelay,
+                        [0, 1],
+                        [12, 0],
+                        {
+                          extrapolateLeft: "clamp",
+                          extrapolateRight: "clamp",
+                        },
+                      )}px)`,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: uiFont,
+                        fontSize: FONT.label,
+                        fontWeight: 800,
+                        color: C_TEAL,
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                    <span
+                      style={{
+                        ...monoStyle,
+                        fontSize: 28,
+                        color: C_NUMBER,
+                      }}
+                    >
+                      {item.example}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             {/* Code block */}
             <div
               style={{
@@ -259,7 +351,7 @@ const ArrayPainScene: React.FC = () => {
             >
               {accessItems.map((item, i) => {
                 const itemAppear = spring({
-                  frame: frame - (splits[0] ?? s + 40) - i * 8,
+                  frame: frame - (splits[0] ?? s + 40),
                   fps,
                   config: { damping: 13, stiffness: 140 },
                   durationInFrames: 22,
@@ -369,6 +461,35 @@ const ClassSolutionScene: React.FC = () => {
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 26,
   });
+  const wordTiming =
+    (
+      getAudioScene("classSolutionScene") as {
+        wordTiming?: Record<string, readonly number[]>;
+      }
+    ).wordTiming ?? {};
+  const findWordFrame = (keys: string[]) =>
+    keys.flatMap((key) => wordTiming[key] ?? []).sort((a, b) => a - b)[0] ?? 0;
+  const buildUnderline = (wordFrame: number) =>
+    wordFrame > 0
+      ? interpolate(
+          frame,
+          [wordFrame - 4, wordFrame + 8, wordFrame + 38, wordFrame + 60],
+          [0, 1, 1, 0],
+          {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          },
+        )
+      : 0;
+  const idAssignHighlight = buildUnderline(
+    findWordFrame([".id", "person1.id"]),
+  );
+  const ageAssignHighlight = buildUnderline(
+    findWordFrame([".age", "person1.age"]),
+  );
+  const heightAssignHighlight = buildUnderline(
+    findWordFrame([".height처럼", ".height", "person1.height"]),
+  );
 
   const fields = [
     { type: "int", name: "id" },
@@ -433,6 +554,80 @@ const ClassSolutionScene: React.FC = () => {
                   </div>
                 ))}
                 <span style={{ color: TEXT }}>{"}"}</span>
+              </div>
+            </div>
+
+            {/* Object creation + init */}
+            <div
+              style={{
+                ...panelStyle,
+                width: 680,
+                border: `2px solid ${C_TEAL}33`,
+                opacity: accessAppear,
+                transform: `scale(${interpolate(
+                  accessAppear,
+                  [0, 1],
+                  [0.92, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
+                padding: "24px 40px",
+              }}
+            >
+              <div style={{ ...monoStyle, fontSize: 26, lineHeight: 2 }}>
+                <span style={{ color: C_TEAL }}>Person</span>{" "}
+                <span style={{ color: C_VAR }}>person1</span>
+                <span style={{ color: TEXT }}> = </span>
+                <span style={{ color: C_KEYWORD }}>new</span>{" "}
+                <span style={{ color: C_TEAL }}>Person</span>
+                <span style={{ color: TEXT }}>();</span>
+                <div
+                  style={{
+                    paddingLeft: 0,
+                    textDecorationLine:
+                      idAssignHighlight > 0.05 ? "underline" : "none",
+                    textDecorationColor: C_TEAL,
+                    textDecorationThickness: `${2 + idAssignHighlight * 3}px`,
+                    textUnderlineOffset: `${4 + idAssignHighlight * 2}px`,
+                  }}
+                >
+                  <span style={{ color: C_VAR }}>person1</span>
+                  <span style={{ color: TEXT }}>.id = </span>
+                  <span style={{ color: C_NUMBER }}>1</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
+                <div
+                  style={{
+                    paddingLeft: 0,
+                    textDecorationLine:
+                      ageAssignHighlight > 0.05 ? "underline" : "none",
+                    textDecorationColor: C_TEAL,
+                    textDecorationThickness: `${2 + ageAssignHighlight * 3}px`,
+                    textUnderlineOffset: `${4 + ageAssignHighlight * 2}px`,
+                  }}
+                >
+                  <span style={{ color: C_VAR }}>person1</span>
+                  <span style={{ color: TEXT }}>.age = </span>
+                  <span style={{ color: C_NUMBER }}>20</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
+                <div
+                  style={{
+                    paddingLeft: 0,
+                    textDecorationLine:
+                      heightAssignHighlight > 0.05 ? "underline" : "none",
+                    textDecorationColor: C_TEAL,
+                    textDecorationThickness: `${2 + heightAssignHighlight * 3}px`,
+                    textUnderlineOffset: `${4 + heightAssignHighlight * 2}px`,
+                  }}
+                >
+                  <span style={{ color: C_VAR }}>person1</span>
+                  <span style={{ color: TEXT }}>.height = </span>
+                  <span style={{ color: C_NUMBER }}>170</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
               </div>
             </div>
 
@@ -741,6 +936,312 @@ const FlexScene: React.FC = () => {
   );
 };
 
+const ComparisonScene: React.FC = () => {
+  const { comparisonScene: cfg } = VIDEO_CONFIG;
+  const d = cfg.durationInFrames;
+  const opacity = useFade(d);
+  const s = cfg.speechStartFrame;
+  const splits = cfg.narrationSplits;
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const titleAppear = spring({
+    frame: frame - s,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+  const arrayAppear = spring({
+    frame: frame - (splits[0] ?? s + 30),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 26,
+  });
+  const classAppear = spring({
+    frame: frame - (splits[1] ?? s + 60),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 26,
+  });
+
+  const arrayAccess = [
+    { code: "person1[0]", value: "1", label: "int" },
+    { code: "person1[1]", value: "20", label: "int" },
+    { code: "person1[2]", value: "170", label: "int" },
+  ];
+
+  const classAccess = [
+    { code: "person1.id", value: "1", type: "int" },
+    { code: "person1.age", value: "20", type: "int" },
+    { code: "person1.height", value: "170.5", type: "double" },
+    { code: "person1.name", value: '"Chris"', type: "String" },
+    { code: "person1.married", value: "false", type: "boolean" },
+  ];
+
+  const halfStyle: React.CSSProperties = {
+    ...panelStyle,
+    width: 880,
+    padding: "28px 36px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+  };
+
+  return (
+    <>
+      <AbsoluteFill style={{ background: BG, opacity }}>
+        <ContentArea>
+          <SceneAudio src={cfg.audio} />
+          <SceneTitle title="4. 비교" />
+
+          <div
+            style={{
+              position: "absolute",
+              top: "15%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 36,
+              width: 920,
+            }}
+          >
+            {/* Title */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: FONT.heading,
+                fontWeight: 800,
+                color: TEXT,
+                opacity: titleAppear,
+              }}
+            >
+              배열 vs 클래스
+            </div>
+
+            {/* Array panel (top) */}
+            <div
+              style={{
+                ...halfStyle,
+                border: `2px solid ${C_PAIN}55`,
+                opacity: arrayAppear,
+                transform: `scale(${interpolate(
+                  arrayAppear,
+                  [0, 1],
+                  [0.92, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: C_PAIN,
+                  marginBottom: 4,
+                }}
+              >
+                배열 — 인덱스 접근, int만
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 22,
+                  lineHeight: 1.5,
+                  marginBottom: 6,
+                  padding: "8px 12px",
+                  background: `${BG}88`,
+                  borderRadius: 8,
+                }}
+              >
+                <span style={{ color: C_TYPE }}>int</span>
+                <span style={{ color: TEXT }}>[] person1 = </span>
+                <span style={{ color: C_KEYWORD }}>new </span>
+                <span style={{ color: C_TYPE }}>int</span>
+                <span style={{ color: TEXT }}>[]{"{"}</span>
+                <span style={{ color: C_NUMBER }}>1</span>
+                <span style={{ color: TEXT }}>, </span>
+                <span style={{ color: C_NUMBER }}>20</span>
+                <span style={{ color: TEXT }}>, </span>
+                <span style={{ color: C_NUMBER }}>170</span>
+                <span style={{ color: TEXT }}>{"}"}</span>
+                <span style={{ color: TEXT }}>;</span>
+              </div>
+              {arrayAccess.map((item, i) => (
+                <div
+                  key={`arr-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: FONT.label,
+                      color: C_VAR,
+                      width: 260,
+                    }}
+                  >
+                    {item.code}
+                  </span>
+                  <span
+                    style={{ ...monoStyle, fontSize: FONT.label, color: C_DIM }}
+                  >
+                    →
+                  </span>
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: FONT.label,
+                      color: C_NUMBER,
+                    }}
+                  >
+                    {item.value}
+                  </span>
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: 20,
+                      color: C_DIM,
+                      marginLeft: "auto",
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* VS divider */}
+            <div
+              style={{
+                fontFamily: uiFont,
+                fontSize: 36,
+                fontWeight: 900,
+                color: C_DIM,
+                opacity: classAppear,
+              }}
+            >
+              VS
+            </div>
+
+            {/* Class panel (bottom) */}
+            <div
+              style={{
+                ...halfStyle,
+                border: `2px solid ${C_TEAL}55`,
+                opacity: classAppear,
+                transform: `scale(${interpolate(
+                  classAppear,
+                  [0, 1],
+                  [0.92, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: C_TEAL,
+                  marginBottom: 4,
+                }}
+              >
+                클래스 — 이름 접근, 다양한 타입
+              </div>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 22,
+                  lineHeight: 1.5,
+                  marginBottom: 6,
+                  padding: "8px 12px",
+                  background: `${BG}88`,
+                  borderRadius: 8,
+                }}
+              >
+                <span style={{ color: C_TEAL }}>Person</span>
+                <span style={{ color: TEXT }}> person1 = </span>
+                <span style={{ color: C_KEYWORD }}>new </span>
+                <span style={{ color: C_TEAL }}>Person</span>
+                <span style={{ color: TEXT }}>();</span>
+              </div>
+              {classAccess.map((item, i) => (
+                <div
+                  key={`cls-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: FONT.label,
+                      color: C_TEAL,
+                      width: 260,
+                    }}
+                  >
+                    {item.code}
+                  </span>
+                  <span
+                    style={{ ...monoStyle, fontSize: FONT.label, color: C_DIM }}
+                  >
+                    →
+                  </span>
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: FONT.label,
+                      color:
+                        item.type === "String"
+                          ? C_STRING
+                          : item.type === "boolean"
+                            ? C_PURPLE
+                            : C_NUMBER,
+                    }}
+                  >
+                    {item.value}
+                  </span>
+                  <span
+                    style={{
+                      ...monoStyle,
+                      fontSize: 20,
+                      color: item.type !== "int" ? C_TEAL : C_TYPE,
+                      fontWeight: item.type !== "int" ? 800 : 400,
+                      marginLeft: "auto",
+                    }}
+                  >
+                    {item.type}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ContentArea>
+      </AbsoluteFill>
+      <Subtitle
+        sentences={cfg.narration}
+        splits={cfg.narrationSplits}
+        speechStart={s}
+        wordFrames={getAudioScene("comparisonScene").wordStartFrames}
+      />
+    </>
+  );
+};
+
 const SummaryScene: React.FC = () => {
   const { summaryScene: cfg } = VIDEO_CONFIG;
   const d = cfg.durationInFrames;
@@ -756,7 +1257,7 @@ const SummaryScene: React.FC = () => {
       color: C_PAIN,
     },
     {
-      text: "클래스를 쓰면 이름으로 접근하고,\n다양한 타입을 자유롭게 구성할 수 있습니다.",
+      text: "클래스로 객체를 만들면 이름으로 접근하고,\n다양한 타입을 자유롭게 구성할 수 있습니다.",
       color: C_TEAL,
     },
   ];
@@ -775,7 +1276,7 @@ const SummaryScene: React.FC = () => {
       <AbsoluteFill style={{ background: BG, opacity }}>
         <ContentArea>
           <SceneAudio src={cfg.audio} />
-          <SceneTitle title="4. 정리" />
+          <SceneTitle title="5. 정리" />
 
           <div
             style={{
@@ -837,6 +1338,7 @@ const sceneList = [
   VIDEO_CONFIG.arrayPainScene,
   VIDEO_CONFIG.classSolutionScene,
   VIDEO_CONFIG.flexScene,
+  VIDEO_CONFIG.comparisonScene,
   VIDEO_CONFIG.summaryScene,
 ];
 const sceneDurations = sceneList.map((s) => s.durationInFrames);
@@ -881,6 +1383,14 @@ export const SRT_DATA: SrtEntry[] = buildSrtData([
   },
   {
     offset: fromValues[4],
+    narration: CONTENT.comparisonScene.narration as string[],
+    speechStartFrame: getAudioScene("comparisonScene").speechStartFrame,
+    narrationSplits: getAudioScene("comparisonScene").narrationSplits,
+    sentenceEndFrames: getAudioScene("comparisonScene").sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
     narration: CONTENT.summaryScene.narration as string[],
     speechStartFrame: getAudioScene("summaryScene").speechStartFrame,
     narrationSplits: getAudioScene("summaryScene").narrationSplits,
@@ -919,6 +1429,12 @@ const JavaClassNeed: React.FC = () => (
     </Sequence>
     <Sequence
       from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.comparisonScene.durationInFrames}
+    >
+      <ComparisonScene />
+    </Sequence>
+    <Sequence
+      from={fromValues[5]}
       durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
     >
       <SummaryScene />

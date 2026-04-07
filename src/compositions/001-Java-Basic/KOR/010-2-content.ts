@@ -53,8 +53,6 @@ export const CONTENT = {
     ],
   },
   outroScene: {
-    narration: [
-      "[return(발음:리턴)]에 대해서는 나중에 알아보겠습니다.",
-    ],
+    narration: ["[return(pron:리턴)]에 대해서는 나중에 알아보겠습니다."],
   },
 } satisfies EpisodeContent;

@@ -31,12 +31,7 @@ function collectTargets(): Target[] {
 
   if (arg.includes("/")) {
     const parts = arg.split("/");
-    const episodeNum = parts[parts.length - 1];
     const seriesArg = parts[0];
-    const langDir =
-      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
-        ? parts[parts.length - 2]
-        : null;
     const seriesDir =
       allSeries.find((d) => d === seriesArg) ??
       allSeries.find((d) => d.startsWith(seriesArg));
@@ -44,6 +39,17 @@ function collectTargets(): Target[] {
       console.error(`No series folder matching "${seriesArg}" found.`);
       process.exit(1);
     }
+
+    // series/LANG (e.g. 001-Java-Basic/KOR) → all episodes in that lang
+    if (parts.length === 2 && /^[A-Z]{2,3}$/.test(parts[1])) {
+      return episodesOf(seriesDir).filter((t) => t.langDir === parts[1]);
+    }
+
+    const episodeNum = parts[parts.length - 1];
+    const langDir =
+      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
+        ? parts[parts.length - 2]
+        : null;
     return [{ seriesDir, langDir, episodeNum }];
   }
 
@@ -195,7 +201,10 @@ function prepareImportableModule(sourcePath: string): string {
 
     const srtData = mod.SRT_DATA;
     const srtTracks = mod.SRT_TRACKS;
-    const fps = mod.fps ?? 30;
+    const meta = (mod as Record<string, unknown>).compositionMeta as
+      | { fps?: number }
+      | undefined;
+    const fps = mod.fps ?? meta?.fps ?? 30;
 
     const outputDir = langDir
       ? path.join("out", seriesDir, langDir)

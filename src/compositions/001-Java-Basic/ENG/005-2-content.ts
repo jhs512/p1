@@ -9,7 +9,7 @@ export const CONTENT = {
   intro: {
     narration: [
       "Logical operators connect conditions\nor flip them around.",
-      "We will look at three of them:\n[AND,(발음:AND.)] [OR,(발음:OR.)] and NOT.",
+      "We will look at three of them:\n[AND,(pron:AND.)] [OR,(pron:OR.)] and NOT.",
     ],
   },
   andScene: {
@@ -27,7 +27,7 @@ export const CONTENT = {
   notScene: {
     narration: [
       "The NOT operator flips true to false\nand false to true.",
-      "[!true(발음:not true)] is false, and [!false(발음:not false)] is true.",
+      "[!true(pron:not true)] is false, and [!false(pron:not false)] is true.",
     ],
   },
   summaryScene: {

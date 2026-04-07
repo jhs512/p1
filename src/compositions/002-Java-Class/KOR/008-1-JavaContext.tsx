@@ -325,9 +325,7 @@ const ContextIntroScene: React.FC = () => {
             }}
           >
             같은 행동 →{" "}
-            <span style={{ color: C_TEAL, fontWeight: 800 }}>
-              다른 결과
-            </span>
+            <span style={{ color: C_TEAL, fontWeight: 800 }}>다른 결과</span>
           </div>
 
           {/* Context 키워드 */}
@@ -583,18 +581,14 @@ const ObjectContextScene: React.FC = () => {
               <span style={{ color: C_FUNC }}>drive</span>
               <span>();</span>
               {"  "}
-              <span style={{ color: C_COMMENT }}>
-                // mileage → 30
-              </span>
+              <span style={{ color: C_COMMENT }}>// mileage → 30</span>
               {"\n"}
               <span style={{ color: C_VAR }}>carB</span>
               <span>.</span>
               <span style={{ color: C_FUNC }}>drive</span>
               <span>();</span>
               {"  "}
-              <span style={{ color: C_COMMENT }}>
-                // mileage → 230
-              </span>
+              <span style={{ color: C_COMMENT }}>// mileage → 230</span>
             </div>
           </div>
 
@@ -602,80 +596,85 @@ const ObjectContextScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "54%",
+              top: "50%",
               left: "50%",
               transform: "translate(-50%, 0)",
               opacity: callAppear,
               display: "flex",
-              gap: 40,
+              flexDirection: "column",
+              gap: 16,
               alignItems: "center",
             }}
           >
+            {/* 같은 .drive() 코드 한 줄 */}
             <div
               style={{
-                ...panelStyle,
-                border: `2px solid ${C_VAR}55`,
-                padding: "18px 24px",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  ...monoStyle,
-                  fontSize: 22,
-                  color: C_VAR,
-                  marginBottom: 6,
-                }}
-              >
-                carA
-              </div>
-              <div
-                style={{
-                  ...monoStyle,
-                  fontSize: 20,
-                  color: C_DIM,
-                }}
-              >
-                speed = <span style={{ color: C_NUMBER }}>30</span>
-              </div>
-            </div>
-
-            <div
-              style={{
-                fontFamily: uiFont,
-                fontSize: FONT.label,
+                ...monoStyle,
+                fontSize: 22,
                 color: C_DIM,
               }}
             >
-              같은 .drive()
+              같은 <span style={{ color: C_FUNC }}>.drive()</span>
             </div>
 
-            <div
-              style={{
-                ...panelStyle,
-                border: `2px solid ${C_TEAL}55`,
-                padding: "18px 24px",
-                textAlign: "center",
-              }}
-            >
+            {/* carA / carB 카드 가로 배치 */}
+            <div style={{ display: "flex", gap: 40, alignItems: "center" }}>
               <div
                 style={{
-                  ...monoStyle,
-                  fontSize: 22,
-                  color: C_TEAL,
-                  marginBottom: 6,
+                  ...panelStyle,
+                  border: `2px solid ${C_VAR}55`,
+                  padding: "18px 24px",
+                  textAlign: "center",
                 }}
               >
-                carB
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 22,
+                    color: C_VAR,
+                    marginBottom: 6,
+                  }}
+                >
+                  carA
+                </div>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 20,
+                    color: C_DIM,
+                  }}
+                >
+                  speed = <span style={{ color: C_NUMBER }}>30</span>
+                </div>
               </div>
+
               <div
                 style={{
-                  ...monoStyle,
-                  fontSize: 20,
-                  color: C_DIM,
+                  ...panelStyle,
+                  border: `2px solid ${C_TEAL}55`,
+                  padding: "18px 24px",
+                  textAlign: "center",
                 }}
               >
-                speed = <span style={{ color: C_NUMBER }}>230</span>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 22,
+                    color: C_TEAL,
+                    marginBottom: 6,
+                  }}
+                >
+                  carB
+                </div>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 20,
+                    color: C_DIM,
+                  }}
+                >
+                  speed = <span style={{ color: C_NUMBER }}>230</span>
+                </div>
               </div>
             </div>
           </div>
@@ -788,7 +787,9 @@ const PersonClassScene: React.FC = () => {
                 style={{
                   background:
                     methodGlow > 0.05
-                      ? `${C_FUNC}${Math.round(methodGlow * 15).toString(16).padStart(2, "0")}`
+                      ? `${C_FUNC}${Math.round(methodGlow * 15)
+                          .toString(16)
+                          .padStart(2, "0")}`
                       : "transparent",
                   borderRadius: 8,
                   padding: "2px 6px",
@@ -801,36 +802,28 @@ const PersonClassScene: React.FC = () => {
                 {"    "}
                 <span style={{ color: C_VAR }}>System.out.println</span>
                 {"("}
-                <span style={{ color: C_STRING }}>
-                  &quot;이름: &quot;
-                </span>
+                <span style={{ color: C_STRING }}>&quot;이름: &quot;</span>
                 {" + "}
                 <span style={{ color: C_VAR }}>name</span>
                 {");\n"}
                 {"    "}
                 <span style={{ color: C_VAR }}>System.out.println</span>
                 {"("}
-                <span style={{ color: C_STRING }}>
-                  &quot;나이: &quot;
-                </span>
+                <span style={{ color: C_STRING }}>&quot;나이: &quot;</span>
                 {" + "}
                 <span style={{ color: C_VAR }}>age</span>
                 {");\n"}
                 {"    "}
                 <span style={{ color: C_VAR }}>System.out.println</span>
                 {"("}
-                <span style={{ color: C_STRING }}>
-                  &quot;키: &quot;
-                </span>
+                <span style={{ color: C_STRING }}>&quot;키: &quot;</span>
                 {" + "}
                 <span style={{ color: C_VAR }}>height</span>
                 {");\n"}
                 {"    "}
                 <span style={{ color: C_VAR }}>System.out.println</span>
                 {"("}
-                <span style={{ color: C_STRING }}>
-                  &quot;성별: &quot;
-                </span>
+                <span style={{ color: C_STRING }}>&quot;성별: &quot;</span>
                 {" + "}
                 <span style={{ color: C_VAR }}>gender</span>
                 {");\n"}
@@ -878,7 +871,15 @@ const PersonCard: React.FC<{
   frame: number;
   fps: number;
   outputStartFrame: number;
-}> = ({ person, opacity, callOpacity, outputOpacity, frame, fps, outputStartFrame }) => (
+}> = ({
+  person,
+  opacity,
+  callOpacity,
+  outputOpacity,
+  frame,
+  fps,
+  outputStartFrame,
+}) => (
   <div
     style={{
       opacity,

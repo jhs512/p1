@@ -516,13 +516,24 @@ const ObjectFieldScene: React.FC = () => {
               >
                 CLASS (정의)
               </div>
-              <div style={{ ...monoStyle, fontSize: 26, lineHeight: 1.8, color: TEXT, whiteSpace: "pre-wrap" }}>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 26,
+                  lineHeight: 1.8,
+                  color: TEXT,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
                 <span style={{ color: C_KEYWORD }}>class</span>{" "}
                 <span style={{ color: C_TEAL }}>Person</span>
                 {" {\n"}
-                {"    "}<span style={{ color: C_TYPE }}>int</span> id;{"\n"}
-                {"    "}<span style={{ color: C_TYPE }}>int</span> age;{"\n"}
-                {"    "}<span style={{ color: C_TYPE }}>int</span> height;{"\n"}
+                {"    "}
+                <span style={{ color: C_TYPE }}>int</span> id;{"\n"}
+                {"    "}
+                <span style={{ color: C_TYPE }}>int</span> age;{"\n"}
+                {"    "}
+                <span style={{ color: C_TYPE }}>int</span> height;{"\n"}
                 {"}"}
               </div>
             </div>
@@ -552,7 +563,11 @@ const ObjectFieldScene: React.FC = () => {
                 ...panelStyle,
                 width: 700,
                 border: `2px solid ${C_VAR}55`,
-                boxShadow: `0 0 ${30 + heapGlow * 20}px ${C_VAR}${Math.round(heapGlow * 40).toString(16).padStart(2, "0")}`,
+                boxShadow: `0 0 ${30 + heapGlow * 20}px ${C_VAR}${Math.round(
+                  heapGlow * 40,
+                )
+                  .toString(16)
+                  .padStart(2, "0")}`,
               }}
             >
               <div
@@ -587,12 +602,13 @@ const ObjectFieldScene: React.FC = () => {
                     config: { damping: 13, stiffness: 140 },
                     durationInFrames: 24,
                   });
-                  const rowHL = spring({
-                    frame: frame - fieldHighlightStart - i * 4,
-                    fps,
-                    config: { damping: 12, stiffness: 140 },
-                    durationInFrames: 20,
-                  }) * fieldHighlightFade;
+                  const rowHL =
+                    spring({
+                      frame: frame - fieldHighlightStart - i * 4,
+                      fps,
+                      config: { damping: 12, stiffness: 140 },
+                      durationInFrames: 20,
+                    }) * fieldHighlightFade;
                   return (
                     <div
                       key={row.name}
@@ -606,7 +622,10 @@ const ObjectFieldScene: React.FC = () => {
                         padding: "6px 14px",
                         borderRadius: 8,
                         background: `rgba(156,220,254,${rowHL * 0.12})`,
-                        boxShadow: rowHL > 0.01 ? `0 0 ${12 + rowHL * 10}px rgba(156,220,254,${rowHL * 0.3})` : "none",
+                        boxShadow:
+                          rowHL > 0.01
+                            ? `0 0 ${12 + rowHL * 10}px rgba(156,220,254,${rowHL * 0.3})`
+                            : "none",
                       }}
                     >
                       <span style={{ color: C_TYPE }}>{row.type}</span>
@@ -652,12 +671,10 @@ const InstanceVarScene: React.FC = () => {
   });
 
   const split1 = (cfg.narrationSplits[0] ?? d * 0.5) as number;
-  const approxAppear = interpolate(
-    frame,
-    [split1, split1 + 15],
-    [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+  const approxAppear = interpolate(frame, [split1, split1 + 15], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <>
@@ -848,7 +865,9 @@ const MethodScene: React.FC = () => {
                 style={{
                   background:
                     methodGlow > 0.05
-                      ? `${C_FUNC}${Math.round(methodGlow * 15).toString(16).padStart(2, "0")}`
+                      ? `${C_FUNC}${Math.round(methodGlow * 15)
+                          .toString(16)
+                          .padStart(2, "0")}`
                       : "transparent",
                   borderRadius: 8,
                   padding: "4px 8px",
@@ -865,9 +884,7 @@ const MethodScene: React.FC = () => {
                 {"    "}
                 <span style={{ color: C_VAR }}>System.out.println</span>
                 {"("}
-                <span style={{ color: C_STRING }}>
-                  &quot;안녕하세요&quot;
-                </span>
+                <span style={{ color: C_STRING }}>&quot;안녕하세요&quot;</span>
                 {");"}
                 <br />
                 {"  }"}
@@ -951,12 +968,10 @@ const NounVerbScene: React.FC = () => {
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 20,
   });
-  const lawyerHLFade = interpolate(
-    frame,
-    [split3 - 20, split3],
-    [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+  const lawyerHLFade = interpolate(frame, [split3 - 20, split3], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // 자동차 카드 하이라이트 (문장4)
   const carHLStart = wt["자동차도"]?.[0] ?? split3;
@@ -966,12 +981,10 @@ const NounVerbScene: React.FC = () => {
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 20,
   });
-  const carHLFade = interpolate(
-    frame,
-    [split4 - 20, split4],
-    [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+  const carHLFade = interpolate(frame, [split4 - 20, split4], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   /* ── Phase 2: 필드/메서드 카드 (문장 5) ── */
   const codeAppear = spring({
@@ -1031,19 +1044,19 @@ const NounVerbScene: React.FC = () => {
   // 단어별 발화 프레임 (변호사/자동차 항목)
   const itemFrameMap: Record<string, number> = {
     // 변호사 명사
-    "이름": wt["이름"]?.[0] ?? 446,
-    "소속": wt["소속"]?.[0] ?? 481,
-    "전문분야": wt["전문분야"]?.[0] ?? 518,
+    이름: wt["이름"]?.[0] ?? 446,
+    소속: wt["소속"]?.[0] ?? 481,
+    전문분야: wt["전문분야"]?.[0] ?? 518,
     // 변호사 동사
-    "변론하다": wt["변론하다"]?.[0] ?? 636,
-    "상담하다": wt["상담하다"]?.[0] ?? 689,
+    변론하다: wt["변론하다"]?.[0] ?? 636,
+    상담하다: wt["상담하다"]?.[0] ?? 689,
     // 자동차 명사
-    "브랜드": wt["브랜드"]?.[0] ?? 875,
-    "색상": wt["색상"]?.[0] ?? 917,
-    "속도": wt["속도"]?.[0] ?? 959,
+    브랜드: wt["브랜드"]?.[0] ?? 875,
+    색상: wt["색상"]?.[0] ?? 917,
+    속도: wt["속도"]?.[0] ?? 959,
     // 자동차 동사
-    "달리다": wt["달리다"]?.[0] ?? 1060,
-    "멈추다": wt["멈추다"]?.[0] ?? 1113,
+    달리다: wt["달리다"]?.[0] ?? 1060,
+    멈추다: wt["멈추다"]?.[0] ?? 1113,
   };
 
   const exExamples = [
@@ -1075,7 +1088,7 @@ const NounVerbScene: React.FC = () => {
 
   // 밑줄 진행도 (0~1): 해당 카드의 아이템이 발화되면 밑줄 등장
   const getUnderlineProgress = (cardName: string, item: string) => {
-    const key = (cardName === "변호사" || cardName === "자동차") ? item : null;
+    const key = cardName === "변호사" || cardName === "자동차" ? item : null;
     if (!key || !(key in itemFrameMap)) return 0;
     const start = itemFrameMap[key];
     return spring({
@@ -1108,155 +1121,185 @@ const NounVerbScene: React.FC = () => {
           >
             {exExamples.map((ex) => {
               const hl =
-                ex.name === "변호사" ? lawyerHL * lawyerHLFade :
-                ex.name === "자동차" ? carHL * carHLFade : 0;
+                ex.name === "변호사"
+                  ? lawyerHL * lawyerHLFade
+                  : ex.name === "자동차"
+                    ? carHL * carHLFade
+                    : 0;
               return (
-              <div
-                key={ex.name}
-                style={{
-                  ...panelStyle,
-                  width: 400,
-                  border: `2px solid ${ex.color}${hl > 0.01 ? "88" : "44"}`,
-                  padding: "24px 20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 20,
-                  boxShadow: hl > 0.01
-                    ? `0 0 ${20 + hl * 20}px ${ex.color}${Math.round(30 + hl * 50).toString(16).padStart(2, "0")}`
-                    : "none",
-                }}
-              >
-                {/* 존재 이름 라벨 */}
                 <div
+                  key={ex.name}
                   style={{
-                    fontFamily: uiFont,
-                    fontSize: FONT.heading,
-                    fontWeight: 900,
-                    color: ex.color,
+                    ...panelStyle,
+                    width: 400,
+                    border: `2px solid ${ex.color}${hl > 0.01 ? "88" : "44"}`,
+                    padding: "24px 20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 20,
+                    boxShadow:
+                      hl > 0.01
+                        ? `0 0 ${20 + hl * 20}px ${ex.color}${Math.round(
+                            30 + hl * 50,
+                          )
+                            .toString(16)
+                            .padStart(2, "0")}`
+                        : "none",
                   }}
                 >
-                  {ex.name}
-                </div>
-
-                {/* 내부 카드 2개 (위/아래) */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
-                  {/* 명사적 요소 */}
+                  {/* 존재 이름 라벨 */}
                   <div
                     style={{
-                      flex: 1,
-                      background: `${C_VAR}0a`,
-                      border: `1.5px solid ${C_VAR}44`,
-                      borderRadius: 10,
-                      padding: "14px 12px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 10,
-                      boxShadow: nounHL > 0.01
-                        ? `0 0 ${14 + nounHL * 14}px ${C_VAR}${Math.round(20 + nounHL * 35).toString(16).padStart(2, "0")}`
-                        : "none",
+                      fontFamily: uiFont,
+                      fontSize: FONT.heading,
+                      fontWeight: 900,
+                      color: ex.color,
                     }}
                   >
-                    <div
-                      style={{
-                        fontFamily: uiFont,
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: C_VAR,
-                      }}
-                    >
-                      명사적 요소
-                    </div>
-                    {ex.nouns.map((n) => {
-                      const ulP = getUnderlineProgress(ex.name, n);
-                      return (
-                        <div
-                          key={n}
-                          style={{
-                            fontFamily: uiFont,
-                            fontSize: 20,
-                            color: TEXT,
-                            lineHeight: 1.5,
-                            position: "relative",
-                            paddingBottom: 3,
-                          }}
-                        >
-                          {n}
-                          <div style={{
-                            position: "absolute",
-                            bottom: 0,
-                            left: 0,
-                            width: "100%",
-                            height: 2,
-                            background: C_VAR,
-                            transform: `scaleX(${ulP})`,
-                            transformOrigin: "left",
-                          }} />
-                        </div>
-                      );
-                    })}
+                    {ex.name}
                   </div>
 
-                  {/* 동사적 요소 */}
+                  {/* 내부 카드 2개 (위/아래) */}
                   <div
                     style={{
-                      flex: 1,
-                      background: `${C_FUNC}0a`,
-                      border: `1.5px solid ${C_FUNC}44`,
-                      borderRadius: 10,
-                      padding: "14px 12px",
                       display: "flex",
                       flexDirection: "column",
-                      alignItems: "center",
-                      gap: 10,
-                      boxShadow: verbHL > 0.01
-                        ? `0 0 ${14 + verbHL * 14}px ${C_FUNC}${Math.round(20 + verbHL * 35).toString(16).padStart(2, "0")}`
-                        : "none",
+                      gap: 14,
+                      width: "100%",
                     }}
                   >
+                    {/* 명사적 요소 */}
                     <div
                       style={{
-                        fontFamily: uiFont,
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: C_FUNC,
+                        flex: 1,
+                        background: `${C_VAR}0a`,
+                        border: `1.5px solid ${C_VAR}44`,
+                        borderRadius: 10,
+                        padding: "14px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 10,
+                        boxShadow:
+                          nounHL > 0.01
+                            ? `0 0 ${14 + nounHL * 14}px ${C_VAR}${Math.round(
+                                20 + nounHL * 35,
+                              )
+                                .toString(16)
+                                .padStart(2, "0")}`
+                            : "none",
                       }}
                     >
-                      동사적 요소
+                      <div
+                        style={{
+                          fontFamily: uiFont,
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: C_VAR,
+                        }}
+                      >
+                        명사적 요소
+                      </div>
+                      {ex.nouns.map((n) => {
+                        const ulP = getUnderlineProgress(ex.name, n);
+                        return (
+                          <div
+                            key={n}
+                            style={{
+                              fontFamily: uiFont,
+                              fontSize: 20,
+                              color: TEXT,
+                              lineHeight: 1.5,
+                              position: "relative",
+                              paddingBottom: 3,
+                            }}
+                          >
+                            {n}
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                left: 0,
+                                width: "100%",
+                                height: 2,
+                                background: C_VAR,
+                                transform: `scaleX(${ulP})`,
+                                transformOrigin: "left",
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
-                    {ex.verbs.map((v) => {
-                      const ulP = getUnderlineProgress(ex.name, v);
-                      return (
-                        <div
-                          key={v}
-                          style={{
-                            fontFamily: uiFont,
-                            fontSize: 20,
-                            color: TEXT,
-                            lineHeight: 1.5,
-                            position: "relative",
-                            paddingBottom: 3,
-                          }}
-                        >
-                          {v}
-                          <div style={{
-                            position: "absolute",
-                            bottom: 0,
-                            left: 0,
-                            width: "100%",
-                            height: 2,
-                            background: C_FUNC,
-                            transform: `scaleX(${ulP})`,
-                            transformOrigin: "left",
-                          }} />
-                        </div>
-                      );
-                    })}
+
+                    {/* 동사적 요소 */}
+                    <div
+                      style={{
+                        flex: 1,
+                        background: `${C_FUNC}0a`,
+                        border: `1.5px solid ${C_FUNC}44`,
+                        borderRadius: 10,
+                        padding: "14px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 10,
+                        boxShadow:
+                          verbHL > 0.01
+                            ? `0 0 ${14 + verbHL * 14}px ${C_FUNC}${Math.round(
+                                20 + verbHL * 35,
+                              )
+                                .toString(16)
+                                .padStart(2, "0")}`
+                            : "none",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: uiFont,
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: C_FUNC,
+                        }}
+                      >
+                        동사적 요소
+                      </div>
+                      {ex.verbs.map((v) => {
+                        const ulP = getUnderlineProgress(ex.name, v);
+                        return (
+                          <div
+                            key={v}
+                            style={{
+                              fontFamily: uiFont,
+                              fontSize: 20,
+                              color: TEXT,
+                              lineHeight: 1.5,
+                              position: "relative",
+                              paddingBottom: 3,
+                            }}
+                          >
+                            {v}
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                left: 0,
+                                width: "100%",
+                                height: 2,
+                                background: C_FUNC,
+                                transform: `scaleX(${ulP})`,
+                                transformOrigin: "left",
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );})}
+              );
+            })}
           </div>
 
           {/* ── 필드 = 명사, 메서드 = 동사 카드 ── */}
@@ -1276,9 +1319,14 @@ const NounVerbScene: React.FC = () => {
               style={{
                 ...cardStyle,
                 border: `2px solid ${C_VAR}55`,
-                boxShadow: fieldHL > 0.01
-                  ? `0 0 ${30 + fieldHL * 20}px ${C_VAR}${Math.round(30 + fieldHL * 40).toString(16).padStart(2, "0")}`
-                  : `0 0 30px ${C_VAR}18`,
+                boxShadow:
+                  fieldHL > 0.01
+                    ? `0 0 ${30 + fieldHL * 20}px ${C_VAR}${Math.round(
+                        30 + fieldHL * 40,
+                      )
+                        .toString(16)
+                        .padStart(2, "0")}`
+                    : `0 0 30px ${C_VAR}18`,
               }}
             >
               <div
@@ -1328,9 +1376,14 @@ const NounVerbScene: React.FC = () => {
               style={{
                 ...cardStyle,
                 border: `2px solid ${C_FUNC}55`,
-                boxShadow: methodHL > 0.01
-                  ? `0 0 ${30 + methodHL * 20}px ${C_FUNC}${Math.round(30 + methodHL * 40).toString(16).padStart(2, "0")}`
-                  : `0 0 30px ${C_FUNC}18`,
+                boxShadow:
+                  methodHL > 0.01
+                    ? `0 0 ${30 + methodHL * 20}px ${C_FUNC}${Math.round(
+                        30 + methodHL * 40,
+                      )
+                        .toString(16)
+                        .padStart(2, "0")}`
+                    : `0 0 30px ${C_FUNC}18`,
               }}
             >
               <div

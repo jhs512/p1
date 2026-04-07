@@ -10,12 +10,12 @@ export const CONTENT = {
   overview: {
     narration: [
       "반복문에는 여러 종류가 있습니다.",
-      "그 중 기본인 [while(발음:와일)] 문을 알아보겠습니다.",
+      "그 중 기본인 [while(pron:와일)] 문을 알아보겠습니다.",
     ],
   },
   intro: {
     narration: [
-      "[while(발음:와일)] 문은 조건이 참인 동안\n코드 블록을 반복 실행합니다.",
+      "[while(pron:와일)] 문은 조건이 참인 동안\n코드 블록을 반복 실행합니다.",
       "조건이 거짓이 되는 순간 반복을 멈춥니다.",
     ],
   },
@@ -43,7 +43,7 @@ export const CONTENT = {
   },
   summaryScene: {
     narration: [
-      "[while(발음:와일)]은 조건이 참인 동안 반복합니다.",
+      "[while(pron:와일)]은 조건이 참인 동안 반복합니다.",
       "조건이 거짓이 되면 멈춥니다.",
     ],
   },

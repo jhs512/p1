@@ -48,8 +48,8 @@ export const CONTENT = {
   },
   callScene: {
     narration: [
-      "From one to five, the first function prints each number in order.",
-      "The total from one to five is fifteen,\nand the sum of even numbers from one to six is twelve.",
+      "From 1 to 5, the first function prints each number in order.",
+      "The total from 1 to 5 is 15,\nand the sum of even numbers from 1 to 6 is 12.",
     ],
   },
   summaryScene: {

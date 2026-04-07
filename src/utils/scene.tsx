@@ -98,6 +98,33 @@ export const CODE = {
   xl: 32,
 } as const;
 
+// ── 컴포넌트: CodeBlock ──────────────────────────────────────
+/**
+ * 코드 블록 래퍼.
+ * 너비: width - 200 (기본) ~ width - 10 (최대).
+ * 배경: BG_CODE (#2d2d2d), borderRadius: 12.
+ */
+export const CodeBlock: React.FC<{
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}> = ({ children, style }) => {
+  const { width } = useVideoConfig();
+  return (
+    <div
+      style={{
+        width: width - 200,
+        maxWidth: width - 10,
+        background: "#2d2d2d",
+        borderRadius: 12,
+        padding: "20px 32px",
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 // ── 훅: useFade ───────────────────────────────────────────────
 /** fadeIn/fadeOut에 사용할 프레임 수 (CROSS=0이어도 강제 fade 시 사용) */
 const FADE_FRAMES = 20;

@@ -27,12 +27,12 @@ export const CONTENT = {
   },
   executionScene: {
     narration: [
-      "When count is one, the condition is true,\nso the block runs and prints one.",
-      "When count is two, the condition is still true,\nso it runs again.",
-      "When count is three, the condition is still true.",
-      "The same is true when count is four.",
-      "When count is five,\nthis is the last time the condition is true.",
-      "When count becomes six, the condition is false,\nso the loop ends.",
+      "When count is 1, the condition is true,\nso the block runs and prints 1.",
+      "When count is 2, the condition is still true,\nso it runs again.",
+      "When count is 3, the condition is still true.",
+      "The same is true when count is 4.",
+      "When count is 5,\nthis is the last time the condition is true.",
+      "When count becomes 6, the condition is false,\nso the loop ends.",
     ],
   },
   infiniteScene: {

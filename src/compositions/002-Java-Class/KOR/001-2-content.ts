@@ -39,8 +39,6 @@ export const CONTENT = {
     ],
   },
   outroScene: {
-    narration: [
-      "객체를 만드는 방법은 다음에 알아보겠습니다.",
-    ],
+    narration: ["객체를 만드는 방법은 다음에 알아보겠습니다."],
   },
 } satisfies EpisodeContent;

@@ -18,6 +18,16 @@ pnpm dev
 # → http://localhost:3000 에서 Remotion Studio 열림
 ```
 
+### 딥링크 규칙
+
+- 브라우저 주소로 바로 프레임 이동이 가능합니다.
+  - 형식: `/[composition-id][?frame=N|#N]`
+  - 초 단위도 지원: `frame=35.53s`
+  - 예시: `http://localhost:3000/001-ENG-001?frame=1333`
+  - 예시: `http://localhost:3000/001-ENG-001#1333`
+- 현재 지원 중인 composition-id 예시:
+  - `002-KOR-002`, `001-ENG-001`, 기타 `/{series-prefix}-{LANG}-{episode}` 패턴
+
 ### TTS 싱크 (나레이션 수정 후 필수)
 
 ```bash
@@ -111,15 +121,15 @@ src/config.ts                                    ← 루트 (FPS, CROSS, CHARS_P
 나레이션 텍스트에서 자막 표시와 TTS 읽기를 분리:
 
 ```
-[표시텍스트(발음:TTS텍스트)]
+[표시텍스트(pron:TTS텍스트)]
 ```
 
 예시:
 
 ```
-[double(발음:더블)]          → 자막: double / TTS: 더블
-[System.out.println(발음:print line)]  → 자막: System.out.println / TTS: print line
-[(자료)(발음:)]형이란         → 자막: (자료)형이란 / TTS: 형이란 (묵음)
+[double(pron:더블)]          → 자막: double / TTS: 더블
+[System.out.println(pron:print line)]  → 자막: System.out.println / TTS: print line
+[(자료)(pron:)]형이란         → 자막: (자료)형이란 / TTS: 형이란 (묵음)
 ```
 
 ## 참고

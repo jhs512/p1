@@ -2,5 +2,15 @@
   "episodes": {
     "001": "9NvqRZAtpUo"
   },
-  "playlistId": "PLE0hRBClSk5IpQc2lpjjT0wDdUCateB1I"
+  "thumbHashes": {
+    "001": "c7ecd8ce73f97983583c72183c85c8ac"
+  },
+  "captionHashes": {
+    "001:ko-KR": "0aefc56429dac3efb799c5d04ef0b14c"
+  },
+  "metaHashes": {
+    "001": "7ccc20477c6aa77a345aeb0fa0be0f16"
+  },
+  "playlistId": "PLE0hRBClSk5IpQc2lpjjT0wDdUCateB1I",
+  "playlistHash": "76ac05214863fe19c5db5b68d9226379"
 }

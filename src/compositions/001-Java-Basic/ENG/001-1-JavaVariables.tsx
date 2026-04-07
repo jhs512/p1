@@ -22,6 +22,7 @@ import {
   CHARS_PER_SEC,
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -144,16 +145,13 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = 10 }) => (
-  <div
+  <CodeBlock
     style={{
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: BG_CODE,
-      borderRadius: 12,
       padding: "48px 64px",
-      minWidth: 800,
       ...monoStyle,
       fontSize: CODE.xl,
     }}
@@ -171,7 +169,7 @@ const CodeBox: React.FC<{
         <StaticLine key={`static-${i}-${line.text}`} text={line.text} />
       ),
     )}
-  </div>
+  </CodeBlock>
 );
 
 // ── 컴포넌트: ConsoleOutput ───────────────────────────────────
@@ -817,7 +815,7 @@ const InterpretScene: React.FC = () => {
           <SceneTitle title="4. How to Read a Variable" />
 
           {frame >= s && (
-            <div
+            <CodeBlock
               style={{
                 position: "absolute",
                 top: "46%",
@@ -826,10 +824,8 @@ const InterpretScene: React.FC = () => {
                 ...monoStyle,
                 fontSize: CODE.xl,
                 lineHeight: 2.1,
-                background: "#252525",
                 borderRadius: 20,
                 padding: "36px 48px",
-                width: 900,
                 boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
               }}
             >
@@ -909,7 +905,7 @@ const InterpretScene: React.FC = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </CodeBlock>
           )}
         </ContentArea>
       </AbsoluteFill>
@@ -1100,13 +1096,12 @@ const QuizScene: React.FC = () => {
           )}
 
           {/* 코드 블록: int age = 4; / age = age + 2; */}
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "42%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "#252525",
               borderRadius: 20,
               padding: "36px 56px",
               boxShadow: "0 6px 40px rgba(0,0,0,0.45)",
@@ -1209,7 +1204,7 @@ const QuizScene: React.FC = () => {
               </span>
               <span style={{ alignSelf: "flex-start" }}>;</span>
             </div>
-          </div>
+          </CodeBlock>
 
           {/* 카운트다운 */}
           {isCountdown && (

@@ -6,6 +6,7 @@
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
 
+import crypto from "crypto";
 import {
   createReadStream,
   existsSync,
@@ -20,13 +21,34 @@ import path from "path";
 
 import { getYouTubeClient } from "./youtube-auth";
 
+function fileHash(filePath: string): string {
+  return crypto.createHash("md5").update(readFileSync(filePath)).digest("hex");
+}
+
 const SRC_DIR = "src/compositions";
 const OUT_DIR = "out";
-const arg = process.argv[2];
+
+// ── 플래그 파싱 ─────────────────────────────────────────────
+const rawArgs = process.argv.slice(2);
+const flags = new Set(rawArgs.filter((a) => a.startsWith("--")));
+const positional = rawArgs.filter((a) => !a.startsWith("--"));
+const arg = positional[0];
+
+// --thumb-only:   썸네일만 업로드
+// --caption-only: 자막만 업로드
+// --caption-lang: 특정 언어 자막만 (e.g. --caption-lang=ko-KR)
+const thumbOnly = flags.has("--thumb-only");
+const captionOnly = flags.has("--caption-only");
+const captionLangFlag = [...flags].find((f) => f.startsWith("--caption-lang="));
+const captionLang = captionLangFlag?.split("=")[1] ?? null;
+// --caption-only --caption-lang=ko-KR 이면 해당 언어만 올림
+// --thumb-only 이면 자막 스킵
+// --caption-only 이면 썸네일/메타 스킵
+// 플래그 없으면 전부 실행
 
 if (!arg || !arg.includes("/")) {
   console.error(
-    "Usage: pnpm upload <series>/<lang> 또는 <series>/<lang>/<episode>",
+    "Usage: pnpm upload <series>/<lang>[/<episode>] [--thumb-only] [--caption-only] [--caption-lang=ko-KR]",
   );
   process.exit(1);
 }
@@ -308,10 +330,17 @@ async function addToPlaylist(
   );
   const videoIdsData: {
     playlistId?: string | null;
+    playlistHash?: string;
     episodes: Record<string, string>;
+    thumbHashes?: Record<string, string>;
+    captionHashes?: Record<string, string>;
+    metaHashes?: Record<string, string>;
   } = existsSync(videoIdsPath)
     ? JSON.parse(readFileSync(videoIdsPath, "utf-8"))
     : { episodes: {} };
+  if (!videoIdsData.thumbHashes) videoIdsData.thumbHashes = {};
+  if (!videoIdsData.captionHashes) videoIdsData.captionHashes = {};
+  if (!videoIdsData.metaHashes) videoIdsData.metaHashes = {};
   const videoIds = videoIdsData.episodes;
 
   // 5. YouTube 인증
@@ -323,17 +352,27 @@ async function addToPlaylist(
   if (videoIdsData.playlistId) {
     playlistId = videoIdsData.playlistId;
     console.log(`📋  저장된 재생목록 ID 사용: ${playlistId}`);
-    // 재생목록 메타도 업데이트 (이름 변경 반영)
-    await yt.playlists.update({
-      part: ["snippet"],
-      requestBody: {
-        id: playlistId,
-        snippet: {
-          title: YOUTUBE_CONFIG.playlist.title,
-          description: YOUTUBE_CONFIG.playlist.description,
+    // 재생목록 메타도 업데이트 (해시 비교 → 변경 시에만)
+    const playlistMeta = {
+      title: YOUTUBE_CONFIG.playlist.title,
+      description: YOUTUBE_CONFIG.playlist.description,
+    };
+    const playlistHash = crypto
+      .createHash("md5")
+      .update(JSON.stringify(playlistMeta))
+      .digest("hex");
+    if (playlistHash !== videoIdsData.playlistHash) {
+      await yt.playlists.update({
+        part: ["snippet"],
+        requestBody: {
+          id: playlistId,
+          snippet: playlistMeta,
         },
-      },
-    });
+      });
+      videoIdsData.playlistHash = playlistHash;
+      writeFileSync(videoIdsPath, JSON.stringify(videoIdsData, null, 2) + "\n");
+      console.log(`📋  재생목록 메타 업데이트 완료`);
+    }
   } else {
     playlistId = await ensurePlaylist(
       yt,
@@ -341,6 +380,15 @@ async function addToPlaylist(
       YOUTUBE_CONFIG.playlist.description,
     );
     videoIdsData.playlistId = playlistId;
+    videoIdsData.playlistHash = crypto
+      .createHash("md5")
+      .update(
+        JSON.stringify({
+          title: YOUTUBE_CONFIG.playlist.title,
+          description: YOUTUBE_CONFIG.playlist.description,
+        }),
+      )
+      .digest("hex");
     writeFileSync(videoIdsPath, JSON.stringify(videoIdsData, null, 2) + "\n");
   }
 
@@ -388,60 +436,104 @@ async function addToPlaylist(
         meta.language,
       );
 
-      // 썸네일 렌더링
-      if (!bundled) {
-        console.log(`\n🎬  Remotion 번들링 (썸네일용)…`);
-        bundled = await bundle({
-          entryPoint: path.resolve("src/index.ts"),
-          webpackOverride: (c) => c,
-        });
-      }
-      const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
-      const compositionId = langDir
-        ? [dirPrefix, langDir, ep].join("-")
-        : [dirPrefix, ep].join("-");
+      // 썸네일 렌더링 (--caption-only 시 스킵)
       const thumbPath = path.join(outputDir, `${ep}-thumb.jpeg`);
       mkdirSync(outputDir, { recursive: true });
+      if (!captionOnly) {
+        if (!bundled) {
+          console.log(`\n🎬  Remotion 번들링 (썸네일용)…`);
+          bundled = await bundle({
+            entryPoint: path.resolve("src/index.ts"),
+            webpackOverride: (c) => c,
+          });
+        }
+        const dirPrefix = seriesDir.match(/^(\d+)/)?.[1] ?? "";
+        const compositionId = langDir
+          ? [dirPrefix, langDir, ep].join("-")
+          : [dirPrefix, ep].join("-");
 
-      const composition = await selectComposition({
-        serveUrl: bundled,
-        id: compositionId,
-      });
-      await renderStill({
-        composition,
-        serveUrl: bundled,
-        output: thumbPath,
-        frame: 0,
-        imageFormat: "jpeg",
-        jpegQuality: 90,
-      });
-      console.log(`   🖼️  썸네일 렌더링 완료: ${thumbPath}`);
+        const composition = await selectComposition({
+          serveUrl: bundled,
+          id: compositionId,
+        });
+        await renderStill({
+          composition,
+          serveUrl: bundled,
+          output: thumbPath,
+          frame: 0,
+          imageFormat: "jpeg",
+          jpegQuality: 90,
+        });
+        console.log(`   🖼️  썸네일 렌더링 완료: ${thumbPath}`);
+      }
 
       let videoId: string;
 
-      if (isUpdate) {
-        // 기존 영상 → 메타데이터만 업데이트
+      // 메타데이터 해시 (title, description, tags, privacyStatus 등)
+      const metaHash = crypto
+        .createHash("md5")
+        .update(JSON.stringify(meta))
+        .digest("hex");
+
+      if (captionOnly) {
+        // --caption-only: 메타/영상 업로드 스킵
+        if (!isUpdate) {
+          console.warn(`⚠️  ${ep}: videoId 없음 — 자막만 올릴 수 없음, 스킵`);
+          continue;
+        }
         videoId = existingVideoId;
-        console.log(`🔄  "${title}" — 기존 영상 메타 업데이트`);
-        await updateVideoMeta(yt, videoId, meta);
+        console.log(`📝  "${title}" — 자막만 업로드`);
+      } else if (isUpdate) {
+        videoId = existingVideoId;
+        const prevMetaHash = videoIdsData.metaHashes![ep];
+        if (metaHash !== prevMetaHash) {
+          console.log(`🔄  "${title}" — 기존 영상 메타 업데이트`);
+          await updateVideoMeta(yt, videoId, meta);
+          videoIdsData.metaHashes![ep] = metaHash;
+        } else {
+          console.log(`✅  "${title}" — 메타 변경 없음`);
+        }
       } else {
         // 신규 → 영상 업로드 + 재생목록 추가
         videoId = await uploadVideo(yt, mp4Path, meta);
         await addToPlaylist(yt, playlistId, videoId);
+        videoIdsData.metaHashes![ep] = metaHash;
       }
 
-      // 썸네일 설정 (채널 미인증 시 실패 가능 — 경고만 출력)
-      try {
-        await uploadThumbnail(yt, videoId, thumbPath);
-      } catch (e: unknown) {
-        console.warn(
-          `   ⚠️  썸네일 설정 실패 (채널 인증 필요?): ${e instanceof Error ? e.message : e}`,
-        );
+      // 썸네일 설정 (--caption-only 시 스킵)
+      if (!captionOnly) {
+        const thumbHash = fileHash(thumbPath);
+        const prevHash = videoIdsData.thumbHashes![ep];
+        if (thumbHash !== prevHash) {
+          try {
+            await uploadThumbnail(yt, videoId, thumbPath);
+            videoIdsData.thumbHashes![ep] = thumbHash;
+          } catch (e: unknown) {
+            console.warn(
+              `   ⚠️  썸네일 설정 실패 (채널 인증 필요?): ${e instanceof Error ? e.message : e}`,
+            );
+          }
+        } else {
+          console.log(`   🖼️  썸네일 변경 없음 — 스킵`);
+        }
       }
 
-      // 자막 업로드 (SRT 파일 있을 때만)
-      for (const track of captionTracks) {
-        await uploadCaption(yt, videoId, track.path, track.language);
+      // 자막 업로드 (--thumb-only 시 스킵)
+      if (!thumbOnly) {
+        const filteredTracks = captionLang
+          ? captionTracks.filter((t) => t.language === captionLang)
+          : captionTracks;
+        for (const track of filteredTracks) {
+          const captionKey = `${ep}:${track.language}`;
+          const captionHash = fileHash(track.path);
+          const prevCaptionHash = videoIdsData.captionHashes![captionKey];
+          if (captionHash !== prevCaptionHash) {
+            await uploadCaption(yt, videoId, track.path, track.language);
+            videoIdsData.captionHashes![captionKey] = captionHash;
+          } else {
+            console.log(`   📝  자막 변경 없음 — 스킵 (${track.language})`);
+          }
+        }
       }
 
       // videoId 저장

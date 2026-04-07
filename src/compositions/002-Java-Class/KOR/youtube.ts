@@ -9,7 +9,7 @@ export const YOUTUBE_CONFIG = {
   defaults: {
     tags: ["java", "자바", "프로그래밍", "코딩", "클래스", "객체", "자바기초"],
     categoryId: "27", // Education
-    privacyStatus: "private" as const,
+    privacyStatus: "public" as const,
     language: "ko",
   },
   episodes: {
@@ -17,6 +17,16 @@ export const YOUTUBE_CONFIG = {
       title: "Java 객체 — 데이터를 묶는 이유 #Java #자바기초",
       description:
         "관련 데이터를 묶어서 관리하는 이유를 알아보고, 객체 개념을 소개합니다.",
+    },
+    "002": {
+      title: "Java 프로세스와 메모리 — 힙과 스택 #Java #자바기초",
+      description:
+        "프로그램이 실행되면 프로세스가 생성되고, 변수는 메모리의 힙과 스택에 저장됩니다.",
+    },
+    "003": {
+      title: "Java 배열 객체 — 개별 변수 vs 배열 #Java #자바기초",
+      description:
+        "개별 변수로 데이터를 관리하는 불편함을 배열 객체로 해결하는 방법을 알아봅니다.",
     },
   },
 } as const;

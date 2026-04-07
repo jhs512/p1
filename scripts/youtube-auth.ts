@@ -61,6 +61,7 @@ export async function getYouTubeClient() {
       const url = new URL(req.url!, `http://localhost:${PORT}`);
       const code = url.searchParams.get("code");
       if (code) {
+        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("인증 완료! 이 창을 닫아도 됩니다.");
         clearTimeout(timer);
         server.close();

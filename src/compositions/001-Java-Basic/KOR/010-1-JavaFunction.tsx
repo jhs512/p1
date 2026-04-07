@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -27,12 +28,18 @@ import {
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/010-2-content";
 import { CONTENT } from "./010-2-content";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
   BG,
-  BG_CODE,
   BG_THUMB,
   C_FUNC,
   C_KEYWORD,
@@ -347,16 +354,13 @@ const PainScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. 반복의 고통" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "28px 44px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.lg,
             }}
@@ -382,7 +386,7 @@ const PainScene: React.FC = () => {
                 />
               );
             })}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -561,16 +565,13 @@ const DeclarationScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. 함수 선언" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.xl,
             }}
@@ -593,7 +594,7 @@ const DeclarationScene: React.FC = () => {
                 />
               ),
             )}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -628,16 +629,13 @@ const CallScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 함수 호출" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 400,
               ...monoStyle,
               fontSize: 40,
             }}
@@ -650,7 +648,7 @@ const CallScene: React.FC = () => {
                 cps={CALL_CPS}
               />
             ))}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -849,9 +847,6 @@ const ComparisonScene: React.FC = () => {
   });
 
   const codeBoxStyle: React.CSSProperties = {
-    background: BG_CODE,
-    borderRadius: 12,
-    padding: "20px 32px",
     ...monoStyle,
     fontSize: CODE.lg,
     position: "relative",
@@ -931,7 +926,7 @@ const ComparisonScene: React.FC = () => {
             {/* 고통스러운 코드 — 위 */}
             <div style={{ opacity: beforeAppear, width: "100%" }}>
               <div style={labelStyle(C_PAIN)}>고통스러운 코드</div>
-              <div style={codeBoxStyle}>
+              <CodeBlock style={codeBoxStyle}>
                 {BEFORE_LINES.map((line, i) => (
                   <div
                     key={i}
@@ -949,7 +944,7 @@ const ComparisonScene: React.FC = () => {
                   color={C_PAIN}
                   appear={highlightAppear}
                 />
-              </div>
+              </CodeBlock>
             </div>
             {/* 화살표 ▼ */}
             <div
@@ -974,7 +969,7 @@ const ComparisonScene: React.FC = () => {
             {/* 개선된 코드 — 아래 */}
             <div style={{ opacity: afterAppear, width: "100%" }}>
               <div style={labelStyle(C_FUNC)}>개선된 코드</div>
-              <div style={codeBoxStyle}>
+              <CodeBlock style={codeBoxStyle}>
                 {AFTER_LINES.map((line, i) => (
                   <div
                     key={i}
@@ -997,7 +992,7 @@ const ComparisonScene: React.FC = () => {
                   color={C_TEAL}
                   appear={highlightAppear}
                 />
-              </div>
+              </CodeBlock>
             </div>
           </div>
         </ContentArea>
@@ -1075,8 +1070,6 @@ const RealExampleScene: React.FC = () => {
   });
 
   const codeBoxStyle: React.CSSProperties = {
-    background: BG_CODE,
-    borderRadius: 12,
     padding: "14px 20px",
     ...monoStyle,
     fontSize: CODE.sm,
@@ -1202,7 +1195,7 @@ const RealExampleScene: React.FC = () => {
   }) => (
     <div style={{ flex: 1 }}>
       <div style={labelStyle(C_PAIN)}>{label}</div>
-      <div style={codeBoxStyle}>
+      <CodeBlock style={codeBoxStyle}>
         {lines.map((line, i) => (
           <div
             key={i}
@@ -1213,7 +1206,7 @@ const RealExampleScene: React.FC = () => {
               : colorCode(line)}
           </div>
         ))}
-      </div>
+      </CodeBlock>
     </div>
   );
 
@@ -1285,7 +1278,7 @@ const RealExampleScene: React.FC = () => {
               {/* 함수 선언 */}
               <div>
                 <div style={labelStyle(C_FUNC)}>함수 선언</div>
-                <div style={codeBoxStyle}>
+                <CodeBlock style={codeBoxStyle}>
                   {REAL_CLEAN_FUNC.map((line, i) => (
                     <div
                       key={i}
@@ -1298,13 +1291,13 @@ const RealExampleScene: React.FC = () => {
                       {colorCode(line)}
                     </div>
                   ))}
-                </div>
+                </CodeBlock>
               </div>
               {/* 호출부 2개 나란히 */}
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1 }}>
                   <div style={labelStyle(C_TEAL)}>장바구니</div>
-                  <div style={codeBoxStyle}>
+                  <CodeBlock style={codeBoxStyle}>
                     {REAL_CLEAN_CART.map((line, i) => (
                       <div
                         key={i}
@@ -1317,11 +1310,11 @@ const RealExampleScene: React.FC = () => {
                         {colorCode(line)}
                       </div>
                     ))}
-                  </div>
+                  </CodeBlock>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={labelStyle(C_TEAL)}>결제</div>
-                  <div style={codeBoxStyle}>
+                  <CodeBlock style={codeBoxStyle}>
                     {REAL_CLEAN_PAY.map((line, i) => (
                       <div
                         key={i}
@@ -1334,7 +1327,7 @@ const RealExampleScene: React.FC = () => {
                         {colorCode(line)}
                       </div>
                     ))}
-                  </div>
+                  </CodeBlock>
                 </div>
               </div>
             </div>
@@ -1450,6 +1443,91 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.painScene.narration,
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.conceptScene.narration,
+    speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.conceptScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.conceptScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.declarationScene.narration,
+    speechStartFrame: AUDIO_CONFIG.declarationScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.declarationScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.declarationScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.declarationScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.summaryScene.narration,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.comparisonScene.narration,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.comparisonScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[7],
+    narration: VIDEO_CONFIG.realExampleScene.narration,
+    speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.realExampleScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.realExampleScene.durationInFrames,
+  },
+  {
+    offset: fromValues[8],
+    narration: VIDEO_CONFIG.outroScene.narration,
+    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.outroScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.outroScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.painScene.narration,
+  ...ENG_CONTENT.conceptScene.narration,
+  ...ENG_CONTENT.declarationScene.narration,
+  ...ENG_CONTENT.callScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+  ...ENG_CONTENT.comparisonScene.narration,
+  ...ENG_CONTENT.realExampleScene.narration,
+  ...ENG_CONTENT.outroScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

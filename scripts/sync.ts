@@ -2,7 +2,9 @@
  * scripts/sync.ts
  *
  * 사용법: pnpm sync <series>/<lang>/<id>
+ *        pnpm sync <series>/<lang>/*
  *   예)  pnpm sync 001-Java-Basic/KOR/001
+ *        pnpm sync 002-Java-Class/KOR/*
  *
  * 자동 처리:
  *  1. narration 텍스트 해시로 변경된 씬만 감지
@@ -33,12 +35,48 @@ const SRC_DIR = "src/compositions";
 // ── CLI 인수 ───────────────────────────────────────────────────
 const arg = process.argv[2];
 if (!arg) {
-  console.error(
-    "Usage: pnpm sync <series>/<lang>/<id>   e.g.  pnpm sync 001-Java-Basic/KOR/1",
-  );
+  console.error("Usage: pnpm sync <series>/<lang>/<id> | <series>/<lang>/*");
   process.exit(1);
 }
-const argParts = arg.split("/");
+const isBatchMode = arg.endsWith("/*");
+const normalizedArg = isBatchMode ? arg.slice(0, -2) : arg;
+const argParts = normalizedArg.split("/");
+
+if (isBatchMode) {
+  const batchDir = resolveSeriesDir(argParts);
+  const canonicalBatchArg = path
+    .relative(SRC_DIR, batchDir)
+    .split(path.sep)
+    .join("/");
+  const episodeIds = Array.from(
+    new Set(
+      readdirSync(batchDir)
+        .map((file) => file.match(/^(\d+)-1-.*\.tsx$/)?.[1] ?? null)
+        .filter((id): id is string => id !== null),
+    ),
+  ).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  if (episodeIds.length === 0) {
+    console.error(`❌  ${batchDir} 안에서 episode를 찾을 수 없습니다.`);
+    process.exit(1);
+  }
+
+  console.log(
+    `📚  Batch sync: ${canonicalBatchArg} (${episodeIds.length}개)\n`,
+  );
+  for (const id of episodeIds) {
+    const target = `${canonicalBatchArg}/${id}`;
+    console.log(`\n=== ${target} ===\n`);
+    const res = spawnSync("pnpm", ["exec", "tsx", "scripts/sync.ts", target], {
+      stdio: "inherit",
+      cwd: process.cwd(),
+      encoding: "utf-8",
+    });
+    if (res.status !== 0) process.exit(res.status ?? 1);
+  }
+  process.exit(0);
+}
+
 const episodeId = argParts[argParts.length - 1];
 
 // 시리즈 폴더 해석: 단축형(예: "001") → 실제 폴더명(예: "001-Java-Basic") 자동 확장
@@ -93,7 +131,8 @@ const COMPOSITION_FILE = path.join(SERIES_DIR, matchEntry);
 const COMPOSITION_DIR = SERIES_DIR;
 const CACHE_DIR = ".cache";
 mkdirSync(CACHE_DIR, { recursive: true });
-const HASH_FILE = `${CACHE_DIR}/${arg.replace(/\//g, "-")}-audio-hashes.json`;
+const canonicalArg = `${relativeSeriesDir}/${episodeId}`;
+const HASH_FILE = `${CACHE_DIR}/${canonicalArg.replace(/\//g, "-")}-audio-hashes.json`;
 console.log(`📄  ${COMPOSITION_FILE}\n`);
 
 // ── AUDIO_CONFIG 스텁 생성 ─────────────────────────────────────
@@ -187,13 +226,16 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// ── 인라인 발음 문법: [표시(발음:읽기)] ────────────────────────
-// TTS용: [유튜브(발음:유튭)] → 유튭
+// ── 인라인 발음 문법: [표시(pron:읽기)] ────────────────────────
+// TTS용: [유튜브(pron:유튭)] → 유튭
+// (mute:텍스트) → TTS에서 제거 (묵음 처리)
 // pronMap 적용: 전역/강좌 발음 사전 (inline이 최우선 — placeholder로 보호 후 복원)
 function toTTSText(text: string, pronMap: Record<string, string> = {}): string {
-  // Step 1: inline [X(발음:Y)] → placeholder 보호 (inline 최우선)
+  // Step 0: (mute:텍스트) → 완전 제거 (TTS에서 묵음 처리), 백틱 제거
+  let t = text.replace(/\(mute:[^)]*\)/g, "").replace(/`/g, "");
+  // Step 1: inline [X(pron:Y)] → placeholder 보호 (inline 최우선)
   const inlines: string[] = [];
-  let t = text.replace(/\[([^(]+)\(발음:([^)]*)\)\]/g, (_m, _d, p) => {
+  t = t.replace(/\[(.*?)\(pron:([^)]*)\)\]/g, (_m, _d, p) => {
     inlines.push(p.trim());
     return `\x01${inlines.length - 1}\x01`;
   });
@@ -211,21 +253,23 @@ function toTTSText(text: string, pronMap: Record<string, string> = {}): string {
 }
 
 // ── 나레이션 토크나이저 ────────────────────────────────────────
-// [X(발음:Y)] → { display: X, tts: Y.split(" ") }
+// [X(pron:Y)] → { display: X, tts: Y.split(" ") }
 // 일반 단어    → { display: word, tts: [word] }
 //
-// ⚠️ 핵심: [X(발음:Y)]바로뒤 처럼 ] 다음에 공백 없이 이어지는 문자는
+// ⚠️ 핵심: [X(pron:Y)]바로뒤 처럼 ] 다음에 공백 없이 이어지는 문자는
 //   suffix로 캡처해 display·tts 모두 한 토큰으로 합친다.
-//   예) [개수(발음:개쑤)]처럼 → display:"개수처럼", tts:["개쑤처럼"]
+//   예) [개수(pron:개쑤)]처럼 → display:"개수처럼", tts:["개쑤처럼"]
 //   이렇게 해야 toDisplayText().split(/\s+/) 의 display 토큰 수 =
 //   buildGlobalAlignment 의 globalTtsCount 와 일치한다.
 type NarrationToken = { display: string; tts: string[] };
 function tokenizeNarration(text: string): NarrationToken[] {
+  // 백틱을 먼저 제거한 뒤 토큰화 — 백틱은 자막·TTS 모두에서 불필요
+  const cleaned = text.replace(/`/g, "");
   const tokens: NarrationToken[] = [];
-  // Group 1,2: inline [X(발음:Y)], Group 3: trailing non-whitespace suffix, Group 4: plain word
-  const re = /\[([^(]+)\(발음:([^)]*)\)\](\S*)|(\S+)/g;
+  // Group 1,2: inline [X(pron:Y)], Group 3: trailing non-whitespace suffix, Group 4: plain word
+  const re = /\[(.*?)\(pron:([^)]*)\)\](\S*)|(\S+)/g;
   let m;
-  while ((m = re.exec(text)) !== null) {
+  while ((m = re.exec(cleaned)) !== null) {
     if (m[1] !== undefined) {
       const pron = m[2].trim();
       const suffix = m[3] ?? "";
@@ -324,6 +368,30 @@ function writeAudioConfig(config: Record<string, SceneAudioData>): void {
   console.log(`\n📝  ${audioConfigFile} 업데이트 완료`);
 }
 
+function loadExistingAudioConfig(
+  audioConfigFile: string,
+): Record<string, SceneAudioData> {
+  if (!existsSync(audioConfigFile)) return {};
+
+  try {
+    const result = buildSync({
+      entryPoints: [audioConfigFile],
+      bundle: true,
+      platform: "node",
+      format: "cjs",
+      write: false,
+      packages: "external",
+      logLevel: "silent",
+    });
+    const code = result.outputFiles[0].text;
+    const mod = { exports: {} as Record<string, unknown> };
+    new Function("module", "exports", code)(mod, mod.exports);
+    return (mod.exports.AUDIO_CONFIG as Record<string, SceneAudioData>) ?? {};
+  } catch {
+    return {};
+  }
+}
+
 // ── 메인 루프 ─────────────────────────────────────────────────
 const hashes = loadHashes();
 let changed = false;
@@ -332,90 +400,7 @@ const audioConfigFile = path.join(
   COMPOSITION_DIR,
   filePrefix + "-3-audio.gen.ts",
 );
-const existingAudioConfig: Record<string, SceneAudioData> = {};
-if (existsSync(audioConfigFile)) {
-  try {
-    const raw = readFileSync(audioConfigFile, "utf-8");
-    for (const line of raw.split("\n")) {
-      const m = line.match(
-        /^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\], sentenceEndFrames: \[([^\]]*)\], speechStartFrame: (\d+), speechEndFrame: (\d+)/,
-      );
-      if (m) {
-        const splits = m[3].trim()
-          ? m[3].split(",").map((s) => parseInt(s.trim()))
-          : [];
-        const ends = m[4].trim()
-          ? m[4].split(",").map((s) => parseInt(s.trim()))
-          : [];
-        existingAudioConfig[m[1]] = {
-          durationInFrames: parseInt(m[2]),
-          narrationSplits: splits,
-          sentenceEndFrames: ends,
-          speechStartFrame: parseInt(m[5]),
-          speechEndFrame: parseInt(m[6]),
-          wordStartFrames: [],
-          wordEndFrames: [],
-          wordStartMs: [],
-          wordTiming: {},
-        };
-        // 중첩 배열 파싱 헬퍼
-        const parseNestedArray = (key: string): number[][] | null => {
-          const idx = line.indexOf(key);
-          if (idx === -1) return null;
-          const start = line.indexOf("[", idx);
-          if (start === -1) return null;
-          let depth = 0,
-            end = -1;
-          for (let i = start; i < line.length; i++) {
-            if (line[i] === "[") depth++;
-            else if (line[i] === "]") {
-              depth--;
-              if (depth === 0) {
-                end = i;
-                break;
-              }
-            }
-          }
-          if (end === -1) return null;
-          try {
-            return JSON.parse(line.slice(start, end + 1)) as number[][];
-          } catch {
-            return null;
-          }
-        };
-        existingAudioConfig[m[1]].wordStartFrames =
-          parseNestedArray("wordStartFrames: ") ?? [];
-        existingAudioConfig[m[1]].wordEndFrames =
-          parseNestedArray("wordEndFrames: ") ?? [];
-        existingAudioConfig[m[1]].wordStartMs =
-          parseNestedArray("wordStartMs: ") ?? [];
-        continue;
-      }
-      // 구버전 호환
-      const m2 = line.match(
-        /^\s+(\w+)\s*:\s*\{ durationInFrames: (\d+), narrationSplits: \[([^\]]*)\]/,
-      );
-      if (m2) {
-        const splits = m2[3].trim()
-          ? m2[3].split(",").map((s) => parseInt(s.trim()))
-          : [];
-        existingAudioConfig[m2[1]] = {
-          durationInFrames: parseInt(m2[2]),
-          narrationSplits: splits,
-          sentenceEndFrames: [],
-          speechStartFrame: 0,
-          speechEndFrame: 0,
-          wordStartFrames: [],
-          wordEndFrames: [],
-          wordStartMs: [],
-          wordTiming: {},
-        };
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-}
+const existingAudioConfig = loadExistingAudioConfig(audioConfigFile);
 
 const audioConfig: Record<string, SceneAudioData> = {};
 
@@ -584,7 +569,13 @@ for (const [key, scene] of Object.entries(VIDEO_CONFIG)) {
 
   // 5) wordStartFrames + wordEndFrames + wordStartMs (Word Boundary 직접 인덱스 매핑)
   if (wordBoundaries.length > 0) {
-    const { displayWords: dwInfos } = buildGlobalAlignment(narration);
+    const { displayWords: dwInfos, globalTtsCount } =
+      buildGlobalAlignment(narration);
+    if (globalTtsCount !== wordBoundaries.length) {
+      console.warn(
+        `       ⚠️  TTS 단어 수 불일치: expected ${globalTtsCount}, got ${wordBoundaries.length} word boundaries`,
+      );
+    }
     const resultFrames: number[][] = narration.map(() => []);
     const resultEndFrames: number[][] = narration.map(() => []);
     const resultMs: number[][] = narration.map(() => []);

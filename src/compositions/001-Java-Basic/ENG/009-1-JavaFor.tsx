@@ -1103,7 +1103,8 @@ const SummaryScene: React.FC = () => {
                 AUDIO_CONFIG.summaryScene.wordTiming["update"]?.[0],
               ];
               const triggerFrame =
-                SUMMARY_TRIGGERS[i] ?? AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
+                SUMMARY_TRIGGERS[i] ??
+                AUDIO_CONFIG.summaryScene.wordStartFrames[0][i + 2];
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,

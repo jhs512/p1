@@ -1,6 +1,6 @@
-import { Composition, Folder } from "remotion";
+import { Composition, Folder, Internals } from "remotion";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { AudioBaseDirProvider } from "./utils/scene";
 
@@ -94,6 +94,349 @@ const byFolder = entries.reduce<Record<string, Record<string, Entry[]>>>(
   {},
 );
 
+type StudioRuntimeRefs = {
+  compositionSelectorRef?: {
+    current?: {
+      selectComposition?: (id: string) => void;
+    } | null;
+  } | null;
+  timeValueRef?: {
+    current?: {
+      seek?: (frame: number) => void;
+    } | null;
+  } | null;
+};
+
+const availableCompositionIds = new Set(entries.map((entry) => entry.ep));
+const compositionFpsById = new Map(
+  entries.map((entry) => [entry.ep, entry.mod.compositionMeta.fps]),
+);
+const compositionFramesById = new Map(
+  entries.map((entry) => [entry.ep, entry.totalFrames]),
+);
+
+type ParsedFrameValue = {
+  value: number;
+  unit: "frame" | "seconds";
+};
+
+const parseFrame = (frame: string | null): ParsedFrameValue | null => {
+  if (!frame) {
+    return null;
+  }
+  const trimmed = frame.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const isSeconds = /s$/i.test(trimmed);
+  const raw = isSeconds ? trimmed.slice(0, -1) : trimmed;
+  const value = Number.parseFloat(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    return null;
+  }
+  if (!/^-?\d*(\.\d+)?$/.test(raw)) {
+    return null;
+  }
+
+  return {
+    value,
+    unit: isSeconds ? "seconds" : "frame",
+  };
+};
+
+const toFrameNumber = (
+  frameInfo: ParsedFrameValue | null,
+  compositionId: string | null,
+): number | null => {
+  if (!frameInfo) {
+    return null;
+  }
+
+  const fps = compositionId
+    ? (compositionFpsById.get(compositionId) ?? 30)
+    : 30;
+  const frameValue =
+    frameInfo.unit === "seconds" ? frameInfo.value * fps : frameInfo.value;
+  const clamped = Math.max(0, Math.round(frameValue));
+  const rawMaxFrame = compositionId
+    ? compositionFramesById.get(compositionId)
+    : null;
+  const maxFrame =
+    typeof rawMaxFrame === "number" && Number.isFinite(rawMaxFrame)
+      ? rawMaxFrame
+      : null;
+  if (maxFrame == null) {
+    return clamped;
+  }
+  return Math.min(clamped, Math.max(0, maxFrame - 1));
+};
+
+const parseDeepLinkCompositionId = (
+  pathName: string,
+  search: string,
+): string | null => {
+  const params = new URLSearchParams(search);
+  const fromQuery =
+    params.get("composition") ??
+    params.get("id") ??
+    params.get("compositionId");
+  if (fromQuery) {
+    return fromQuery;
+  }
+
+  const cleanedPath = pathName.replace(/\/+$/, "");
+  const segments = cleanedPath.split("/").filter(Boolean);
+  return segments.length > 0 ? segments[segments.length - 1] : null;
+};
+
+type DeepLinkFrame = {
+  value: ParsedFrameValue;
+  source: "search" | "hash";
+};
+
+const parseDeepLinkFrame = (
+  search: string,
+  hash: string,
+): DeepLinkFrame | null => {
+  const fromHash = parseFrame(hash.replace(/^#/, ""));
+  const fromSearch = parseFrame(new URLSearchParams(search).get("frame"));
+
+  if (fromSearch !== null) {
+    return {
+      value: fromSearch,
+      source: "search",
+    };
+  }
+
+  if (fromHash !== null) {
+    return {
+      value: fromHash,
+      source: "hash",
+    };
+  }
+
+  return null;
+};
+
+const FRAME_SYNC_DELAY_MS = 350;
+const DEEP_LINK_APPLY_TIMEOUT_MS = 15000;
+
+const getFrameFromLocation = (search: string, hash: string) => {
+  const params = new URLSearchParams(search);
+  const fromHash = hash.replace(/^#/, "").trim();
+  const fromSearch = params.get("frame");
+
+  if (fromSearch !== null && parseFrame(fromSearch) !== null) {
+    return {
+      text: fromSearch,
+      source: "search",
+    };
+  }
+
+  if (fromHash && parseFrame(fromHash) !== null) {
+    return {
+      text: fromHash,
+      source: "hash",
+    };
+  }
+
+  return null;
+};
+
+const updateUrlFrame = (frameText: string) => {
+  const current = new URL(window.location.href);
+  current.searchParams.set("frame", frameText);
+  current.hash = "";
+
+  const nextUrl = `${current.pathname}${current.search}${current.hash}`;
+  window.history.replaceState({}, "", nextUrl);
+};
+
+const useStudioDeepLink = () => {
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const compositionId = parseDeepLinkCompositionId(
+      window.location.pathname,
+      window.location.search,
+    );
+    const frameInfo = parseDeepLinkFrame(
+      window.location.search,
+      window.location.hash,
+    );
+    if (frameInfo?.source === "hash") {
+      const text =
+        frameInfo.value.unit === "seconds"
+          ? `${frameInfo.value.value}s`
+          : `${frameInfo.value.value}`;
+      updateUrlFrame(text);
+    }
+
+    const frame = toFrameNumber(frameInfo?.value ?? null, compositionId);
+    if (!compositionId || frame === null) {
+      return;
+    }
+
+    if (!availableCompositionIds.has(compositionId)) {
+      return;
+    }
+
+    const refs = Internals as unknown as StudioRuntimeRefs;
+    const apply = () => {
+      const selector = refs.compositionSelectorRef?.current;
+      const player = refs.timeValueRef?.current;
+
+      if (!selector?.selectComposition || !player?.seek) {
+        return false;
+      }
+
+      if (compositionId) {
+        selector.selectComposition(compositionId);
+      }
+      if (frame !== null) {
+        player.seek(frame);
+      }
+      return true;
+    };
+
+    let seekInterval: number | null = null;
+    let timeout: number | null = null;
+    const start = performance.now();
+    apply();
+    seekInterval = window.setInterval(() => {
+      if (performance.now() - start > DEEP_LINK_APPLY_TIMEOUT_MS) {
+        if (seekInterval) {
+          window.clearInterval(seekInterval);
+          seekInterval = null;
+        }
+        return;
+      }
+
+      apply();
+    }, 80);
+
+    timeout = window.setTimeout(() => {
+      if (seekInterval) {
+        window.clearInterval(seekInterval);
+        seekInterval = null;
+      }
+    }, DEEP_LINK_APPLY_TIMEOUT_MS);
+
+    let dragging = false;
+    let queuedFrame: string | null = null;
+    let pollTimer: number | null = null;
+    let previousHref = window.location.href;
+    let debounceTimer: number | null = null;
+
+    const clearDebounce = () => {
+      if (debounceTimer) {
+        window.clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
+    };
+
+    const flushFrameUpdate = (value: string) => {
+      if (!value) {
+        return;
+      }
+
+      updateUrlFrame(value);
+      queuedFrame = null;
+    };
+
+    const scheduleFrameUpdate = () => {
+      const nextFrame = queuedFrame;
+      if (!nextFrame) {
+        return;
+      }
+
+      clearDebounce();
+      debounceTimer = window.setTimeout(() => {
+        debounceTimer = null;
+        flushFrameUpdate(nextFrame);
+      }, FRAME_SYNC_DELAY_MS);
+    };
+
+    const syncFromLocation = () => {
+      const currentHref = window.location.href;
+      if (currentHref === previousHref) {
+        return;
+      }
+      previousHref = currentHref;
+
+      const frameValue = getFrameFromLocation(
+        window.location.search,
+        window.location.hash,
+      );
+      if (!frameValue) {
+        return;
+      }
+
+      queuedFrame = frameValue.text;
+
+      if (!dragging) {
+        scheduleFrameUpdate();
+      } else {
+        clearDebounce();
+      }
+    };
+
+    const startPolling = () => {
+      if (pollTimer) {
+        return;
+      }
+      pollTimer = window.setInterval(syncFromLocation, 80);
+    };
+
+    const stopPolling = () => {
+      if (!pollTimer) {
+        return;
+      }
+      window.clearInterval(pollTimer);
+      pollTimer = null;
+    };
+
+    const onPointerDown = () => {
+      dragging = true;
+      clearDebounce();
+      startPolling();
+    };
+
+    const onPointerUp = () => {
+      dragging = false;
+      if (queuedFrame) {
+        scheduleFrameUpdate();
+      }
+    };
+
+    window.addEventListener("hashchange", syncFromLocation);
+    window.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+    startPolling();
+
+    return () => {
+      if (seekInterval) {
+        window.clearInterval(seekInterval);
+      }
+      if (timeout) {
+        window.clearTimeout(timeout);
+      }
+      clearDebounce();
+      stopPolling();
+      window.removeEventListener("hashchange", syncFromLocation);
+      window.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+    };
+  }, []);
+};
+
 const CompItem: React.FC<{ entry: Entry }> = ({
   entry: { mod, ep, totalFrames, audioBaseDir },
 }) => (
@@ -113,22 +456,26 @@ const CompItem: React.FC<{ entry: Entry }> = ({
   />
 );
 
-export const RemotionRoot: React.FC = () => (
-  <>
-    {Object.entries(byFolder).map(([series, byLang]) => (
-      <Folder key={series} name={series}>
-        {Object.entries(byLang).map(([lang, items]) =>
-          lang === "__none__" ? (
-            items.map((e) => <CompItem key={e.ep} entry={e} />)
-          ) : (
-            <Folder key={lang} name={lang}>
-              {items.map((e) => (
-                <CompItem key={e.ep} entry={e} />
-              ))}
-            </Folder>
-          ),
-        )}
-      </Folder>
-    ))}
-  </>
-);
+export const RemotionRoot: React.FC = () => {
+  useStudioDeepLink();
+
+  return (
+    <>
+      {Object.entries(byFolder).map(([series, byLang]) => (
+        <Folder key={series} name={series}>
+          {Object.entries(byLang).map(([lang, items]) =>
+            lang === "__none__" ? (
+              items.map((e) => <CompItem key={e.ep} entry={e} />)
+            ) : (
+              <Folder key={lang} name={lang}>
+                {items.map((e) => (
+                  <CompItem key={e.ep} entry={e} />
+                ))}
+              </Folder>
+            ),
+          )}
+        </Folder>
+      ))}
+    </>
+  );
+};

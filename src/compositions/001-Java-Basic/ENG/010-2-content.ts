@@ -53,8 +53,6 @@ export const CONTENT = {
     ],
   },
   outroScene: {
-    narration: [
-      "We will talk about return next.",
-    ],
+    narration: ["We will talk about return next."],
   },
 } satisfies EpisodeContent;

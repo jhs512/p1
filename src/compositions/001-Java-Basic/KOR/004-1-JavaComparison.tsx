@@ -25,7 +25,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/004-2-content";
 import { CONTENT } from "./004-2-content";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import { BG, C_NUMBER, C_PAIN, C_PURPLE, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -623,6 +630,17 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.intro.narration,
+  ...ENG_CONTENT.compareScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

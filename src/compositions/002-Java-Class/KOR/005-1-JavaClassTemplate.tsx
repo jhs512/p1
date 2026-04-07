@@ -50,6 +50,7 @@ const AUDIO_SCENE_STUB = {
   narrationSplits: [] as readonly number[],
   sentenceEndFrames: [] as readonly number[],
   wordStartFrames: [] as readonly number[][],
+  wordTiming: {} as Record<string, number[]>,
 };
 
 const getAudioScene = (key: string) => {
@@ -243,6 +244,82 @@ const StarCookieIcon: React.FC<{
   );
 };
 
+const DoughBlob: React.FC<{ opacity: number; frame: number }> = ({
+  opacity,
+  frame,
+}) => {
+  const wobble = interpolate(frame, [0, 8, 20], [0, -2, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const stretch = interpolate(frame, [0, 12, 24], [1, 1.08, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: 84,
+        height: 28,
+        opacity,
+        transform: `translateY(${wobble}px) scale(${stretch})`,
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 4,
+          bottom: 0,
+          borderRadius: "999px",
+          background:
+            "linear-gradient(90deg, #f8d7a8 0%, #efc37f 40%, #ecd2a9 80%, #e0b279 100%)",
+          boxShadow: "inset 0 -2px 4px #be8d56aa, 0 4px 10px #d6a56b55",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 24,
+          height: 24,
+          borderRadius: "50%",
+          left: 6,
+          top: 0,
+          background: "#f7ddba",
+          opacity: 0.8,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 26,
+          height: 26,
+          borderRadius: "50%",
+          left: 28,
+          top: -2,
+          background: "#f7ddba",
+          opacity: 0.75,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          right: 8,
+          top: 1,
+          background: "#edd0a7",
+          opacity: 0.68,
+        }}
+      />
+    </div>
+  );
+};
+
 const CookieCutterIcon: React.FC<{ size?: number }> = ({ size = 132 }) => (
   <svg
     width={size}
@@ -421,6 +498,7 @@ const PainScene: React.FC = () => {
                   }}
                 >
                   <div style={{ fontSize: 36, lineHeight: 1 }}>🖐️</div>
+                  <DoughBlob opacity={appear} frame={frame - s - index * 6} />
                   <StarCookieIcon size={72} flavor={flavor} />
                   <div
                     style={{
@@ -484,8 +562,21 @@ const AnalogyScene: React.FC = () => {
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 26,
   });
+  const wordTiming = getAudioScene("analogyScene")
+    .wordTiming as unknown as Record<string, number[]>;
+  const sameShapeStart =
+    wordTiming["같은"]?.[0] ?? wordTiming["모양의"]?.[0] ?? splits[0] ?? s + 40;
   const cookiesAppear = spring({
-    frame: frame - (splits[0] ?? s + 40),
+    frame: frame - sameShapeStart,
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 26,
+  });
+
+  // "쿠키 틀 = class / 쿠키 = object" labels appear at 2nd sentence
+  const labelsStart = splits[0] ?? s + 80;
+  const labelsAppear = spring({
+    frame: frame - labelsStart,
     fps,
     config: { damping: 12, stiffness: 130 },
     durationInFrames: 26,
@@ -603,13 +694,22 @@ const AnalogyScene: React.FC = () => {
               ))}
             </div>
 
-            {/* Labels */}
+            {/* Labels — appear at 2nd sentence */}
             <div
               style={{
                 display: "flex",
                 gap: 40,
                 marginTop: 20,
-                opacity: cookiesAppear,
+                opacity: labelsAppear,
+                transform: `scale(${interpolate(
+                  labelsAppear,
+                  [0, 1],
+                  [0.85, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  },
+                )})`,
               }}
             >
               <div
@@ -620,7 +720,7 @@ const AnalogyScene: React.FC = () => {
                   color: C_TEAL,
                 }}
               >
-                틀 = class
+                쿠키 틀 = class
               </div>
               <div
                 style={{
@@ -898,7 +998,7 @@ const LimitScene: React.FC = () => {
           >
             {/* Array slots */}
             <MoldCard
-              title="int[ ] 배열"
+              title="int[3] 배열"
               color={C_PAIN}
               width={680}
               style={{

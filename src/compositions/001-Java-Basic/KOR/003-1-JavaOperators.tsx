@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   SceneAudio,
   SceneTitle,
@@ -25,7 +26,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/003-2-content";
 import { CONTENT } from "./003-2-content";
 import { AUDIO_CONFIG } from "./003-3-audio.gen";
 import {
@@ -96,16 +104,14 @@ const CodeLines: React.FC<{
   const visibleLines = lines.filter((l) => frame >= l.startFrame);
   if (visibleLines.length === 0) return null;
   return (
-    <div
+    <CodeBlock
       style={{
         position: "absolute",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        background: BG_CODE,
         borderRadius: 14,
         padding: "36px 56px",
-        minWidth: 820,
         ...monoStyle,
         fontSize: CODE.xl,
         lineHeight: 1.9,
@@ -130,7 +136,7 @@ const CodeLines: React.FC<{
           />
         );
       })}
-    </div>
+    </CodeBlock>
   );
 };
 
@@ -523,7 +529,7 @@ const RemScene: React.FC = () => {
           </div>
 
           {/* split1: 활용 예시 */}
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               bottom: 230,
@@ -534,8 +540,6 @@ const RemScene: React.FC = () => {
               gap: 20,
               ...monoStyle,
               fontSize: CODE.xl,
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "14px 32px",
             }}
           >
@@ -570,7 +574,7 @@ const RemScene: React.FC = () => {
             >
               → 홀수
             </span>
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -615,16 +619,13 @@ const SummaryScene: React.FC = () => {
           <SceneTitle title="5. 산술 연산자 정리" />
           {starts.map((startFrom, i) => (
             <Sequence key={i} from={startFrom} durationInFrames={d - startFrom}>
-              <div
+              <CodeBlock
                 style={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  background: BG_CODE,
-                  borderRadius: 12,
                   padding: "36px 56px",
-                  minWidth: 820,
                   ...monoStyle,
                   fontSize: CODE.xl,
                   lineHeight: 1.85,
@@ -645,7 +646,7 @@ const SummaryScene: React.FC = () => {
                     />
                   ),
                 )}
-              </div>
+              </CodeBlock>
             </Sequence>
           ))}
         </ContentArea>
@@ -727,6 +728,19 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.intro.narration,
+  ...ENG_CONTENT.addSubScene.narration,
+  ...ENG_CONTENT.mulDivScene.narration,
+  ...ENG_CONTENT.remScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── Composition 메타 ──────────────────────────────────────────
 export const compositionMeta = {

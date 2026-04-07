@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -27,12 +28,18 @@ import {
   useFade,
   useTypingEffect,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/011-2-content";
 import { CONTENT } from "./011-2-content";
 import { AUDIO_CONFIG } from "./011-3-audio.gen";
 import {
   BG,
-  BG_CODE,
   BG_THUMB,
   C_FUNC,
   C_KEYWORD,
@@ -234,10 +241,8 @@ const PainScene: React.FC = () => {
             }}
           >
             {/* 원래 greet() 함수 */}
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "32px 44px",
                 ...monoStyle,
                 fontSize: CODE.xl,
@@ -251,9 +256,9 @@ const PainScene: React.FC = () => {
                   cps={PAIN_CPS}
                 />
               ))}
-            </div>
+            </CodeBlock>
             {/* 추가 함수 스텁 — 2문장 시점에 등장 */}
-            <div
+            <CodeBlock
               style={{
                 opacity: extrasAppear,
                 transform: `scale(${interpolate(
@@ -265,8 +270,6 @@ const PainScene: React.FC = () => {
                     extrapolateRight: "clamp",
                   },
                 )})`,
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "20px 44px",
                 ...monoStyle,
                 fontSize: CODE.xl,
@@ -286,7 +289,7 @@ const PainScene: React.FC = () => {
                   <JavaLine text={line} />
                 </div>
               ))}
-            </div>
+            </CodeBlock>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -502,12 +505,9 @@ const ParamScene: React.FC = () => {
             >
               매개변수 ↓
             </div>
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "36px 48px",
-                maxWidth: 980,
                 ...monoStyle,
                 fontSize: CODE.md,
                 position: "relative",
@@ -532,7 +532,7 @@ const ParamScene: React.FC = () => {
                   />
                 ),
               )}
-            </div>
+            </CodeBlock>
           </div>
         </ContentArea>
       </AbsoluteFill>
@@ -572,16 +572,13 @@ const CallScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. 인자 전달" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.xl,
             }}
@@ -594,7 +591,7 @@ const CallScene: React.FC = () => {
                 cps={CALL_CPS}
               />
             ))}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -729,12 +726,9 @@ const MultiParamScene: React.FC = () => {
             }}
           >
             {/* 코드 블록 */}
-            <div
+            <CodeBlock
               style={{
-                background: BG_CODE,
-                borderRadius: 12,
                 padding: "40px 56px",
-                minWidth: 760,
                 ...monoStyle,
                 fontSize: CODE.xl,
               }}
@@ -766,7 +760,7 @@ const MultiParamScene: React.FC = () => {
                 startFrame={callStart}
                 cps={CALL_CPS}
               />
-            </div>
+            </CodeBlock>
 
             {/* 매핑 다이어그램: 3문장 시점에 등장 */}
             <div
@@ -967,11 +961,8 @@ const ArgParamScene: React.FC = () => {
               >
                 매개변수
               </div>
-              <div
+              <CodeBlock
                 style={{
-                  background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
                   width: "100%",
                   textAlign: "center",
                   border: `2px solid ${C_TEAL}${Math.round(paramHighlight * 85)
@@ -1006,7 +997,7 @@ const ArgParamScene: React.FC = () => {
                   </span>
                   )
                 </span>
-              </div>
+              </CodeBlock>
             </div>
 
             {/* 화살표 */}
@@ -1044,11 +1035,8 @@ const ArgParamScene: React.FC = () => {
               >
                 인자
               </div>
-              <div
+              <CodeBlock
                 style={{
-                  background: BG_CODE,
-                  borderRadius: 12,
-                  padding: "20px 32px",
                   width: "100%",
                   textAlign: "center",
                   border: `2px solid ${C_STRING}${Math.round(argHighlight * 85)
@@ -1070,7 +1058,7 @@ const ArgParamScene: React.FC = () => {
                   </span>
                   );
                 </span>
-              </div>
+              </CodeBlock>
             </div>
           </div>
         </ContentArea>
@@ -1102,6 +1090,73 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.painScene.narration,
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.conceptScene.narration,
+    speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.conceptScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.conceptScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.paramScene.narration,
+    speechStartFrame: AUDIO_CONFIG.paramScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.paramScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.paramScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.paramScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.callScene.narration,
+    speechStartFrame: AUDIO_CONFIG.callScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.callScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.callScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.callScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.multiParamScene.narration,
+    speechStartFrame: AUDIO_CONFIG.multiParamScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.multiParamScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.multiParamScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.multiParamScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.argParamScene.narration,
+    speechStartFrame: AUDIO_CONFIG.argParamScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.argParamScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.argParamScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.argParamScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.painScene.narration,
+  ...ENG_CONTENT.conceptScene.narration,
+  ...ENG_CONTENT.paramScene.narration,
+  ...ENG_CONTENT.callScene.narration,
+  ...ENG_CONTENT.multiParamScene.narration,
+  ...ENG_CONTENT.argParamScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

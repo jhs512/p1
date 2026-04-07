@@ -18,7 +18,7 @@ export const THUMB_CROSS = 50;
 export const CHARS_PER_SEC = 10;
 
 // ── 전역 발음맵 ──────────────────────────────────────────────
-/** 우선순위: 인라인[X(발음:Y)] > 강좌 config > 이 맵 */
+/** 우선순위: 인라인[X(pron:Y)] > 강좌 config > 이 맵 */
 export const PRONUNCIATION: Record<string, string> = {
   true: "트루",
   false: "폴스",

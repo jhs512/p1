@@ -450,7 +450,8 @@ const WhileScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const incrementExplainAppear = spring({
-    frame: frame - (AUDIO_CONFIG.whileScene.wordTiming["increases"]?.[0] ?? split0),
+    frame:
+      frame - (AUDIO_CONFIG.whileScene.wordTiming["increases"]?.[0] ?? split0),
     fps,
     config: { damping: 12, stiffness: 140 },
     durationInFrames: 40,
@@ -1159,7 +1160,8 @@ const SummaryScene: React.FC = () => {
                   ? (AUDIO_CONFIG.summaryScene.wordTiming["While"]?.[0] ??
                     cfg.speechStartFrame)
                   : (AUDIO_CONFIG.summaryScene.wordTiming["stops"]?.[0] ??
-                    cfg.narrationSplits[0] ?? cfg.speechStartFrame);
+                    cfg.narrationSplits[0] ??
+                    cfg.speechStartFrame);
               const appear = spring({
                 frame: frame - triggerFrame,
                 fps,

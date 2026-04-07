@@ -10,7 +10,7 @@ export const YOUTUBE_CONFIG = {
   defaults: {
     tags: ["java", "programming", "coding", "beginner", "java basics"],
     categoryId: "27", // Education
-    privacyStatus: "private" as const,
+    privacyStatus: "public" as const,
     language: "en-US",
   },
   episodes: {

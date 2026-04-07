@@ -15,6 +15,7 @@ import { JavaLine } from "../../../utils/code";
 import {
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -39,7 +40,6 @@ import { CONTENT } from "./010-2-content";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
   BG,
-  BG_CODE,
   BG_THUMB,
   C_FUNC,
   C_KEYWORD,
@@ -362,16 +362,13 @@ const PainScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="1. The Pain of Repetition" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "28px 44px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.lg,
             }}
@@ -397,7 +394,7 @@ const PainScene: React.FC = () => {
                 />
               );
             })}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -577,16 +574,13 @@ const DeclarationScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="3. Function Declaration" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 760,
               ...monoStyle,
               fontSize: CODE.xl,
             }}
@@ -609,7 +603,7 @@ const DeclarationScene: React.FC = () => {
                 />
               ),
             )}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -645,16 +639,13 @@ const CallScene: React.FC = () => {
         <ContentArea>
           <SceneAudio src={cfg.audio} />
           <SceneTitle title="4. Function Call" />
-          <div
+          <CodeBlock
             style={{
               position: "absolute",
               top: "45%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: BG_CODE,
-              borderRadius: 12,
               padding: "40px 56px",
-              minWidth: 400,
               ...monoStyle,
               fontSize: 40,
             }}
@@ -667,7 +658,7 @@ const CallScene: React.FC = () => {
                 cps={CALL_CPS}
               />
             ))}
-          </div>
+          </CodeBlock>
         </ContentArea>
       </AbsoluteFill>
       <Subtitle
@@ -867,10 +858,7 @@ const ComparisonScene: React.FC = () => {
     durationInFrames: 40,
   });
 
-  const codeBoxStyle: React.CSSProperties = {
-    background: BG_CODE,
-    borderRadius: 12,
-    padding: "20px 32px",
+  const codeBoxExtraStyle: React.CSSProperties = {
     ...monoStyle,
     fontSize: CODE.lg,
     position: "relative",
@@ -950,7 +938,7 @@ const ComparisonScene: React.FC = () => {
             {/* repeated code — 위 */}
             <div style={{ opacity: beforeAppear, width: "100%" }}>
               <div style={labelStyle(C_PAIN)}>repeated code</div>
-              <div style={codeBoxStyle}>
+              <CodeBlock style={codeBoxExtraStyle}>
                 {BEFORE_LINES.map((line, i) => (
                   <div
                     key={i}
@@ -968,7 +956,7 @@ const ComparisonScene: React.FC = () => {
                   color={C_PAIN}
                   appear={highlightAppear}
                 />
-              </div>
+              </CodeBlock>
             </div>
             {/* 화살표 ▼ */}
             <div
@@ -993,7 +981,7 @@ const ComparisonScene: React.FC = () => {
             {/* cleaner code — 아래 */}
             <div style={{ opacity: afterAppear, width: "100%" }}>
               <div style={labelStyle(C_FUNC)}>cleaner code</div>
-              <div style={codeBoxStyle}>
+              <CodeBlock style={codeBoxExtraStyle}>
                 {AFTER_LINES.map((line, i) => (
                   <div
                     key={i}
@@ -1016,7 +1004,7 @@ const ComparisonScene: React.FC = () => {
                   color={C_TEAL}
                   appear={highlightAppear}
                 />
-              </div>
+              </CodeBlock>
             </div>
           </div>
         </ContentArea>
@@ -1094,9 +1082,7 @@ const RealExampleScene: React.FC = () => {
     durationInFrames: 48,
   });
 
-  const codeBoxStyle: React.CSSProperties = {
-    background: BG_CODE,
-    borderRadius: 12,
+  const codeBoxExtraStyle: React.CSSProperties = {
     padding: "14px 20px",
     ...monoStyle,
     fontSize: CODE.sm,
@@ -1222,7 +1208,7 @@ const RealExampleScene: React.FC = () => {
   }) => (
     <div style={{ flex: 1 }}>
       <div style={labelStyle(C_PAIN)}>{label}</div>
-      <div style={codeBoxStyle}>
+      <CodeBlock style={codeBoxExtraStyle}>
         {lines.map((line, i) => (
           <div
             key={i}
@@ -1233,7 +1219,7 @@ const RealExampleScene: React.FC = () => {
               : colorCode(line)}
           </div>
         ))}
-      </div>
+      </CodeBlock>
     </div>
   );
 
@@ -1308,7 +1294,7 @@ const RealExampleScene: React.FC = () => {
               {/* Function Declaration */}
               <div>
                 <div style={labelStyle(C_FUNC)}>Function Declaration</div>
-                <div style={codeBoxStyle}>
+                <CodeBlock style={codeBoxExtraStyle}>
                   {REAL_CLEAN_FUNC.map((line, i) => (
                     <div
                       key={i}
@@ -1321,13 +1307,13 @@ const RealExampleScene: React.FC = () => {
                       {colorCode(line)}
                     </div>
                   ))}
-                </div>
+                </CodeBlock>
               </div>
               {/* 호출부 2개 나란히 */}
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1 }}>
                   <div style={labelStyle(C_TEAL)}>cart</div>
-                  <div style={codeBoxStyle}>
+                  <CodeBlock style={codeBoxExtraStyle}>
                     {REAL_CLEAN_CART.map((line, i) => (
                       <div
                         key={i}
@@ -1340,11 +1326,11 @@ const RealExampleScene: React.FC = () => {
                         {colorCode(line)}
                       </div>
                     ))}
-                  </div>
+                  </CodeBlock>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={labelStyle(C_TEAL)}>payment</div>
-                  <div style={codeBoxStyle}>
+                  <CodeBlock style={codeBoxExtraStyle}>
                     {REAL_CLEAN_PAY.map((line, i) => (
                       <div
                         key={i}
@@ -1357,7 +1343,7 @@ const RealExampleScene: React.FC = () => {
                         {colorCode(line)}
                       </div>
                     ))}
-                  </div>
+                  </CodeBlock>
                 </div>
               </div>
             </div>

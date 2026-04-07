@@ -259,7 +259,9 @@ const InstanceVarScene: React.FC = () => {
                 style={{
                   background:
                     fieldGlow > 0.05
-                      ? `${C_VAR}${Math.round(fieldGlow * 12).toString(16).padStart(2, "0")}`
+                      ? `${C_VAR}${Math.round(fieldGlow * 12)
+                          .toString(16)
+                          .padStart(2, "0")}`
                       : "transparent",
                   borderRadius: 6,
                   padding: "2px 6px",
@@ -405,7 +407,9 @@ const LocalVarScene: React.FC = () => {
                 style={{
                   background:
                     localGlow > 0.05
-                      ? `${C_TEAL}${Math.round(localGlow * 12).toString(16).padStart(2, "0")}`
+                      ? `${C_TEAL}${Math.round(localGlow * 12)
+                          .toString(16)
+                          .padStart(2, "0")}`
                       : "transparent",
                   borderRadius: 6,
                   padding: "2px 6px",
@@ -429,9 +433,7 @@ const LocalVarScene: React.FC = () => {
               {");\n"}
               {"  }\n"}
               {"  "}
-              <span style={{ color: C_COMMENT }}>
-                // 여기서 msg는 사라짐
-              </span>
+              <span style={{ color: C_COMMENT }}>// 여기서 msg는 사라짐</span>
               {"\n}"}
             </div>
           </div>
@@ -548,7 +550,9 @@ const ParamScene: React.FC = () => {
                 style={{
                   background:
                     paramGlow > 0.05
-                      ? `${C_FUNC}${Math.round(paramGlow * 15).toString(16).padStart(2, "0")}`
+                      ? `${C_FUNC}${Math.round(paramGlow * 15)
+                          .toString(16)
+                          .padStart(2, "0")}`
                       : "transparent",
                   borderRadius: 4,
                   padding: "1px 4px",
@@ -854,64 +858,142 @@ const ExampleScene: React.FC = () => {
   const amountHL = wt["amount와"]?.[0] ?? 265;
   const newBalHL = wt["newBal은"]?.[0] ?? 305;
 
-  const ulBalance = spring({ frame: frame - balanceHL, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
-  const ulAmount = spring({ frame: frame - amountHL, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
-  const ulNewBal = spring({ frame: frame - newBalHL, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
+  const ulBalance = spring({
+    frame: frame - balanceHL,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const ulAmount = spring({
+    frame: frame - amountHL,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const ulNewBal = spring({
+    frame: frame - newBalHL,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
 
   /* ── 1차 deposit(1000): 문장3 ── */
   const dep1Start = wt["deposit"]?.[0] ?? 416;
   const local1Born = wt["지역변수가"]?.[0] ?? 486;
   const local1Die = wt["사라집니다"]?.[0] ?? 619;
 
-  const call1Appear = spring({ frame: frame - dep1Start, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
-  const local1Appear = spring({ frame: frame - local1Born, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 24 });
-  const local1Fade = interpolate(frame, [local1Die, local1Die + 18], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const call1Appear = spring({
+    frame: frame - dep1Start,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const local1Appear = spring({
+    frame: frame - local1Born,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 24,
+  });
+  const local1Fade = interpolate(frame, [local1Die, local1Die + 18], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const local1Op = local1Appear * local1Fade;
 
-  const die1Op = interpolate(frame, [local1Die, local1Die + 18], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const die1Op = interpolate(frame, [local1Die, local1Die + 18], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   // 문장5 시작 전에 1차 소멸 텍스트 페이드
   const dep2Start = wt["deposit"]?.[1] ?? 909;
-  const die1FadeOut = interpolate(frame, [dep2Start - 20, dep2Start], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const die1FadeOut = interpolate(frame, [dep2Start - 20, dep2Start], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   /* ── 문장4: balance 1000 유지 강조 ── */
   const bal1SurviveStart = wt["balance는"]?.[1] ?? 713;
-  const bal1SurviveHL = spring({ frame: frame - bal1SurviveStart, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 20 });
-  const bal1SurviveFade = interpolate(frame, [dep2Start - 20, dep2Start], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const bal1SurviveHL = spring({
+    frame: frame - bal1SurviveStart,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 20,
+  });
+  const bal1SurviveFade = interpolate(
+    frame,
+    [dep2Start - 20, dep2Start],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
 
   /* ── 2차 deposit(500): 문장5 ── */
   const local2Born = wt["지역변수는"]?.[0] ?? 1003;
   const local2Die = wt["사라지지만"]?.[0] ?? 1254;
 
-  const call2Appear = spring({ frame: frame - dep2Start, fps, config: { damping: 14, stiffness: 200 }, durationInFrames: 18 });
-  const local2Appear = spring({ frame: frame - local2Born, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 24 });
-  const local2Fade = interpolate(frame, [local2Die, local2Die + 18], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const call2Appear = spring({
+    frame: frame - dep2Start,
+    fps,
+    config: { damping: 14, stiffness: 200 },
+    durationInFrames: 18,
+  });
+  const local2Appear = spring({
+    frame: frame - local2Born,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 24,
+  });
+  const local2Fade = interpolate(frame, [local2Die, local2Die + 18], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const local2Op = local2Appear * local2Fade;
 
-  const die2Op = interpolate(frame, [local2Die, local2Die + 18], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const die2Op = interpolate(frame, [local2Die, local2Die + 18], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   /* ── 문장6: balance 1500 최종 강조 ── */
   const bal2SurviveStart = wt["balance만"]?.[0] ?? 1306;
-  const bal2SurviveHL = spring({ frame: frame - bal2SurviveStart, fps, config: { damping: 12, stiffness: 140 }, durationInFrames: 20 });
+  const bal2SurviveHL = spring({
+    frame: frame - bal2SurviveStart,
+    fps,
+    config: { damping: 12, stiffness: 140 },
+    durationInFrames: 20,
+  });
 
   /* ── balance 값 계산 ── */
   // 0 → 1000 (1차 deposit 시)
-  const toVal1 = interpolate(frame, [local1Born + 10, local1Born + 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const toVal1 = interpolate(
+    frame,
+    [local1Born + 10, local1Born + 20],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   // 1000 → 1500 (2차 deposit 시)
-  const toVal2 = interpolate(frame, [local2Born + 10, local2Born + 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const toVal2 = interpolate(
+    frame,
+    [local2Born + 10, local2Born + 20],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   const balanceVal = toVal2 >= 0.5 ? "1500" : toVal1 >= 0.5 ? "1000" : "0";
 
   /* ── 호출 텍스트: 1차 vs 2차 ── */
-  const call1FadeOut = interpolate(frame, [dep2Start - 10, dep2Start], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const call1FadeOut = interpolate(frame, [dep2Start - 10, dep2Start], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   /* ── 객체 글로우 (문장4 or 문장6) ── */
   const objGlow = Math.max(bal1SurviveHL * bal1SurviveFade, bal2SurviveHL);
 
   /* ── 코드 밑줄 헬퍼 ── */
-  const CodeUL: React.FC<{ progress: number; color: string; children: React.ReactNode }> = ({
-    progress,
-    color,
-    children,
-  }) => (
+  const CodeUL: React.FC<{
+    progress: number;
+    color: string;
+    children: React.ReactNode;
+  }> = ({ progress, color, children }) => (
     <span style={{ position: "relative" }}>
       {children}
       <span
@@ -976,14 +1058,32 @@ const ExampleScene: React.FC = () => {
           <span style={{ color: C_TEAL, fontWeight: 700 }}>amount</span>
           <span style={{ color: C_DIM }}>=</span>
           <span style={{ color: C_NUMBER }}>{amountVal}</span>
-          <span style={{ fontFamily: uiFont, fontSize: 14, color: C_DIM, marginLeft: 6 }}>매개변수</span>
+          <span
+            style={{
+              fontFamily: uiFont,
+              fontSize: 14,
+              color: C_DIM,
+              marginLeft: 6,
+            }}
+          >
+            매개변수
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ color: C_TYPE }}>int</span>
           <span style={{ color: C_TEAL, fontWeight: 700 }}>newBal</span>
           <span style={{ color: C_DIM }}>=</span>
           <span style={{ color: C_NUMBER }}>{newBalVal}</span>
-          <span style={{ fontFamily: uiFont, fontSize: 14, color: C_DIM, marginLeft: 6 }}>지역변수</span>
+          <span
+            style={{
+              fontFamily: uiFont,
+              fontSize: 14,
+              color: C_DIM,
+              marginLeft: 6,
+            }}
+          >
+            지역변수
+          </span>
         </div>
       </div>
     </div>
@@ -1047,15 +1147,37 @@ const ExampleScene: React.FC = () => {
                 {" = "}
                 <span style={{ color: C_VAR }}>balance</span>
                 {" + "}
-                <span style={{ color: C_TEAL }}>amount</span>
-                ;{"\n"}
+                <span style={{ color: C_TEAL }}>amount</span>;{"\n"}
                 {"    "}
                 <span style={{ color: C_VAR }}>balance</span>
                 {" = "}
-                <span style={{ color: C_TEAL }}>newBal</span>
-                ;{"\n"}
+                <span style={{ color: C_TEAL }}>newBal</span>;{"\n"}
                 {"  }\n"}
-                {"}"}
+                {"}\n"}
+                {"\n"}
+                <span style={{ color: C_TEAL }}>BankAccount</span>{" "}
+                <span style={{ color: C_VAR }}>bankAccount</span>
+                {" = "}
+                <span style={{ color: C_KEYWORD }}>new</span>{" "}
+                <span style={{ color: C_TEAL }}>BankAccount</span>
+                {"();\n"}
+                <span style={{ opacity: call1Appear }}>
+                  <span style={{ color: C_VAR }}>bankAccount</span>
+                  {"."}
+                  <span style={{ color: C_FUNC }}>deposit</span>
+                  {"("}
+                  <span style={{ color: C_NUMBER }}>1000</span>
+                  {");"}
+                </span>
+                {"\n"}
+                <span style={{ opacity: call2Appear }}>
+                  <span style={{ color: C_VAR }}>bankAccount</span>
+                  {"."}
+                  <span style={{ color: C_FUNC }}>deposit</span>
+                  {"("}
+                  <span style={{ color: C_NUMBER }}>500</span>
+                  {");"}
+                </span>
               </div>
             </div>
 
@@ -1074,9 +1196,14 @@ const ExampleScene: React.FC = () => {
                 style={{
                   ...panelStyle,
                   border: `2px solid ${C_VAR}55`,
-                  boxShadow: objGlow > 0.01
-                    ? `0 0 ${20 + objGlow * 20}px ${C_VAR}${Math.round(30 + objGlow * 50).toString(16).padStart(2, "0")}`
-                    : `0 0 20px ${C_VAR}10`,
+                  boxShadow:
+                    objGlow > 0.01
+                      ? `0 0 ${20 + objGlow * 20}px ${C_VAR}${Math.round(
+                          30 + objGlow * 50,
+                        )
+                          .toString(16)
+                          .padStart(2, "0")}`
+                      : `0 0 20px ${C_VAR}10`,
                   padding: "20px 24px",
                 }}
               >
@@ -1111,7 +1238,9 @@ const ExampleScene: React.FC = () => {
                   <span style={{ color: C_TYPE }}>int</span>
                   <span style={{ color: C_VAR, fontWeight: 700 }}>balance</span>
                   <span style={{ color: C_DIM }}>=</span>
-                  <span style={{ color: C_NUMBER, fontWeight: 700 }}>{balanceVal}</span>
+                  <span style={{ color: C_NUMBER, fontWeight: 700 }}>
+                    {balanceVal}
+                  </span>
                   <span
                     style={{
                       fontFamily: uiFont,

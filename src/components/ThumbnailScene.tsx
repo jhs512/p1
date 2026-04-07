@@ -10,6 +10,8 @@ interface ThumbnailSceneProps {
   seriesLabel: string;
   /** 메인 제목. \n 으로 줄바꿈 */
   title: string;
+  /** 제목 아래 작은 부제목 */
+  subtitle?: string;
   /** 하단 뱃지 텍스트 (e.g. "for", "if") */
   badge: string;
   /** 포인트 컬러 (기본: teal #4ec9b0) */
@@ -19,6 +21,7 @@ interface ThumbnailSceneProps {
 export const ThumbnailScene: React.FC<ThumbnailSceneProps> = ({
   seriesLabel,
   title,
+  subtitle,
   badge,
   accentColor = "#4ec9b0",
 }) => {
@@ -82,6 +85,21 @@ export const ThumbnailScene: React.FC<ThumbnailSceneProps> = ({
           </React.Fragment>
         ))}
       </div>
+      {subtitle ? (
+        <div
+          style={{
+            fontFamily: uiFont,
+            fontSize: 36,
+            fontWeight: 700,
+            lineHeight: 1.2,
+            textAlign: "center",
+            color: "#d8def5",
+            marginTop: 8,
+          }}
+        >
+          {subtitle}
+        </div>
+      ) : null}
       {/* 배지 */}
       <div
         style={{

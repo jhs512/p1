@@ -34,10 +34,8 @@ import {
   C_DIM,
   C_FUNC,
   C_KEYWORD,
-  C_NUMBER,
   C_PAIN,
   C_PURPLE,
-  C_STRING,
   C_TEAL,
   C_TYPE,
   C_VAR,
@@ -270,7 +268,12 @@ const ProblemScene: React.FC = () => {
               {"  "}
               <span
                 style={{
-                  background: fieldHL > 0.05 ? `${C_VAR}${Math.round(fieldHL * 18).toString(16).padStart(2, "0")}` : "transparent",
+                  background:
+                    fieldHL > 0.05
+                      ? `${C_VAR}${Math.round(fieldHL * 18)
+                          .toString(16)
+                          .padStart(2, "0")}`
+                      : "transparent",
                   borderRadius: 4,
                   padding: "1px 4px",
                 }}
@@ -287,7 +290,12 @@ const ProblemScene: React.FC = () => {
               {"("}
               <span
                 style={{
-                  background: paramHL > 0.05 ? `${C_FUNC}${Math.round(paramHL * 18).toString(16).padStart(2, "0")}` : "transparent",
+                  background:
+                    paramHL > 0.05
+                      ? `${C_FUNC}${Math.round(paramHL * 18)
+                          .toString(16)
+                          .padStart(2, "0")}`
+                      : "transparent",
                   borderRadius: 4,
                   padding: "1px 4px",
                 }}
@@ -299,7 +307,12 @@ const ProblemScene: React.FC = () => {
               {"    "}
               <span
                 style={{
-                  background: problemHL > 0.05 ? `${C_PAIN}${Math.round(problemHL * 20).toString(16).padStart(2, "0")}` : "transparent",
+                  background:
+                    problemHL > 0.05
+                      ? `${C_PAIN}${Math.round(problemHL * 20)
+                          .toString(16)
+                          .padStart(2, "0")}`
+                      : "transparent",
                   borderRadius: 4,
                   padding: "2px 6px",
                 }}
@@ -355,13 +368,6 @@ const WhyScene: React.FC = () => {
 
   const wordFrames = getAudioScene("whyScene").wordStartFrames;
 
-  const appear = spring({
-    frame: frame - cfg.speechStartFrame,
-    fps,
-    config: { damping: 13, stiffness: 130 },
-    durationInFrames: 26,
-  });
-
   const splits = cfg.narrationSplits;
   const split1 = (splits[0] ?? d * 0.33) as number;
   const split2 = (splits[1] ?? d * 0.66) as number;
@@ -409,7 +415,7 @@ const WhyScene: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              top: "32%",
+              top: "36%",
               left: "50%",
               transform: "translate(-50%, 0)",
               opacity: diagramAppear,
@@ -425,7 +431,7 @@ const WhyScene: React.FC = () => {
                 width: 700,
                 border: `2px solid ${C_VAR}44`,
                 borderRadius: 20,
-                padding: "24px 28px",
+                padding: "32px 36px 28px",
                 position: "relative",
               }}
             >
@@ -433,7 +439,7 @@ const WhyScene: React.FC = () => {
                 style={{
                   position: "absolute",
                   top: -20,
-                  left: 20,
+                  left: 24,
                   padding: "4px 14px",
                   borderRadius: 999,
                   background: BG,
@@ -446,10 +452,19 @@ const WhyScene: React.FC = () => {
               >
                 클래스 범위
               </div>
-              <div style={{ ...monoStyle, fontSize: 22, color: C_VAR, marginBottom: 16, marginTop: 8 }}>
-                String <span style={{ fontWeight: 700 }}>name</span>;
-                {"  "}
-                <span style={{ color: C_COMMENT }}>// 멀다 (인스턴스 변수)</span>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 22,
+                  color: C_VAR,
+                  marginBottom: 24,
+                  marginTop: 12,
+                }}
+              >
+                String <span style={{ fontWeight: 700 }}>name</span>;{"  "}
+                <span style={{ color: C_COMMENT }}>
+                  // 멀다 (인스턴스 변수)
+                </span>
               </div>
 
               {/* 안쪽: 메서드 */}
@@ -457,7 +472,7 @@ const WhyScene: React.FC = () => {
                 style={{
                   border: `2px solid ${C_FUNC}66`,
                   borderRadius: 16,
-                  padding: "20px 24px",
+                  padding: "28px 28px 24px",
                   position: "relative",
                 }}
               >
@@ -465,7 +480,7 @@ const WhyScene: React.FC = () => {
                   style={{
                     position: "absolute",
                     top: -18,
-                    left: 16,
+                    left: 20,
                     padding: "4px 12px",
                     borderRadius: 999,
                     background: BG,
@@ -478,10 +493,19 @@ const WhyScene: React.FC = () => {
                 >
                   메서드 범위
                 </div>
-                <div style={{ ...monoStyle, fontSize: 22, color: C_FUNC, marginTop: 6 }}>
+                <div
+                  style={{
+                    ...monoStyle,
+                    fontSize: 22,
+                    color: C_FUNC,
+                    marginTop: 8,
+                  }}
+                >
                   String <span style={{ fontWeight: 700 }}>name</span>
                   {"  "}
-                  <span style={{ color: C_COMMENT }}>// 가깝다 (매개변수) ← 우선!</span>
+                  <span style={{ color: C_COMMENT }}>
+                    // 가깝다 (매개변수) ← 우선!
+                  </span>
                 </div>
               </div>
             </div>
@@ -605,10 +629,24 @@ const ThisIntroScene: React.FC = () => {
                 gap: 14,
               }}
             >
-              <span style={{ ...monoStyle, fontSize: 26, color: C_PURPLE, fontWeight: 700 }}>this</span>
-              <span style={{ fontFamily: uiFont, fontSize: 22, color: C_DIM }}>→</span>
+              <span
+                style={{
+                  ...monoStyle,
+                  fontSize: 26,
+                  color: C_PURPLE,
+                  fontWeight: 700,
+                }}
+              >
+                this
+              </span>
+              <span style={{ fontFamily: uiFont, fontSize: 22, color: C_DIM }}>
+                →
+              </span>
               <span style={{ fontFamily: uiFont, fontSize: 22, color: TEXT }}>
-                이 메서드를 실행하고 있는 <span style={{ color: C_PURPLE, fontWeight: 700 }}>그 객체</span>
+                이 메서드를 실행하고 있는{" "}
+                <span style={{ color: C_PURPLE, fontWeight: 700 }}>
+                  그 객체
+                </span>
               </span>
             </div>
           </div>
@@ -711,7 +749,12 @@ const ThisSolveScene: React.FC = () => {
               {"    "}
               <span
                 style={{
-                  background: thisHL > 0.05 ? `${C_TEAL}${Math.round(thisHL * 18).toString(16).padStart(2, "0")}` : "transparent",
+                  background:
+                    thisHL > 0.05
+                      ? `${C_TEAL}${Math.round(thisHL * 18)
+                          .toString(16)
+                          .padStart(2, "0")}`
+                      : "transparent",
                   borderRadius: 4,
                   padding: "2px 6px",
                 }}
@@ -749,15 +792,31 @@ const ThisSolveScene: React.FC = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ ...monoStyle, fontSize: 24, color: C_PURPLE, fontWeight: 700 }}>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 24,
+                  color: C_PURPLE,
+                  fontWeight: 700,
+                }}
+              >
                 this.name
               </div>
-              <div style={{ fontFamily: uiFont, fontSize: 20, color: C_VAR, marginTop: 6 }}>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 20,
+                  color: C_VAR,
+                  marginTop: 6,
+                }}
+              >
                 인스턴스 변수
               </div>
             </div>
 
-            <div style={{ fontFamily: uiFont, fontSize: 30, color: C_DIM }}>≠</div>
+            <div style={{ fontFamily: uiFont, fontSize: 30, color: C_DIM }}>
+              ≠
+            </div>
 
             <div
               style={{
@@ -767,10 +826,24 @@ const ThisSolveScene: React.FC = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ ...monoStyle, fontSize: 24, color: C_FUNC, fontWeight: 700 }}>
+              <div
+                style={{
+                  ...monoStyle,
+                  fontSize: 24,
+                  color: C_FUNC,
+                  fontWeight: 700,
+                }}
+              >
                 name
               </div>
-              <div style={{ fontFamily: uiFont, fontSize: 20, color: C_FUNC, marginTop: 6 }}>
+              <div
+                style={{
+                  fontFamily: uiFont,
+                  fontSize: 20,
+                  color: C_FUNC,
+                  marginTop: 6,
+                }}
+              >
                 매개변수
               </div>
             </div>
@@ -899,11 +972,27 @@ const NoConflictScene: React.FC = () => {
               alignItems: "center",
             }}
           >
-            <div style={{ ...monoStyle, fontSize: 24, color: C_VAR, fontWeight: 700 }}>
+            <div
+              style={{
+                ...monoStyle,
+                fontSize: 24,
+                color: C_VAR,
+                fontWeight: 700,
+              }}
+            >
               name
             </div>
-            <div style={{ fontFamily: uiFont, fontSize: 22, color: C_DIM }}>≠</div>
-            <div style={{ ...monoStyle, fontSize: 24, color: C_TEAL, fontWeight: 700 }}>
+            <div style={{ fontFamily: uiFont, fontSize: 22, color: C_DIM }}>
+              ≠
+            </div>
+            <div
+              style={{
+                ...monoStyle,
+                fontSize: 24,
+                color: C_TEAL,
+                fontWeight: 700,
+              }}
+            >
               newName
             </div>
             <div style={{ fontFamily: uiFont, fontSize: 22, color: C_TEAL }}>
@@ -1025,12 +1114,26 @@ const WhenToUseScene: React.FC = () => {
                 border: `2px solid ${C_PURPLE}55`,
               }}
             >
-              <span style={{ fontSize: 32 }}>✓</span>
+              <span style={{ fontSize: 32, color: C_PURPLE }}>✓</span>
               <div>
-                <div style={{ fontFamily: uiFont, fontSize: FONT.heading, fontWeight: 800, color: C_PURPLE }}>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: FONT.heading,
+                    fontWeight: 800,
+                    color: C_PURPLE,
+                  }}
+                >
                   이름이 같을 때
                 </div>
-                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_DIM, marginTop: 4 }}>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 20,
+                    color: C_DIM,
+                    marginTop: 4,
+                  }}
+                >
                   매개변수와 인스턴스 변수 이름이 겹치면 this 필요
                 </div>
               </div>
@@ -1044,12 +1147,26 @@ const WhenToUseScene: React.FC = () => {
                 border: `2px solid ${C_TEAL}55`,
               }}
             >
-              <span style={{ fontSize: 32 }}>−</span>
+              <span style={{ fontSize: 32, color: C_TEAL }}>−</span>
               <div>
-                <div style={{ fontFamily: uiFont, fontSize: FONT.heading, fontWeight: 800, color: C_TEAL }}>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: FONT.heading,
+                    fontWeight: 800,
+                    color: C_TEAL,
+                  }}
+                >
                   이름이 다르면
                 </div>
-                <div style={{ fontFamily: uiFont, fontSize: 20, color: C_DIM, marginTop: 4 }}>
+                <div
+                  style={{
+                    fontFamily: uiFont,
+                    fontSize: 20,
+                    color: C_DIM,
+                    marginTop: 4,
+                  }}
+                >
                   겹치지 않으면 this 생략 가능
                 </div>
               </div>
@@ -1276,28 +1393,52 @@ export const SRT_TRACKS: SrtTracks = { "ko-KR": SRT_DATA };
 
 const JavaThis: React.FC = () => (
   <AbsoluteFill style={{ background: BG }}>
-    <Sequence from={fromValues[0]} durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}>
+    <Sequence
+      from={fromValues[0]}
+      durationInFrames={VIDEO_CONFIG.thumbnail.durationInFrames}
+    >
       <ThumbnailScene />
     </Sequence>
-    <Sequence from={fromValues[1]} durationInFrames={VIDEO_CONFIG.problemScene.durationInFrames}>
+    <Sequence
+      from={fromValues[1]}
+      durationInFrames={VIDEO_CONFIG.problemScene.durationInFrames}
+    >
       <ProblemScene />
     </Sequence>
-    <Sequence from={fromValues[2]} durationInFrames={VIDEO_CONFIG.whyScene.durationInFrames}>
+    <Sequence
+      from={fromValues[2]}
+      durationInFrames={VIDEO_CONFIG.whyScene.durationInFrames}
+    >
       <WhyScene />
     </Sequence>
-    <Sequence from={fromValues[3]} durationInFrames={VIDEO_CONFIG.thisIntroScene.durationInFrames}>
+    <Sequence
+      from={fromValues[3]}
+      durationInFrames={VIDEO_CONFIG.thisIntroScene.durationInFrames}
+    >
       <ThisIntroScene />
     </Sequence>
-    <Sequence from={fromValues[4]} durationInFrames={VIDEO_CONFIG.thisSolveScene.durationInFrames}>
+    <Sequence
+      from={fromValues[4]}
+      durationInFrames={VIDEO_CONFIG.thisSolveScene.durationInFrames}
+    >
       <ThisSolveScene />
     </Sequence>
-    <Sequence from={fromValues[5]} durationInFrames={VIDEO_CONFIG.noConflictScene.durationInFrames}>
+    <Sequence
+      from={fromValues[5]}
+      durationInFrames={VIDEO_CONFIG.noConflictScene.durationInFrames}
+    >
       <NoConflictScene />
     </Sequence>
-    <Sequence from={fromValues[6]} durationInFrames={VIDEO_CONFIG.whenToUseScene.durationInFrames}>
+    <Sequence
+      from={fromValues[6]}
+      durationInFrames={VIDEO_CONFIG.whenToUseScene.durationInFrames}
+    >
       <WhenToUseScene />
     </Sequence>
-    <Sequence from={fromValues[7]} durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}>
+    <Sequence
+      from={fromValues[7]}
+      durationInFrames={VIDEO_CONFIG.summaryScene.durationInFrames}
+    >
       <SummaryScene />
     </Sequence>
   </AbsoluteFill>

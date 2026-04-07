@@ -28,15 +28,8 @@ function collectTargets(): Target[] {
   }
 
   if (arg.includes("/")) {
-    // 단일 에피소드: 001-Java-Basic/KOR/001  또는  001/KOR/001 (prefix 축약)
     const parts = arg.split("/");
-    const episodeNum = parts[parts.length - 1];
     const seriesArg = parts[0];
-    const langDir =
-      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
-        ? parts[parts.length - 2]
-        : null;
-    // 정확히 일치하는 폴더 없으면 prefix로 검색
     const seriesDir =
       allSeries.find((d) => d === seriesArg) ??
       allSeries.find((d) => d.startsWith(seriesArg));
@@ -44,6 +37,20 @@ function collectTargets(): Target[] {
       console.error(`❌  No series folder matching "${seriesArg}" found.`);
       process.exit(1);
     }
+
+    const lastPart = parts[parts.length - 1];
+
+    // 시리즈/언어 전체: 001-Java-Basic/ENG  또는  001/ENG
+    if (parts.length === 2 && /^[A-Z]{2,3}$/.test(lastPart)) {
+      return episodesOf(seriesDir).filter((t) => t.langDir === lastPart);
+    }
+
+    // 단일 에피소드: 001-Java-Basic/KOR/001  또는  001/KOR/001
+    const episodeNum = lastPart;
+    const langDir =
+      parts.length >= 3 && /^[A-Z]{2,3}$/.test(parts[parts.length - 2])
+        ? parts[parts.length - 2]
+        : null;
     return [{ seriesDir, langDir, episodeNum }];
   }
 

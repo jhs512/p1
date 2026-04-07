@@ -25,7 +25,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/012-2-content";
 import { CONTENT } from "./012-2-content";
 import { AUDIO_CONFIG } from "./012-3-audio.gen";
 import {
@@ -1349,6 +1356,91 @@ const fromValues = computeFromValues(sceneDurations, {
 });
 const totalDuration =
   fromValues[fromValues.length - 1] + sceneDurations[sceneDurations.length - 1];
+
+// ── SRT 데이터 (scripts/srt.ts 에서 사용) ────────────────────
+/** 절대 프레임 기준 자막 큐 목록 — srt.ts가 읽어서 .srt 파일 생성 */
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: VIDEO_CONFIG.painScene.narration,
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: VIDEO_CONFIG.conceptScene.narration,
+    speechStartFrame: AUDIO_CONFIG.conceptScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.conceptScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.conceptScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.conceptScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: VIDEO_CONFIG.returnTypeScene.narration,
+    speechStartFrame: AUDIO_CONFIG.returnTypeScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.returnTypeScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.returnTypeScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.returnTypeScene.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: VIDEO_CONFIG.returnFlowScene.narration,
+    speechStartFrame: AUDIO_CONFIG.returnFlowScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.returnFlowScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.returnFlowScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.returnFlowScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: VIDEO_CONFIG.useReturnScene.narration,
+    speechStartFrame: AUDIO_CONFIG.useReturnScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.useReturnScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.useReturnScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.useReturnScene.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: VIDEO_CONFIG.comparisonScene.narration,
+    speechStartFrame: AUDIO_CONFIG.comparisonScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.comparisonScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.comparisonScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.comparisonScene.durationInFrames,
+  },
+  {
+    offset: fromValues[7],
+    narration: VIDEO_CONFIG.summaryScene.narration,
+    speechStartFrame: AUDIO_CONFIG.summaryScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.summaryScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.summaryScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.summaryScene.durationInFrames,
+  },
+  {
+    offset: fromValues[8],
+    narration: VIDEO_CONFIG.realExampleScene.narration,
+    speechStartFrame: AUDIO_CONFIG.realExampleScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.realExampleScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.realExampleScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.realExampleScene.durationInFrames,
+  },
+]);
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.painScene.narration,
+  ...ENG_CONTENT.conceptScene.narration,
+  ...ENG_CONTENT.returnTypeScene.narration,
+  ...ENG_CONTENT.returnFlowScene.narration,
+  ...ENG_CONTENT.useReturnScene.narration,
+  ...ENG_CONTENT.comparisonScene.narration,
+  ...ENG_CONTENT.summaryScene.narration,
+  ...ENG_CONTENT.realExampleScene.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── compositionMeta ───────────────────────────────────────────
 export const compositionMeta = {

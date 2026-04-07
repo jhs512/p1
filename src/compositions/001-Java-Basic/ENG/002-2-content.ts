@@ -16,7 +16,7 @@ export const CONTENT = {
   valueVsVar: {
     narration: [
       "First, let's look at the difference\nbetween a data type value and a data type variable.",
-      "An int value is the data itself,\nlike the number twenty-five.",
+      "An int value is the data itself,\nlike the number 25.",
       "An int variable is a named space\nthat holds that value.",
     ],
   },

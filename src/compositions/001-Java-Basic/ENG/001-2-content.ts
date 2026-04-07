@@ -25,14 +25,14 @@ export const CONTENT = {
     title: "2. Variable Initialization",
     narration: [
       "Initialization means giving a declared variable\nits first value.",
-      "The variable age now stores twenty-five.",
+      "The variable age now stores 25.",
     ],
   },
   interpret: {
     narration: [
       "A variable can be read in two different ways.",
       "Only when you declare it or assign a value,\nit is treated as storage space.\nOtherwise, it is treated as its value.",
-      "The age here is read as twenty-five.",
+      "The age here is read as 25.",
     ],
   },
   interpretQuiz: {
@@ -44,15 +44,15 @@ export const CONTENT = {
     narration: [
       "The answer is storage space.",
       "Because it's on the left side,\nreceiving a value.",
-      "The age on the right should be read as its value.\nThat means four.",
+      "The age on the right should be read as its value.\nThat means 4.",
     ],
   },
   print: {
     title: "3. Printing a Variable",
     narration: [
       "Now let's print the value of a variable to the screen.",
-      "Using [System.out.println(발음:print line)],\nthe value inside the parentheses is printed to the console.",
-      "When you run it, twenty-five is printed.",
+      "Using [System.out.println(pron:print line)],\nthe value inside the parentheses is printed to the console.",
+      "When you run it, 25 is printed.",
     ],
   },
 } satisfies EpisodeContent;

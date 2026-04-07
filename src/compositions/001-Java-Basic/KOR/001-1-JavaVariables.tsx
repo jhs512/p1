@@ -22,6 +22,7 @@ import {
   CHARS_PER_SEC,
   CODE,
   CROSS,
+  CodeBlock,
   ContentArea,
   FONT,
   SceneAudio,
@@ -33,7 +34,14 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { SrtEntry, buildSrtData, computeFromValues } from "../../../utils/srt";
+import {
+  SrtEntry,
+  SrtTracks,
+  buildSrtData,
+  computeFromValues,
+  localizeSrtData,
+} from "../../../utils/srt";
+import { CONTENT as ENG_CONTENT } from "../ENG/001-2-content";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { BG, BG_CODE, BG_THUMB, C_NUMBER, C_TEAL, C_VAR, TEXT } from "./colors";
@@ -130,16 +138,13 @@ const CodeBox: React.FC<{
   startFrame: number;
   charsPerSecond?: number;
 }> = ({ lines, startFrame, charsPerSecond = 10 }) => (
-  <div
+  <CodeBlock
     style={{
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      background: BG_CODE,
-      borderRadius: 12,
       padding: "48px 64px",
-      minWidth: 800,
       ...monoStyle,
       fontSize: CODE.xl,
     }}
@@ -157,7 +162,7 @@ const CodeBox: React.FC<{
         <StaticLine key={`static-${i}-${line.text}`} text={line.text} />
       ),
     )}
-  </div>
+  </CodeBlock>
 );
 
 // ── 컴포넌트: ConsoleOutput ───────────────────────────────────
@@ -1385,6 +1390,21 @@ export const SRT_DATA: SrtEntry[] = (() => {
     },
   ]);
 })();
+
+export const SRT_DATA_EN: SrtEntry[] = localizeSrtData(SRT_DATA, [
+  ...ENG_CONTENT.intro.narration,
+  ...ENG_CONTENT.declaration.narration,
+  ...ENG_CONTENT.initialization.narration,
+  ...ENG_CONTENT.interpret.narration,
+  ...ENG_CONTENT.interpretQuiz.narration,
+  ...ENG_CONTENT.interpretReveal.narration,
+  ...ENG_CONTENT.print.narration,
+]);
+
+export const SRT_TRACKS: SrtTracks = {
+  "ko-KR": SRT_DATA,
+  "en-US": SRT_DATA_EN,
+};
 
 // ── 자동 등록용 메타 (Root.tsx 가 이 값을 읽어 Composition 을 생성) ─
 export const compositionMeta = {

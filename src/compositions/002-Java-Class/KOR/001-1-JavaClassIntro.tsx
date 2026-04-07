@@ -25,7 +25,8 @@ import {
   uiFont,
   useFade,
 } from "../../../utils/scene";
-import { computeFromValues } from "../../../utils/srt";
+import { buildSrtData, computeFromValues } from "../../../utils/srt";
+import type { SrtEntry, SrtTracks } from "../../../utils/srt";
 import { CONTENT } from "./001-2-content";
 import { AUDIO_CONFIG } from "./001-3-audio.gen";
 import { BG, BG_CODE, BG_THUMB, C_PAIN, C_TEAL, TEXT } from "./colors";
@@ -160,6 +161,37 @@ const STEPS = [
   { emoji: "📥", label: "내리기" },
   { emoji: "🚛", label: "옮기기" },
 ];
+const NE_BUN_RANGES = [
+  [3, 4],
+  [6, 7],
+  [10, 11],
+] as const;
+const PACKAGE_STEP_RANGES = [
+  [0, 0],
+  [1, 1],
+  [2, 2],
+] as const;
+const ACTIVE_HOLD_SECONDS = 0.5;
+
+const getActiveStepIndex = (
+  frame: number,
+  wordStartFrames: readonly number[],
+  wordEndFrames: readonly number[],
+  ranges: readonly (readonly [number, number])[],
+  holdFrames: number,
+) =>
+  ranges.findIndex(([startIdx, endIdx], idx) => {
+    const start = wordStartFrames[startIdx];
+    const end = wordEndFrames[endIdx];
+    const nextStart =
+      idx + 1 < ranges.length
+        ? wordStartFrames[ranges[idx + 1][0]]
+        : Number.POSITIVE_INFINITY;
+    const holdEnd = Math.min(end + holdFrames, nextStart - 1);
+    return (
+      (frame >= start && frame <= end) || (frame > end && frame <= holdEnd)
+    );
+  });
 
 const PainScene: React.FC = () => {
   const { painScene: cfg } = VIDEO_CONFIG;
@@ -169,6 +201,14 @@ const PainScene: React.FC = () => {
   const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const holdFrames = Math.round(fps * ACTIVE_HOLD_SECONDS);
+  const activeStepIdx = getActiveStepIndex(
+    frame,
+    AUDIO_CONFIG.painScene.wordStartFrames[1],
+    AUDIO_CONFIG.painScene.wordEndFrames[1],
+    NE_BUN_RANGES,
+    holdFrames,
+  );
 
   // 1문장: 상자 4개 등장
   const boxAppear = spring({
@@ -254,14 +294,32 @@ const PainScene: React.FC = () => {
                 >
                   <div
                     style={{
+                      borderRadius: 12,
                       fontFamily: uiFont,
                       fontSize: 32,
                       fontWeight: 700,
-                      color: TEXT,
-                      background: BG_CODE,
-                      borderRadius: 10,
+                      color:
+                        activeStepIdx >= 0
+                          ? activeStepIdx === i
+                            ? "#ffffff"
+                            : TEXT
+                          : TEXT,
                       padding: "12px 20px",
-                      border: `2px solid ${C_PAIN}33`,
+                      border: `2px solid ${
+                        activeStepIdx >= 0
+                          ? activeStepIdx === i
+                            ? C_PAIN
+                            : `${C_PAIN}33`
+                          : `${C_PAIN}33`
+                      }`,
+                      background:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `${C_PAIN}22`
+                          : BG_CODE,
+                      boxShadow:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `0 0 0 2px ${C_PAIN}55`
+                          : "none",
                       minWidth: 180,
                       textAlign: "center",
                     }}
@@ -273,7 +331,14 @@ const PainScene: React.FC = () => {
                       fontFamily: uiFont,
                       fontSize: 36,
                       fontWeight: 900,
-                      color: C_PAIN,
+                      color:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? "#ffffff"
+                          : C_PAIN,
+                      textShadow:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `0 0 18px ${C_PAIN}99`
+                          : "none",
                     }}
                   >
                     × 4
@@ -303,6 +368,14 @@ const PackageScene: React.FC = () => {
   const split = cfg.narrationSplits[0];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const holdFrames = Math.round(fps * ACTIVE_HOLD_SECONDS);
+  const activeStepIdx = getActiveStepIndex(
+    frame,
+    AUDIO_CONFIG.packageScene.wordStartFrames[1],
+    AUDIO_CONFIG.packageScene.wordEndFrames[1],
+    PACKAGE_STEP_RANGES,
+    holdFrames,
+  );
 
   // 1문장: 묶음 패키지 등장
   const packageAppear = spring({
@@ -341,10 +414,10 @@ const PackageScene: React.FC = () => {
             {/* 묶음 패키지 */}
             <div
               style={{
+                background: BG_CODE,
+                borderRadius: 12,
                 display: "flex",
                 gap: 0,
-                background: BG_CODE,
-                borderRadius: 16,
                 border: `3px solid ${C_TEAL}88`,
                 padding: "20px 28px",
                 opacity: packageAppear,
@@ -403,14 +476,28 @@ const PackageScene: React.FC = () => {
                 >
                   <div
                     style={{
+                      borderRadius: 12,
                       fontFamily: uiFont,
                       fontSize: 32,
                       fontWeight: 700,
-                      color: TEXT,
-                      background: BG_CODE,
-                      borderRadius: 10,
+                      color:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? "#ffffff"
+                          : TEXT,
                       padding: "12px 20px",
-                      border: `2px solid ${C_TEAL}33`,
+                      border: `2px solid ${
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? C_TEAL
+                          : `${C_TEAL}33`
+                      }`,
+                      background:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `${C_TEAL}22`
+                          : BG_CODE,
+                      boxShadow:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `0 0 0 2px ${C_TEAL}55`
+                          : "none",
                       minWidth: 180,
                       textAlign: "center",
                     }}
@@ -422,7 +509,14 @@ const PackageScene: React.FC = () => {
                       fontFamily: uiFont,
                       fontSize: 36,
                       fontWeight: 900,
-                      color: C_TEAL,
+                      color:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? "#ffffff"
+                          : C_TEAL,
+                      textShadow:
+                        activeStepIdx >= 0 && activeStepIdx === i
+                          ? `0 0 18px ${C_TEAL}99`
+                          : "none",
                     }}
                   >
                     × 1
@@ -522,6 +616,7 @@ const CodeAnalogy: React.FC = () => {
                 position: "absolute",
                 top: SCATTERED_POSITIONS[i].top,
                 left: SCATTERED_POSITIONS[i].left,
+                display: "inline-flex",
                 background: BG_CODE,
                 borderRadius: 10,
                 padding: "14px 20px",
@@ -600,6 +695,9 @@ const BundleScene: React.FC = () => {
             {/* 묶인 변수 그룹 */}
             <div
               style={{
+                display: "inline-flex",
+                flexDirection: "column",
+                gap: 6,
                 background: BG_CODE,
                 borderRadius: 14,
                 padding: "24px 36px",
@@ -608,9 +706,6 @@ const BundleScene: React.FC = () => {
                 transform: `translateX(${passX}px) scale(${interpolate(groupAppear, [0, 1], [0.85, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
                 ...monoStyle,
                 fontSize: CODE.md,
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
               }}
             >
               {SCATTERED_VARS.map((code, i) => (
@@ -921,6 +1016,60 @@ export const compositionMeta = {
   height: HEIGHT,
   durationInFrames: totalDuration,
 };
+
+// ── SRT ──────────────────────────────────────────────────────
+export const SRT_DATA: SrtEntry[] = buildSrtData([
+  {
+    offset: fromValues[1],
+    narration: CONTENT.painScene.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.painScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.painScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.painScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.painScene.durationInFrames,
+  },
+  {
+    offset: fromValues[2],
+    narration: CONTENT.packageScene.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.packageScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.packageScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.packageScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.packageScene.durationInFrames,
+  },
+  {
+    offset: fromValues[3],
+    narration: CONTENT.codeAnalogy.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.codeAnalogy.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.codeAnalogy.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.codeAnalogy.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.codeAnalogy.durationInFrames,
+  },
+  {
+    offset: fromValues[4],
+    narration: CONTENT.bundleScene.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.bundleScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.bundleScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.bundleScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.bundleScene.durationInFrames,
+  },
+  {
+    offset: fromValues[5],
+    narration: CONTENT.objectPreview.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.objectPreview.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.objectPreview.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.objectPreview.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.objectPreview.durationInFrames,
+  },
+  {
+    offset: fromValues[6],
+    narration: CONTENT.outroScene.narration as string[],
+    speechStartFrame: AUDIO_CONFIG.outroScene.speechStartFrame,
+    narrationSplits: AUDIO_CONFIG.outroScene.narrationSplits,
+    sentenceEndFrames: AUDIO_CONFIG.outroScene.sentenceEndFrames,
+    sceneDuration: VIDEO_CONFIG.outroScene.durationInFrames,
+  },
+]);
+
+export const SRT_TRACKS: SrtTracks = { "ko-KR": SRT_DATA };
 
 // ── Root Component ────────────────────────────────────────────
 const JavaClassIntro: React.FC = () => (

@@ -28,7 +28,7 @@ export const CONTENT = {
   remScene: {
     narration: [
       "The remainder operator gives you\nwhat is left after division.",
-      "If you divide eleven by three,\nthe quotient is three and the remainder is two.",
+      "If you divide 11 by 3,\nthe quotient is 3 and the remainder is 2.",
       "It is useful for checks like even or odd.",
     ],
   },

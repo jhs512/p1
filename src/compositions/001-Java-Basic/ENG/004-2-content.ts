@@ -14,12 +14,12 @@ export const CONTENT = {
   },
   compareScene: {
     narration: [
-      "This is the equality operator.\nTen and three are not equal, so the result is false.",
-      "This is the inequality operator.\nTen and three are different, so the result is true.",
-      "This is the greater-than operator.\nTen is greater than three, so the result is true.",
-      "This is the less-than operator.\nTen is not less than three, so the result is false.",
-      "This is the greater-than-or-equal operator.\nTen is greater than or equal to three, so the result is true.",
-      "This is the less-than-or-equal operator.\nTen is not less than or equal to three, so the result is false.",
+      "This is the equality operator.\n10 and 3 are not equal, so the result is false.",
+      "This is the inequality operator.\n10 and 3 are different, so the result is true.",
+      "This is the greater-than operator.\n10 is greater than 3, so the result is true.",
+      "This is the less-than operator.\n10 is not less than 3, so the result is false.",
+      "This is the greater-than-or-equal operator.\n10 is greater than or equal to 3, so the result is true.",
+      "This is the less-than-or-equal operator.\n10 is not less than or equal to 3, so the result is false.",
     ],
   },
   summaryScene: {
