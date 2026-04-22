@@ -3,7 +3,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "this",
+    title: "이름이\n겹칠 때 this",
+    subtitle: "지역 변수와 인스턴스 변수를\n구분하는 법",
     badge: "this",
   },
   problemScene: {

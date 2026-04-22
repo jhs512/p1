@@ -3,8 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "클래스",
-    badge: "틀",
+    title: "클래스는 객체를\n생성하기 위한 틀이다",
+    subtitle: "틀이 있다면 제품을\n쉽게 많이 만들 수 있다",
+    badge: "클래스",
   },
   painScene: {
     narration: [

@@ -3,8 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\nclass",
-    badge: "필요성",
+    title: "왜 클래스가\n필요한가",
+    subtitle: "배열과 달리 클래스로 객체를 만들면\n자유도가 높아진다",
+    badge: "class",
   },
   arrayPainScene: {
     narration: [

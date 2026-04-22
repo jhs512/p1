@@ -3,9 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n메모리",
-    subtitle: "객체는 힙에 생성된다.",
-    badge: "힙 & 스택",
+    title: "객체는\n힙에 산다",
+    subtitle: "힙과 스택의\n역할 분담",
+    badge: "메모리",
   },
   processScene: {
     narration: [

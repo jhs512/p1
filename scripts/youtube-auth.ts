@@ -13,7 +13,7 @@ const SCOPES = [
   "https://www.googleapis.com/auth/youtube.force-ssl",
 ];
 const PORT = 8070;
-const AUTH_TIMEOUT_MS = 120_000;
+const AUTH_TIMEOUT_MS = 600_000;
 
 export async function getYouTubeClient() {
   if (!existsSync(CLIENT_PATH)) {

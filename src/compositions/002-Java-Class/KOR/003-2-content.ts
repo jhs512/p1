@@ -3,9 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n참조 타입",
-    subtitle: "레퍼런스 == 객체의 주소 == 리모콘",
-    badge: "레퍼런스",
+    title: "참조형 변수",
+    subtitle: "객체는 너무 커서\n변수 밖에 위치합니다",
+    badge: "참조 타입",
   },
   introScene: {
     narration: [

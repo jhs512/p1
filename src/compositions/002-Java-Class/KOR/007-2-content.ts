@@ -3,7 +3,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "필드와\n메서드",
+    title: "필드는 명사,\n메서드는 동사",
+    subtitle: "클래스는 필드를 정의하고,\n객체는 필드를 가진다",
     badge: "필드·메서드",
   },
   fieldDefineScene: {

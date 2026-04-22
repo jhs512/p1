@@ -3,8 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "객체와\n맥락",
-    badge: "Context",
+    title: "같은 행동\n다른 결과",
+    subtitle: "객체마다 다른\n맥락을 가진다",
+    badge: "context",
   },
   contextIntroScene: {
     narration: [

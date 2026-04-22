@@ -308,7 +308,8 @@ async function addToPlaylist(
 
   // 2. youtube.ts 로드
   const ytConfigPath = path.resolve(SRC_DIR, seriesDir, langDir, "youtube.ts");
-  const { YOUTUBE_CONFIG } = await import(ytConfigPath);
+  const { pathToFileURL } = await import("url");
+  const { YOUTUBE_CONFIG } = await import(pathToFileURL(ytConfigPath).href);
 
   // 3. 에피소드 목록 (정렬)
   const episodeKeys = Object.keys(YOUTUBE_CONFIG.episodes).sort();

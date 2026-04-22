@@ -64,6 +64,35 @@ const exit = interpolate(frame, [split - 20, split], [0, 1], {
 
 ThumbnailScene을 제외한 모든 씬 상단에 `<SceneTitle title="N. 제목" />` 필수.
 
+### ThumbnailScene은 항상 공용 컴포넌트를 쓴다
+
+**절대로 썸네일을 하드코딩하지 않는다.** 컴포지션 파일 안에 JSX(`<AbsoluteFill>`, `<div>` 등)로 썸네일을 직접 그리면 `content.ts`의 thumbnail 값이 무시되어 편집해도 화면에 반영되지 않는다.
+
+```tsx
+// ✅ 공용 컴포넌트 — title/subtitle/badge 모두 content.ts에서 읽는다
+import { ThumbnailScene as Thumb } from "../../../components/ThumbnailScene";
+
+const ThumbnailScene: React.FC = () => (
+  <Thumb
+    seriesLabel={CONTENT.thumbnail.seriesLabel}
+    title={CONTENT.thumbnail.title}
+    subtitle={CONTENT.thumbnail.subtitle}
+    badge={CONTENT.thumbnail.badge}
+  />
+);
+
+// ❌ 하드코딩 — 절대 금지
+const ThumbnailScene: React.FC = () => (
+  <AbsoluteFill>
+    <div>Java</div>
+    <div>객체</div>
+    ...
+  </AbsoluteFill>
+);
+```
+
+`content.ts`의 `thumbnail`에는 `{ seriesLabel, title, subtitle?, badge }`를 반드시 정의한다.
+
 ### CSS transition / animation 사용 금지
 
 렌더링 시 무시된다. `interpolate` / `spring`만 사용.

@@ -3,7 +3,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\nclass",
+    title: "필드 초기화\n자동화하기",
+    subtitle: "객체를 만들 때마다\n반복하는 걸 없앤다",
     badge: "생성자",
   },
   painScene: {

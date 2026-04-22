@@ -28,6 +28,7 @@ import {
 import { buildSrtData, computeFromValues } from "../../../utils/srt";
 import type { SrtEntry, SrtTracks } from "../../../utils/srt";
 import { CONTENT } from "./004-2-content";
+import { ThumbnailScene as Thumb } from "../../../components/ThumbnailScene";
 import { AUDIO_CONFIG } from "./004-3-audio.gen";
 import {
   BG,
@@ -86,78 +87,14 @@ export const VIDEO_CONFIG = {
 } as const;
 
 // ── 씬: ThumbnailScene ──────────────────────────────────────
-const ThumbnailScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  return (
-    <AbsoluteFill
-      style={{
-        background: BG_THUMB,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        gap: 28,
-        opacity: fadeOut,
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          width: 860,
-          height: 860,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${C_TEAL}1e 0%, transparent 70%)`,
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-      <div
-        style={{
-          fontFamily: uiFont,
-          fontSize: 26,
-          fontWeight: 700,
-          color: C_TEAL,
-          letterSpacing: 10,
-          opacity: 0.8,
-        }}
-      >
-        JAVA
-      </div>
-      <div
-        style={{
-          fontFamily: uiFont,
-          fontSize: 108,
-          fontWeight: 900,
-          lineHeight: 1,
-          textAlign: "center",
-          color: "#ffffff",
-          textShadow: `0 0 60px ${C_TEAL}99, 0 0 120px ${C_TEAL}44`,
-        }}
-      >
-        Java
-        <br />
-        <span style={{ color: C_TEAL }}>배열 객체</span>
-      </div>
-      <div
-        style={{
-          fontFamily: uiFont,
-          fontSize: 36,
-          fontWeight: 700,
-          color: TEXT,
-          marginTop: 24,
-        }}
-      >
-        배열은 객체의 가장 기본적인 형태이다.
-      </div>
-    </AbsoluteFill>
-  );
-};
+const ThumbnailScene: React.FC = () => (
+  <Thumb
+    seriesLabel={CONTENT.thumbnail.seriesLabel}
+    title={CONTENT.thumbnail.title}
+    subtitle={CONTENT.thumbnail.subtitle}
+    badge={CONTENT.thumbnail.badge}
+  />
+);
 
 // ── 코드 라인 데이터 ────────────────────────────────────────
 const SCATTERED_LINES = [

@@ -3,7 +3,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "지역변수\nvs\n인스턴스 변수",
+    title: "변수는 언제 생성되고,\n언제 사라지나",
+    subtitle: "지역변수 vs\n인스턴스 변수",
     badge: "변수 범위",
   },
   instanceVarScene: {
@@ -21,7 +22,7 @@ export const CONTENT = {
   paramScene: {
     narration: [
       "매개변수도 지역변수의 일종입니다.",
-      "메서드를 호출할 때 전달받는 값인데, 메서드 안에서만 사용할 수 있습니다.",
+      "메서드를 호출할 때 전달받은 값(mute:인자)이 저장되는 변수인데, 메서드 안에서만 사용할 수 있습니다.",
       "메서드가 끝나면 매개변수도 사라집니다.",
     ],
   },

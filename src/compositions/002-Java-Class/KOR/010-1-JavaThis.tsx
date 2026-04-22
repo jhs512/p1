@@ -25,6 +25,7 @@ import {
 import { buildSrtData, computeFromValues } from "../../../utils/srt";
 import type { SrtEntry, SrtTracks } from "../../../utils/srt";
 import { CONTENT } from "./010-2-content";
+import { ThumbnailScene as Thumb } from "../../../components/ThumbnailScene";
 import { AUDIO_CONFIG } from "./010-3-audio.gen";
 import {
   BG,
@@ -136,63 +137,14 @@ const codeBoxStyle: React.CSSProperties = {
 
 /* ─── Scenes ─── */
 
-const ThumbnailScene: React.FC = () => {
-  const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [60 - THUMB_CROSS, 60], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  return (
-    <AbsoluteFill
-      style={{
-        background: BG_THUMB,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        gap: 28,
-        opacity: fadeOut,
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          width: 860,
-          height: 860,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${C_PURPLE}1e 0%, transparent 70%)`,
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-      <div
-        style={{
-          fontFamily: uiFont,
-          fontSize: 26,
-          fontWeight: 700,
-          color: C_PURPLE,
-          letterSpacing: 10,
-          opacity: 0.8,
-        }}
-      >
-        JAVA
-      </div>
-      <div
-        style={{
-          ...monoStyle,
-          fontSize: 120,
-          fontWeight: 900,
-          color: C_PURPLE,
-          textShadow: `0 0 60px ${C_PURPLE}99, 0 0 120px ${C_PURPLE}44`,
-        }}
-      >
-        this
-      </div>
-    </AbsoluteFill>
-  );
-};
+const ThumbnailScene: React.FC = () => (
+  <Thumb
+    seriesLabel={CONTENT.thumbnail.seriesLabel}
+    title={CONTENT.thumbnail.title}
+    subtitle={CONTENT.thumbnail.subtitle}
+    badge={CONTENT.thumbnail.badge}
+  />
+);
 
 /* ── ProblemScene ── */
 
@@ -244,6 +196,24 @@ const ProblemScene: React.FC = () => {
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
+  // "name" 발화 순간 밑줄 (fade-in → hold → fade-out)
+  const nameUnderline = (startFrame: number | undefined): number => {
+    if (startFrame === undefined || startFrame <= 0) return 0;
+    return interpolate(
+      frame,
+      [startFrame, startFrame + 6, startFrame + 30, startFrame + 50],
+      [0, 1, 1, 0],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    );
+  };
+  // 문장0 "name입니다" → 매개변수 name
+  const paramNameUL = nameUnderline(wordFrames[0]?.[4]);
+  // 문장1 "name입니다" → 인스턴스 변수 name
+  const fieldNameUL = nameUnderline(wordFrames[1]?.[4]);
+  // 문장2 "name = name이라고" → 각각 첫/두 번째 name
+  const leftNameUL = nameUnderline(wordFrames[2]?.[0]);
+  const rightNameUL = nameUnderline(wordFrames[2]?.[2]);
+
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
@@ -279,7 +249,17 @@ const ProblemScene: React.FC = () => {
                 }}
               >
                 <span style={{ color: C_TYPE }}>String</span>{" "}
-                <span style={{ color: C_VAR }}>name</span>
+                <span
+                  style={{
+                    color: C_VAR,
+                    textDecoration: "underline",
+                    textDecorationColor: `rgba(156,220,254,${fieldNameUL})`,
+                    textDecorationThickness: 2,
+                    textUnderlineOffset: 4,
+                  }}
+                >
+                  name
+                </span>
               </span>
               {";  "}
               <span style={{ color: C_COMMENT }}>// 인스턴스 변수</span>
@@ -301,7 +281,17 @@ const ProblemScene: React.FC = () => {
                 }}
               >
                 <span style={{ color: C_TYPE }}>String</span>{" "}
-                <span style={{ color: C_FUNC }}>name</span>
+                <span
+                  style={{
+                    color: C_FUNC,
+                    textDecoration: "underline",
+                    textDecorationColor: `rgba(220,220,170,${paramNameUL})`,
+                    textDecorationThickness: 2,
+                    textUnderlineOffset: 4,
+                  }}
+                >
+                  name
+                </span>
               </span>
               {") {\n"}
               {"    "}
@@ -317,9 +307,29 @@ const ProblemScene: React.FC = () => {
                   padding: "2px 6px",
                 }}
               >
-                <span style={{ color: C_PAIN }}>name</span>
+                <span
+                  style={{
+                    color: C_PAIN,
+                    textDecoration: "underline",
+                    textDecorationColor: `rgba(244,124,124,${leftNameUL})`,
+                    textDecorationThickness: 2,
+                    textUnderlineOffset: 4,
+                  }}
+                >
+                  name
+                </span>
                 {" = "}
-                <span style={{ color: C_PAIN }}>name</span>
+                <span
+                  style={{
+                    color: C_PAIN,
+                    textDecoration: "underline",
+                    textDecorationColor: `rgba(244,124,124,${rightNameUL})`,
+                    textDecorationThickness: 2,
+                    textUnderlineOffset: 4,
+                  }}
+                >
+                  name
+                </span>
                 {";"}
               </span>
               {"  "}

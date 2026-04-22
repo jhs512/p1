@@ -71,6 +71,7 @@ if (isBatchMode) {
       stdio: "inherit",
       cwd: process.cwd(),
       encoding: "utf-8",
+      shell: true,
     });
     if (res.status !== 0) process.exit(res.status ?? 1);
   }
@@ -104,7 +105,10 @@ function resolveSeriesDir(parts: string[]): string {
 
 const SERIES_DIR = resolveSeriesDir(argParts.slice(0, -1));
 const compositionId = episodeId;
-const relativeSeriesDir = path.relative(SRC_DIR, SERIES_DIR);
+const relativeSeriesDir = path
+  .relative(SRC_DIR, SERIES_DIR)
+  .split(path.sep)
+  .join("/");
 
 // loadTsExports / loadMergedConfig → scripts/config-cascade.ts
 
@@ -404,7 +408,10 @@ const existingAudioConfig = loadExistingAudioConfig(audioConfigFile);
 
 const audioConfig: Record<string, SceneAudioData> = {};
 
-const venvPython = path.join(process.cwd(), ".venv", "bin", "python");
+const venvPython =
+  process.platform === "win32"
+    ? path.join(process.cwd(), ".venv", "Scripts", "python.exe")
+    : path.join(process.cwd(), ".venv", "bin", "python");
 const ttsScript = path.join(process.cwd(), "scripts", "tts_with_boundaries.py");
 const TICKS = 10_000_000;
 

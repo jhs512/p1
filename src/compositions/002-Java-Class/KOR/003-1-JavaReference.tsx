@@ -827,7 +827,7 @@ const WhyRefScene: React.FC = () => {
                     color: C_DIM,
                   }}
                 >
-                  스택 (주소만 가짐)
+                  주소만 가짐
                 </div>
               </div>
 
@@ -1356,7 +1356,7 @@ const MemoryScene: React.FC = () => {
                       gap: 18,
                       position: "relative",
                       boxShadow:
-                        step5p > 0.5 && step7p < 0.45
+                        step5p > 0.5 && step6p < 0.45
                           ? `0 0 0 2px #e74c3c, 0 0 12px #e74c3c88`
                           : step7p > 0
                             ? `0 0 0 2px ${C_TEAL}, 0 0 12px ${C_TEAL}88`
@@ -1366,7 +1366,7 @@ const MemoryScene: React.FC = () => {
                     <span style={{ color: C_VAR }}>numbers</span>
                     <span style={{ color: C_DIM }}>=</span>
                     <span style={{ color: C_TEAL, fontWeight: 700 }}>0x7f</span>
-                    {step5p > 0.5 && step7p < 0.45 ? (
+                    {step5p > 0.5 && step6p < 0.45 ? (
                       <div
                         style={{
                           position: "absolute",

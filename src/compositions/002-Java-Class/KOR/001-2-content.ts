@@ -4,7 +4,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n객체",
+    title: "객체는\n묶음이다",
+    subtitle: "객체 == 데이터 묶음",
     badge: "객체",
   },
   painScene: {

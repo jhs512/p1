@@ -3,8 +3,9 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\nclass",
-    badge: "매개변수 생성자",
+    title: "객체 생성을\n한 줄로",
+    subtitle: "매개변수 생성자로\n필드 초기화를 편하게",
+    badge: "파라미터 생성자",
   },
   painScene: {
     narration: [

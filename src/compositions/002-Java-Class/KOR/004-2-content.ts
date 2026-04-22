@@ -4,7 +4,8 @@ import type { EpisodeContent } from "../../../types/episode";
 export const CONTENT = {
   thumbnail: {
     seriesLabel: "JAVA",
-    title: "Java\n배열 객체",
+    title: "배열 객체도\n객체다",
+    subtitle: "new 로 생성하면\n객체다",
     badge: "배열",
   },
   scatteredScene: {
