@@ -537,8 +537,40 @@ const StaticFieldScene: React.FC = () => {
                   <span style={{ color: TEXT }}>;</span>
                 </div>
                 <div style={{ paddingLeft: 28 }}>
+                  <span style={{ color: C_TYPE }}>int</span>{" "}
+                  <span style={{ color: C_VAR }}>id</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
+                <div style={{ paddingLeft: 28 }}>
+                  <span style={{ color: C_TYPE }}>int</span>{" "}
+                  <span style={{ color: C_VAR }}>age</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
+                <div style={{ paddingLeft: 28 }}>
                   <span style={{ color: C_TEAL }}>Person</span>
-                  <span style={{ color: TEXT }}>() {"{"}</span>
+                  <span style={{ color: TEXT }}>(</span>
+                  <span style={{ color: C_TYPE }}>int</span>{" "}
+                  <span style={{ color: C_VAR }}>id</span>
+                  <span style={{ color: TEXT }}>, </span>
+                  <span style={{ color: C_TYPE }}>int</span>{" "}
+                  <span style={{ color: C_VAR }}>age</span>
+                  <span style={{ color: TEXT }}>) {"{"}</span>
+                </div>
+                <div style={{ paddingLeft: 56 }}>
+                  <span style={{ color: C_KEYWORD }}>this</span>
+                  <span style={{ color: TEXT }}>.</span>
+                  <span style={{ color: C_VAR }}>id</span>
+                  <span style={{ color: TEXT }}> = </span>
+                  <span style={{ color: C_VAR }}>id</span>
+                  <span style={{ color: TEXT }}>;</span>
+                </div>
+                <div style={{ paddingLeft: 56 }}>
+                  <span style={{ color: C_KEYWORD }}>this</span>
+                  <span style={{ color: TEXT }}>.</span>
+                  <span style={{ color: C_VAR }}>age</span>
+                  <span style={{ color: TEXT }}> = </span>
+                  <span style={{ color: C_VAR }}>age</span>
+                  <span style={{ color: TEXT }}>;</span>
                 </div>
                 <div style={{ paddingLeft: 56 }}>
                   <span style={{ color: C_TEAL }}>Person</span>
