@@ -10,7 +10,7 @@ export const CONTENT = {
   painScene: {
     narration: [
       "`[Person(pron:퍼슨)]` 객체를 만들 때마다 `count` 필드가 각자 생깁니다.",
-      "`[p1.count(pron:피원 점 카운트)]`, `[p2.count(pron:피투 점 카운트)]`, `[p3.count(pron:피쓰리 점 카운트)]` 모두 따로 존재해서 전체 몇 명인지 알 수 없습니다.",
+      "`[p1.count(pron:피원 점 카운트)]`, `[p2.count(pron:피투 점 카운트)]`, `[p3.count(pron:피쓰리 점 카운트)]` 모두 따로 존재합니다.",
     ],
   },
   introScene: {
