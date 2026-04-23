@@ -166,6 +166,14 @@ const PainScene: React.FC = () => {
     { name: "p3", count: "1" },
   ];
 
+  // 객체 생성 코드는 클래스 정의 직후, 카드보다 조금 일찍 등장
+  const usageAppear = spring({
+    frame: frame - (s + 20),
+    fps,
+    config: { damping: 12, stiffness: 130 },
+    durationInFrames: 24,
+  });
+
   return (
     <>
       <AbsoluteFill style={{ background: BG, opacity }}>
@@ -213,6 +221,34 @@ const PainScene: React.FC = () => {
                   <span style={{ color: C_COMMENT }}>// 각 객체마다 따로</span>
                 </div>
                 <span style={{ color: TEXT }}>{"}"}</span>
+              </div>
+            </div>
+
+            {/* 객체 생성 코드 */}
+            <div
+              style={{
+                ...panelStyle,
+                width: 820,
+                border: `2px solid ${C_TEAL}44`,
+                padding: "20px 36px",
+                opacity: usageAppear,
+                transform: `scale(${interpolate(usageAppear, [0, 1], [0.94, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                })})`,
+              }}
+            >
+              <div style={{ ...monoStyle, fontSize: 22, lineHeight: 1.8 }}>
+                {["p1", "p2", "p3"].map((name) => (
+                  <div key={name}>
+                    <span style={{ color: C_TEAL }}>Person</span>{" "}
+                    <span style={{ color: C_VAR }}>{name}</span>
+                    <span style={{ color: TEXT }}> = </span>
+                    <span style={{ color: C_KEYWORD }}>new</span>{" "}
+                    <span style={{ color: C_TEAL }}>Person</span>
+                    <span style={{ color: TEXT }}>();</span>
+                  </div>
+                ))}
               </div>
             </div>
 
