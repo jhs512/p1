@@ -161,9 +161,9 @@ const PainScene: React.FC = () => {
   });
 
   const cards = [
-    { name: "p1", count: "1" },
-    { name: "p2", count: "1" },
-    { name: "p3", count: "1" },
+    { name: "p1", count: "0" },
+    { name: "p2", count: "0" },
+    { name: "p3", count: "0" },
   ];
 
   // 객체 생성 코드는 클래스 정의 직후, 카드보다 조금 일찍 등장
